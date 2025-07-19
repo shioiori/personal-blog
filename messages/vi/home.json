@@ -1,0 +1,14 @@
+{
+    "Home": {
+        "welcome": "Xin chào,\nđây là trang cá nhân của",
+        "job": "Lập trình viên fullstack",
+        "description": "Ban ngày là lập trình viên .NET & React, tối về học thêm về phát triển phần mềm và ngoại ngữ.",
+        "location": "Hà Nội, Việt Nam",
+        "contact": "Liên hệ",
+        "subscribe": "Theo dõi",
+        "emailPlaceholder": "Nhập email của bạn",
+        "emailRequired": "Email không được để trống",
+        "emailInvalid": "Email không hợp lệ",
+        "subscribeSuccess": "Cảm ơn bạn đã theo dõi"
+    }
+}

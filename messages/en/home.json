@@ -1,0 +1,14 @@
+{
+    "Home": {
+        "welcome": "Hello,\nthis is the personal page of",
+        "job": "Fullstack developer",
+        "description": "A .NET & React developer in day, learning more about software development and foreign languages on night.",
+        "location": "Hanoi, Vietnam",
+        "contact": "Contact",
+        "subscribe": "Subscribe",
+        "emailPlaceholder": "Enter your email",
+        "emailRequired": "Email cannot be empty",
+        "emailInvalid": "Invalid email",
+        "subscribeSuccess": "Thank you for subscribing"
+    }
+}

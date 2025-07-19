@@ -1,0 +1,9 @@
+{
+    "Music": {
+        "title": "Favorite playlist",
+        "onLoading": "Loading music...",
+        "noSong": "No songs found",
+        "description": "Wanna hearing?",
+        "playlist": "Playlist"
+    }
+}

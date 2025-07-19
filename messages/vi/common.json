@@ -1,0 +1,22 @@
+{
+    "Common": {
+        "back": "Quay lại",
+        "share": "Chia sẻ",
+        "search": "Tìm kiếm",
+        "toggleTheme": "Chuyển đổi giao diện"
+    },
+    "Header": {
+        "home": "Trang chủ",
+        "aboutme": "Về tôi",
+        "project": "Dự án",
+        "blog": "Chia sẻ",
+        "music": "Nghe nhạc không?",
+        "search": "Tìm kiếm",
+        "toggleTheme": "Chuyển đổi giao diện"
+    },
+    "Search": {
+        "title": "Tìm kiếm",
+        "searchPlaceholder": "Nhập từ khóa để tìm kiếm bài viết",
+        "noResult": "Không tìm thấy bài viết nào"
+    }
+}

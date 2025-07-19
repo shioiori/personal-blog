@@ -1,0 +1,22 @@
+{
+    "Common": {
+        "back": "Back",
+        "share": "Share",
+        "search": "Search",
+        "toggleTheme": "Toggle theme"
+    },
+    "Header": {
+        "home": "Home",
+        "aboutme": "About me",
+        "project": "Projects",
+        "blog": "Blog",
+        "music": "Check out my playlist",
+        "search": "Search",
+        "toggleTheme": "Toggle theme"
+    },
+    "Search": {
+        "title": "Search",
+        "searchPlaceholder": "Enter keywords to search posts",
+        "noResult": "No posts found"
+    }
+}

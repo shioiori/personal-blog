@@ -1,0 +1,20 @@
+{
+    "Blog": {
+        "title": "Chia sẻ",
+        "description": "Phần lớn ghi lại khoảng thời gian tôi học tập hoặc lập trình một thứ gì đó",
+        "clearFilter": "Xóa bộ lọc",
+        "readMore": "Đọc tiếp",
+        "tag": "Thẻ",
+        "filterByTags": "Lọc theo thẻ"
+    },
+    "Comment": {
+        "title": "Bình luận",
+        "comment": "Bình luận",
+        "submit": "Gửi bình luận",
+        "submitting": "Đang gửi",
+        "commentPlaceholder": "Nhập bình luận của bạn...",
+        "email": "Email",
+        "namePlaceholder": "Nhập tên hiển thị của bạn...",
+        "name": "Tên hiển thị"
+    }
+}

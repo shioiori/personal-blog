@@ -1,0 +1,20 @@
+{
+    "Blog": {
+        "title": "Blog",
+        "description": "Mostly records the time I spent learning or programming something.",
+        "clearFilter": "Clear filter",
+        "readMore": "Read more",
+        "tag": "Tag",
+        "filterByTags": "Filter by tag"
+    },
+    "Comment": {
+        "title": "Comments",
+        "comment": "Comment",
+        "submit": "Submit",
+        "submitting": "Submitting",
+        "commentPlaceholder": "Enter your comment...",
+        "email": "Email",
+        "namePlaceholder": "Enter your display name...",
+        "name": "Display name"
+    }
+}

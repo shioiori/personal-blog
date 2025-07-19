@@ -1,0 +1,9 @@
+{
+    "Music": {
+        "title": "Các bản nhạc yêu thích",
+        "onLoading": "Đang tải nhạc...",
+        "noSong": "Không tìm thấy nhạc nào",
+        "description": "Nghe nhạc không?",
+        "playlist": "Danh sách nhạc"
+    }
+}
