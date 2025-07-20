@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Calendar, ArrowRight } from "lucide-react";
 import {
@@ -9,17 +11,30 @@ import {
 import { Button } from "@/src/components/ui/button";
 import { Badge } from "@/src/components/ui/badge";
 import { getSortedPostsData } from "../../service/post";
+import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
+import { Post } from "../declaration/blog";
 
-export async function LatestPosts() {
-  const posts = await getSortedPostsData();
+export function LatestPosts() {
+  const t = useTranslations("Home");
+  const [posts, setPosts] = useState<Post[]>([]);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    const posts = await getSortedPostsData();
+    setPosts(posts);
+  };
 
   return (
     <section className="space-y-8">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold">Bài viết mới nhất</h2>
+        <h2 className="text-3xl font-bold">{t("latestPosts")}</h2>
         <Link href="/blog">
           <Button variant="outline">
-            Xem tất cả
+            {t("viewAll")}
             <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
         </Link>

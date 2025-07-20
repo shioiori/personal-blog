@@ -9,6 +9,8 @@
         "emailPlaceholder": "Nhập email của bạn",
         "emailRequired": "Email không được để trống",
         "emailInvalid": "Email không hợp lệ",
-        "subscribeSuccess": "Cảm ơn bạn đã theo dõi"
+        "subscribeSuccess": "Cảm ơn bạn đã theo dõi",
+        "latestPosts": "Bài viết mới nhất",
+        "viewAll": "Xem tất cả"
     }
 }

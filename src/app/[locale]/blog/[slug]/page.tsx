@@ -11,6 +11,10 @@ export default async function Page({
 }) {
   const { slug } = await params;
 
+  if (!slug) {
+    notFound();
+  }
+
   return (
     <>
       <BlogPost slug={slug} />

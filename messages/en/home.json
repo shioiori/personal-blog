@@ -9,6 +9,8 @@
         "emailPlaceholder": "Enter your email",
         "emailRequired": "Email cannot be empty",
         "emailInvalid": "Invalid email",
-        "subscribeSuccess": "Thank you for subscribing"
+        "subscribeSuccess": "Thank you for subscribing",
+        "latestPosts": "Latest posts",
+        "viewAll": "View more"
     }
 }

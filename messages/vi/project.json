@@ -1,0 +1,21 @@
+{
+    "Project": {
+        "title": "Dự án",
+        "description": "Các dự án cá nhân đã/đang/sắp triển khai",
+        "ongoing": "Đang phát triển",
+        "completed": "Hoàn thành",
+        "upcoming": "Sắp triển khai",
+        "startDate": "Ngày bắt đầu",
+        "duration": "Thời gian",
+        "teamSize": "Thành viên",
+        "person": "người",
+        "people": "người",
+        "liveSite": "Đường dẫn",
+        "technologies": "Công nghệ sử dụng",
+        "sourceCode": "Mã nguồn",
+        "detail": "Chi tiết",
+        "demo": "Xem trước",
+        "project": "dự án",
+        "projects": "dự án"
+    }
+}

@@ -8,79 +8,30 @@ import {
 } from "@/src/components/ui/card";
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "@/src/components/ui/button";
-import Image from "next/image";
+import { useTranslations } from "next-intl";
+import { getProjectList } from "@/src/service/project";
+import moment from "moment";
+import { Project } from "../declaration/project";
+export function ProjectList({ projects }: { projects: Project[] }) {
+  const t = useTranslations("Project");
+  const statusConfig = {
+    completed: {
+      label: t("completed"),
+      variant: "default" as const,
+      color: "bg-green-500"
+    },
+    ongoing: {
+      label: t("ongoing"),
+      variant: "secondary" as const,
+      color: "bg-blue-500"
+    },
+    upcoming: {
+      label: t("upcoming"),
+      variant: "outline" as const,
+      color: "bg-orange-500"
+    }
+  };
 
-const projects = [
-  {
-    id: 1,
-    title: "E-commerce Platform",
-    description:
-      "Nền tảng thương mại điện tử hoàn chỉnh với React, Next.js và Stripe integration. Hỗ trợ thanh toán online, quản lý đơn hàng và dashboard admin.",
-    image: "/placeholder.svg?height=200&width=400",
-    status: "completed",
-    date: "2024-01-15",
-    technologies: ["Next.js", "React", "TypeScript", "Stripe", "Prisma"],
-    githubUrl: "https://github.com",
-    liveUrl: "https://example.com",
-    teamSize: 3
-  },
-  {
-    id: 2,
-    title: "Task Management App",
-    description:
-      "Ứng dụng quản lý công việc với tính năng real-time collaboration, drag & drop, và notification system. Sử dụng Socket.io cho real-time features.",
-    image: "/placeholder.svg?height=200&width=400",
-    status: "in-progress",
-    date: "2024-01-01",
-    technologies: ["React", "Node.js", "Socket.io", "MongoDB", "Tailwind CSS"],
-    githubUrl: "https://github.com",
-    teamSize: 2
-  },
-  {
-    id: 3,
-    title: "AI Content Generator",
-    description:
-      "Công cụ tạo nội dung tự động sử dụng AI, hỗ trợ tạo blog posts, social media content và email marketing. Tích hợp OpenAI API.",
-    image: "/placeholder.svg?height=200&width=400",
-    status: "upcoming",
-    date: "2024-02-01",
-    technologies: ["Next.js", "OpenAI API", "Vercel AI SDK", "PostgreSQL"],
-    teamSize: 1
-  },
-  {
-    id: 4,
-    title: "Learning Management System",
-    description:
-      "Hệ thống quản lý học tập online với video streaming, quiz system, progress tracking và certificate generation.",
-    image: "/placeholder.svg?height=200&width=400",
-    status: "completed",
-    date: "2023-12-01",
-    technologies: ["React", "Express.js", "MySQL", "AWS S3", "JWT"],
-    githubUrl: "https://github.com",
-    liveUrl: "https://example.com",
-    teamSize: 4
-  }
-];
-
-const statusConfig = {
-  completed: {
-    label: "Hoàn thành",
-    variant: "default" as const,
-    color: "bg-green-500"
-  },
-  "in-progress": {
-    label: "Đang phát triển",
-    variant: "secondary" as const,
-    color: "bg-blue-500"
-  },
-  upcoming: {
-    label: "Sắp triển khai",
-    variant: "outline" as const,
-    color: "bg-orange-500"
-  }
-};
-
-export function ProjectList() {
   return (
     <div className="space-y-8">
       {Object.entries(
@@ -105,7 +56,8 @@ export function ProjectList() {
                 statusConfig[status as keyof typeof statusConfig].variant
               }
             >
-              {statusProjects.length} dự án
+              {statusProjects.length}{" "}
+              {statusProjects.length > 1 ? t("projects") : t("project")}
             </Badge>
           </div>
 
@@ -116,13 +68,6 @@ export function ProjectList() {
                 className="group hover:shadow-lg transition-all duration-300"
               >
                 <div className="relative overflow-hidden rounded-t-lg">
-                  <Image
-                    src={project.image || "/placeholder.svg"}
-                    alt={project.title}
-                    width={400}
-                    height={200}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
                   <div className="absolute top-4 right-4">
                     <Badge
                       variant={
@@ -142,26 +87,19 @@ export function ProjectList() {
 
                 <CardHeader>
                   <CardTitle className="group-hover:text-primary transition-colors">
-                    <Link
-                      href={`/projects/${
-                        project.id === 1
-                          ? "e-commerce-platform"
-                          : project.id === 2
-                          ? "task-management-app"
-                          : "ai-content-generator"
-                      }`}
-                    >
+                    <Link href={`/projects/${project.slug}`}>
                       {project.title}
                     </Link>
                   </CardTitle>
                   <div className="flex items-center text-sm text-muted-foreground space-x-4">
                     <div className="flex items-center">
                       <Calendar className="h-4 w-4 mr-1" />
-                      {project.date}
+                      {moment(project.startDate).format("DD/MM/YYYY")}
                     </div>
                     <div className="flex items-center">
                       <Users className="h-4 w-4 mr-1" />
-                      {project.teamSize} người
+                      {project.teamSize}{" "}
+                      {(project.teamSize || 1) > 1 ? t("people") : t("person")}
                     </div>
                   </div>
                 </CardHeader>
@@ -178,24 +116,15 @@ export function ProjectList() {
                   </div>
 
                   <div className="flex space-x-2 pt-2">
-                    <Link
-                      href={`/projects/${
-                        project.id === 1
-                          ? "e-commerce-platform"
-                          : project.id === 2
-                          ? "task-management-app"
-                          : "ai-content-generator"
-                      }`}
-                    >
+                    <Link href={`/projects/${project.slug}`}>
                       <Button variant="default" size="sm">
-                        Xem chi tiết
+                        {t("detail")}
                       </Button>
                     </Link>
                     {project.githubUrl && (
                       <Button variant="outline" size="sm" asChild>
                         <Link href={project.githubUrl} target="_blank">
-                          <Github className="h-4 w-4 mr-2" />
-                          Code
+                          {t("sourceCode")}
                         </Link>
                       </Button>
                     )}
@@ -203,7 +132,7 @@ export function ProjectList() {
                       <Button variant="outline" size="sm" asChild>
                         <Link href={project.liveUrl} target="_blank">
                           <ExternalLink className="h-4 w-4 mr-2" />
-                          Demo
+                          {t("demo")}
                         </Link>
                       </Button>
                     )}

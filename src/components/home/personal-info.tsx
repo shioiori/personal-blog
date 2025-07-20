@@ -51,7 +51,7 @@ export function PersonalInfo() {
               </span>
             </h1>
             <p className="text-xl text-muted-foreground">
-              {t("job")} | Tiếng Việt & English
+              Tiếng Việt & English
             </p>
             <p className="text-muted-foreground leading-relaxed">
               {t("description")}

@@ -1,0 +1,21 @@
+{
+    "Project": {
+        "title": "Project",
+        "description": "List personal projects that I have completed/ongoing/upcoming",
+        "ongoing": "Ongoing",
+        "completed": "Completed",
+        "upcoming": "Upcoming",
+        "startDate": "Start date",
+        "duration": "Duration",
+        "teamSize": "Member",
+        "person": "person",
+        "people": "people",
+        "liveSite": "Live",
+        "technologies": "Technologies",
+        "sourceCode": "Source",
+        "detail": "Detail",
+        "demo": "Demo",
+        "project": "project",
+        "projects": "projects"
+    }
+}
