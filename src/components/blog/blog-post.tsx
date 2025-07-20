@@ -80,7 +80,7 @@ export function BlogPost({ slug }: { slug: string }) {
         <DisqusComments
           pageId={post.slug}
           pageTitle={post.title}
-          pageUrl={`${process.env.NEXTAUTH_URL}${post.slug}`}
+          pageUrl={`${process.env.NEXT_PUBLIC_BASE_URL}${post.slug}`}
         />
       </article>
     )

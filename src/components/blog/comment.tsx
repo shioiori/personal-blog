@@ -23,7 +23,6 @@ export default function DisqusComments({
     title: pageTitle,
     language: languageContext?.locale
   };
-
   return (
     <div className="mt-8">
       <h3 className="text-xl font-bold mb-4">{t("title")}</h3>
