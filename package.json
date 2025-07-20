@@ -3,8 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "setup": "node prebuild/audio.js",
+    "dev": "npm run setup && next dev",
+    "prebuild": "node prebuild/audio.js",
     "build": "next build",
-    "dev": "next dev",
     "lint": "next lint",
     "start": "next start"
   },

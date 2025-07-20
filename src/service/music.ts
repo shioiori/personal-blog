@@ -1,37 +1,24 @@
 "use server";
 
 import { NextResponse } from "next/server";
-import { promises as fs } from "fs";
-import path from "path";
 
 export async function getAudioFiles() {
   try {
-    const audioDir = path.join(process.cwd(), "public/assets/audio");
-
+    let audioFiles;
     try {
-      await fs.access(audioDir);
+      audioFiles = await import("../../data/audio-files.json");
     } catch {
-      await fs.mkdir(audioDir, { recursive: true });
-      return NextResponse.json({ files: [] });
+      return NextResponse.json({ files: [], count: 0 });
     }
 
-    const allFiles = await fs.readdir(audioDir);
-
-    const mp3Files = allFiles.filter((file) =>
-      file.toLowerCase().endsWith(".mp3")
-    );
-
-    console.log(`Found ${mp3Files.length} MP3 files in assets/audio/`);
-    mp3Files.forEach((file) => console.log(`- ${file}`));
-
     return NextResponse.json({
-      files: mp3Files,
-      count: mp3Files.length
+      files: audioFiles.default?.files || audioFiles.files || [],
+      count: audioFiles.default?.files?.length || audioFiles.files?.length || 0
     });
   } catch (error) {
-    console.error("Error scanning audio directory:", error);
+    console.error("Error loading audio files:", error);
     return NextResponse.json(
-      { error: "Failed to scan audio directory", files: [] },
+      { error: "Failed to load audio files", files: [] },
       { status: 500 }
     );
   }

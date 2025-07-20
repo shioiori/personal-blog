@@ -18,8 +18,6 @@ export default function MusicPage() {
 
         const musicPlaylist = await loadMusicFromAssets();
         setPlaylist(musicPlaylist);
-
-        console.log("Loaded playlist:", musicPlaylist);
       } catch (error) {
         console.error("Error loading playlist:", error);
         setPlaylist([]);
