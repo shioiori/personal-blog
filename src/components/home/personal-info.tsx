@@ -42,8 +42,12 @@ export function PersonalInfo() {
               <br />
             </h1>
             <h1 className="mt-2 font-bold">
-              <span className=" text-6xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Clara クラーラ
+              <span className="text-6xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Utopiosphere
+              </span>
+              <br />
+              <span className="text-6xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mt-2 block">
+                ユートピオスフィア
               </span>
             </h1>
             <p className="text-xl text-muted-foreground">

@@ -6,7 +6,9 @@ import { Language } from "@/src/components/enums";
 
 const inter = Inter({ subsets: ["latin"] });
 export const metadata = {
-  title: "Clara クラーラ"
+  title: "ユートピオスフィア",
+  description:
+    "Utopiosphere, hay ユートピオスフィア (Yūtopiosufia), là một thế giới không tưởng của một cô gái neet Clara クラーラ."
 };
 
 export default async function RootLayout({

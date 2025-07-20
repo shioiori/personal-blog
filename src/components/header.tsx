@@ -57,7 +57,7 @@ export function Header() {
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link href="/" className="flex items-center space-x-2 ">
             <Bird className="h-8 w-8 "></Bird>
-            <span className="text-xl font-bold ">Clara クラーラ</span>
+            <span className="text-xl font-bold ">ユートピオスフィア</span>
           </Link>
 
           <nav className="hidden md:flex items-center space-x-6">
