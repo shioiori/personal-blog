@@ -5,6 +5,10 @@ import { Providers } from "@/src/context/providers";
 import { Language } from "@/src/components/enums";
 
 const inter = Inter({ subsets: ["latin"] });
+export const metadata = {
+  title: "Clara クラーラ"
+};
+
 export default async function RootLayout({
   children,
   params
@@ -20,9 +24,7 @@ export default async function RootLayout({
           <div className="min-h-screen bg-background px-16">
             <Header />
             <div className="mx-auto flex items-center justify-center">
-              <div className="container px-4 py-8">
-                {children}
-              </div>
+              <div className="container px-4 py-8">{children}</div>
             </div>
           </div>
         </Providers>

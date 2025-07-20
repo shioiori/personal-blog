@@ -4,12 +4,12 @@ import { Calendar, Clock, ArrowLeft, Share2 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Badge } from "@/src/components/ui/badge";
 import Link from "next/link";
-import { CommentSection } from "@/src/components/blog/comment-section";
 import { Post } from "../declaration/blog";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { notFound } from "next/navigation";
 import { getPostData } from "@/src/service/post";
+import DisqusComments from "./comment";
 
 export function BlogPost({ slug }: { slug: string }) {
   const b = useTranslations("Common");
@@ -77,7 +77,11 @@ export function BlogPost({ slug }: { slug: string }) {
           />
         </div>
 
-        <CommentSection />
+        <DisqusComments
+          pageId={post.slug}
+          pageTitle={post.title}
+          pageUrl={`${process.env.NEXTAUTH_URL}${post.slug}`}
+        />
       </article>
     )
   );
