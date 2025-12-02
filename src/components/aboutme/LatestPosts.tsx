@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { Calendar, ArrowRight } from "lucide-react";
 import {
@@ -11,22 +9,11 @@ import {
 import { Button } from "@/src/components/ui/Button";
 import { Badge } from "@/src/components/ui/badge";
 import { getSortedPostsData } from "../../service/post";
-import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
-import { Post } from "../declaration/blog";
+import { getTranslations } from "next-intl/server";
 
-export function LatestPosts() {
-  const t = useTranslations("Home");
-  const [posts, setPosts] = useState<Post[]>([]);
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    const posts = await getSortedPostsData();
-    setPosts(posts);
-  };
+export async function LatestPosts() {
+  const t = await getTranslations("Home");
+  const posts = (await getSortedPostsData()) || [];
 
   return (
     <section className="space-y-8">

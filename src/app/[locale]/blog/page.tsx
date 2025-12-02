@@ -1,24 +1,10 @@
-"use client";
-
 import { BlogList } from "@/src/components/blog/BlogList";
-import { Post } from "@/src/components/declaration/blog";
 import { getSortedPostsData } from "@/src/service/post";
-import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { getTranslations } from "next-intl/server";
 
-export default function BlogPage() {
-  const t = useTranslations("Blog");
-
-  const [posts, setPosts] = useState<Post[]>([]);
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    const posts = await getSortedPostsData();
-    setPosts(posts || []);
-  };
+export default async function BlogPage() {
+  const t = await getTranslations("Blog");
+  const posts = (await getSortedPostsData()) || [];
 
   return (
     <div className="space-y-8">
