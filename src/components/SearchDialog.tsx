@@ -38,7 +38,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
   }, [query, posts]);
 
   const fetchData = async () => {
-    const posts = await getSortedPostsData();
+    const posts = (await getSortedPostsData()) || [];
     setPosts(posts);
   };
 
