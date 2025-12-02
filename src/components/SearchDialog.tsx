@@ -7,7 +7,7 @@ import {
   DialogTitle
 } from "@/src/components/ui/Dialog";
 import { Input } from "@/src/components/ui/input";
-import { Button } from "@/src/components/ui/temp";
+import { Button } from "@/src/components/ui/Button";
 import Link from "next/link";
 import { getSortedPostsData } from "../service/post";
 import { useTranslations } from "next-intl";

@@ -8,7 +8,7 @@ import {
   Github,
   Users
 } from "lucide-react";
-import { Button } from "@/src/components/ui/temp";
+import { Button } from "@/src/components/ui/Button";
 import { Badge } from "@/src/components/ui/badge";
 import { Card, CardContent } from "@/src/components/ui/card";
 import Link from "next/link";

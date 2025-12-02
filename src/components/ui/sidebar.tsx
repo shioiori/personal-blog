@@ -7,7 +7,7 @@ import { PanelLeft } from "lucide-react";
 
 import { useIsMobile } from "@/src/hooks/use-mobile";
 import { cn } from "@/src/utils/ui";
-import { Button } from "@/src/components/ui/temp";
+import { Button } from "@/src/components/ui/Button";
 import { Input } from "@/src/components/ui/input";
 import { Separator } from "@/src/components/ui/separator";
 import { Sheet, SheetContent } from "@/src/components/ui/sheet";

@@ -11,7 +11,7 @@ import {
   Repeat
 } from "lucide-react";
 import { Card, CardContent } from "@/src/components/ui/card";
-import { Button } from "@/src/components/ui/temp";
+import { Button } from "@/src/components/ui/Button";
 import { Slider } from "@/src/components/ui/slider";
 import { Badge } from "@/src/components/ui/badge";
 import { Playlist } from "./MusicPlaylist";
