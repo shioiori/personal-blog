@@ -9,7 +9,7 @@ import {
   CardTitle
 } from "@/src/components/ui/card";
 import { Badge } from "@/src/components/ui/badge";
-import { Button } from "@/src/components/ui/Button";
+import { Button } from "@/src/components/ui/temp";
 import { Post } from "../declaration/blog";
 import { useState, useMemo } from "react";
 import {

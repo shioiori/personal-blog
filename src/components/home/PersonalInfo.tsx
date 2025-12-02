@@ -1,7 +1,7 @@
 "use client";
 
 import { Mail, MapPin, Bell } from "lucide-react";
-import { Button } from "@/src/components/ui/Button";
+import { Button } from "@/src/components/ui/temp";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 

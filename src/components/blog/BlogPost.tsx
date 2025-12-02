@@ -1,7 +1,7 @@
 "use client";
 
 import { Calendar, Clock, ArrowLeft, Share2 } from "lucide-react";
-import { Button } from "@/src/components/ui/Button";
+import { Button } from "@/src/components/ui/temp";
 import { Badge } from "@/src/components/ui/badge";
 import Link from "next/link";
 import { Post } from "../declaration/blog";

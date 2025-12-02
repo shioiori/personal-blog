@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Search, Sun, Moon, Bird } from "lucide-react";
 import { useTheme } from "next-themes";
-import { Button } from "@/src/components/ui/Button";
+import { Button } from "@/src/components/ui/temp";
 import { SearchDialog } from "@/src/components/SearchDialog";
 import { useContext, useEffect, useState } from "react";
 import { Language, LanguagesLabel, Theme } from "./enums";

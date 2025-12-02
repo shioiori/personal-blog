@@ -6,7 +6,7 @@ import {
   CardHeader,
   CardTitle
 } from "@/src/components/ui/card";
-import { Button } from "@/src/components/ui/Button";
+import { Button } from "@/src/components/ui/temp";
 import { Badge } from "@/src/components/ui/badge";
 import { getSortedPostsData } from "../../service/post";
 import { getTranslations } from "next-intl/server";
