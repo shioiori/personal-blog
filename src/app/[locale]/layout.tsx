@@ -1,5 +1,5 @@
 import { Inter } from "next/font/google";
-import { Header } from "../../components/Header";
+import { Header } from "../../components/temp";
 import { Providers } from "@/src/context/providers";
 import { Language } from "@/src/components/enums";
 
