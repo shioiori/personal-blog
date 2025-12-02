@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle
 } from "@/src/components/ui/card";
-import { Button } from "@/src/components/ui/button";
+import { Button } from "@/src/components/ui/Button";
 import { Badge } from "@/src/components/ui/badge";
 import { getSortedPostsData } from "../../service/post";
 import { useTranslations } from "next-intl";

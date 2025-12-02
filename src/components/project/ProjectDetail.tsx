@@ -8,7 +8,7 @@ import {
   Github,
   Users
 } from "lucide-react";
-import { Button } from "@/src/components/ui/button";
+import { Button } from "@/src/components/ui/Button";
 import { Badge } from "@/src/components/ui/badge";
 import { Card, CardContent } from "@/src/components/ui/card";
 import Link from "next/link";
@@ -96,7 +96,7 @@ export function ProjectDetail({ slug }: { slug: string }) {
                   {t("startDate")}
                 </div>
                 <div className="font-semibold">
-                  {moment(project.startDate).format("DD/MM/YYYY")}
+                  {/* {moment(project.startDate).format("DD/MM/YYYY")} */}
                 </div>
               </CardContent>
             </Card>

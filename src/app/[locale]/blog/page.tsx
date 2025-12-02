@@ -1,6 +1,6 @@
 "use client";
 
-import { BlogList } from "@/src/components/blog/blog-list";
+import { BlogList } from "@/src/components/blog/BlogList";
 import { Post } from "@/src/components/declaration/blog";
 import { getSortedPostsData } from "@/src/service/post";
 import { useTranslations } from "next-intl";
@@ -17,7 +17,7 @@ export default function BlogPage() {
 
   const fetchData = async () => {
     const posts = await getSortedPostsData();
-    setPosts(posts);
+    setPosts(posts || []);
   };
 
   return (

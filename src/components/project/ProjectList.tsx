@@ -7,7 +7,7 @@ import {
   CardTitle
 } from "@/src/components/ui/card";
 import { Badge } from "@/src/components/ui/badge";
-import { Button } from "@/src/components/ui/button";
+import { Button } from "@/src/components/ui/Button";
 import { useTranslations } from "next-intl";
 import { getProjectList } from "@/src/service/project";
 import moment from "moment";

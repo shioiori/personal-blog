@@ -1,6 +1,6 @@
 "use client";
 
-import { MusicPlayer } from "@/src/components/music/music-player";
+import { MusicPlayer } from "@/src/components/music/MusicPlayer";
 import { Music } from "@/src/components/declaration/music";
 import { useEffect, useState } from "react";
 import { loadMusicFromAssets } from "@/src/utils/music";
@@ -15,7 +15,6 @@ export default function MusicPage() {
     const loadPlaylist = async () => {
       try {
         setIsLoading(true);
-
         const musicPlaylist = await loadMusicFromAssets();
         setPlaylist(musicPlaylist);
       } catch (error) {

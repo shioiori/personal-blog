@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { ProjectDetail } from "@/src/components/project/project-detail";
+import { ProjectDetail } from "@/src/components/project/ProjectDetail";
 
 export default async function ProjectDetailPage({
   params

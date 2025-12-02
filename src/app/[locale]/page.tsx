@@ -1,5 +1,5 @@
-import { PersonalInfo } from "@/src/components/home/personal-info";
-import { LatestPosts } from "@/src/components/aboutme/latest-posts";
+import { PersonalInfo } from "@/src/components/home/PersonalInfo";
+import { LatestPosts } from "@/src/components/aboutme/LatestPosts";
 
 export default function HomePage() {
   return (

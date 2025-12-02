@@ -1,6 +1,5 @@
-import "../../styles/global.css";
 import { Inter } from "next/font/google";
-import { Header } from "../../components/header";
+import { Header } from "../../components/Header";
 import { Providers } from "@/src/context/providers";
 import { Language } from "@/src/components/enums";
 
@@ -15,7 +14,7 @@ export default async function RootLayout({
 }) {
   const { locale } = await params;
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang={locale}>
       <body className={inter.className}>
         <Providers locale={locale}>
           <div className="min-h-screen bg-background px-16">

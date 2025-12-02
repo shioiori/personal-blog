@@ -11,10 +11,10 @@ import {
   Repeat
 } from "lucide-react";
 import { Card, CardContent } from "@/src/components/ui/card";
-import { Button } from "@/src/components/ui/button";
+import { Button } from "@/src/components/ui/Button";
 import { Slider } from "@/src/components/ui/slider";
 import { Badge } from "@/src/components/ui/badge";
-import { Playlist } from "./music-playlist";
+import { Playlist } from "./MusicPlaylist";
 import { Music } from "../declaration/music";
 import { useTranslations } from "next-intl";
 

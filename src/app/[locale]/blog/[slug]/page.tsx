@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { BlogPost } from "@/src/components/blog/blog-post";
+import { BlogPost } from "@/src/components/blog/BlogPost";
 import { getPostData } from "@/src/service/post";
 import { Post } from "@/src/components/declaration/blog";
 import { use, useEffect, useState } from "react";

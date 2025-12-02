@@ -4,8 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Search, Sun, Moon, Bird } from "lucide-react";
 import { useTheme } from "next-themes";
-import { Button } from "@/src/components/ui/button";
-import { SearchDialog } from "@/src/components/search-dialog";
+import { Button } from "@/src/components/ui/Button";
+import { SearchDialog } from "@/src/components/SearchDialog";
 import { useContext, useEffect, useState } from "react";
 import { Language, LanguagesLabel, Theme } from "./enums";
 
@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem
-} from "@/src/components/ui/dropdown-menu";
+} from "@/src/components/ui/DropdownMenu";
 import { useTranslations } from "next-intl";
 import { LanguageContext } from "../context/language";
 
@@ -35,7 +35,6 @@ export function Header() {
   const toggleTheme = () => {
     setTheme(theme == Theme.Light ? Theme.Dark : Theme.Light);
   };
-  const [mounted, setMounted] = useState(false);
 
   const navigation = [
     { name: t("home"), href: "/" },
@@ -46,10 +45,8 @@ export function Header() {
   ];
 
   useEffect(() => {
-    setMounted(true);
     setLanguage(languageContext?.locale);
   }, []);
-  if (!mounted) return null;
 
   return (
     <>

@@ -1,7 +1,7 @@
 "use client";
 
 import { Project } from "@/src/components/declaration/project";
-import { ProjectList } from "@/src/components/project/project-list";
+import { ProjectList } from "@/src/components/project/ProjectList";
 import { getProjectList } from "@/src/service/project";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
