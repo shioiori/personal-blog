@@ -2,9 +2,9 @@
 
 import { Calendar, Clock, ArrowLeft, Share2 } from "lucide-react";
 import { Button } from "@/src/components/ui/Button";
-import { Badge } from "@/src/components/ui/badge";
+import { Badge } from "@/src/components/ui/Badge";
 import Link from "next/link";
-import { Post } from "../declaration/blog";
+import { Post } from "@/src/declaration/blog";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { notFound } from "next/navigation";

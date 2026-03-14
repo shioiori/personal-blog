@@ -6,12 +6,12 @@ import {
   DialogHeader,
   DialogTitle
 } from "@/src/components/ui/Dialog";
-import { Input } from "@/src/components/ui/input";
+import { Input } from "@/src/components/ui/Input";
 import { Button } from "@/src/components/ui/Button";
 import Link from "next/link";
 import { getSortedPostsData } from "../service/post";
 import { useTranslations } from "next-intl";
-import { Post } from "./declaration/blog";
+import { Post } from "@/src/declaration/blog";
 
 interface SearchDialogProps {
   open: boolean;

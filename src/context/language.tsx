@@ -8,7 +8,7 @@ import {
 import { Language } from "../components/enums";
 import { getMessages } from "../utils/locale";
 import { NextIntlClientProvider } from "next-intl";
-import { Loading } from "../components/ui/loading";
+import { Loading } from "../components/ui/Loading";
 
 interface LanguageContextType {
   locale?: Language;

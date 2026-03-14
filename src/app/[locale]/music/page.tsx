@@ -66,15 +66,6 @@ export default function MusicPage() {
         <p className="text-xl text-muted-foreground">{t("description")}</p>
       </div>
 
-      {process.env.NODE_ENV === "development" && (
-        <details className="bg-muted p-4 rounded-lg">
-          <summary className="cursor-pointer font-medium">Debug Info</summary>
-          <pre className="mt-2 text-sm overflow-x-auto">
-            {JSON.stringify(playlist, null, 2)}
-          </pre>
-        </details>
-      )}
-
       <MusicPlayer playlist={playlist} />
     </div>
   );
