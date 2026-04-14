@@ -1,6 +1,5 @@
-"use client";
+'use client'
 
-import { useState, useRef, useEffect } from "react";
 import {
   Play,
   Pause,
@@ -9,182 +8,53 @@ import {
   Volume2,
   Shuffle,
   Repeat
-} from "lucide-react";
-import { Card, CardContent } from "@/src/components/ui/Card";
-import { Button } from "@/src/components/ui/Button";
-import { Slider } from "@/src/components/ui/Slider";
-import { Badge } from "@/src/components/ui/Badge";
-import { Playlist } from "./MusicPlaylist";
-import { Music } from "@/src/declaration/music";
-import { useTranslations } from "next-intl";
+} from 'lucide-react'
+import { Card, CardContent } from '@/src/components/ui/Card'
+import { Button } from '@/src/components/ui/Button'
+import { Slider } from '@/src/components/ui/Slider'
+import { Badge } from '@/src/components/ui/Badge'
+import { Playlist } from './MusicPlaylist'
+import { useTranslations } from 'next-intl'
+import { useMusicContext } from '@/src/context/music'
+import { useEffect } from 'react'
 
-export function MusicPlayer({ playlist }: { playlist: Music[] }) {
-  const t = useTranslations("Music");
-  const [currentTrack, setCurrentTrack] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState([75]);
-  const [isShuffled, setIsShuffled] = useState(false);
-  const [repeatMode, setRepeatMode] = useState(0); // 0: no repeat, 1: repeat all, 2: repeat one
-  const [isLoading, setIsLoading] = useState(false);
+export function MusicPlayer() {
+  const t = useTranslations('Music')
+  const {
+    playlist,
+    currentTrack,
+    setCurrentTrack,
+    isPlaying,
+    currentTime,
+    duration,
+    volume,
+    setVolume,
+    isShuffled,
+    setIsShuffled,
+    repeatMode,
+    setRepeatMode,
+    isLoading,
+    togglePlay,
+    nextTrack,
+    prevTrack,
+    handleSeek,
+    formatTime,
+    setIsBoxExpanded
+  } = useMusicContext()
 
-  const audioRef = useRef<HTMLAudioElement>(null);
-
-  // Auto play random song on mount
   useEffect(() => {
-    const randomIndex = Math.floor(Math.random() * playlist.length);
-    setCurrentTrack(randomIndex);
-  }, [playlist.length]);
+    setIsBoxExpanded(false)
+  }, [setIsBoxExpanded])
 
-  // Handle audio events
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const handleLoadedMetadata = () => {
-      setDuration(audio.duration);
-      setIsLoading(false);
-    };
-
-    const handleTimeUpdate = () => {
-      setCurrentTime(audio.currentTime);
-    };
-
-    const handleEnded = () => {
-      handleTrackEnd();
-    };
-
-    const handleLoadStart = () => {
-      setIsLoading(true);
-    };
-
-    const handleCanPlay = () => {
-      setIsLoading(false);
-    };
-
-    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
-    audio.addEventListener("timeupdate", handleTimeUpdate);
-    audio.addEventListener("ended", handleEnded);
-    audio.addEventListener("loadstart", handleLoadStart);
-    audio.addEventListener("canplay", handleCanPlay);
-
-    return () => {
-      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
-      audio.removeEventListener("timeupdate", handleTimeUpdate);
-      audio.removeEventListener("ended", handleEnded);
-      audio.removeEventListener("loadstart", handleLoadStart);
-      audio.removeEventListener("canplay", handleCanPlay);
-    };
-  }, [currentTrack]);
-
-  // Handle play/pause
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    if (isPlaying) {
-      audio.play().catch(console.error);
-    } else {
-      audio.pause();
-    }
-  }, [isPlaying]);
-
-  // Handle volume changes
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    audio.volume = volume[0] / 100;
-  }, [volume]);
-
-  // Handle track changes
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio || !playlist[currentTrack]) return;
-
-    audio.src = playlist[currentTrack].source;
-    audio.load();
-
-    if (isPlaying) {
-      audio.play().catch(console.error);
-    }
-  }, [currentTrack, playlist]);
-
-  const togglePlay = () => {
-    setIsPlaying(!isPlaying);
-  };
-
-  const handleTrackEnd = () => {
-    switch (repeatMode) {
-      case 2: // repeat one
-        audioRef.current?.play();
-        break;
-      case 1: // repeat all
-        nextTrack();
-        break;
-      default: // no repeat
-        if (currentTrack < playlist.length - 1) {
-          nextTrack();
-        } else {
-          setIsPlaying(false);
-        }
-        break;
-    }
-  };
-
-  const nextTrack = () => {
-    if (isShuffled) {
-      let randomIndex;
-      do {
-        randomIndex = Math.floor(Math.random() * playlist.length);
-      } while (randomIndex === currentTrack && playlist.length > 1);
-      setCurrentTrack(randomIndex);
-    } else {
-      setCurrentTrack((prev) => (prev + 1) % playlist.length);
-    }
-  };
-
-  const prevTrack = () => {
-    if (isShuffled) {
-      let randomIndex;
-      do {
-        randomIndex = Math.floor(Math.random() * playlist.length);
-      } while (randomIndex === currentTrack && playlist.length > 1);
-      setCurrentTrack(randomIndex);
-    } else {
-      setCurrentTrack((prev) => (prev - 1 + playlist.length) % playlist.length);
-    }
-  };
-
-  const handleSeek = (value: number[]) => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const newTime = value[0];
-    audio.currentTime = newTime;
-    setCurrentTime(newTime);
-  };
-
-  const formatTime = (time: number) => {
-    if (isNaN(time)) return "0:00";
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
-  };
-
-  const currentSong = playlist[currentTrack];
+  const currentSong = playlist[currentTrack]
 
   if (!currentSong) {
-    return <div>`${t("noSong")}`</div>;
+    return <div>{t('noSong')}</div>
   }
 
   return (
     <Card className="h-[500px] overflow-hidden">
-      <audio ref={audioRef} preload="metadata" />
       <CardContent className="p-0 flex h-full">
-
-        {/* Player - left 50% */}
         <div className="flex-1 p-8 flex flex-col justify-center space-y-6 border-r">
           <div>
             <div className="flex items-center space-x-2">
@@ -217,8 +87,8 @@ export function MusicPlayer({ playlist }: { playlist: Music[] }) {
               variant="ghost"
               size="icon"
               onClick={() => setIsShuffled(!isShuffled)}
-              className={isShuffled ? "text-primary" : ""}
-              title={isShuffled ? "Shuffle On" : "Shuffle Off"}
+              className={isShuffled ? 'text-primary' : ''}
+              title={isShuffled ? 'Shuffle On' : 'Shuffle Off'}
             >
               <Shuffle className="h-5 w-5" />
             </Button>
@@ -249,14 +119,14 @@ export function MusicPlayer({ playlist }: { playlist: Music[] }) {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setRepeatMode((prev) => (prev + 1) % 3)}
-              className={repeatMode > 0 ? "text-primary" : ""}
+              onClick={() => setRepeatMode((repeatMode + 1) % 3)}
+              className={repeatMode > 0 ? 'text-primary' : ''}
               title={
                 repeatMode === 0
-                  ? "No Repeat"
+                  ? 'No Repeat'
                   : repeatMode === 1
-                  ? "Repeat All"
-                  : "Repeat One"
+                    ? 'Repeat All'
+                    : 'Repeat One'
               }
             >
               <Repeat className="h-5 w-5" />
@@ -283,7 +153,6 @@ export function MusicPlayer({ playlist }: { playlist: Music[] }) {
           </div>
         </div>
 
-        {/* Playlist - right 50% */}
         <div className="flex-1 flex flex-col min-h-0 p-6">
           <Playlist
             playlist={playlist}
@@ -291,8 +160,7 @@ export function MusicPlayer({ playlist }: { playlist: Music[] }) {
             setCurrentTrack={setCurrentTrack}
           />
         </div>
-
       </CardContent>
     </Card>
-  );
+  )
 }

@@ -1,6 +1,7 @@
 import { Inter } from "next/font/google";
 import { Header } from "../../components/header";
 import { Providers } from "@/src/context/providers";
+import { FloatingMusicBox } from "@/src/components/music/FloatingMusicBox";
 import { Language } from "@/src/components/enums";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -23,6 +24,7 @@ export default async function RootLayout({
               <div className="container px-4 py-8">{children}</div>
             </div>
           </div>
+          <FloatingMusicBox />
         </Providers>
       </body>
     </html>

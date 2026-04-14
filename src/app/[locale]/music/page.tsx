@@ -1,34 +1,14 @@
 "use client";
 
 import { MusicPlayer } from "@/src/components/music/MusicPlayer";
-import { Music } from "@/src/components/declaration/music";
-import { useEffect, useState } from "react";
-import { loadMusicFromAssets } from "@/src/utils/music";
 import { useTranslations } from "next-intl";
+import { useMusicContext } from "@/src/context/music";
 
 export default function MusicPage() {
   const t = useTranslations("Music");
-  const [playlist, setPlaylist] = useState<Music[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { playlist } = useMusicContext();
 
-  useEffect(() => {
-    const loadPlaylist = async () => {
-      try {
-        setIsLoading(true);
-        const musicPlaylist = await loadMusicFromAssets();
-        setPlaylist(musicPlaylist);
-      } catch (error) {
-        console.error("Error loading playlist:", error);
-        setPlaylist([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadPlaylist();
-  }, []);
-
-  if (isLoading) {
+  if (playlist.length === 0) {
     return (
       <div className="space-y-8">
         <div className="space-y-4">
@@ -44,19 +24,6 @@ export default function MusicPage() {
     );
   }
 
-  if (playlist.length === 0) {
-    return (
-      <div className="space-y-8">
-        <div className="space-y-4">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            {t("title")}
-          </h1>
-          <p className="text-xl text-muted-foreground">{t("noSong")}</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-8">
       <div className="space-y-4">
@@ -66,7 +33,7 @@ export default function MusicPage() {
         <p className="text-xl text-muted-foreground">{t("description")}</p>
       </div>
 
-      <MusicPlayer playlist={playlist} />
+      <MusicPlayer />
     </div>
   );
 }
