@@ -1,2 +1,2 @@
-export const FINANCE_SETTING = 'utopiaFinanceSetting'
-export const FINANCE_TRANSACTION = 'utopiaFinanceTransaction'
+export const DISCIPLINE_SETTING = 'utopiaDisciplineSetting'
+export const DISCIPLINE_TRANSACTION = 'utopiaDisciplineTransaction'

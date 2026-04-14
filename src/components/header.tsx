@@ -42,7 +42,7 @@ export function Header() {
     // { name: t('blog'), href: '/blog' },
     { name: t('project'), href: '/projects' },
     { name: t('music'), href: '/music' },
-    { name: t('finance'), href: '/finance' }
+    { name: t('discipline'), href: '/discipline' }
   ]
 
   useEffect(() => {

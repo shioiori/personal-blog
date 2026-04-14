@@ -12,7 +12,11 @@
       "Bash(xargs grep:*)",
       "Bash(powershell -Command \"Get-ChildItem -Path src -Recurse -Include *.tsx,*.ts | Where-Object { \\(Get-Content $_FullName -Raw\\) -match ''ui/Button'' } | Select-Object -ExpandProperty FullName\")",
       "Bash(python3 -c \":*)",
-      "Bash(node -e \":*)"
+      "Bash(node -e \":*)",
+      "Bash(ls -la \"d:\\\\PERSONAL\\\\personal-blog\\\\src\\\\components\\\\discipline\"\" 2>/dev/null || echo \"Directory check \")",
+      "Bash(find d:PERSONALpersonal-blog -name .env* -o -name supabase* -o -name *database*)",
+      "Bash(ls /d/PERSONAL/personal-blog/.env*)",
+      "Bash(npm install:*)"
     ]
   }
 }
