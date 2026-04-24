@@ -41,7 +41,8 @@ export function Header() {
     { name: t("blog"), href: "/blog" },
     { name: t("project"), href: "/projects" },
     { name: t("aboutme"), href: "/about" },
-    { name: t("music"), href: "/music" }
+    { name: t("music"), href: "/music" },
+    { name: t("hantu"), href: "/chinese" }
   ];
 
   useEffect(() => {
