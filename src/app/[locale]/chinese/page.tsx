@@ -1,10 +1,10 @@
-import { HanTuPage } from "@/src/components/hantu/HanTuPage";
+import { ChineseStudy } from "@/src/components/chinese/ChineseStudy";
 
 export default function Page() {
-  return <HanTuPage />;
+  return <ChineseStudy />;
 }
 
 export const metadata = {
   title: "Hán Tự · 漢字",
-  description: "Tra cứu chữ Hán: nhận dạng viết tay, xem Hán Việt, nghĩa, bộ thủ và cấu tạo",
+  description: "Học chữ Hán theo bộ thủ: flashcard, lọc theo HSK, theo dõi tiến trình",
 };

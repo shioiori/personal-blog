@@ -1,0 +1,248 @@
+"use client";
+
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { getAllCharacters, type CharacterInfo, type HskLevel } from "@/src/data/chinese";
+import { RadicalGroup } from "./RadicalGroup";
+import { CharacterCard } from "./CharacterCard";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/src/components/ui/Select";
+import { Checkbox } from "@/src/components/ui/Checkbox";
+import { cn } from "@/src/utils/ui";
+
+// TODO: Implement Neon DB persistence when ready.
+// Should upsert a row in a `card_states` table keyed by (user_id, char).
+async function saveCardState(_char: string, _hidden: boolean): Promise<void> {
+  return;
+}
+
+const HSK_ORDER: Record<HskLevel, number> = { 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, beyond: 7 };
+const HSK_OPTIONS = ["Tất cả", "HSK 1", "HSK 2", "HSK 3", "HSK 4", "HSK 5", "HSK 6"] as const;
+
+type ViewMode = "all" | "byRadical";
+
+interface RadicalGroupData {
+  radical: string;
+  radicalName: string;
+  chars: CharacterInfo[];
+}
+
+export function ChineseStudy() {
+  const [viewMode, setViewMode] = useState<ViewMode>("all");
+  const [hskFilter, setHskFilter] = useState<HskLevel | "all">("all");
+  const [selectedRadical, setSelectedRadical] = useState<string>("");
+  const [openGroups, setOpenGroups] = useState<Set<string>>(new Set());
+  const [hiddenCards, setHiddenCards] = useState<Set<string>>(new Set());
+  const [showKnownOnly, setShowKnownOnly] = useState(false);
+
+  const allChars = useMemo(() => getAllCharacters(), []);
+
+  const filtered = useMemo(() => {
+    if (hskFilter === "all") return allChars;
+    return allChars.filter((c) => c.hsk === hskFilter);
+  }, [allChars, hskFilter]);
+
+  const radicalGroups = useMemo((): RadicalGroupData[] => {
+    const map = new Map<string, RadicalGroupData>();
+    for (const c of filtered) {
+      if (!map.has(c.radical)) {
+        map.set(c.radical, { radical: c.radical, radicalName: c.radicalName, chars: [] });
+      }
+      map.get(c.radical)!.chars.push(c);
+    }
+    for (const g of map.values()) {
+      g.chars.sort((a, b) => HSK_ORDER[a.hsk] - HSK_ORDER[b.hsk]);
+    }
+    return [...map.values()].sort(
+      (a, b) => HSK_ORDER[a.chars[0].hsk] - HSK_ORDER[b.chars[0].hsk]
+    );
+  }, [filtered]);
+
+  const visibleGroups = useMemo(() => {
+    if (!showKnownOnly) return radicalGroups;
+    return radicalGroups.filter((g) => g.chars.some((c) => hiddenCards.has(c.char)));
+  }, [radicalGroups, showKnownOnly, hiddenCards]);
+
+  // Auto-select first radical in mode 2
+  useEffect(() => {
+    if (viewMode === "byRadical" && visibleGroups.length > 0) {
+      const valid = visibleGroups.find((g) => g.radical === selectedRadical);
+      if (!valid) setSelectedRadical(visibleGroups[0].radical);
+    }
+  }, [viewMode, visibleGroups, selectedRadical]);
+
+  const handleToggleHide = useCallback((char: string) => {
+    setHiddenCards((prev) => {
+      const next = new Set(prev);
+      const nowHidden = !next.has(char);
+      if (nowHidden) next.add(char);
+      else next.delete(char);
+      void saveCardState(char, nowHidden);
+      return next;
+    });
+  }, []);
+
+  const handleToggleGroup = useCallback((radical: string) => {
+    setOpenGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(radical)) next.delete(radical);
+      else next.add(radical);
+      return next;
+    });
+  }, []);
+
+  const selectedGroupChars = useMemo(() => {
+    const g = visibleGroups.find((g) => g.radical === selectedRadical);
+    return g?.chars ?? [];
+  }, [visibleGroups, selectedRadical]);
+
+  const hskFilterValue = (opt: string): HskLevel | "all" => {
+    if (opt === "Tất cả") return "all";
+    return parseInt(opt.split(" ")[1]) as HskLevel;
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
+        {/* Header */}
+        <div>
+          <h1
+            className="text-3xl font-bold"
+            style={{ fontFamily: "var(--font-noto-serif-sc), serif" }}
+          >
+            漢字
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {filtered.length.toLocaleString()} ký tự · {visibleGroups.length} bộ thủ
+          </p>
+        </div>
+
+        {/* Toolbar */}
+        <div className="flex flex-wrap gap-3 items-center">
+          {/* View mode toggle */}
+          <div className="flex rounded-lg border border-border overflow-hidden shrink-0">
+            <button
+              className={cn(
+                "px-4 py-2 text-sm font-medium transition-colors",
+                viewMode === "all"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-background text-muted-foreground hover:bg-accent"
+              )}
+              onClick={() => setViewMode("all")}
+            >
+              Hiện all
+            </button>
+            <button
+              className={cn(
+                "px-4 py-2 text-sm font-medium transition-colors border-l border-border",
+                viewMode === "byRadical"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-background text-muted-foreground hover:bg-accent"
+              )}
+              onClick={() => setViewMode("byRadical")}
+            >
+              Theo bộ thủ
+            </button>
+          </div>
+
+          {/* HSK filter */}
+          <div className="flex flex-wrap gap-1.5">
+            {HSK_OPTIONS.map((opt) => {
+              const val = hskFilterValue(opt);
+              return (
+                <button
+                  key={opt}
+                  onClick={() => setHskFilter(val)}
+                  className={cn(
+                    "px-3 py-1 rounded-full text-xs font-medium border transition-colors",
+                    hskFilter === val
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-transparent border-border text-muted-foreground hover:bg-accent"
+                  )}
+                >
+                  {opt}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Known-only filter */}
+          <label className="flex items-center gap-2 cursor-pointer shrink-0">
+            <Checkbox
+              checked={showKnownOnly}
+              onCheckedChange={(v) => setShowKnownOnly(Boolean(v))}
+            />
+            <span className="text-sm text-muted-foreground select-none">
+              Chỉ hiện bộ thủ có từ đã biết
+            </span>
+          </label>
+        </div>
+
+        {/* Radical selector for mode 2 */}
+        {viewMode === "byRadical" && (
+          <Select value={selectedRadical} onValueChange={setSelectedRadical}>
+            <SelectTrigger className="w-64">
+              <SelectValue placeholder="Chọn bộ thủ..." />
+            </SelectTrigger>
+            <SelectContent>
+              {visibleGroups.map((g) => (
+                <SelectItem key={g.radical} value={g.radical}>
+                  <span style={{ fontFamily: "var(--font-noto-serif-sc), serif" }}>
+                    {g.radical}
+                  </span>
+                  {" "}({g.chars.length})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+
+        {/* Content */}
+        {viewMode === "all" ? (
+          <div className="space-y-2">
+            {visibleGroups.map((g) => (
+              <RadicalGroup
+                key={g.radical}
+                radical={g.radical}
+                radicalName={g.radicalName}
+                characters={g.chars}
+                isOpen={openGroups.has(g.radical)}
+                onToggle={handleToggleGroup}
+                hiddenCards={hiddenCards}
+                onToggleHide={handleToggleHide}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+            {selectedGroupChars.map((c) => (
+              <CharacterCard
+                key={c.char}
+                info={c}
+                hidden={hiddenCards.has(c.char)}
+                onToggleHide={handleToggleHide}
+              />
+            ))}
+          </div>
+        )}
+
+        {visibleGroups.length === 0 && (
+          <p className="text-center text-muted-foreground py-16">
+            {showKnownOnly
+          ? "Chưa có từ nào được đánh dấu đã biết. Ấn vào card để ẩn pinyin và nghĩa."
+          : "Không có bộ thủ nào phù hợp với bộ lọc hiện tại."}
+          </p>
+        )}
+
+        {/* Attribution */}
+        <p className="text-xs text-muted-foreground/60 text-center pt-4">
+          Data: CC-CEDICT (CC BY-SA 3.0) · HSK vocabulary list
+        </p>
+      </div>
+    </div>
+  );
+}
