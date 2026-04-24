@@ -1,0 +1,63 @@
+{
+  "Guide": {
+    "title": "User Guide",
+    "description": "Overview of ユートピオスフィア features",
+    "sections": {
+      "navigation": {
+        "title": "Navigation",
+        "description": "A sticky header at the top links to each feature. Click the bird logo to return home."
+      },
+      "theme": {
+        "title": "Light / Dark Mode",
+        "description": "Click the sun / moon icon in the top-right header to toggle between light and dark themes."
+      },
+      "language": {
+        "title": "Language",
+        "description": "Switch between Vietnamese and English via the language dropdown in the header."
+      },
+      "search": {
+        "title": "Search",
+        "description": "Click the magnifying glass icon to open the search dialog. Type keywords to find blog posts."
+      },
+      "projects": {
+        "title": "Projects",
+        "description": "Browse personal projects. Click any project to view its description, tech stack, and links."
+      },
+      "music": {
+        "title": "Music",
+        "description": "A personal music playlist. Hit play to start listening. The floating music widget (bottom corner) lets you control playback from any page without navigating away."
+      },
+      "discipline": {
+        "title": "Self-Discipline",
+        "description": "A personal finance tracker with 3 tabs:",
+        "tabs": {
+          "settings": {
+            "name": "Settings",
+            "description": "Create and manage configuration \"keys\". Each key stores a list of income declarations (name, type, amount), plus options for locking expenses, rounding numbers, and setting a payment deadline. A key is required to access data."
+          },
+          "transactions": {
+            "name": "Transactions",
+            "description": "Log income and expense transactions by date. Browse transaction history by month."
+          },
+          "statistics": {
+            "name": "Statistics",
+            "description": "View charts and summaries of income and expenses over time, calculated from your declared income configuration."
+          }
+        }
+      },
+      "chinese": {
+        "title": "漢字 Chinese Characters",
+        "description": "A flashcard tool for learning Chinese characters. Filter by HSK levels 1–6. Two view modes:",
+        "modes": {
+          "all": "All cards: display all flashcards in order.",
+          "byRadical": "By radical: group characters by their radical for systematic study."
+        },
+        "features": {
+          "hide": "Click a card to hide characters you already know.",
+          "knownFilter": "Toggle \"Show known only\" to review learned characters.",
+          "edit": "The site owner can edit card content by entering an authentication key."
+        }
+      }
+    }
+  }
+}

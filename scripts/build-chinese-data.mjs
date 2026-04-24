@@ -1,12 +1,13 @@
 /**
- * Build chinese-generated.json from CC-CEDICT + complete-hsk-vocabulary.
+ * Build chinese-generated.json from all sources.
  * Run: node scripts/build-chinese-data.mjs
  *
- * Strategy:
- * - CC-CEDICT: provides single-char entries with pinyin + English meaning (~13k chars)
- * - complete-hsk-vocabulary: provides radical + HSK level for single chars
- * - Merge: CEDICT as base, HSK data overlays radical + hsk fields
- * - Filter: keep chars that have a radical (from HSK data) OR are in HSK 1-6
+ * Sources (merged, union):
+ *   1. CC-CEDICT  — pinyin + English meaning (~10k single CJK chars)
+ *   2. Make Me a Hanzi — radical + decomposition + definition (~9.5k chars)
+ *   3. complete-hsk-vocabulary — HSK level + radical (for HSK chars)
+ *
+ * Rule: include ANY char that has a CJK code point. No other requirements.
  */
 
 import fs from "fs";
@@ -17,141 +18,163 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const RAW = path.join(__dirname, "../src/data/raw");
 const OUT = path.join(__dirname, "../src/data/chinese-generated.json");
 
-// --- Parse CC-CEDICT ---
-console.log("Parsing CC-CEDICT...");
-const cedictLines = fs
-  .readFileSync(path.join(RAW, "cedict.txt"), "utf8")
-  .split("\n")
-  .filter((l) => !l.startsWith("#") && l.trim());
+// ── Pinyin numeric → diacritics ──────────────────────────────────────────────
+const TONE_MAP = {
+  a:["ā","á","ǎ","à","a"], e:["ē","é","ě","è","e"], i:["ī","í","ǐ","ì","i"],
+  o:["ō","ó","ǒ","ò","o"], u:["ū","ú","ǔ","ù","u"], ü:["ǖ","ǘ","ǚ","ǜ","ü"],
+};
+function addTone(s, tone) {
+  s = s.replace(/v/g, "ü");
+  if (tone === 5 || tone === 0) return s;
+  const t = tone - 1;
+  if (s.includes("a")) return s.replace("a", TONE_MAP["a"][t]);
+  if (s.includes("e")) return s.replace("e", TONE_MAP["e"][t]);
+  if (s.includes("ou")) return s.replace("o", TONE_MAP["o"][t]);
+  const vowelPattern = /[aeiouü]/g;
+  let lastIdx = -1, lastVowel = "", m;
+  while ((m = vowelPattern.exec(s)) !== null) { lastIdx = m.index; lastVowel = m[0]; }
+  if (lastIdx !== -1) return s.slice(0, lastIdx) + (TONE_MAP[lastVowel]?.[t] ?? lastVowel) + s.slice(lastIdx + 1);
+  return s;
+}
+function numericToTone(pinyin) {
+  // Normalise u: → ü before splitting
+  const norm = pinyin.trim().replace(/u:/gi, "ü");
+  // Split on spaces OR between digit and letter (e.g. "shi2ke4" → "shi2 ke4")
+  const syllables = norm.replace(/([1-5])([a-züA-ZÜ])/g, "$1 $2").split(/\s+/);
+  return syllables.map(syl => {
+    const m = syl.match(/^([a-züA-ZÜ]+)([1-5])?$/i);
+    if (!m) return syl;
+    const [, base, tn] = m;
+    return addTone(base.toLowerCase(), tn ? parseInt(tn) : 5);
+  }).join(" ");
+}
 
-// Map: simplified char -> { pinyin, meanings[] }
-// CEDICT format: Traditional Simplified [pinyin] /meaning1/meaning2/
-const cedictMap = new Map();
+function isCJK(ch) {
+  const cp = ch.codePointAt(0);
+  return (cp >= 0x4E00 && cp <= 0x9FFF)   // CJK Unified Ideographs
+      || (cp >= 0x3400 && cp <= 0x4DBF)   // CJK Extension A
+      || (cp >= 0x20000 && cp <= 0x2A6DF) // CJK Extension B
+      || (cp >= 0xF900 && cp <= 0xFAFF)   // CJK Compatibility
+      || (cp >= 0x2E80 && cp <= 0x2EFF);  // CJK Radicals Supplement
+}
+
+// ── 1. Parse CC-CEDICT ────────────────────────────────────────────────────────
+console.log("Parsing CC-CEDICT...");
+const cedictLines = fs.readFileSync(path.join(RAW, "cedict.txt"), "utf8")
+  .split("\n").filter(l => !l.startsWith("#") && l.trim());
+
+const cedictMap = new Map(); // char → { pinyin, meaning }
 for (const line of cedictLines) {
   const match = line.match(/^(\S+)\s+(\S+)\s+\[([^\]]+)\]\s+\/(.+)\/\s*$/);
   if (!match) continue;
-  const [, , simp, pinyin, meaningsRaw] = match;
-  if ([...simp].length !== 1) continue; // single char only
-  const code = simp.codePointAt(0);
-  if (code < 0x4e00) continue; // CJK range only
+  const [, , simp, pinyinRaw, meaningsRaw] = match;
+  if ([...simp].length !== 1 || !isCJK(simp)) continue;
+  if (cedictMap.has(simp)) continue; // keep first (most common) entry
 
-  const meanings = meaningsRaw
-    .split("/")
-    .map((m) => m.trim())
-    .filter(Boolean);
+  const meanings = meaningsRaw.split("/").map(m => m.trim()).filter(Boolean);
+  const filtered = meanings.filter(m => !m.startsWith("variant of") && !m.startsWith("old variant"));
+  const meaning = (filtered.length > 0 ? filtered : meanings).slice(0, 2).join("; ");
 
-  // Keep first entry per char (most common reading), skip "variant of" entries
-  if (!cedictMap.has(simp)) {
-    cedictMap.set(simp, { pinyin, meanings });
-  }
+  cedictMap.set(simp, { pinyin: numericToTone(pinyinRaw), meaning });
 }
-console.log(`CEDICT: ${cedictMap.size} unique single CJK chars`);
+console.log(`CEDICT: ${cedictMap.size} single CJK chars`);
 
-// --- Parse HSK vocabulary (for radical + HSK level) ---
+// ── 2. Parse Make Me a Hanzi ─────────────────────────────────────────────────
+console.log("Parsing Make Me a Hanzi...");
+const IDS_OPS = new Set([..."⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻"]);
+
+function extractComponents(decomp) {
+  if (!decomp) return [];
+  const out = [];
+  for (const ch of decomp) {
+    if (!IDS_OPS.has(ch) && ch !== "？" && isCJK(ch)) out.push(ch);
+  }
+  return [...new Set(out)];
+}
+
+const mmahByChar = new Map(); // char → mmah entry
+for (const line of fs.readFileSync(path.join(RAW, "makemeahanzi.txt"), "utf8").split("\n").filter(Boolean)) {
+  try {
+    const e = JSON.parse(line);
+    if (e.character && isCJK(e.character)) mmahByChar.set(e.character, e);
+  } catch {}
+}
+console.log(`Make Me a Hanzi: ${mmahByChar.size} chars`);
+
+// ── 3. Parse HSK vocabulary ───────────────────────────────────────────────────
 console.log("Parsing HSK vocabulary...");
-const hskRaw = JSON.parse(
-  fs.readFileSync(path.join(RAW, "hsk-complete.json"), "utf8")
-);
-
-// Map: char -> { radical, hsk }
-// HSK levels: old-1..old-6 → 1..6
-const hskMap = new Map();
-for (const entry of hskRaw) {
+const hskMap = new Map(); // char → { radical, hsk }
+for (const entry of JSON.parse(fs.readFileSync(path.join(RAW, "hsk-complete.json"), "utf8"))) {
   const simp = entry.simplified;
-  if (!simp || [...simp].length !== 1) continue;
-  const code = simp.codePointAt(0);
-  if (code < 0x4e00) continue;
-
-  // Find lowest old-N level
+  if (!simp || [...simp].length !== 1 || !isCJK(simp)) continue;
   const levels = (entry.level || [])
-    .filter((l) => /^old-[1-6]$/.test(l))
-    .map((l) => parseInt(l.split("-")[1]));
-  const hsk = levels.length > 0 ? Math.min(...levels) : null;
-
+    .filter(l => /^old-[1-6]$/.test(l))
+    .map(l => parseInt(l.split("-")[1]));
   hskMap.set(simp, {
     radical: entry.radical || null,
-    hsk,
+    hsk: levels.length > 0 ? Math.min(...levels) : null,
   });
 }
-console.log(`HSK map: ${hskMap.size} single chars`);
+console.log(`HSK map: ${hskMap.size} chars`);
 
-// --- Build radical name map ---
-// We'll use a small hardcoded map for the 214 Kangxi radicals (common ones)
-// The radical character itself is sufficient for display; radicalName is for Vietnamese
-// We'll leave radicalName = radical for now (user can annotate later)
+// ── 4. Union all chars ────────────────────────────────────────────────────────
+console.log("Building union...");
+const allChars = new Set([...cedictMap.keys(), ...mmahByChar.keys()]);
+console.log(`Union: ${allChars.size} unique chars`);
 
-// --- Merge ---
-console.log("Merging...");
+// ── 5. Merge into result ──────────────────────────────────────────────────────
 const result = {};
-let skippedNoRadical = 0;
 
-for (const [char, cedict] of cedictMap) {
-  const hskData = hskMap.get(char);
-  const radical = hskData?.radical || null;
-  const hskLevel = hskData?.hsk || "beyond";
+for (const char of allChars) {
+  const cedict = cedictMap.get(char);
+  const mmah = mmahByChar.get(char);
+  const hsk = hskMap.get(char);
 
-  // Skip chars with no radical info AND not in HSK 1-6
-  if (!radical) {
-    skippedNoRadical++;
-    continue;
-  }
+  // Radical: HSK first (most accurate for simplified), then MMAH
+  const radical = hsk?.radical || mmah?.radical || "";
 
-  // Clean up pinyin: remove tone marks normalization not needed, keep as-is
-  const pinyin = cedict.pinyin;
+  // HSK level
+  const hskLevel = hsk?.hsk ?? "beyond";
 
-  // Meaning: join first 2 meanings, skip "variant of" entries as primary
-  const filteredMeanings = cedict.meanings.filter(
-    (m) => !m.startsWith("variant of") && !m.startsWith("old variant")
-  );
-  const meaning =
-    filteredMeanings.length > 0
-      ? filteredMeanings.slice(0, 2).join("; ")
-      : cedict.meanings.slice(0, 1).join("");
+  // Pinyin: CEDICT first (has tones), MMAH fallback
+  const pinyin = cedict?.pinyin || (mmah?.pinyin?.[0] ?? "");
+
+  // Meaning: CEDICT (English, cleaned), MMAH definition fallback
+  const meaning = cedict?.meaning || mmah?.definition || "";
 
   result[char] = {
     char,
     pinyin,
     meaning,
     radical,
-    radicalName: radical, // placeholder; same as radical char for now
+    radicalName: radical,
     hsk: hskLevel,
+    components: [], // filled next
   };
 }
 
-// Also add HSK chars that might not be in CEDICT
-for (const [char, hskData] of hskMap) {
-  if (result[char] || !hskData.radical) continue;
-  // Not in CEDICT, but in HSK — add with empty meaning
-  result[char] = {
-    char,
-    pinyin: "",
-    meaning: "",
-    radical: hskData.radical,
-    radicalName: hskData.radical,
-    hsk: hskData.hsk || "beyond",
-  };
+// ── 6. Fill components ────────────────────────────────────────────────────────
+let withComponents = 0;
+for (const [char, entry] of Object.entries(result)) {
+  const mmah = mmahByChar.get(char);
+  const comps = mmah
+    ? extractComponents(mmah.decomposition).filter(c => c !== char && result[c])
+    : [];
+  entry.components = comps;
+  if (comps.length > 0) withComponents++;
 }
 
+// ── 7. Stats ──────────────────────────────────────────────────────────────────
 const total = Object.keys(result).length;
-console.log(`Output: ${total} characters`);
-console.log(`Skipped (no radical): ${skippedNoRadical}`);
-
-// Stats by HSK
 const byHsk = {};
-for (const c of Object.values(result)) {
-  byHsk[c.hsk] = (byHsk[c.hsk] || 0) + 1;
-}
+for (const c of Object.values(result)) byHsk[c.hsk] = (byHsk[c.hsk] || 0) + 1;
+const noRadical = Object.values(result).filter(c => !c.radical).length;
+
+console.log(`Total: ${total} characters`);
+console.log(`No radical: ${noRadical}`);
+console.log(`With components: ${withComponents}`);
 console.log("By HSK:", byHsk);
 
-// Stats by radical
-const radicalCounts = {};
-for (const c of Object.values(result)) {
-  radicalCounts[c.radical] = (radicalCounts[c.radical] || 0) + 1;
-}
-const topRadicals = Object.entries(radicalCounts)
-  .sort((a, b) => b[1] - a[1])
-  .slice(0, 10);
-console.log("Top 10 radicals:", topRadicals);
-
+// ── 8. Write ──────────────────────────────────────────────────────────────────
 fs.writeFileSync(OUT, JSON.stringify(result, null, 0), "utf8");
 console.log(`Written to ${OUT} (${Math.round(fs.statSync(OUT).size / 1024)}KB)`);

@@ -38,6 +38,7 @@ export function Header() {
 
   const navigation = [
     { name: t('home'), href: '/' },
+    { name: t('guide'), href: '/guide' },
     // { name: t('aboutme'), href: '/about' },
     // { name: t('blog'), href: '/blog' },
     { name: t('project'), href: '/projects' },

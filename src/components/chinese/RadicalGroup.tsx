@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/src/utils/ui";
 import { Badge } from "@/src/components/ui/Badge";
@@ -10,6 +11,7 @@ import {
 } from "@/src/components/ui/Collapsible";
 import { CharacterCard } from "./CharacterCard";
 import type { CharacterInfo } from "@/src/data/chinese";
+import type { UserEdits } from "./EditCardModal";
 
 interface RadicalGroupProps {
   radical: string;
@@ -18,17 +20,29 @@ interface RadicalGroupProps {
   isOpen: boolean;
   onToggle: (radical: string) => void;
   hiddenCards: Set<string>;
+  showKnownOnly?: boolean;
   onToggleHide: (char: string) => void;
+  onNavigate: (char: string) => void;
+  onSave: (char: string, edits: UserEdits) => void;
+  userEdits: Record<string, UserEdits>;
+  onEditRequest: () => boolean;
+  editLocked: boolean;
 }
 
-export function RadicalGroup({
+function RadicalGroupInner({
   radical,
   radicalName,
   characters,
   isOpen,
   onToggle,
   hiddenCards,
+  showKnownOnly,
   onToggleHide,
+  onNavigate,
+  onSave,
+  userEdits,
+  onEditRequest,
+  editLocked,
 }: RadicalGroupProps) {
   return (
     <Collapsible open={isOpen} onOpenChange={() => onToggle(radical)}>
@@ -39,7 +53,7 @@ export function RadicalGroup({
               className="text-3xl leading-none"
               style={{ fontFamily: "var(--font-noto-serif-sc), 'SimSun', serif" }}
             >
-              {radical}
+              {radical === "__unknown__" ? "?" : radical}
             </span>
             <span className="text-sm text-muted-foreground">{radicalName}</span>
             <Badge variant="secondary" className="text-xs">
@@ -57,12 +71,17 @@ export function RadicalGroup({
 
       <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 pt-3 pb-1 px-1">
-          {characters.map((c) => (
+          {isOpen && (showKnownOnly ? characters.filter((c) => hiddenCards.has(c.char)) : characters).map((c) => (
             <CharacterCard
               key={c.char}
               info={c}
+              edits={userEdits[c.char] ?? {}}
               hidden={hiddenCards.has(c.char)}
               onToggleHide={onToggleHide}
+              onNavigate={onNavigate}
+              onSave={onSave}
+              onEditRequest={onEditRequest}
+              editLocked={editLocked}
             />
           ))}
         </div>
@@ -70,3 +89,20 @@ export function RadicalGroup({
     </Collapsible>
   );
 }
+
+export const RadicalGroup = memo(RadicalGroupInner, (prev, next) => {
+  if (prev.radical !== next.radical) return false;
+  if (prev.isOpen !== next.isOpen) return false;
+  if (prev.editLocked !== next.editLocked) return false;
+  if (prev.characters !== next.characters) return false;
+  if (prev.userEdits !== next.userEdits) return false;
+  if (prev.onToggle !== next.onToggle) return false;
+  if (prev.onToggleHide !== next.onToggleHide) return false;
+  if (prev.onNavigate !== next.onNavigate) return false;
+  if (prev.onSave !== next.onSave) return false;
+  if (prev.onEditRequest !== next.onEditRequest) return false;
+  if (prev.showKnownOnly !== next.showKnownOnly) return false;
+  // Only re-render if hidden status of chars in this group actually changed
+  const chars = next.characters.map((c) => c.char);
+  return chars.every((ch) => prev.hiddenCards.has(ch) === next.hiddenCards.has(ch));
+});

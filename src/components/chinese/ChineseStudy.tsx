@@ -4,6 +4,9 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import { getAllCharacters, type CharacterInfo, type HskLevel } from "@/src/data/chinese";
 import { RadicalGroup } from "./RadicalGroup";
 import { CharacterCard } from "./CharacterCard";
+import type { UserEdits } from "./EditCardModal";
+import { useEditAuth } from "./useEditAuth";
+import { KeyPromptModal } from "./KeyPromptModal";
 import {
   Select,
   SelectContent,
@@ -14,10 +17,18 @@ import {
 import { Checkbox } from "@/src/components/ui/Checkbox";
 import { cn } from "@/src/utils/ui";
 
-// TODO: Implement Neon DB persistence when ready.
-// Should upsert a row in a `card_states` table keyed by (user_id, char).
-async function saveCardState(_char: string, _hidden: boolean): Promise<void> {
-  return;
+async function apiGet<T>(path: string): Promise<T> {
+  const res = await fetch(path);
+  if (!res.ok) throw new Error(`GET ${path} failed`);
+  return res.json() as Promise<T>;
+}
+
+async function apiPost(path: string, body: unknown): Promise<void> {
+  await fetch(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
 }
 
 const HSK_ORDER: Record<HskLevel, number> = { 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, beyond: 7 };
@@ -38,6 +49,22 @@ export function ChineseStudy() {
   const [openGroups, setOpenGroups] = useState<Set<string>>(new Set());
   const [hiddenCards, setHiddenCards] = useState<Set<string>>(new Set());
   const [showKnownOnly, setShowKnownOnly] = useState(false);
+  const [showKnownCardsOnly, setShowKnownCardsOnly] = useState(false);
+  const [userEdits, setUserEdits] = useState<Record<string, UserEdits>>({});
+  const [loaded, setLoaded] = useState(false);
+  const { auth, requestEdit, submitKey, dismiss } = useEditAuth();
+
+  // Load persisted state from Neon on mount
+  useEffect(() => {
+    Promise.all([
+      apiGet<Record<string, boolean>>("/api/chinese/state"),
+      apiGet<Record<string, UserEdits>>("/api/chinese/edits"),
+    ]).then(([states, edits]) => {
+      const hidden = new Set(Object.entries(states).filter(([, v]) => v).map(([k]) => k));
+      setHiddenCards(hidden);
+      setUserEdits(edits);
+    }).catch(() => {/* silently ignore — work offline */}).finally(() => setLoaded(true));
+  }, []);
 
   const allChars = useMemo(() => getAllCharacters(), []);
 
@@ -49,10 +76,11 @@ export function ChineseStudy() {
   const radicalGroups = useMemo((): RadicalGroupData[] => {
     const map = new Map<string, RadicalGroupData>();
     for (const c of filtered) {
-      if (!map.has(c.radical)) {
-        map.set(c.radical, { radical: c.radical, radicalName: c.radicalName, chars: [] });
+      const key = c.radical || "__unknown__";
+      if (!map.has(key)) {
+        map.set(key, { radical: key, radicalName: c.radicalName, chars: [] });
       }
-      map.get(c.radical)!.chars.push(c);
+      map.get(key)!.chars.push(c);
     }
     for (const g of map.values()) {
       g.chars.sort((a, b) => HSK_ORDER[a.hsk] - HSK_ORDER[b.hsk]);
@@ -81,8 +109,16 @@ export function ChineseStudy() {
       const nowHidden = !next.has(char);
       if (nowHidden) next.add(char);
       else next.delete(char);
-      void saveCardState(char, nowHidden);
+      void apiPost("/api/chinese/state", { char, hidden: nowHidden });
       return next;
+    });
+  }, []);
+
+  const handleSave = useCallback((char: string, edits: UserEdits) => {
+    setUserEdits((prev) => {
+      const merged = { ...(prev[char] ?? {}), ...edits };
+      void apiPost("/api/chinese/edits", { char, edits: merged });
+      return { ...prev, [char]: merged };
     });
   }, []);
 
@@ -99,6 +135,29 @@ export function ChineseStudy() {
     const g = visibleGroups.find((g) => g.radical === selectedRadical);
     return g?.chars ?? [];
   }, [visibleGroups, selectedRadical]);
+
+  const handleNavigate = useCallback(
+    (char: string) => {
+      const charData = allChars.find((c) => c.char === char);
+      if (!charData) return;
+
+      if (viewMode === "all") {
+        // Open the group containing this char, then scroll to card
+        setOpenGroups((prev) => new Set([...prev, charData.radical]));
+        // Scroll after state update + DOM paint
+        setTimeout(() => {
+          document.getElementById(`char-${char}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 150);
+      } else {
+        // Switch to the radical of this char, then scroll to card
+        setSelectedRadical(charData.radical);
+        setTimeout(() => {
+          document.getElementById(`char-${char}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 150);
+      }
+    },
+    [allChars, viewMode]
+  );
 
   const hskFilterValue = (opt: string): HskLevel | "all" => {
     if (opt === "Tất cả") return "all";
@@ -118,6 +177,7 @@ export function ChineseStudy() {
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             {filtered.length.toLocaleString()} ký tự · {visibleGroups.length} bộ thủ
+            {!loaded && <span className="ml-2 opacity-50">· Đang tải...</span>}
           </p>
         </div>
 
@@ -170,7 +230,7 @@ export function ChineseStudy() {
             })}
           </div>
 
-          {/* Known-only filter */}
+          {/* Known-only filters */}
           <label className="flex items-center gap-2 cursor-pointer shrink-0">
             <Checkbox
               checked={showKnownOnly}
@@ -178,6 +238,15 @@ export function ChineseStudy() {
             />
             <span className="text-sm text-muted-foreground select-none">
               Chỉ hiện bộ thủ có từ đã biết
+            </span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer shrink-0">
+            <Checkbox
+              checked={showKnownCardsOnly}
+              onCheckedChange={(v) => setShowKnownCardsOnly(Boolean(v))}
+            />
+            <span className="text-sm text-muted-foreground select-none">
+              Chỉ hiện từ đã biết
             </span>
           </label>
         </div>
@@ -192,7 +261,7 @@ export function ChineseStudy() {
               {visibleGroups.map((g) => (
                 <SelectItem key={g.radical} value={g.radical}>
                   <span style={{ fontFamily: "var(--font-noto-serif-sc), serif" }}>
-                    {g.radical}
+                    {g.radical === "__unknown__" ? "?" : g.radical}
                   </span>
                   {" "}({g.chars.length})
                 </SelectItem>
@@ -213,18 +282,29 @@ export function ChineseStudy() {
                 isOpen={openGroups.has(g.radical)}
                 onToggle={handleToggleGroup}
                 hiddenCards={hiddenCards}
+                showKnownOnly={showKnownCardsOnly}
                 onToggleHide={handleToggleHide}
+                onNavigate={handleNavigate}
+                onSave={handleSave}
+                userEdits={userEdits}
+                onEditRequest={requestEdit}
+                editLocked={auth.status === "locked"}
               />
             ))}
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-            {selectedGroupChars.map((c) => (
+            {(showKnownCardsOnly ? selectedGroupChars.filter((c) => hiddenCards.has(c.char)) : selectedGroupChars).map((c) => (
               <CharacterCard
                 key={c.char}
                 info={c}
+                edits={userEdits[c.char] ?? {}}
                 hidden={hiddenCards.has(c.char)}
                 onToggleHide={handleToggleHide}
+                onNavigate={handleNavigate}
+                onSave={handleSave}
+                onEditRequest={requestEdit}
+                editLocked={auth.status === "locked"}
               />
             ))}
           </div>
@@ -243,6 +323,14 @@ export function ChineseStudy() {
           Data: CC-CEDICT (CC BY-SA 3.0) · HSK vocabulary list
         </p>
       </div>
+
+      {/* Key prompt modal */}
+      {auth.status === "prompting" && (
+        <KeyPromptModal
+          onSubmit={submitKey}
+          onDismiss={dismiss}
+        />
+      )}
     </div>
   );
 }

@@ -9,6 +9,7 @@ export interface CharacterInfo {
   radical: string;
   radicalName: string;
   hsk: HskLevel;
+  components: string[];
 }
 
 export const CHINESE_DATA = rawData as Record<string, CharacterInfo>;

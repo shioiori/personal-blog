@@ -1,4 +1,5 @@
 import { useTranslations } from 'next-intl'
+import Link from 'next/link'
 
 export const Welcome = () => {
   const t = useTranslations('Home')
@@ -17,11 +18,18 @@ export const Welcome = () => {
           ユートピオスフィア
         </span>
       </h1>
-      <p className="text-xl text-muted-foreground">Tiếng Việt & English</p>
+      <p className="text-xl text-muted-foreground">Tiếng Việt & English</p>
       <p className="text-muted-foreground leading-relaxed">
         {t('description').split('\n').map((line, i, arr) => (
           <span key={i}>{line}{i < arr.length - 1 && <br />}</span>
         ))}
+      </p>
+      <p className="text-muted-foreground leading-relaxed">
+        {t('guidePrompt')}{' '}
+        <Link href="/guide" className="text-primary underline underline-offset-4 hover:opacity-80 transition-opacity">
+          {t('guideLink')}
+        </Link>
+        {' '}{t('guidePromptSuffix')}
       </p>
     </div>
   )
