@@ -34,6 +34,11 @@ async function apiPost(path: string, body: unknown): Promise<void> {
 }
 
 const HSK_ORDER: Record<HskLevel, number> = { 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, beyond: 7 };
+const byFreq = (a: CharacterInfo, b: CharacterInfo) => {
+  const ra = a.frequencyRank ?? Infinity;
+  const rb = b.frequencyRank ?? Infinity;
+  return ra !== rb ? ra - rb : HSK_ORDER[a.hsk] - HSK_ORDER[b.hsk];
+};
 const HSK_OPTIONS = ["Tất cả", "HSK 1", "HSK 2", "HSK 3", "HSK 4", "HSK 5", "HSK 6", "Không rõ"] as const;
 
 type ViewMode = "all" | "byRadical" | "review";
@@ -86,11 +91,9 @@ export function ChineseStudy() {
       map.get(key)!.chars.push(c);
     }
     for (const g of map.values()) {
-      g.chars.sort((a, b) => HSK_ORDER[a.hsk] - HSK_ORDER[b.hsk]);
+      g.chars.sort(byFreq);
     }
-    return [...map.values()].sort(
-      (a, b) => HSK_ORDER[a.chars[0].hsk] - HSK_ORDER[b.chars[0].hsk]
-    );
+    return [...map.values()].sort((a, b) => byFreq(a.chars[0], b.chars[0]));
   }, [filtered]);
 
   const visibleGroups = useMemo(() => {
