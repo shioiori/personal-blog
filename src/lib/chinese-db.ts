@@ -21,6 +21,10 @@ import type { UserEdits } from "@/src/components/chinese/EditCardModal";
 //   updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 //   PRIMARY KEY (session_id, char)
 // );
+//
+// Base character data (char, pinyin, meaning, radical, hsk, frequencyRank, ...)
+// is read directly from src/data/chinese-generated.json at runtime.
+// The chinese_characters DB table is managed separately by enrichment scripts.
 
 export async function ensureTables() {
   await sql`
@@ -44,54 +48,6 @@ export async function ensureTables() {
       PRIMARY KEY (session_id, char)
     )
   `;
-  await sql`
-    CREATE TABLE IF NOT EXISTS chinese_characters (
-      char        TEXT PRIMARY KEY,
-      pinyin      TEXT NOT NULL DEFAULT '',
-      meaning     TEXT NOT NULL DEFAULT '',
-      radical     TEXT NOT NULL DEFAULT '',
-      radical_name TEXT NOT NULL DEFAULT '',
-      hsk         TEXT NOT NULL DEFAULT 'beyond',
-      components  TEXT[] NOT NULL DEFAULT '{}',
-      seeded_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    )
-  `;
-}
-
-// ── Base character data (seed from chinese-generated.json) ───────────────────
-
-export async function getCharacterCount(): Promise<number> {
-  const rows = await sql`SELECT COUNT(*)::int AS n FROM chinese_characters`;
-  return rows[0].n as number;
-}
-
-export async function seedCharacters(
-  chars: Array<{
-    char: string;
-    pinyin: string;
-    meaning: string;
-    radical: string;
-    radicalName: string;
-    hsk: string;
-    components: string[];
-  }>
-) {
-  // Insert in batches of 500 to avoid query size limits
-  const BATCH = 500;
-  for (let i = 0; i < chars.length; i += BATCH) {
-    const batch = chars.slice(i, i + BATCH);
-    // Build VALUES manually — neon tagged template doesn't support array spreading
-    for (const c of batch) {
-      await sql`
-        INSERT INTO chinese_characters (char, pinyin, meaning, radical, radical_name, hsk, components)
-        VALUES (
-          ${c.char}, ${c.pinyin}, ${c.meaning}, ${c.radical},
-          ${c.radicalName}, ${c.hsk}, ${c.components}
-        )
-        ON CONFLICT (char) DO NOTHING
-      `;
-    }
-  }
 }
 
 // ── Card state (hidden/visible) ──────────────────────────────────────────────
