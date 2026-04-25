@@ -9,7 +9,9 @@
     "undo": "Hoàn tác",
     "clear": "Xóa",
     "pinyin": "Phiên âm",
-    "meaning": "Nghĩa",
+    "hanViet": "Hán Việt",
+    "meaningVi": "Tiếng Việt",
+    "meaning": "Tiếng Anh",
     "loadingInfo": "Đang tải..."
   }
 }

@@ -37,7 +37,12 @@ export async function POST(req: NextRequest) {
     const data = await response.json();
 
     // Response: ["SUCCESS", [[request_id, ["char1","char2",...], [], {...}]]]
-    const suggestions: string[] = data?.[1]?.[0]?.[1] ?? [];
+    const raw: string[] = data?.[1]?.[0]?.[1] ?? [];
+
+    // Keep only single Chinese characters
+    const suggestions = raw.filter(
+      (s) => s.length === 1 && /\p{Script=Han}/u.test(s)
+    );
 
     return NextResponse.json({ suggestions });
   } catch {

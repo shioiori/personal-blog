@@ -2,14 +2,16 @@
   "Chinese": {
     "title": "Chinese Character Search",
     "description": "Draw a character to get recognition suggestions, then tap a suggestion to see its details.",
-    "drawInstruction": "Draw a character in the box below. A new suggestion will appear after each stroke.",
+    "drawInstruction": "Draw a character in the box below. Suggestions appear after each stroke.",
     "suggestions": "Suggestions",
     "startDrawing": "Draw a character to see suggestions",
     "noSuggestions": "No suggestions found. Try again.",
     "undo": "Undo",
     "clear": "Clear",
     "pinyin": "Pinyin",
-    "meaning": "Meaning",
+    "hanViet": "Hán Việt",
+    "meaningVi": "Vietnamese",
+    "meaning": "English",
     "loadingInfo": "Loading..."
   }
 }
