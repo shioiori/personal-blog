@@ -136,9 +136,9 @@ export const CharacterCard = memo(function CharacterCard({ info, edits, hidden, 
               {(edits.hanViet || edits.meaningVi || info.meaning || edits.note) && (
                 <div className="space-y-0.5 opacity-80">
                   {edits.hanViet && <p><span className="font-medium">Hán Việt:</span> {edits.hanViet}</p>}
-                  {edits.meaningVi && <p><span className="font-medium">🇻🇳</span> {edits.meaningVi}</p>}
+                  {edits.meaningVi && <p className="whitespace-pre-wrap"><span className="font-medium">🇻🇳</span> {edits.meaningVi}</p>}
                   {info.meaning && edits.meaningVi && <p><span className="font-medium">🇬🇧</span> {info.meaning}</p>}
-                  {edits.note && <p className="italic">{edits.note}</p>}
+                  {edits.note && <p className="italic whitespace-pre-wrap">{edits.note}</p>}
                 </div>
               )}
             </TooltipContent>
