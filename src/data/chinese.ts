@@ -10,6 +10,7 @@ export interface CharacterInfo {
   radicalName: string;
   hsk: HskLevel;
   components: string[];
+  frequencyRank?: number | null;
 }
 
 export const CHINESE_DATA = rawData as Record<string, CharacterInfo>;
