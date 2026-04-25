@@ -37,11 +37,10 @@ export function ChineseSearch() {
   const [strokes, setStrokes] = useState<Stroke[]>([]);
   const [currentStroke, setCurrentStroke] = useState<Stroke>([]);
   const [isDrawing, setIsDrawing] = useState(false);
-
-  // Map of char -> info, loaded in bulk after recognition
-  const [suggestionInfos, setSuggestionInfos] = useState<CharInfo[]>([]);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
   const [selectedChar, setSelectedChar] = useState<CharInfo | null>(null);
   const [isRecognizing, setIsRecognizing] = useState(false);
+  const [isLoadingInfo, setIsLoadingInfo] = useState(false);
 
   const redraw = useCallback((allStrokes: Stroke[], liveStroke: Stroke = []) => {
     const canvas = canvasRef.current;
@@ -114,19 +113,10 @@ export function ChineseSearch() {
     recognize(finished);
   };
 
-  const fetchInfo = async (char: string): Promise<CharInfo> => {
-    try {
-      const res = await fetch(`/api/chinese-info?char=${encodeURIComponent(char)}`);
-      return await res.json();
-    } catch {
-      return { char, pinyin: null, meaning: null, hanViet: null, meaningVi: null, hsk: null };
-    }
-  };
-
   const recognize = async (allStrokes: Stroke[]) => {
     if (allStrokes.length === 0) return;
     setIsRecognizing(true);
-    setSuggestionInfos([]);
+    setSuggestions([]);
     setSelectedChar(null);
     try {
       const ink = allStrokes.map((s) => [s.map((p) => p.x), s.map((p) => p.y)]);
@@ -136,14 +126,28 @@ export function ChineseSearch() {
         body: JSON.stringify({ ink, width: CANVAS_SIZE, height: CANVAS_SIZE })
       });
       const data = await res.json();
-      const chars: string[] = data.suggestions ?? [];
-      // Fetch info for all suggestions in parallel
-      const infos = await Promise.all(chars.map(fetchInfo));
-      setSuggestionInfos(infos);
+      setSuggestions(data.suggestions ?? []);
     } catch {
       // silently fail
     } finally {
       setIsRecognizing(false);
+    }
+  };
+
+  const handleSelectChar = async (char: string) => {
+    if (selectedChar?.char === char) {
+      setSelectedChar(null);
+      return;
+    }
+    setIsLoadingInfo(true);
+    setSelectedChar({ char, pinyin: null, meaning: null, hanViet: null, meaningVi: null, hsk: null });
+    try {
+      const res = await fetch(`/api/chinese-info?char=${encodeURIComponent(char)}`);
+      setSelectedChar(await res.json());
+    } catch {
+      setSelectedChar({ char, pinyin: null, meaning: null, hanViet: null, meaningVi: null, hsk: null });
+    } finally {
+      setIsLoadingInfo(false);
     }
   };
 
@@ -152,13 +156,13 @@ export function ChineseSearch() {
     setStrokes(next);
     redraw(next);
     if (next.length > 0) recognize(next);
-    else { setSuggestionInfos([]); setSelectedChar(null); }
+    else { setSuggestions([]); setSelectedChar(null); }
   };
 
   const handleClear = () => {
     setStrokes([]);
     setCurrentStroke([]);
-    setSuggestionInfos([]);
+    setSuggestions([]);
     setSelectedChar(null);
     redraw([]);
   };
@@ -205,77 +209,70 @@ export function ChineseSearch() {
         </div>
       </div>
 
-      {/* Right: Suggestions list + expanded detail */}
-      <div className="flex-1 flex flex-col gap-4 min-w-0">
-        <div className="flex items-center gap-2">
-          <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-            {t("suggestions")}
-          </h3>
-          {isRecognizing && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+      {/* Right: Suggestions + detail */}
+      <div className="flex-1 flex flex-col gap-6 min-w-0">
+        {/* Suggestion buttons — char only */}
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+              {t("suggestions")}
+            </h3>
+            {isRecognizing && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+          </div>
+
+          {suggestions.length === 0 && !isRecognizing ? (
+            <p className="text-sm text-muted-foreground italic">
+              {strokes.length === 0 ? t("startDrawing") : t("noSuggestions")}
+            </p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {suggestions.map((char, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleSelectChar(char)}
+                  className={`w-12 h-12 text-2xl rounded-lg border-2 transition-all hover:scale-105 hover:border-primary hover:shadow-md ${
+                    selectedChar?.char === char
+                      ? "border-primary bg-primary/10 text-primary shadow-sm"
+                      : "border-border bg-background hover:bg-accent"
+                  }`}
+                  style={{ fontFamily: "serif" }}
+                >
+                  {char}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
-        {suggestionInfos.length === 0 && !isRecognizing && (
-          <p className="text-sm text-muted-foreground italic">
-            {strokes.length === 0 ? t("startDrawing") : t("noSuggestions")}
-          </p>
-        )}
-
-        {/* Suggestion rows */}
-        <div className="flex flex-col divide-y divide-border rounded-xl border border-border overflow-hidden">
-          {suggestionInfos.map((info) => (
-            <button
-              key={info.char}
-              onClick={() => setSelectedChar(selectedChar?.char === info.char ? null : info)}
-              className={`flex items-center gap-4 px-4 py-3 text-left transition-colors hover:bg-accent ${
-                selectedChar?.char === info.char ? "bg-primary/5 border-l-2 border-l-primary" : ""
-              }`}
-            >
-              {/* Character */}
-              <span className="text-3xl leading-none w-10 text-center shrink-0" style={{ fontFamily: "serif" }}>
-                {info.char}
-              </span>
-
-              {/* Pinyin + meaning */}
-              <div className="flex flex-col min-w-0">
-                <span className="text-sm font-medium text-primary">{info.pinyin ?? ""}</span>
-                <span className="text-sm text-muted-foreground truncate">
-                  {info.hanViet ? `${info.hanViet} · ` : ""}
-                  {info.meaningVi ?? info.meaning ?? "—"}
-                </span>
-              </div>
-
-              {/* HSK badge */}
-              {info.hsk && (
-                <span className={`ml-auto text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ${HSK_COLOR[String(info.hsk)]}`}>
-                  {info.hsk === "beyond" ? "—" : `HSK ${info.hsk}`}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
-
-        {/* Expanded detail panel */}
+        {/* Detail panel — shown after clicking a suggestion */}
         {selectedChar && (
           <div className="border border-border rounded-xl p-6 bg-card">
-            <div className="flex items-start gap-6">
-              <div className="flex flex-col items-center gap-2 shrink-0">
-                <span className="text-8xl leading-none select-all" style={{ fontFamily: "serif" }}>
-                  {selectedChar.char}
-                </span>
-                {selectedChar.hsk && (
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${HSK_COLOR[String(selectedChar.hsk)]}`}>
-                    {selectedChar.hsk === "beyond" ? "Beyond HSK" : `HSK ${selectedChar.hsk}`}
+            {isLoadingInfo ? (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span className="text-sm">{t("loadingInfo")}</span>
+              </div>
+            ) : (
+              <div className="flex items-start gap-6">
+                <div className="flex flex-col items-center gap-2 shrink-0">
+                  <span className="text-8xl leading-none select-all" style={{ fontFamily: "serif" }}>
+                    {selectedChar.char}
                   </span>
-                )}
-              </div>
+                  {selectedChar.hsk && (
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${HSK_COLOR[String(selectedChar.hsk)]}`}>
+                      {selectedChar.hsk === "beyond" ? "Beyond HSK" : `HSK ${selectedChar.hsk}`}
+                    </span>
+                  )}
+                </div>
 
-              <div className="flex flex-col gap-3 pt-1 min-w-0">
-                <InfoRow label={t("pinyin")} value={selectedChar.pinyin} />
-                {selectedChar.hanViet && <InfoRow label={t("hanViet")} value={selectedChar.hanViet} />}
-                {selectedChar.meaningVi && <InfoRow label={t("meaningVi")} value={selectedChar.meaningVi} />}
-                <InfoRow label={t("meaning")} value={selectedChar.meaning} className="text-sm text-muted-foreground" />
+                <div className="flex flex-col gap-3 pt-1 min-w-0">
+                  <InfoRow label={t("pinyin")} value={selectedChar.pinyin} />
+                  {selectedChar.hanViet && <InfoRow label={t("hanViet")} value={selectedChar.hanViet} />}
+                  {selectedChar.meaningVi && <InfoRow label={t("meaningVi")} value={selectedChar.meaningVi} />}
+                  <InfoRow label={t("meaning")} value={selectedChar.meaning} className="text-sm text-muted-foreground" />
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
       </div>
