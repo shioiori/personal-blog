@@ -33,7 +33,7 @@ async function apiPost(path: string, body: unknown): Promise<void> {
 }
 
 const HSK_ORDER: Record<HskLevel, number> = { 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, beyond: 7 };
-const HSK_OPTIONS = ["Tất cả", "HSK 1", "HSK 2", "HSK 3", "HSK 4", "HSK 5", "HSK 6"] as const;
+const HSK_OPTIONS = ["Tất cả", "HSK 1", "HSK 2", "HSK 3", "HSK 4", "HSK 5", "HSK 6", "Không rõ"] as const;
 
 type ViewMode = "all" | "byRadical" | "review";
 
@@ -47,6 +47,7 @@ export function ChineseStudy() {
   const [viewMode, setViewMode] = useState<ViewMode>("all");
   const [hskFilter, setHskFilter] = useState<HskLevel | "all">("all");
   const [selectedRadical, setSelectedRadical] = useState<string>("");
+  const [charSearch, setCharSearch] = useState("");
   const [openGroups, setOpenGroups] = useState<Set<string>>(new Set());
   const [hiddenCards, setHiddenCards] = useState<Set<string>>(new Set());
   const [showKnownOnly, setShowKnownOnly] = useState(false);
@@ -162,8 +163,23 @@ export function ChineseStudy() {
 
   const hskFilterValue = (opt: string): HskLevel | "all" => {
     if (opt === "Tất cả") return "all";
+    if (opt === "Không rõ") return "beyond";
     return parseInt(opt.split(" ")[1]) as HskLevel;
   };
+
+  const handleCharSearch = useCallback((val: string) => {
+    const char = val.slice(0, 1);
+    setCharSearch(char);
+    if (char) {
+      const found = allChars.find((c) => c.char === char);
+      if (found) setSelectedRadical(found.radical || "__unknown__");
+    }
+  }, [allChars]);
+
+  const handleRadicalChange = useCallback((val: string) => {
+    setSelectedRadical(val);
+    setCharSearch("");
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -183,47 +199,46 @@ export function ChineseStudy() {
         </div>
 
         {/* Toolbar */}
-        <div className="flex flex-wrap gap-3 items-center">
-          {/* View mode toggle */}
-          <div className="flex rounded-lg border border-border overflow-hidden shrink-0">
-            <button
-              className={cn(
-                "px-4 py-2 text-sm font-medium transition-colors",
-                viewMode === "all"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-background text-muted-foreground hover:bg-accent"
-              )}
-              onClick={() => setViewMode("all")}
-            >
-              Hiện all
-            </button>
-            <button
-              className={cn(
-                "px-4 py-2 text-sm font-medium transition-colors border-l border-border",
-                viewMode === "byRadical"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-background text-muted-foreground hover:bg-accent"
-              )}
-              onClick={() => setViewMode("byRadical")}
-            >
-              Theo bộ thủ
-            </button>
-            <button
-              className={cn(
-                "px-4 py-2 text-sm font-medium transition-colors border-l border-border",
-                viewMode === "review"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-background text-muted-foreground hover:bg-accent"
-              )}
-              onClick={() => setViewMode("review")}
-            >
-              Ôn tập
-            </button>
-          </div>
+        <div className="space-y-3">
+          {/* Row 1: view mode + HSK pills */}
+          <div className="flex flex-wrap gap-3 items-center">
+            <div className="flex rounded-lg border border-border overflow-hidden shrink-0">
+              <button
+                className={cn(
+                  "px-4 py-2 text-sm font-medium transition-colors",
+                  viewMode === "all"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-background text-muted-foreground hover:bg-accent"
+                )}
+                onClick={() => setViewMode("all")}
+              >
+                Hiện all
+              </button>
+              <button
+                className={cn(
+                  "px-4 py-2 text-sm font-medium transition-colors border-l border-border",
+                  viewMode === "byRadical"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-background text-muted-foreground hover:bg-accent"
+                )}
+                onClick={() => setViewMode("byRadical")}
+              >
+                Theo bộ thủ
+              </button>
+              <button
+                className={cn(
+                  "px-4 py-2 text-sm font-medium transition-colors border-l border-border",
+                  viewMode === "review"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-background text-muted-foreground hover:bg-accent"
+                )}
+                onClick={() => setViewMode("review")}
+              >
+                Ôn tập
+              </button>
+            </div>
 
-          {/* HSK filter + checkboxes — hidden in review mode */}
-          {viewMode !== "review" && (
-            <>
+            {viewMode !== "review" && (
               <div className="flex flex-wrap gap-1.5">
                 {HSK_OPTIONS.map((opt) => {
                   const val = hskFilterValue(opt);
@@ -243,7 +258,12 @@ export function ChineseStudy() {
                   );
                 })}
               </div>
+            )}
+          </div>
 
+          {/* Row 2: checkboxes — hidden in review mode */}
+          {viewMode !== "review" && (
+            <div className="flex flex-wrap gap-4 items-center">
               <label className="flex items-center gap-2 cursor-pointer shrink-0">
                 <Checkbox
                   checked={showKnownOnly}
@@ -262,30 +282,45 @@ export function ChineseStudy() {
                   Chỉ hiện từ đã biết
                 </span>
               </label>
-            </>
+            </div>
           )}
         </div>
 
         {/* Review tab content */}
         {viewMode === "review" && <ReviewTab />}
 
-        {/* Radical selector for mode 2 */}
+        {/* Radical selector + search for mode 2 */}
         {viewMode === "byRadical" && (
-          <Select value={selectedRadical} onValueChange={setSelectedRadical}>
-            <SelectTrigger className="w-64">
-              <SelectValue placeholder="Chọn bộ thủ..." />
-            </SelectTrigger>
-            <SelectContent>
-              {visibleGroups.map((g) => (
-                <SelectItem key={g.radical} value={g.radical}>
-                  <span style={{ fontFamily: "var(--font-noto-serif-sc), serif" }}>
-                    {g.radical === "__unknown__" ? "?" : g.radical}
-                  </span>
-                  {" "}({g.chars.length})
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex flex-wrap gap-2 items-center">
+            <input
+              type="text"
+              value={charSearch}
+              onChange={(e) => handleCharSearch(e.target.value)}
+              placeholder="Tìm từ..."
+              maxLength={1}
+              className={cn(
+                "w-24 px-3 py-2 text-lg rounded-lg border border-border bg-background",
+                "text-center focus:outline-none focus:ring-2 focus:ring-primary/50",
+                "placeholder:text-sm placeholder:text-muted-foreground"
+              )}
+              style={{ fontFamily: "var(--font-noto-serif-sc), serif" }}
+            />
+            <Select value={selectedRadical} onValueChange={handleRadicalChange}>
+              <SelectTrigger className="w-64">
+                <SelectValue placeholder="Chọn bộ thủ..." />
+              </SelectTrigger>
+              <SelectContent>
+                {visibleGroups.map((g) => (
+                  <SelectItem key={g.radical} value={g.radical}>
+                    <span style={{ fontFamily: "var(--font-noto-serif-sc), serif" }}>
+                      {g.radical === "__unknown__" ? "?" : g.radical}
+                    </span>
+                    {" "}({g.chars.length})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         )}
 
         {/* Content (study modes only) */}
