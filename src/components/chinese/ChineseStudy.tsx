@@ -294,26 +294,32 @@ export function ChineseStudy() {
         {/* Radical selector + search for mode 2 */}
         {viewMode === "byRadical" && (
           <div className="flex flex-wrap gap-2 items-center">
-            <div className="flex items-center rounded-lg border border-border overflow-hidden bg-background focus-within:ring-2 focus-within:ring-primary/50">
-              <input
-                type="text"
-                value={charSearch}
-                onChange={(e) => handleCharSearch(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && executeCharSearch()}
-                placeholder="Tìm từ..."
-                maxLength={1}
-                className="w-16 px-3 py-2 text-lg bg-transparent text-center focus:outline-none placeholder:text-sm placeholder:text-muted-foreground"
-                style={{ fontFamily: "var(--font-noto-serif-sc), serif" }}
-              />
-              <button
-                onClick={executeCharSearch}
-                className="px-2 py-2 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-              >
-                <Search className="w-4 h-4" />
-              </button>
-            </div>
+            <input
+              type="text"
+              value={charSearch}
+              onChange={(e) => handleCharSearch(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && executeCharSearch()}
+              placeholder="Nhập 1 từ..."
+              maxLength={1}
+              className={cn(
+                "w-64 h-10 px-3 text-lg rounded-md border border-border bg-background",
+                "text-center focus:outline-none focus:ring-2 focus:ring-primary/50",
+                "placeholder:text-sm placeholder:text-muted-foreground"
+              )}
+              style={{ fontFamily: "var(--font-noto-serif-sc), serif" }}
+            />
+            <button
+              onClick={executeCharSearch}
+              className={cn(
+                "h-10 px-4 flex items-center gap-2 rounded-md border border-border bg-background",
+                "text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+              )}
+            >
+              <Search className="w-4 h-4" />
+              Tìm
+            </button>
             <Select value={selectedRadical} onValueChange={handleRadicalChange}>
-              <SelectTrigger className="w-64">
+              <SelectTrigger className="w-64 h-10">
                 <SelectValue placeholder="Chọn bộ thủ..." />
               </SelectTrigger>
               <SelectContent>
