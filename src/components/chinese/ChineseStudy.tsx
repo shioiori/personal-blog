@@ -7,6 +7,7 @@ import { CharacterCard } from "./CharacterCard";
 import type { UserEdits } from "./EditCardModal";
 import { useEditAuth } from "./useEditAuth";
 import { KeyPromptModal } from "./KeyPromptModal";
+import { ReviewTab } from "./ReviewTab";
 import {
   Select,
   SelectContent,
@@ -34,7 +35,7 @@ async function apiPost(path: string, body: unknown): Promise<void> {
 const HSK_ORDER: Record<HskLevel, number> = { 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, beyond: 7 };
 const HSK_OPTIONS = ["Tất cả", "HSK 1", "HSK 2", "HSK 3", "HSK 4", "HSK 5", "HSK 6"] as const;
 
-type ViewMode = "all" | "byRadical";
+type ViewMode = "all" | "byRadical" | "review";
 
 interface RadicalGroupData {
   radical: string;
@@ -207,49 +208,66 @@ export function ChineseStudy() {
             >
               Theo bộ thủ
             </button>
+            <button
+              className={cn(
+                "px-4 py-2 text-sm font-medium transition-colors border-l border-border",
+                viewMode === "review"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-background text-muted-foreground hover:bg-accent"
+              )}
+              onClick={() => setViewMode("review")}
+            >
+              Ôn tập
+            </button>
           </div>
 
-          {/* HSK filter */}
-          <div className="flex flex-wrap gap-1.5">
-            {HSK_OPTIONS.map((opt) => {
-              const val = hskFilterValue(opt);
-              return (
-                <button
-                  key={opt}
-                  onClick={() => setHskFilter(val)}
-                  className={cn(
-                    "px-3 py-1 rounded-full text-xs font-medium border transition-colors",
-                    hskFilter === val
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-transparent border-border text-muted-foreground hover:bg-accent"
-                  )}
-                >
-                  {opt}
-                </button>
-              );
-            })}
-          </div>
+          {/* HSK filter + checkboxes — hidden in review mode */}
+          {viewMode !== "review" && (
+            <>
+              <div className="flex flex-wrap gap-1.5">
+                {HSK_OPTIONS.map((opt) => {
+                  const val = hskFilterValue(opt);
+                  return (
+                    <button
+                      key={opt}
+                      onClick={() => setHskFilter(val)}
+                      className={cn(
+                        "px-3 py-1 rounded-full text-xs font-medium border transition-colors",
+                        hskFilter === val
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-transparent border-border text-muted-foreground hover:bg-accent"
+                      )}
+                    >
+                      {opt}
+                    </button>
+                  );
+                })}
+              </div>
 
-          {/* Known-only filters */}
-          <label className="flex items-center gap-2 cursor-pointer shrink-0">
-            <Checkbox
-              checked={showKnownOnly}
-              onCheckedChange={(v) => setShowKnownOnly(Boolean(v))}
-            />
-            <span className="text-sm text-muted-foreground select-none">
-              Chỉ hiện bộ thủ có từ đã biết
-            </span>
-          </label>
-          <label className="flex items-center gap-2 cursor-pointer shrink-0">
-            <Checkbox
-              checked={showKnownCardsOnly}
-              onCheckedChange={(v) => setShowKnownCardsOnly(Boolean(v))}
-            />
-            <span className="text-sm text-muted-foreground select-none">
-              Chỉ hiện từ đã biết
-            </span>
-          </label>
+              <label className="flex items-center gap-2 cursor-pointer shrink-0">
+                <Checkbox
+                  checked={showKnownOnly}
+                  onCheckedChange={(v) => setShowKnownOnly(Boolean(v))}
+                />
+                <span className="text-sm text-muted-foreground select-none">
+                  Chỉ hiện bộ thủ có từ đã biết
+                </span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer shrink-0">
+                <Checkbox
+                  checked={showKnownCardsOnly}
+                  onCheckedChange={(v) => setShowKnownCardsOnly(Boolean(v))}
+                />
+                <span className="text-sm text-muted-foreground select-none">
+                  Chỉ hiện từ đã biết
+                </span>
+              </label>
+            </>
+          )}
         </div>
+
+        {/* Review tab content */}
+        {viewMode === "review" && <ReviewTab />}
 
         {/* Radical selector for mode 2 */}
         {viewMode === "byRadical" && (
@@ -270,47 +288,49 @@ export function ChineseStudy() {
           </Select>
         )}
 
-        {/* Content */}
-        {viewMode === "all" ? (
-          <div className="space-y-2">
-            {visibleGroups.map((g) => (
-              <RadicalGroup
-                key={g.radical}
-                radical={g.radical}
-                radicalName={g.radicalName}
-                characters={g.chars}
-                isOpen={openGroups.has(g.radical)}
-                onToggle={handleToggleGroup}
-                hiddenCards={hiddenCards}
-                showKnownOnly={showKnownCardsOnly}
-                onToggleHide={handleToggleHide}
-                onNavigate={handleNavigate}
-                onSave={handleSave}
-                userEdits={userEdits}
-                onEditRequest={requestEdit}
-                editLocked={auth.status === "locked"}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-            {(showKnownCardsOnly ? selectedGroupChars.filter((c) => hiddenCards.has(c.char)) : selectedGroupChars).map((c) => (
-              <CharacterCard
-                key={c.char}
-                info={c}
-                edits={userEdits[c.char] ?? {}}
-                hidden={hiddenCards.has(c.char)}
-                onToggleHide={handleToggleHide}
-                onNavigate={handleNavigate}
-                onSave={handleSave}
-                onEditRequest={requestEdit}
-                editLocked={auth.status === "locked"}
-              />
-            ))}
-          </div>
+        {/* Content (study modes only) */}
+        {viewMode !== "review" && (
+          viewMode === "all" ? (
+            <div className="space-y-2">
+              {visibleGroups.map((g) => (
+                <RadicalGroup
+                  key={g.radical}
+                  radical={g.radical}
+                  radicalName={g.radicalName}
+                  characters={g.chars}
+                  isOpen={openGroups.has(g.radical)}
+                  onToggle={handleToggleGroup}
+                  hiddenCards={hiddenCards}
+                  showKnownOnly={showKnownCardsOnly}
+                  onToggleHide={handleToggleHide}
+                  onNavigate={handleNavigate}
+                  onSave={handleSave}
+                  userEdits={userEdits}
+                  onEditRequest={requestEdit}
+                  editLocked={auth.status === "locked"}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+              {(showKnownCardsOnly ? selectedGroupChars.filter((c) => hiddenCards.has(c.char)) : selectedGroupChars).map((c) => (
+                <CharacterCard
+                  key={c.char}
+                  info={c}
+                  edits={userEdits[c.char] ?? {}}
+                  hidden={hiddenCards.has(c.char)}
+                  onToggleHide={handleToggleHide}
+                  onNavigate={handleNavigate}
+                  onSave={handleSave}
+                  onEditRequest={requestEdit}
+                  editLocked={auth.status === "locked"}
+                />
+              ))}
+            </div>
+          )
         )}
 
-        {visibleGroups.length === 0 && (
+        {viewMode !== "review" && visibleGroups.length === 0 && (
           <p className="text-center text-muted-foreground py-16">
             {showKnownOnly
           ? "Chưa có từ nào được đánh dấu đã biết. Ấn vào card để ẩn pinyin và nghĩa."
