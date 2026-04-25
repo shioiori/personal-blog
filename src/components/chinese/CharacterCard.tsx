@@ -25,7 +25,8 @@ export const CharacterCard = memo(function CharacterCard({ info, edits, hidden, 
   const [copied, setCopied] = useState(false);
 
   const displayPinyin = edits.pinyin || info.pinyin;
-  const displayMeaning = edits.meaningVi || info.meaning;
+  const displayHanViet = edits.hanViet || info.hanViet;
+  const displayMeaning = edits.meaningVi || info.meaningVi || info.meaning;
 
   function handleCopy(e: React.MouseEvent) {
     e.stopPropagation();
@@ -133,9 +134,9 @@ export const CharacterCard = memo(function CharacterCard({ info, edits, hidden, 
               {/* Nghĩa */}
               <p>{displayMeaning}</p>
               {/* Thông tin thêm */}
-              {(edits.hanViet || edits.meaningVi || info.meaning || edits.note) && (
+              {(displayHanViet || edits.meaningVi || info.meaningVi || info.meaning || edits.note) && (
                 <div className="space-y-0.5 opacity-80">
-                  {edits.hanViet && <p><span className="font-medium">Hán Việt:</span> {edits.hanViet}</p>}
+                  {displayHanViet && <p><span className="font-medium">Hán Việt:</span> {displayHanViet}</p>}
                   {edits.meaningVi && <p className="whitespace-pre-wrap"><span className="font-medium">🇻🇳</span> {edits.meaningVi}</p>}
                   {info.meaning && edits.meaningVi && <p><span className="font-medium">🇬🇧</span> {info.meaning}</p>}
                   {edits.note && <p className="italic whitespace-pre-wrap">{edits.note}</p>}
@@ -152,9 +153,9 @@ export const CharacterCard = memo(function CharacterCard({ info, edits, hidden, 
             hidden ? "opacity-30 blur-[3px] pointer-events-none" : "opacity-100 blur-none"
           )}
         >
-          {edits.hanViet && (
+          {displayHanViet && (
             <p className="text-xs font-semibold text-foreground/80 tracking-wide">
-              {edits.hanViet}
+              {displayHanViet}
             </p>
           )}
           <p className="text-xs font-medium text-muted-foreground tracking-wider cursor-text">

@@ -11,6 +11,8 @@ export interface CharacterInfo {
   hsk: HskLevel;
   components: string[];
   frequencyRank?: number | null;
+  hanViet?: string | null;
+  meaningVi?: string | null;
 }
 
 export const CHINESE_DATA = rawData as Record<string, CharacterInfo>;
