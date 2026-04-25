@@ -1,0 +1,15 @@
+{
+  "Chinese": {
+    "title": "Tìm kiếm chữ Hán",
+    "description": "Vẽ một chữ để nhận gợi ý, sau đó nhấn vào gợi ý để xem thông tin chi tiết.",
+    "drawInstruction": "Vẽ một chữ vào ô bên dưới. Gợi ý sẽ xuất hiện sau mỗi nét vẽ.",
+    "suggestions": "Gợi ý",
+    "startDrawing": "Hãy vẽ một chữ để xem gợi ý",
+    "noSuggestions": "Không tìm thấy gợi ý. Hãy thử lại.",
+    "undo": "Hoàn tác",
+    "clear": "Xóa",
+    "pinyin": "Phiên âm",
+    "meaning": "Nghĩa",
+    "loadingInfo": "Đang tải..."
+  }
+}
