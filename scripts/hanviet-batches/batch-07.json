@@ -1,0 +1,4002 @@
+[
+  {
+    "char": "诃",
+    "pinyin": "hē",
+    "meaning": "to scold",
+    "frequency_rank": 3687,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "铎",
+    "pinyin": "duó",
+    "meaning": "surname Duo",
+    "frequency_rank": 3688,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "戊",
+    "pinyin": "wù",
+    "meaning": "fifth of the ten Heavenly Stems 十天干[shi2 tian1 gan1]; fifth in order",
+    "frequency_rank": 3689,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "荀",
+    "pinyin": "xún",
+    "meaning": "surname Xun",
+    "frequency_rank": 3690,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "驹",
+    "pinyin": "jū",
+    "meaning": "colt",
+    "frequency_rank": 3691,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "攫",
+    "pinyin": "jué",
+    "meaning": "to seize; to snatch",
+    "frequency_rank": 3692,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "憬",
+    "pinyin": "jǐng",
+    "meaning": "awaken",
+    "frequency_rank": 3693,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "哽",
+    "pinyin": "gěng",
+    "meaning": "to choke with emotion; to choke on a piece of food",
+    "frequency_rank": 3694,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "踵",
+    "pinyin": "zhǒng",
+    "meaning": "to arrive; to follow",
+    "frequency_rank": 3695,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蟒",
+    "pinyin": "mǎng",
+    "meaning": "python",
+    "frequency_rank": 3696,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "漾",
+    "pinyin": "yàng",
+    "meaning": "to overflow; to ripple",
+    "frequency_rank": 3697,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "啧",
+    "pinyin": "zé",
+    "meaning": "(interj. of admiration or of disgust); to click one's tongue",
+    "frequency_rank": 3698,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "吮",
+    "pinyin": "shǔn",
+    "meaning": "to suck",
+    "frequency_rank": 3699,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "楠",
+    "pinyin": "nán",
+    "meaning": "variant of 楠[nan2]",
+    "frequency_rank": 3700,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "氟",
+    "pinyin": "fú",
+    "meaning": "fluorine (chemistry)",
+    "frequency_rank": 3701,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "怂",
+    "pinyin": "sóng",
+    "meaning": "variant of 㞞|𪨊[song2]",
+    "frequency_rank": 3702,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "竣",
+    "pinyin": "jùn",
+    "meaning": "complete; finish",
+    "frequency_rank": 3704,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "偕",
+    "pinyin": "xié",
+    "meaning": "in company with",
+    "frequency_rank": 3705,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "漩",
+    "pinyin": "xuán",
+    "meaning": "whirlpool; eddy",
+    "frequency_rank": 3706,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蹭",
+    "pinyin": "cèng",
+    "meaning": "to rub against; to walk slowly",
+    "frequency_rank": 3707,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "翌",
+    "pinyin": "yì",
+    "meaning": "bright; tomorrow",
+    "frequency_rank": 3708,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "臆",
+    "pinyin": "yì",
+    "meaning": "(bound form) chest; breast; (bound form) inner feelings; subjective",
+    "frequency_rank": 3709,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "挝",
+    "pinyin": "wō",
+    "meaning": "used 老撾|老挝[Lao3 wo1]",
+    "frequency_rank": 3710,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "绚",
+    "pinyin": "xuàn",
+    "meaning": "adorned; swift",
+    "frequency_rank": 3711,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "崽",
+    "pinyin": "zǎi",
+    "meaning": "child; young animal",
+    "frequency_rank": 3712,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "糜",
+    "pinyin": "mí",
+    "meaning": "surname Mi",
+    "frequency_rank": 3713,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "瘢",
+    "pinyin": "bān",
+    "meaning": "mark; scar on the skin",
+    "frequency_rank": 3714,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "跤",
+    "pinyin": "jiāo",
+    "meaning": "a tumble; a fall",
+    "frequency_rank": 3715,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "阑",
+    "pinyin": "lán",
+    "meaning": "railing; balustrade",
+    "frequency_rank": 3716,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "恬",
+    "pinyin": "tián",
+    "meaning": "quiet; calm",
+    "frequency_rank": 3717,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "豢",
+    "pinyin": "huàn",
+    "meaning": "to rear; to raise (animals)",
+    "frequency_rank": 3718,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "汶",
+    "pinyin": "wèn",
+    "meaning": "Wen River in northwest Sichuan (same as 汶川); classical name of river in Shandong, used to refer to Qi 齊國|齐国",
+    "frequency_rank": 3719,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "跷",
+    "pinyin": "qiāo",
+    "meaning": "to raise one's foot; to stand on tiptoe",
+    "frequency_rank": 3720,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "琵",
+    "pinyin": "pí",
+    "meaning": "see 琵琶, pipa lute",
+    "frequency_rank": 3721,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "憨",
+    "pinyin": "hān",
+    "meaning": "silly; simple-minded",
+    "frequency_rank": 3722,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蜗",
+    "pinyin": "wō",
+    "meaning": "snail; Taiwan pr. [gua1]",
+    "frequency_rank": 3723,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "螅",
+    "pinyin": "xī",
+    "meaning": "used in 水螅[shui3 xi1]",
+    "frequency_rank": 3724,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "惴",
+    "pinyin": "zhuì",
+    "meaning": "anxious; worried",
+    "frequency_rank": 3725,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "戟",
+    "pinyin": "jǐ",
+    "meaning": "halberd; long-handled weapon with pointed tip and crescent blade",
+    "frequency_rank": 3726,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "匮",
+    "pinyin": "kuì",
+    "meaning": "surname Kui",
+    "frequency_rank": 3727,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "恙",
+    "pinyin": "yàng",
+    "meaning": "sickness",
+    "frequency_rank": 3728,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "抿",
+    "pinyin": "mǐn",
+    "meaning": "to smooth hair with a wet brush; (of a mouth, wing etc) to close lightly",
+    "frequency_rank": 3729,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "桢",
+    "pinyin": "zhēn",
+    "meaning": "(old) privet (genus Ligustrum); (bound form) (old) wooden support placed at the ends of a wall during construction; (fig.) mainstay; pillar; backbone",
+    "frequency_rank": 3730,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "笺",
+    "pinyin": "jiān",
+    "meaning": "variant of 箋|笺[jian1]",
+    "frequency_rank": 3731,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蛤",
+    "pinyin": "gé",
+    "meaning": "(bound form) clam; used in 蛤蚧[ge2 jie4]",
+    "frequency_rank": 3732,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "瞳",
+    "pinyin": "tóng",
+    "meaning": "pupil of the eye",
+    "frequency_rank": 3733,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "藥",
+    "pinyin": "yào",
+    "meaning": "drugs, medicine; the leaf of the Dahurian angelica plant",
+    "frequency_rank": 3734,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "瓢",
+    "pinyin": "piáo",
+    "meaning": "dipper; ladle",
+    "frequency_rank": 3735,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "衹",
+    "pinyin": "qí",
+    "meaning": "robe of a Buddhist monk or nun",
+    "frequency_rank": 3736,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "跺",
+    "pinyin": "duò",
+    "meaning": "variant of 跺[duo4]",
+    "frequency_rank": 3738,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "潦",
+    "pinyin": "lǎo",
+    "meaning": "flooded; heavy rain",
+    "frequency_rank": 3739,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "芹",
+    "pinyin": "qín",
+    "meaning": "Chinese celery",
+    "frequency_rank": 3740,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "哒",
+    "pinyin": "dā",
+    "meaning": "(phonetic); command to a horse",
+    "frequency_rank": 3741,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "饬",
+    "pinyin": "chì",
+    "meaning": "(bound form) to put in order; to arrange properly",
+    "frequency_rank": 3742,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "栩",
+    "pinyin": "xǔ",
+    "meaning": "used in 栩栩[xu3 xu3]; jolcham oak (Quercus serrata)",
+    "frequency_rank": 3743,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "曦",
+    "pinyin": "xī",
+    "meaning": "(literary) sunlight (usu. in early morning)",
+    "frequency_rank": 3744,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "骷",
+    "pinyin": "kū",
+    "meaning": "used in 骷髏|骷髅[ku1 lou2]",
+    "frequency_rank": 3745,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "嫡",
+    "pinyin": "dí",
+    "meaning": "(bound form) of or by the wife, as opposed to a concubine (contrasted with 庶[shu4])",
+    "frequency_rank": 3746,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "卤",
+    "pinyin": "lǔ",
+    "meaning": "to stew in soy sauce and spices",
+    "frequency_rank": 3747,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "丕",
+    "pinyin": "pī",
+    "meaning": "grand",
+    "frequency_rank": 3748,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "鬓",
+    "pinyin": "bìn",
+    "meaning": "temples; hair on the temples",
+    "frequency_rank": 3749,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "梓",
+    "pinyin": "zǐ",
+    "meaning": "Chinese catalpa (Catalpa ovata), a tree that serves as a symbol of one's hometown and whose wood is used to make various items; (bound form) printing blocks",
+    "frequency_rank": 3750,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "嗖",
+    "pinyin": "sōu",
+    "meaning": "(onom.) whooshing; swishing",
+    "frequency_rank": 3751,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "惦",
+    "pinyin": "diàn",
+    "meaning": "to think of; to remember",
+    "frequency_rank": 3752,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "浚",
+    "pinyin": "jùn",
+    "meaning": "to dredge (a river)",
+    "frequency_rank": 3753,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "咔",
+    "pinyin": "kǎ",
+    "meaning": "(used as phonetic \"ka\")",
+    "frequency_rank": 3754,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "藐",
+    "pinyin": "miǎo",
+    "meaning": "to despise; small",
+    "frequency_rank": 3755,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "荃",
+    "pinyin": "quán",
+    "meaning": "(fragrant plant)",
+    "frequency_rank": 3756,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "唧",
+    "pinyin": "jī",
+    "meaning": "(onom.) to pump (water)",
+    "frequency_rank": 3757,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "玺",
+    "pinyin": "xǐ",
+    "meaning": "ruler's seal",
+    "frequency_rank": 3758,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "汛",
+    "pinyin": "xùn",
+    "meaning": "high water; flood",
+    "frequency_rank": 3759,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "铐",
+    "pinyin": "kào",
+    "meaning": "shackles; fetters",
+    "frequency_rank": 3760,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "髅",
+    "pinyin": "lóu",
+    "meaning": "used in 髑髏|髑髅[du2 lou2] and 骷髏|骷髅[ku1 lou2]",
+    "frequency_rank": 3761,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "渤",
+    "pinyin": "bó",
+    "meaning": "same as 渤海[Bo2 Hai3], Bohai Sea between Liaoning and Shandong; Gulf of Zhili or Chihli",
+    "frequency_rank": 3762,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "皿",
+    "pinyin": "mǐn",
+    "meaning": "(bound form) dish; vessel; shallow container; radical no. 108",
+    "frequency_rank": 3763,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "箍",
+    "pinyin": "gū",
+    "meaning": "hoop; to bind with hoops",
+    "frequency_rank": 3764,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "馅",
+    "pinyin": "xiàn",
+    "meaning": "filling; stuffing (for dumplings, pies etc)",
+    "frequency_rank": 3765,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "汾",
+    "pinyin": "fén",
+    "meaning": "name of a river",
+    "frequency_rank": 3766,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "戍",
+    "pinyin": "shù",
+    "meaning": "garrison",
+    "frequency_rank": 3767,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "痔",
+    "pinyin": "zhì",
+    "meaning": "piles; hemorrhoid",
+    "frequency_rank": 3768,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "褶",
+    "pinyin": "xí",
+    "meaning": "(arch.) court dress",
+    "frequency_rank": 3769,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "聆",
+    "pinyin": "líng",
+    "meaning": "(literary) to hear; to listen",
+    "frequency_rank": 3770,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "涎",
+    "pinyin": "xián",
+    "meaning": "variant of 涎[xian2]",
+    "frequency_rank": 3771,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "汞",
+    "pinyin": "gǒng",
+    "meaning": "mercury (chemistry)",
+    "frequency_rank": 3772,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "渍",
+    "pinyin": "zì",
+    "meaning": "to soak; to be stained",
+    "frequency_rank": 3773,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "奂",
+    "pinyin": "huàn",
+    "meaning": "surname Huan",
+    "frequency_rank": 3774,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "巅",
+    "pinyin": "diān",
+    "meaning": "summit",
+    "frequency_rank": 3775,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "疣",
+    "pinyin": "yóu",
+    "meaning": "nodule; wart",
+    "frequency_rank": 3776,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "傩",
+    "pinyin": "nuó",
+    "meaning": "to exorcise demons",
+    "frequency_rank": 3777,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "逵",
+    "pinyin": "kuí",
+    "meaning": "crossroads; thoroughfare",
+    "frequency_rank": 3778,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "耆",
+    "pinyin": "qí",
+    "meaning": "man of sixty or seventy",
+    "frequency_rank": 3779,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蟋",
+    "pinyin": "xī",
+    "meaning": "used in 蟋蟀[xi1 shuai4]",
+    "frequency_rank": 3780,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "鳄",
+    "pinyin": "è",
+    "meaning": "variant of 鱷|鳄[e4]",
+    "frequency_rank": 3781,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "讹",
+    "pinyin": "é",
+    "meaning": "error; false",
+    "frequency_rank": 3782,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "膺",
+    "pinyin": "yīng",
+    "meaning": "breast; receive",
+    "frequency_rank": 3783,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蹿",
+    "pinyin": "cuān",
+    "meaning": "to leap up; (coll.) to gush out; to spurt out",
+    "frequency_rank": 3784,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "筏",
+    "pinyin": "fá",
+    "meaning": "variant of 筏[fa2]",
+    "frequency_rank": 3785,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "釜",
+    "pinyin": "fǔ",
+    "meaning": "kettle; cauldron",
+    "frequency_rank": 3786,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "沂",
+    "pinyin": "yí",
+    "meaning": "Yi River, Shandong",
+    "frequency_rank": 3787,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "坯",
+    "pinyin": "pī",
+    "meaning": "blank (e.g. for a coin); unburnt earthenware",
+    "frequency_rank": 3788,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "峦",
+    "pinyin": "luán",
+    "meaning": "mountain ranges",
+    "frequency_rank": 3789,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "茬",
+    "pinyin": "chá",
+    "meaning": "stubble (crop residue); stubble (hair growth)",
+    "frequency_rank": 3790,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "摒",
+    "pinyin": "bìng",
+    "meaning": "to discard; to get rid of",
+    "frequency_rank": 3791,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蟀",
+    "pinyin": "shuài",
+    "meaning": "used in 蟋蟀[xi1 shuai4]",
+    "frequency_rank": 3792,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "撵",
+    "pinyin": "niǎn",
+    "meaning": "to expel; to oust",
+    "frequency_rank": 3793,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "浒",
+    "pinyin": "hǔ",
+    "meaning": "bank of a river",
+    "frequency_rank": 3794,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "缤",
+    "pinyin": "bīn",
+    "meaning": "used in 繽紛|缤纷[bin1 fen1]",
+    "frequency_rank": 3795,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "嵋",
+    "pinyin": "méi",
+    "meaning": "used in 峨嵋[E2 mei2]",
+    "frequency_rank": 3796,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "珑",
+    "pinyin": "lóng",
+    "meaning": "tinkling of gem-pendants",
+    "frequency_rank": 3797,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "苞",
+    "pinyin": "bāo",
+    "meaning": "bud; flower calyx",
+    "frequency_rank": 3798,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "瑾",
+    "pinyin": "jǐn",
+    "meaning": "brilliancy (of gems)",
+    "frequency_rank": 3799,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "泵",
+    "pinyin": "bèng",
+    "meaning": "pump (loanword)",
+    "frequency_rank": 3800,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "钾",
+    "pinyin": "jiǎ",
+    "meaning": "potassium (chemistry)",
+    "frequency_rank": 3801,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "暧",
+    "pinyin": "ài",
+    "meaning": "(of daylight) dim; obscure",
+    "frequency_rank": 3802,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "赓",
+    "pinyin": "gēng",
+    "meaning": "(literary) to continue; to carry on",
+    "frequency_rank": 3803,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "叟",
+    "pinyin": "sǒu",
+    "meaning": "old gentleman; old man",
+    "frequency_rank": 3804,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "佚",
+    "pinyin": "yì",
+    "meaning": "surname Yi",
+    "frequency_rank": 3805,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "沓",
+    "pinyin": "tà",
+    "meaning": "surname Ta",
+    "frequency_rank": 3806,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "撂",
+    "pinyin": "liào",
+    "meaning": "to put down; to leave behind",
+    "frequency_rank": 3807,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蛊",
+    "pinyin": "gǔ",
+    "meaning": "arch. legendary venomous insect; to poison",
+    "frequency_rank": 3808,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "甥",
+    "pinyin": "shēng",
+    "meaning": "(bound form) sister's son; nephew",
+    "frequency_rank": 3809,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "璐",
+    "pinyin": "lù",
+    "meaning": "beautiful jade",
+    "frequency_rank": 3810,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "晏",
+    "pinyin": "yàn",
+    "meaning": "surname Yan",
+    "frequency_rank": 3811,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "瘪",
+    "pinyin": "biě",
+    "meaning": "variant of 癟|瘪[bie3]",
+    "frequency_rank": 3812,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "漳",
+    "pinyin": "zhāng",
+    "meaning": "Zhang river in Fujian",
+    "frequency_rank": 3813,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "阉",
+    "pinyin": "yān",
+    "meaning": "to castrate; a castrate",
+    "frequency_rank": 3814,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蹂",
+    "pinyin": "róu",
+    "meaning": "trample",
+    "frequency_rank": 3815,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "鳃",
+    "pinyin": "sāi",
+    "meaning": "gills of fish",
+    "frequency_rank": 3816,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "琏",
+    "pinyin": "liǎn",
+    "meaning": "sacrificial vessel used for grain offerings; also pr. [lian2]",
+    "frequency_rank": 3817,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "湃",
+    "pinyin": "pài",
+    "meaning": "used in 澎湃[peng2 pai4]",
+    "frequency_rank": 3818,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "辘",
+    "pinyin": "lù",
+    "meaning": "used in 轆轆|辘辘[lu4 lu4]; used in 軲轆|轱辘[gu1 lu5] and 轂轆|毂辘[gu1 lu5]",
+    "frequency_rank": 3819,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "僭",
+    "pinyin": "jiàn",
+    "meaning": "(bound form) to overstep one's authority",
+    "frequency_rank": 3820,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "躏",
+    "pinyin": "lìn",
+    "meaning": "used in 蹂躪|蹂躏[rou2 lin4]",
+    "frequency_rank": 3821,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "鼾",
+    "pinyin": "hān",
+    "meaning": "snore; to snore",
+    "frequency_rank": 3822,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "懵",
+    "pinyin": "měng",
+    "meaning": "stupid",
+    "frequency_rank": 3823,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "镰",
+    "pinyin": "lián",
+    "meaning": "old variant of 鐮|镰[lian2]",
+    "frequency_rank": 3824,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "寐",
+    "pinyin": "mèi",
+    "meaning": "to sleep soundly",
+    "frequency_rank": 3825,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "褚",
+    "pinyin": "chǔ",
+    "meaning": "surname Chu",
+    "frequency_rank": 3826,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "攥",
+    "pinyin": "zuàn",
+    "meaning": "(coll.) to hold; to grip",
+    "frequency_rank": 3827,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "涧",
+    "pinyin": "jiàn",
+    "meaning": "variant of 澗|涧[jian4]",
+    "frequency_rank": 3828,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蝙",
+    "pinyin": "biān",
+    "meaning": "used in 蝙蝠[bian1 fu2]",
+    "frequency_rank": 3829,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "脐",
+    "pinyin": "qí",
+    "meaning": "(bound form) the navel; the umbilicus; (bound form) the belly flap of a crab; apron",
+    "frequency_rank": 3830,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "辕",
+    "pinyin": "yuán",
+    "meaning": "shaft of a cart or carriage; (bound form) entrance gate of a military camp or yamen; (fig.) government office",
+    "frequency_rank": 3831,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "涣",
+    "pinyin": "huàn",
+    "meaning": "to dissipate; to dissolve",
+    "frequency_rank": 3832,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "杞",
+    "pinyin": "qǐ",
+    "meaning": "Qi, a Zhou Dynasty vassal state; surname Qi",
+    "frequency_rank": 3833,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "煜",
+    "pinyin": "yù",
+    "meaning": "brilliant; glorious",
+    "frequency_rank": 3834,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "骥",
+    "pinyin": "jì",
+    "meaning": "thoroughbred horse; refined and virtuous",
+    "frequency_rank": 3835,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "傣",
+    "pinyin": "dǎi",
+    "meaning": "Dai (ethnic group)",
+    "frequency_rank": 3836,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "嗳",
+    "pinyin": "ǎi",
+    "meaning": "to belch; (interj. of disapproval)",
+    "frequency_rank": 3837,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "祯",
+    "pinyin": "zhēn",
+    "meaning": "auspicious; lucky",
+    "frequency_rank": 3838,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "酉",
+    "pinyin": "yǒu",
+    "meaning": "10th earthly branch: 5-7 p.m., 8th solar month (8th September-7th October), year of the Rooster; ancient Chinese compass point: 270° (west)",
+    "frequency_rank": 3839,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "秸",
+    "pinyin": "jiē",
+    "meaning": "grain stalks left after threshing",
+    "frequency_rank": 3840,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "捺",
+    "pinyin": "nà",
+    "meaning": "to press down firmly; to suppress",
+    "frequency_rank": 3841,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "瑕",
+    "pinyin": "xiá",
+    "meaning": "blemish; flaw in jade",
+    "frequency_rank": 3842,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "鑫",
+    "pinyin": "xīn",
+    "meaning": "(used in names of people and shops, symbolizing prosperity)",
+    "frequency_rank": 3843,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "窿",
+    "pinyin": "lóng",
+    "meaning": "cavity; hole",
+    "frequency_rank": 3845,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "楔",
+    "pinyin": "xiē",
+    "meaning": "wedge; to hammer in (variant of 揳[xie1])",
+    "frequency_rank": 3846,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "胱",
+    "pinyin": "guāng",
+    "meaning": "used in 膀胱[pang2 guang1]",
+    "frequency_rank": 3847,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "荔",
+    "pinyin": "lì",
+    "meaning": "variant of 荔[li4]",
+    "frequency_rank": 3848,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蟆",
+    "pinyin": "má",
+    "meaning": "toad",
+    "frequency_rank": 3849,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "湍",
+    "pinyin": "tuān",
+    "meaning": "to rush (of water)",
+    "frequency_rank": 3850,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "屹",
+    "pinyin": "yì",
+    "meaning": "high and steep",
+    "frequency_rank": 3851,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "遐",
+    "pinyin": "xiá",
+    "meaning": "distant; long-lasting",
+    "frequency_rank": 3852,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "轲",
+    "pinyin": "kē",
+    "meaning": "given name of Mencius",
+    "frequency_rank": 3853,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "镯",
+    "pinyin": "zhuó",
+    "meaning": "bracelet",
+    "frequency_rank": 3854,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "缰",
+    "pinyin": "jiāng",
+    "meaning": "variant of 韁|缰[jiang1]",
+    "frequency_rank": 3855,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "桦",
+    "pinyin": "huà",
+    "meaning": "(botany) birch (genus Betula)",
+    "frequency_rank": 3856,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "炖",
+    "pinyin": "dùn",
+    "meaning": "to stew",
+    "frequency_rank": 3857,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "钡",
+    "pinyin": "bèi",
+    "meaning": "barium (chemistry)",
+    "frequency_rank": 3858,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "羚",
+    "pinyin": "líng",
+    "meaning": "antelope",
+    "frequency_rank": 3859,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "啬",
+    "pinyin": "sè",
+    "meaning": "stingy",
+    "frequency_rank": 3860,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "诩",
+    "pinyin": "xǔ",
+    "meaning": "to brag; popular",
+    "frequency_rank": 3861,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "绯",
+    "pinyin": "fēi",
+    "meaning": "dark red; purple silk",
+    "frequency_rank": 3862,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "掖",
+    "pinyin": "yē",
+    "meaning": "to tuck (into a pocket); to hide",
+    "frequency_rank": 3863,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "箓",
+    "pinyin": "lù",
+    "meaning": "record book; archive; Taoist written charm",
+    "frequency_rank": 3864,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "涸",
+    "pinyin": "hé",
+    "meaning": "to dry; to dry up",
+    "frequency_rank": 3865,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "鸳",
+    "pinyin": "yuān",
+    "meaning": "mandarin duck",
+    "frequency_rank": 3866,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "塾",
+    "pinyin": "shú",
+    "meaning": "private school",
+    "frequency_rank": 3867,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "呸",
+    "pinyin": "pēi",
+    "meaning": "pah!; bah!",
+    "frequency_rank": 3868,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "抡",
+    "pinyin": "lūn",
+    "meaning": "to swing (one's arms, a heavy object); to wave (a sword, one's fists)",
+    "frequency_rank": 3869,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "擞",
+    "pinyin": "sǒu",
+    "meaning": "used in 抖擻|抖擞[dou3 sou3]",
+    "frequency_rank": 3870,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "熹",
+    "pinyin": "xī",
+    "meaning": "bright; warm",
+    "frequency_rank": 3871,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "坷",
+    "pinyin": "kē",
+    "meaning": "used in 坷垃[ke1 la1]",
+    "frequency_rank": 3872,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "瓮",
+    "pinyin": "wèng",
+    "meaning": "earthen jar; urn",
+    "frequency_rank": 3873,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "亘",
+    "pinyin": "gèn",
+    "meaning": "extending all the way across; running all the way through",
+    "frequency_rank": 3874,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "嗟",
+    "pinyin": "jiē",
+    "meaning": "sigh; also pr. [jue1]",
+    "frequency_rank": 3875,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "筵",
+    "pinyin": "yán",
+    "meaning": "bamboo mat for sitting",
+    "frequency_rank": 3876,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "跛",
+    "pinyin": "bǒ",
+    "meaning": "to limp; lame",
+    "frequency_rank": 3877,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "汕",
+    "pinyin": "shàn",
+    "meaning": "bamboo fish trap; used in names of places connected with Shantou 汕頭|汕头[Shan4 tou2]",
+    "frequency_rank": 3878,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "欤",
+    "pinyin": "yú",
+    "meaning": "(literary) (final particle similar to 嗎|吗[ma5], 呢[ne5] or 啊[a1])",
+    "frequency_rank": 3879,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "壑",
+    "pinyin": "hè",
+    "meaning": "gully; ravine",
+    "frequency_rank": 3880,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "颍",
+    "pinyin": "yǐng",
+    "meaning": "surname Ying; river in Henan and Anhui",
+    "frequency_rank": 3881,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "溥",
+    "pinyin": "pǔ",
+    "meaning": "surname Pu",
+    "frequency_rank": 3882,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "姗",
+    "pinyin": "shān",
+    "meaning": "used in 姍姍|姗姗[shan1 shan1]",
+    "frequency_rank": 3883,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "踊",
+    "pinyin": "yǒng",
+    "meaning": "leap",
+    "frequency_rank": 3884,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "枭",
+    "pinyin": "xiāo",
+    "meaning": "owl; valiant",
+    "frequency_rank": 3885,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "暄",
+    "pinyin": "xuān",
+    "meaning": "genial and warm",
+    "frequency_rank": 3886,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "稷",
+    "pinyin": "jì",
+    "meaning": "millet; God of cereals worshiped by ancient rulers",
+    "frequency_rank": 3887,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "跚",
+    "pinyin": "shān",
+    "meaning": "used in 蹣跚|蹒跚[pan2 shan1]",
+    "frequency_rank": 3888,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "涟",
+    "pinyin": "lián",
+    "meaning": "ripple; tearful",
+    "frequency_rank": 3889,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "瀛",
+    "pinyin": "yíng",
+    "meaning": "ocean",
+    "frequency_rank": 3890,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "笙",
+    "pinyin": "shēng",
+    "meaning": "sheng, a free reed wind instrument with vertical bamboo pipes",
+    "frequency_rank": 3891,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "滕",
+    "pinyin": "téng",
+    "meaning": "vassal state of Zhou in Shandong; surname Teng",
+    "frequency_rank": 3892,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "踝",
+    "pinyin": "huái",
+    "meaning": "ankle",
+    "frequency_rank": 3893,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "贰",
+    "pinyin": "èr",
+    "meaning": "two (banker's anti-fraud numeral); to betray",
+    "frequency_rank": 3894,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "瞰",
+    "pinyin": "kàn",
+    "meaning": "to look down from a height; to spy on sth",
+    "frequency_rank": 3895,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "恻",
+    "pinyin": "cè",
+    "meaning": "sorrowful",
+    "frequency_rank": 3896,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "嚏",
+    "pinyin": "tì",
+    "meaning": "sneeze",
+    "frequency_rank": 3897,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "迢",
+    "pinyin": "tiáo",
+    "meaning": "remote",
+    "frequency_rank": 3898,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "獗",
+    "pinyin": "jué",
+    "meaning": "used in 猖獗[chang1 jue2]",
+    "frequency_rank": 3899,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "邯",
+    "pinyin": "hán",
+    "meaning": "used in 邯鄲|邯郸[Han2 dan1] (the name of a place in Hebei)",
+    "frequency_rank": 3900,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "睑",
+    "pinyin": "jiǎn",
+    "meaning": "eyelid",
+    "frequency_rank": 3901,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "赡",
+    "pinyin": "shàn",
+    "meaning": "to support; to provide for",
+    "frequency_rank": 3902,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "萦",
+    "pinyin": "yíng",
+    "meaning": "(literary) to wind around",
+    "frequency_rank": 3903,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "珥",
+    "pinyin": "ěr",
+    "meaning": "pearl or jade earring",
+    "frequency_rank": 3904,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "酮",
+    "pinyin": "tóng",
+    "meaning": "ketone",
+    "frequency_rank": 3905,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "璞",
+    "pinyin": "pú",
+    "meaning": "unpolished gem",
+    "frequency_rank": 3906,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "羹",
+    "pinyin": "gēng",
+    "meaning": "thick soup",
+    "frequency_rank": 3907,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "缄",
+    "pinyin": "jiān",
+    "meaning": "(wooden) box; cup",
+    "frequency_rank": 3908,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "俸",
+    "pinyin": "fèng",
+    "meaning": "(bound form) salary; stipend",
+    "frequency_rank": 3910,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "媲",
+    "pinyin": "pì",
+    "meaning": "to match; to pair",
+    "frequency_rank": 3911,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "鸾",
+    "pinyin": "luán",
+    "meaning": "mythical bird related to phoenix",
+    "frequency_rank": 3912,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "恿",
+    "pinyin": "yǒng",
+    "meaning": "used in 慫恿|怂恿[song3 yong3]",
+    "frequency_rank": 3913,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蜿",
+    "pinyin": "wān",
+    "meaning": "used in 蜿蜒[wan1 yan2]",
+    "frequency_rank": 3914,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "犊",
+    "pinyin": "dú",
+    "meaning": "calf; sacrificial victim",
+    "frequency_rank": 3915,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "讷",
+    "pinyin": "nè",
+    "meaning": "to speak slowly; inarticulate",
+    "frequency_rank": 3916,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "扈",
+    "pinyin": "hù",
+    "meaning": "surname Hu",
+    "frequency_rank": 3917,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蜈",
+    "pinyin": "wú",
+    "meaning": "used in 蜈蚣[wu2 gong1]",
+    "frequency_rank": 3918,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "翟",
+    "pinyin": "dí",
+    "meaning": "surname Di",
+    "frequency_rank": 3919,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "藕",
+    "pinyin": "ǒu",
+    "meaning": "root of lotus",
+    "frequency_rank": 3920,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "戌",
+    "pinyin": "qu",
+    "meaning": "used in 屈戌兒|屈戌儿[qu1 qu5 r5]",
+    "frequency_rank": 3921,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蓓",
+    "pinyin": "bèi",
+    "meaning": "used in 蓓蕾[bei4 lei3]",
+    "frequency_rank": 3922,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "鋆",
+    "pinyin": "yún",
+    "meaning": "gold",
+    "frequency_rank": 3923,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "谩",
+    "pinyin": "mán",
+    "meaning": "to deceive",
+    "frequency_rank": 3924,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "谀",
+    "pinyin": "yú",
+    "meaning": "to flatter",
+    "frequency_rank": 3925,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "卯",
+    "pinyin": "mǎo",
+    "meaning": "mortise (slot cut into wood to receive a tenon); 4th earthly branch: 5–7 a.m., 2nd solar month (6th March–4th April), Year of the Rabbit",
+    "frequency_rank": 3926,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "谙",
+    "pinyin": "ān",
+    "meaning": "to be versed in; to know well",
+    "frequency_rank": 3927,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "岐",
+    "pinyin": "qí",
+    "meaning": "surname Qi; also used in place names",
+    "frequency_rank": 3928,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蝎",
+    "pinyin": "xiē",
+    "meaning": "variant of 蠍|蝎[xie1]",
+    "frequency_rank": 3929,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "荼",
+    "pinyin": "tú",
+    "meaning": "thistle; common sowthistle (Sonchus oleraceus)",
+    "frequency_rank": 3930,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "镀",
+    "pinyin": "dù",
+    "meaning": "to plate (with gold, silver etc); (prefix) -plated",
+    "frequency_rank": 3931,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "椰",
+    "pinyin": "yē",
+    "meaning": "(bound form) coconut palm; Taiwan pr. [ye2]",
+    "frequency_rank": 3932,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "甄",
+    "pinyin": "zhēn",
+    "meaning": "surname Zhen",
+    "frequency_rank": 3933,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蟾",
+    "pinyin": "chán",
+    "meaning": "toad (\"chán\" represents the sound of its croaking); (mythology) the three-legged toad said to exist in the moon",
+    "frequency_rank": 3934,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蹊",
+    "pinyin": "qī",
+    "meaning": "used in 蹊蹺|蹊跷[qi1 qiao1]; Taiwan pr. [xi1]",
+    "frequency_rank": 3935,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "泞",
+    "pinyin": "nìng",
+    "meaning": "muddy",
+    "frequency_rank": 3936,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "撸",
+    "pinyin": "lū",
+    "meaning": "(dialect) to grasp (sth long or cylindrical) and slide the hand up or down; (dialect) to fire (an employee)",
+    "frequency_rank": 3937,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "螃",
+    "pinyin": "páng",
+    "meaning": "used in 螃蟹[pang2 xie4]",
+    "frequency_rank": 3938,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "檬",
+    "pinyin": "méng",
+    "meaning": "used in 檸檬|柠檬[ning2 meng2]",
+    "frequency_rank": 3939,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "猓",
+    "pinyin": "guǒ",
+    "meaning": "monkey",
+    "frequency_rank": 3940,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蔷",
+    "pinyin": "qiáng",
+    "meaning": "used in 薔薇|蔷薇[qiang2 wei1]",
+    "frequency_rank": 3941,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "羲",
+    "pinyin": "xī",
+    "meaning": "same as Fuxi 伏羲[Fu2 xi1], a mythical emperor; surname Xi",
+    "frequency_rank": 3942,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蘸",
+    "pinyin": "zhàn",
+    "meaning": "to dip in (ink, sauce etc)",
+    "frequency_rank": 3944,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蔗",
+    "pinyin": "zhè",
+    "meaning": "sugar cane",
+    "frequency_rank": 3945,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "傀",
+    "pinyin": "guī",
+    "meaning": "grand; strange; exotic",
+    "frequency_rank": 3946,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蚌",
+    "pinyin": "bèng",
+    "meaning": "abbr. for Bengbu prefecture-level City 蚌埠市[Beng4 bu4 Shi4], Anhui",
+    "frequency_rank": 3947,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "锢",
+    "pinyin": "gù",
+    "meaning": "obstinate disease; to restrain",
+    "frequency_rank": 3948,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "遽",
+    "pinyin": "jù",
+    "meaning": "hurry; fast",
+    "frequency_rank": 3949,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "邃",
+    "pinyin": "suì",
+    "meaning": "deep; distant",
+    "frequency_rank": 3950,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "恚",
+    "pinyin": "huì",
+    "meaning": "rage",
+    "frequency_rank": 3951,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "皑",
+    "pinyin": "ái",
+    "meaning": "(literary) white as snow",
+    "frequency_rank": 3952,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "锵",
+    "pinyin": "qiāng",
+    "meaning": "tinkling of small bells",
+    "frequency_rank": 3953,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "簌",
+    "pinyin": "sù",
+    "meaning": "used in 簌簌[su4 su4]",
+    "frequency_rank": 3954,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "焙",
+    "pinyin": "bèi",
+    "meaning": "to dry over a fire; to bake",
+    "frequency_rank": 3955,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "昊",
+    "pinyin": "hào",
+    "meaning": "surname Hao",
+    "frequency_rank": 3956,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "鹳",
+    "pinyin": "guàn",
+    "meaning": "crane; stork",
+    "frequency_rank": 3957,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "睽",
+    "pinyin": "kuí",
+    "meaning": "separated; stare",
+    "frequency_rank": 3958,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "刽",
+    "pinyin": "guì",
+    "meaning": "to amputate; to cut off",
+    "frequency_rank": 3959,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "鳖",
+    "pinyin": "biē",
+    "meaning": "softshell turtle",
+    "frequency_rank": 3960,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "噎",
+    "pinyin": "yē",
+    "meaning": "to choke (on); to choke up",
+    "frequency_rank": 3961,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "呗",
+    "pinyin": "bài",
+    "meaning": "(bound form) to chant (from Sanskrit \"pāṭhaka\")",
+    "frequency_rank": 3962,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "寰",
+    "pinyin": "huán",
+    "meaning": "large domain; extensive region",
+    "frequency_rank": 3963,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "唷",
+    "pinyin": "yō",
+    "meaning": "(interjection expressing surprise) Oh!; My!",
+    "frequency_rank": 3964,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "殡",
+    "pinyin": "bìn",
+    "meaning": "a funeral; to encoffin a corpse",
+    "frequency_rank": 3965,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "淖",
+    "pinyin": "nào",
+    "meaning": "surname Nao",
+    "frequency_rank": 3966,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "诰",
+    "pinyin": "gào",
+    "meaning": "to enjoin; to grant (a title)",
+    "frequency_rank": 3967,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "恣",
+    "pinyin": "zì",
+    "meaning": "to abandon restraint; to do as one pleases",
+    "frequency_rank": 3968,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "睐",
+    "pinyin": "lài",
+    "meaning": "to glance; to look askance at",
+    "frequency_rank": 3969,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "婵",
+    "pinyin": "chán",
+    "meaning": "used in 嬋娟|婵娟[chan2 juan1] and 嬋媛|婵媛[chan2 yuan2]",
+    "frequency_rank": 3970,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "榈",
+    "pinyin": "lǘ",
+    "meaning": "palm tree",
+    "frequency_rank": 3971,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "氦",
+    "pinyin": "hài",
+    "meaning": "helium (chemistry)",
+    "frequency_rank": 3972,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "靳",
+    "pinyin": "jìn",
+    "meaning": "surname Jin",
+    "frequency_rank": 3973,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蛹",
+    "pinyin": "yǒng",
+    "meaning": "chrysalis; pupa",
+    "frequency_rank": 3974,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "鸯",
+    "pinyin": "yāng",
+    "meaning": "used in 鴛鴦|鸳鸯[yuan1 yang1]",
+    "frequency_rank": 3975,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "惬",
+    "pinyin": "qiè",
+    "meaning": "variant of 愜|惬[qie4]",
+    "frequency_rank": 3976,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蹙",
+    "pinyin": "cù",
+    "meaning": "to knit (one's brows); wrinkled (of brows)",
+    "frequency_rank": 3977,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "诙",
+    "pinyin": "huī",
+    "meaning": "whimsical; humorous",
+    "frequency_rank": 3978,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "眈",
+    "pinyin": "dān",
+    "meaning": "used in 眈眈[dan1 dan1]",
+    "frequency_rank": 3979,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "罡",
+    "pinyin": "gāng",
+    "meaning": "stars of the Big Dipper that constitute the tail of the dipper",
+    "frequency_rank": 3980,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "缮",
+    "pinyin": "shàn",
+    "meaning": "to repair; to mend",
+    "frequency_rank": 3981,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "胤",
+    "pinyin": "yìn",
+    "meaning": "descendant; heir",
+    "frequency_rank": 3982,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "皋",
+    "pinyin": "gāo",
+    "meaning": "bank; marsh",
+    "frequency_rank": 3983,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蛀",
+    "pinyin": "zhù",
+    "meaning": "termite; to bore (of insects)",
+    "frequency_rank": 3984,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "偌",
+    "pinyin": "ruò",
+    "meaning": "so; such",
+    "frequency_rank": 3985,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "疵",
+    "pinyin": "cī",
+    "meaning": "blemish; flaw",
+    "frequency_rank": 3986,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "绛",
+    "pinyin": "jiàng",
+    "meaning": "capital of the Jin State during the Spring and Autumn Period (770-475 BC)",
+    "frequency_rank": 3987,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "葆",
+    "pinyin": "bǎo",
+    "meaning": "dense foliage; to cover",
+    "frequency_rank": 3988,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "黔",
+    "pinyin": "qián",
+    "meaning": "short name for Guizhou 貴州|贵州[Gui4 zhou1]",
+    "frequency_rank": 3989,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "喙",
+    "pinyin": "huì",
+    "meaning": "beak; snout",
+    "frequency_rank": 3990,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "烽",
+    "pinyin": "fēng",
+    "meaning": "beacon fire",
+    "frequency_rank": 3991,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "儡",
+    "pinyin": "lěi",
+    "meaning": "used in 傀儡[kui3 lei3]",
+    "frequency_rank": 3992,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "佼",
+    "pinyin": "jiǎo",
+    "meaning": "handsome",
+    "frequency_rank": 3993,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "斓",
+    "pinyin": "lán",
+    "meaning": "used in 斑斕|斑斓[ban1 lan2]",
+    "frequency_rank": 3994,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "嫔",
+    "pinyin": "pín",
+    "meaning": "imperial concubine",
+    "frequency_rank": 3995,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "颚",
+    "pinyin": "è",
+    "meaning": "jaw; palate",
+    "frequency_rank": 3996,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "龈",
+    "pinyin": "kěn",
+    "meaning": "variant of 啃[ken3]",
+    "frequency_rank": 3997,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "盅",
+    "pinyin": "zhōng",
+    "meaning": "handleless cup; goblet",
+    "frequency_rank": 3998,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "娓",
+    "pinyin": "wěi",
+    "meaning": "used in 娓娓[wei3 wei3]",
+    "frequency_rank": 3999,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "坂",
+    "pinyin": "bǎn",
+    "meaning": "variant of 阪[ban3]",
+    "frequency_rank": 4000,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "町",
+    "pinyin": "dīng",
+    "meaning": "(used in place names)",
+    "frequency_rank": 4001,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "芥",
+    "pinyin": "gài",
+    "meaning": "see 芥藍|芥蓝[gai4 lan2]",
+    "frequency_rank": 4002,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "瘠",
+    "pinyin": "jí",
+    "meaning": "barren; lean",
+    "frequency_rank": 4003,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "阂",
+    "pinyin": "hé",
+    "meaning": "obstruct",
+    "frequency_rank": 4004,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "橇",
+    "pinyin": "qiāo",
+    "meaning": "sled; sleigh",
+    "frequency_rank": 4006,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "荟",
+    "pinyin": "huì",
+    "meaning": "to flourish; luxuriant growth",
+    "frequency_rank": 4007,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "啜",
+    "pinyin": "chuò",
+    "meaning": "(literary) to drink; to sip",
+    "frequency_rank": 4008,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "垛",
+    "pinyin": "duǒ",
+    "meaning": "battlement; target",
+    "frequency_rank": 4009,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "淇",
+    "pinyin": "qí",
+    "meaning": "name of a river",
+    "frequency_rank": 4010,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "瓒",
+    "pinyin": "zàn",
+    "meaning": "libation cup",
+    "frequency_rank": 4011,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "篓",
+    "pinyin": "lǒu",
+    "meaning": "basket",
+    "frequency_rank": 4012,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "虱",
+    "pinyin": "shī",
+    "meaning": "louse",
+    "frequency_rank": 4013,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "跻",
+    "pinyin": "jī",
+    "meaning": "(literary) to ascend; to climb; to mount",
+    "frequency_rank": 4014,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "龛",
+    "pinyin": "kān",
+    "meaning": "(bound form) niche; shrine",
+    "frequency_rank": 4015,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蹒",
+    "pinyin": "pán",
+    "meaning": "used in 蹣跚|蹒跚[pan2 shan1]; Taiwan pr. [man2]",
+    "frequency_rank": 4016,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "髯",
+    "pinyin": "rán",
+    "meaning": "old variant of 髯[ran2]",
+    "frequency_rank": 4017,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "瞠",
+    "pinyin": "chēng",
+    "meaning": "stare at sth beyond reach",
+    "frequency_rank": 4018,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "痫",
+    "pinyin": "xián",
+    "meaning": "epilepsy; insanity",
+    "frequency_rank": 4019,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "掂",
+    "pinyin": "diān",
+    "meaning": "to weigh in the hand; to estimate",
+    "frequency_rank": 4020,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "潼",
+    "pinyin": "tóng",
+    "meaning": "high; name of a pass",
+    "frequency_rank": 4021,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "酰",
+    "pinyin": "xiān",
+    "meaning": "acid radical; -acyl (chemistry)",
+    "frequency_rank": 4022,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "镁",
+    "pinyin": "měi",
+    "meaning": "magnesium (chemistry)",
+    "frequency_rank": 4023,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "灸",
+    "pinyin": "jiǔ",
+    "meaning": "moxibustion (TCM)",
+    "frequency_rank": 4024,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "腆",
+    "pinyin": "tiǎn",
+    "meaning": "make strong (as liquors); virtuous",
+    "frequency_rank": 4025,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "筱",
+    "pinyin": "xiǎo",
+    "meaning": "dwarf bamboo; thin bamboo",
+    "frequency_rank": 4026,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "谆",
+    "pinyin": "zhūn",
+    "meaning": "repeatedly (in giving advice); sincere",
+    "frequency_rank": 4027,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "骋",
+    "pinyin": "chěng",
+    "meaning": "to hasten; to run",
+    "frequency_rank": 4028,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "壬",
+    "pinyin": "rén",
+    "meaning": "ninth of the ten Heavenly Stems 十天干[shi2 tian1 gan1]; ninth in order",
+    "frequency_rank": 4029,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "茗",
+    "pinyin": "míng",
+    "meaning": "Thea sinensis; young leaves of tea",
+    "frequency_rank": 4030,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "椋",
+    "pinyin": "liáng",
+    "meaning": "used in 椋鳥|椋鸟[liang2 niao3]",
+    "frequency_rank": 4031,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蛔",
+    "pinyin": "huí",
+    "meaning": "old variant of 蛔[hui2]",
+    "frequency_rank": 4032,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "潺",
+    "pinyin": "chán",
+    "meaning": "flow; trickle (of water)",
+    "frequency_rank": 4033,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "扉",
+    "pinyin": "fēi",
+    "meaning": "door with only one leaf",
+    "frequency_rank": 4034,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "耘",
+    "pinyin": "yún",
+    "meaning": "to weed",
+    "frequency_rank": 4035,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "槟",
+    "pinyin": "bīn",
+    "meaning": "used in 檳子|槟子[bin1 zi5]",
+    "frequency_rank": 4036,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "雹",
+    "pinyin": "báo",
+    "meaning": "hail",
+    "frequency_rank": 4037,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "甬",
+    "pinyin": "yǒng",
+    "meaning": "Yong River 甬江[Yong3 Jiang1] in Ningbo 寧波|宁波[Ning2 bo1]; short name for Ningbo",
+    "frequency_rank": 4038,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "谥",
+    "pinyin": "shì",
+    "meaning": "(bound form) posthumous name or title; (literary) to confer a posthumous name or title",
+    "frequency_rank": 4039,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "淞",
+    "pinyin": "sōng",
+    "meaning": "name of a river in Jiangsu Province",
+    "frequency_rank": 4040,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "燎",
+    "pinyin": "liáo",
+    "meaning": "to burn; to set afire",
+    "frequency_rank": 4041,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蕙",
+    "pinyin": "huì",
+    "meaning": "Coumarouna odorata",
+    "frequency_rank": 4042,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蚪",
+    "pinyin": "dǒu",
+    "meaning": "used in 蝌蚪[ke1 dou3]",
+    "frequency_rank": 4043,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蜻",
+    "pinyin": "qīng",
+    "meaning": "see 蜻蜓[qing1 ting2]",
+    "frequency_rank": 4044,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "郸",
+    "pinyin": "dān",
+    "meaning": "used in place names 邯鄲|邯郸[Han2 dan1] (historically, a county in Hebei, now a city) and 鄲城|郸城[Dan1 cheng2] (a county in Henan)",
+    "frequency_rank": 4045,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "轶",
+    "pinyin": "yì",
+    "meaning": "(bound form) (of a book, author etc) lost (to the ages) (variant of 佚[yi4]); (bound form) to surpass the ordinary; outstanding (variant of 逸[yi4])",
+    "frequency_rank": 4046,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "狰",
+    "pinyin": "zhēng",
+    "meaning": "used in 猙獰|狰狞[zheng1 ning2]",
+    "frequency_rank": 4047,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "楣",
+    "pinyin": "méi",
+    "meaning": "lintel; crossbeam",
+    "frequency_rank": 4048,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "捋",
+    "pinyin": "lǚ",
+    "meaning": "to smooth or arrange sth using one's fingers; to stroke",
+    "frequency_rank": 4049,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "涓",
+    "pinyin": "juān",
+    "meaning": "surname Juan",
+    "frequency_rank": 4050,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "荪",
+    "pinyin": "sūn",
+    "meaning": "fragrant grass",
+    "frequency_rank": 4051,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "娄",
+    "pinyin": "lóu",
+    "meaning": "surname Lou; one of the 28 lunar mansions in Chinese astronomy",
+    "frequency_rank": 4052,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "麝",
+    "pinyin": "shè",
+    "meaning": "musk deer (Moschus moschiferus); also called 香獐子",
+    "frequency_rank": 4053,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蚤",
+    "pinyin": "zǎo",
+    "meaning": "flea",
+    "frequency_rank": 4054,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "薰",
+    "pinyin": "xūn",
+    "meaning": "sweet-smelling grass; Coumarouna odorata",
+    "frequency_rank": 4055,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "醮",
+    "pinyin": "jiào",
+    "meaning": "to perform sacrifice",
+    "frequency_rank": 4056,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "搪",
+    "pinyin": "táng",
+    "meaning": "to keep out; to hold off",
+    "frequency_rank": 4057,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "谧",
+    "pinyin": "mì",
+    "meaning": "(literary) quiet; peaceful; tranquil",
+    "frequency_rank": 4058,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "湮",
+    "pinyin": "yān",
+    "meaning": "(literary) to sink into oblivion; (literary) to silt up",
+    "frequency_rank": 4059,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "辍",
+    "pinyin": "chuò",
+    "meaning": "to stop (before completion); to cease",
+    "frequency_rank": 4060,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "瞌",
+    "pinyin": "kē",
+    "meaning": "used in 瞌睡[ke1 shui4]",
+    "frequency_rank": 4061,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "梆",
+    "pinyin": "bāng",
+    "meaning": "watchman's rattle",
+    "frequency_rank": 4062,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "樟",
+    "pinyin": "zhāng",
+    "meaning": "camphor; Cinnamonum camphara",
+    "frequency_rank": 4063,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "茉",
+    "pinyin": "mò",
+    "meaning": "used in 茉莉[mo4 li4]",
+    "frequency_rank": 4064,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "岖",
+    "pinyin": "qū",
+    "meaning": "used in 崎嶇|崎岖[qi2 qu1]",
+    "frequency_rank": 4065,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "臼",
+    "pinyin": "jiù",
+    "meaning": "mortar",
+    "frequency_rank": 4066,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "癣",
+    "pinyin": "xuǎn",
+    "meaning": "ringworm; Taiwan pr. [xian3]",
+    "frequency_rank": 4067,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "穑",
+    "pinyin": "sè",
+    "meaning": "gather in harvest",
+    "frequency_rank": 4068,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "玷",
+    "pinyin": "diàn",
+    "meaning": "blemish; disgrace",
+    "frequency_rank": 4069,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "馍",
+    "pinyin": "mó",
+    "meaning": "small loaf of steamed bread",
+    "frequency_rank": 4070,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "呷",
+    "pinyin": "xiā",
+    "meaning": "to sip; to drink; Taiwan pr. [xia2]",
+    "frequency_rank": 4071,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "萼",
+    "pinyin": "è",
+    "meaning": "calyx of a flower",
+    "frequency_rank": 4072,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "妩",
+    "pinyin": "wǔ",
+    "meaning": "used in 嫵媚|妩媚[wu3 mei4]",
+    "frequency_rank": 4073,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "伫",
+    "pinyin": "zhù",
+    "meaning": "to stand for a long time; to wait",
+    "frequency_rank": 4074,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "彤",
+    "pinyin": "tóng",
+    "meaning": "surname Tong",
+    "frequency_rank": 4075,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "莓",
+    "pinyin": "méi",
+    "meaning": "(bound form) berry (e.g. strawberry, blackberry, loganberry)",
+    "frequency_rank": 4076,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "岬",
+    "pinyin": "jiǎ",
+    "meaning": "cape (geography); headland",
+    "frequency_rank": 4077,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "媛",
+    "pinyin": "yuán",
+    "meaning": "used in 嬋媛|婵媛[chan2 yuan2]",
+    "frequency_rank": 4078,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "惆",
+    "pinyin": "chóu",
+    "meaning": "forlorn; vexed",
+    "frequency_rank": 4079,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "鳎",
+    "pinyin": "tǎ",
+    "meaning": "sole (fish)",
+    "frequency_rank": 4080,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "啾",
+    "pinyin": "jiū",
+    "meaning": "(onom.) wailing of child; chirp",
+    "frequency_rank": 4081,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "囔",
+    "pinyin": "nāng",
+    "meaning": "muttering, indistinct speech",
+    "frequency_rank": 4082,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蜓",
+    "pinyin": "tíng",
+    "meaning": "see 蜻蜓[qing1 ting2]",
+    "frequency_rank": 4083,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "孺",
+    "pinyin": "rú",
+    "meaning": "surname Ru",
+    "frequency_rank": 4084,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "徇",
+    "pinyin": "xùn",
+    "meaning": "to give in to; to be swayed by (personal considerations etc)",
+    "frequency_rank": 4085,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "徵",
+    "pinyin": "zhǐ",
+    "meaning": "4th note in the ancient Chinese pentatonic scale 五音[wu3 yin1], corresponding to sol",
+    "frequency_rank": 4086,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "焊",
+    "pinyin": "hàn",
+    "meaning": "to weld; to braze; to solder",
+    "frequency_rank": 4087,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "岱",
+    "pinyin": "dài",
+    "meaning": "Mt Tai in Shandong; same as 泰山",
+    "frequency_rank": 4088,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "昵",
+    "pinyin": "nì",
+    "meaning": "variant of 暱|昵[ni4]",
+    "frequency_rank": 4089,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "卅",
+    "pinyin": "sà",
+    "meaning": "thirty",
+    "frequency_rank": 4090,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "飙",
+    "pinyin": "biāo",
+    "meaning": "(literary) very strong wind; gale; (bound form) wild; violent; unrestrained; furious",
+    "frequency_rank": 4091,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "邙",
+    "pinyin": "máng",
+    "meaning": "Mt Mang at Luoyang in Henan, with many Han, Wei and Jin dynasty royal tombs",
+    "frequency_rank": 4092,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "痞",
+    "pinyin": "pǐ",
+    "meaning": "constipation; lump in the abdomen",
+    "frequency_rank": 4093,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "隼",
+    "pinyin": "sǔn",
+    "meaning": "falcon; Taiwan pr. [zhun3]",
+    "frequency_rank": 4094,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "恫",
+    "pinyin": "dòng",
+    "meaning": "frighten",
+    "frequency_rank": 4095,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "怆",
+    "pinyin": "chuàng",
+    "meaning": "mournful; sad",
+    "frequency_rank": 4096,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "桀",
+    "pinyin": "jié",
+    "meaning": "(emperor of Xia dynasty); cruel",
+    "frequency_rank": 4097,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "绶",
+    "pinyin": "shòu",
+    "meaning": "cord on a seal",
+    "frequency_rank": 4098,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "裆",
+    "pinyin": "dāng",
+    "meaning": "crotch; seat of a pair of trousers",
+    "frequency_rank": 4099,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "盂",
+    "pinyin": "yú",
+    "meaning": "basin; wide-mouthed jar or pot",
+    "frequency_rank": 4100,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "桧",
+    "pinyin": "huì",
+    "meaning": "used in 秦檜|秦桧[Qin2 Hui4]; Taiwan pr. [Kuai4]",
+    "frequency_rank": 4101,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蚓",
+    "pinyin": "yǐn",
+    "meaning": "used in 蚯蚓[qiu1 yin3]",
+    "frequency_rank": 4102,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "抠",
+    "pinyin": "kōu",
+    "meaning": "to dig; to pick; to scratch (with a finger or sth pointed); to carve; to cut",
+    "frequency_rank": 4103,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "嗷",
+    "pinyin": "áo",
+    "meaning": "loud clamor; the sound of wailing",
+    "frequency_rank": 4104,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "槌",
+    "pinyin": "chuí",
+    "meaning": "mallet; pestle",
+    "frequency_rank": 4105,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "痘",
+    "pinyin": "dòu",
+    "meaning": "pimple; pustule",
+    "frequency_rank": 4106,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "痢",
+    "pinyin": "lì",
+    "meaning": "dysentery",
+    "frequency_rank": 4107,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "芮",
+    "pinyin": "ruì",
+    "meaning": "surname Rui",
+    "frequency_rank": 4108,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蚣",
+    "pinyin": "gōng",
+    "meaning": "used in 蜈蚣[wu2 gong1]",
+    "frequency_rank": 4109,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "闩",
+    "pinyin": "shuān",
+    "meaning": "bolt; latch",
+    "frequency_rank": 4110,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "铿",
+    "pinyin": "kēng",
+    "meaning": "(onom.) clang; jingling of metals",
+    "frequency_rank": 4111,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "飓",
+    "pinyin": "jù",
+    "meaning": "used in 颶風|飓风[ju4 feng1]",
+    "frequency_rank": 4112,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "疱",
+    "pinyin": "pào",
+    "meaning": "pimple; acne",
+    "frequency_rank": 4113,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蝌",
+    "pinyin": "kē",
+    "meaning": "used in 蝌蚪[ke1 dou3]",
+    "frequency_rank": 4114,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "撅",
+    "pinyin": "juē",
+    "meaning": "to protrude; to stick out",
+    "frequency_rank": 4115,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蚯",
+    "pinyin": "qiū",
+    "meaning": "used in 蚯蚓[qiu1 yin3]",
+    "frequency_rank": 4116,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "斡",
+    "pinyin": "wò",
+    "meaning": "to turn",
+    "frequency_rank": 4117,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "窠",
+    "pinyin": "kē",
+    "meaning": "nest",
+    "frequency_rank": 4118,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "荚",
+    "pinyin": "jiá",
+    "meaning": "pod (botany)",
+    "frequency_rank": 4119,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "耷",
+    "pinyin": "dā",
+    "meaning": "(literary) big ears; (bound form) to droop",
+    "frequency_rank": 4120,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "砚",
+    "pinyin": "yàn",
+    "meaning": "ink-stone",
+    "frequency_rank": 4121,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "牒",
+    "pinyin": "dié",
+    "meaning": "(official) document; dispatch",
+    "frequency_rank": 4122,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "赈",
+    "pinyin": "zhèn",
+    "meaning": "to provide relief; to aid",
+    "frequency_rank": 4123,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "煦",
+    "pinyin": "xù",
+    "meaning": "balmy; nicely warm",
+    "frequency_rank": 4124,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "嗫",
+    "pinyin": "niè",
+    "meaning": "move the mouth as in speaking",
+    "frequency_rank": 4125,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "耙",
+    "pinyin": "bà",
+    "meaning": "a hoe; to harrow",
+    "frequency_rank": 4126,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "榕",
+    "pinyin": "róng",
+    "meaning": "Rong, another name for Fuzhou 福州[Fu2 zhou1]",
+    "frequency_rank": 4127,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "鞑",
+    "pinyin": "dá",
+    "meaning": "Tartar; a tribe in China",
+    "frequency_rank": 4128,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "袤",
+    "pinyin": "mào",
+    "meaning": "length; distance from north to south",
+    "frequency_rank": 4129,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "谌",
+    "pinyin": "chén",
+    "meaning": "surname Chen",
+    "frequency_rank": 4130,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "醺",
+    "pinyin": "xūn",
+    "meaning": "helplessly intoxicated",
+    "frequency_rank": 4131,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "秆",
+    "pinyin": "gǎn",
+    "meaning": "stalks of grain",
+    "frequency_rank": 4132,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "徨",
+    "pinyin": "huáng",
+    "meaning": "used in 彷徨[pang2 huang2]",
+    "frequency_rank": 4133,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "橹",
+    "pinyin": "lǔ",
+    "meaning": "variant of 櫓|橹[lu3]",
+    "frequency_rank": 4134,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "翡",
+    "pinyin": "fěi",
+    "meaning": "used in 翡翠[fei3 cui4]",
+    "frequency_rank": 4135,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "缨",
+    "pinyin": "yīng",
+    "meaning": "tassel; sth shaped like a tassel (e.g. a leaf etc)",
+    "frequency_rank": 4136,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "锹",
+    "pinyin": "qiāo",
+    "meaning": "variant of 鍬|锹[qiao1]",
+    "frequency_rank": 4137,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "嵇",
+    "pinyin": "jī",
+    "meaning": "surname Ji; name of a mountain",
+    "frequency_rank": 4138,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "圪",
+    "pinyin": "gē",
+    "meaning": "(phonetic)",
+    "frequency_rank": 4139,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "髻",
+    "pinyin": "jì",
+    "meaning": "hair rolled up in a bun, topknot",
+    "frequency_rank": 4140,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "嗬",
+    "pinyin": "hē",
+    "meaning": "(interjection expressing surprise) oh!; wow!",
+    "frequency_rank": 4141,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "辎",
+    "pinyin": "zī",
+    "meaning": "covered wagon; military supply wagon",
+    "frequency_rank": 4142,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "痣",
+    "pinyin": "zhì",
+    "meaning": "birthmark; mole",
+    "frequency_rank": 4143,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "娩",
+    "pinyin": "miǎn",
+    "meaning": "to give birth to a child",
+    "frequency_rank": 4144,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "谄",
+    "pinyin": "chǎn",
+    "meaning": "to flatter; to cajole",
+    "frequency_rank": 4145,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蛐",
+    "pinyin": "qū",
+    "meaning": "used in 蛐蛐[qu1 qu5]; used in 蛐蟮[qu1 shan5]",
+    "frequency_rank": 4146,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "鹞",
+    "pinyin": "yào",
+    "meaning": "sparrow hawk; Accipiter nisus",
+    "frequency_rank": 4147,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "翱",
+    "pinyin": "áo",
+    "meaning": "see 翱翔[ao2 xiang2]",
+    "frequency_rank": 4148,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "庖",
+    "pinyin": "páo",
+    "meaning": "kitchen",
+    "frequency_rank": 4149,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "籁",
+    "pinyin": "lài",
+    "meaning": "a sound; a noise",
+    "frequency_rank": 4150,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蓿",
+    "pinyin": "xù",
+    "meaning": "clover; lucerne",
+    "frequency_rank": 4151,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "鳗",
+    "pinyin": "mán",
+    "meaning": "(bound form) eel (Anguilla japonica)",
+    "frequency_rank": 4152,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "疟",
+    "pinyin": "nüè",
+    "meaning": "malaria",
+    "frequency_rank": 4153,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "鲇",
+    "pinyin": "nián",
+    "meaning": "sheatfish (Parasilurus asotus); oriental catfish",
+    "frequency_rank": 4154,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "這",
+    "pinyin": "zhè",
+    "meaning": "this, these; such; here",
+    "frequency_rank": 4155,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "嚅",
+    "pinyin": "rú",
+    "meaning": "chattering",
+    "frequency_rank": 4156,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "瘀",
+    "pinyin": "yū",
+    "meaning": "hematoma (internal blood clot); extravasated blood (spilt into surrounding tissue)",
+    "frequency_rank": 4157,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "颔",
+    "pinyin": "hàn",
+    "meaning": "chin; to nod (one's assent)",
+    "frequency_rank": 4158,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "黜",
+    "pinyin": "chù",
+    "meaning": "to dismiss from office; to expel",
+    "frequency_rank": 4159,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "黠",
+    "pinyin": "xiá",
+    "meaning": "(phonetic); crafty",
+    "frequency_rank": 4160,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "濑",
+    "pinyin": "lài",
+    "meaning": "name of a river; rushing of water",
+    "frequency_rank": 4161,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "馁",
+    "pinyin": "něi",
+    "meaning": "(bound form) hungry; starving; (bound form) dispirited",
+    "frequency_rank": 4162,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "洵",
+    "pinyin": "xún",
+    "meaning": "truly; whirlpool",
+    "frequency_rank": 4163,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "忐",
+    "pinyin": "tǎn",
+    "meaning": "used in 忐忑[tan3 te4]",
+    "frequency_rank": 4164,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "忑",
+    "pinyin": "tè",
+    "meaning": "used in 忐忑[tan3 te4]",
+    "frequency_rank": 4165,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "砥",
+    "pinyin": "dǐ",
+    "meaning": "baffle (pier); whetstone",
+    "frequency_rank": 4166,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "咂",
+    "pinyin": "zā",
+    "meaning": "to sip; to smack one's lips",
+    "frequency_rank": 4167,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "罹",
+    "pinyin": "lí",
+    "meaning": "happen to; sorrow",
+    "frequency_rank": 4168,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "糠",
+    "pinyin": "kāng",
+    "meaning": "variant of 糠[kang1]",
+    "frequency_rank": 4169,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "匝",
+    "pinyin": "zā",
+    "meaning": "(literary) to encircle; to go around; to surround; (literary) whole; full",
+    "frequency_rank": 4170,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "偃",
+    "pinyin": "yǎn",
+    "meaning": "surname Yan",
+    "frequency_rank": 4171,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "淙",
+    "pinyin": "cóng",
+    "meaning": "noise of water",
+    "frequency_rank": 4172,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "纫",
+    "pinyin": "rèn",
+    "meaning": "to thread (a needle); (bound form) to sew; to stitch",
+    "frequency_rank": 4173,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "喏",
+    "pinyin": "nuò",
+    "meaning": "(indicating agreement) yes; all right",
+    "frequency_rank": 4174,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "闾",
+    "pinyin": "lǘ",
+    "meaning": "gate of a village; village",
+    "frequency_rank": 4175,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "祛",
+    "pinyin": "qū",
+    "meaning": "sacrifice to drive away calamity; to dispel",
+    "frequency_rank": 4176,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "蛰",
+    "pinyin": "zhé",
+    "meaning": "to hibernate",
+    "frequency_rank": 4177,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "腼",
+    "pinyin": "miǎn",
+    "meaning": "used in 靦腆|腼腆[mian3 tian3]",
+    "frequency_rank": 4178,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "涝",
+    "pinyin": "lào",
+    "meaning": "flooded",
+    "frequency_rank": 4179,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "曜",
+    "pinyin": "yào",
+    "meaning": "bright; glorious",
+    "frequency_rank": 4180,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "厩",
+    "pinyin": "jiù",
+    "meaning": "stable; barn",
+    "frequency_rank": 4181,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "疽",
+    "pinyin": "jū",
+    "meaning": "gangrene",
+    "frequency_rank": 4182,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "闰",
+    "pinyin": "rùn",
+    "meaning": "intercalary; an extra day or month inserted into the lunar or solar calendar (such as February 29)",
+    "frequency_rank": 4183,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "洄",
+    "pinyin": "huí",
+    "meaning": "eddying; whirling (of water)",
+    "frequency_rank": 4184,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "煊",
+    "pinyin": "xuān",
+    "meaning": "variant of 暄[xuan1]",
+    "frequency_rank": 4185,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "汐",
+    "pinyin": "xī",
+    "meaning": "night tides; evening ebbtide",
+    "frequency_rank": 4186,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "藓",
+    "pinyin": "xiǎn",
+    "meaning": "moss; lichen",
+    "frequency_rank": 4187,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "璜",
+    "pinyin": "huáng",
+    "meaning": "semicircular jade ornament",
+    "frequency_rank": 4188,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "铬",
+    "pinyin": "gè",
+    "meaning": "chromium (chemistry)",
+    "frequency_rank": 4189,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "經",
+    "pinyin": "jīng",
+    "meaning": "the classics; to experience, to undergo",
+    "frequency_rank": 4190,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "渥",
+    "pinyin": "wò",
+    "meaning": "to enrich; to moisten",
+    "frequency_rank": 4191,
+    "han_viet": null,
+    "meaning_vi": null
+  },
+  {
+    "char": "靼",
+    "pinyin": "dá",
+    "meaning": "(phonetic); dressed leather",
+    "frequency_rank": 4192,
+    "han_viet": null,
+    "meaning_vi": null
+  }
+]
