@@ -1,10 +1,13 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Sparkles } from "lucide-react";
 import { cn } from "@/src/utils/ui";
 
+const STORAGE_KEY = "chinese_review_text";
+
 type ReviewState =
+  | { status: "idle" }
   | { status: "loading" }
   | { status: "no_words" }
   | { status: "too_few"; learnedCount: number; minWords: number }
@@ -12,7 +15,19 @@ type ReviewState =
   | { status: "error" };
 
 export function ReviewTab() {
-  const [state, setState] = useState<ReviewState>({ status: "loading" });
+  const [state, setState] = useState<ReviewState>({ status: "idle" });
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved) as { text: string; learnedCount: number };
+        setState({ status: "ready", text: parsed.text, learnedCount: parsed.learnedCount });
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
 
   const generate = useCallback(async () => {
     setState({ status: "loading" });
@@ -30,7 +45,9 @@ export function ReviewTab() {
       } else if (data.error === "too_few") {
         setState({ status: "too_few", learnedCount: data.learnedCount ?? 0, minWords: data.minWords ?? 5 });
       } else if (data.text) {
-        setState({ status: "ready", text: data.text, learnedCount: data.learnedCount ?? 0 });
+        const next = { text: data.text, learnedCount: data.learnedCount ?? 0 };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+        setState({ status: "ready", ...next });
       } else {
         setState({ status: "error" });
       }
@@ -39,13 +56,17 @@ export function ReviewTab() {
     }
   }, []);
 
-  useEffect(() => {
-    void generate();
-  }, [generate]);
+  const showGenerateBtn = state.status !== "loading" && state.status !== "no_words" && state.status !== "too_few";
 
   return (
     <div className="flex flex-col items-center gap-6 py-8 px-4 max-w-2xl mx-auto">
       <div className="w-full">
+        {state.status === "idle" && (
+          <div className="flex flex-col items-center gap-3 py-16 text-muted-foreground">
+            <p className="text-sm">Nhấn Generate để tạo đoạn văn ôn tập từ các từ đã học.</p>
+          </div>
+        )}
+
         {state.status === "loading" && (
           <div className="flex flex-col items-center gap-3 py-16 text-muted-foreground">
             <RefreshCw className="w-6 h-6 animate-spin" />
@@ -96,7 +117,7 @@ export function ReviewTab() {
         )}
       </div>
 
-      {(state.status === "ready" || state.status === "error") && (
+      {showGenerateBtn && (
         <button
           onClick={() => void generate()}
           className={cn(
@@ -104,8 +125,12 @@ export function ReviewTab() {
             "bg-background hover:bg-accent transition-colors"
           )}
         >
-          <RefreshCw className="w-4 h-4" />
-          Tạo lại
+          {state.status === "ready" ? (
+            <RefreshCw className="w-4 h-4" />
+          ) : (
+            <Sparkles className="w-4 h-4" />
+          )}
+          {state.status === "ready" ? "Tạo lại" : "Generate"}
         </button>
       )}
     </div>

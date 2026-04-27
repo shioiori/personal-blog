@@ -11,7 +11,6 @@
     "start": "next start"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.91.1",
     "@fullcalendar/core": "^6.1.20",
     "@fullcalendar/daygrid": "^6.1.20",
     "@fullcalendar/interaction": "^6.1.20",
@@ -55,6 +54,7 @@
     "disqus-react": "^1.1.7",
     "embla-carousel-react": "8.5.1",
     "gray-matter": "^4.0.3",
+    "groq-sdk": "^1.1.2",
     "input-otp": "1.4.1",
     "lucide-react": "^0.454.0",
     "moment": "^2.30.1",
