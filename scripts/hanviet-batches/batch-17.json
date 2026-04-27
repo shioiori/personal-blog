@@ -4,3999 +4,3447 @@
     "pinyin": "miǎn",
     "meaning": "hidden from view; barrier to ward off arrows",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "miễn",
+    "meaning_vi": "tường thấp để tránh tên; không thấy, che khuất, lấp"
   },
   {
     "char": "丒",
     "pinyin": "chǒu",
-    "meaning": "variant of 醜|丑[chou3]",
+    "meaning": "variant of 醜|丑[chǒu]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "sửu",
+    "meaning_vi": "biến thể của 醜|丑[chǒu]"
   },
   {
     "char": "丗",
     "pinyin": "shì",
-    "meaning": "old variant of 世[shi4]",
+    "meaning": "old variant of 世[shì]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thế",
+    "meaning_vi": "đời, trên đời; nối đời nhau; chỗ quen biết cũ"
   },
   {
     "char": "丟",
     "pinyin": "diū",
     "meaning": "to lose; to discard",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "丠",
-    "pinyin": "qiū",
-    "meaning": "old variant of 丘[qiu1]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đâu",
+    "meaning_vi": "tiêu mất, biến mất"
   },
   {
     "char": "丣",
     "pinyin": "yǒu",
-    "meaning": "old variant of 酉[you3]",
+    "meaning": "old variant of 酉[yǒu]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "dậu",
+    "meaning_vi": "Dậu (ngôi thứ 10 hàng Chi)"
   },
   {
     "char": "並",
     "pinyin": "bìng",
     "meaning": "to combine, to annex; also, what's more",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "['tịnh",
+    "meaning_vi": "hợp, gồm; châu Tinh (Trung Quốc); bằng nhau, ngang nhau, đều"
   },
   {
     "char": "丨",
     "pinyin": "gǔn",
     "meaning": "radical in Chinese characters (Kangxi radical 2)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cổn",
+    "meaning_vi": "nét xổ; bộ cổn"
   },
   {
     "char": "丩",
     "pinyin": "jiū",
-    "meaning": "old variant of 糾|纠[jiu1]",
+    "meaning": "old variant of 糾|纠[jiū]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cưu",
+    "meaning_vi": "biến thể cổ của 糾|纠[jiū]"
   },
   {
     "char": "丬",
     "pinyin": "qiáng",
-    "meaning": "\"piece of wood\" radical in Chinese characters (Kangxi radical 90), mirror image of 片[pian4]",
+    "meaning": "\"piece of wood\" radical in Chinese characters (Kangxi radical 90), mirror image of 片[piàn]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "bản",
+    "meaning_vi": "bộ \"mảnh gỗ\" trong chữ Hán (bộ Khang Hy số 90), hình ảnh phản chiếu của 片 [piàn]"
   },
   {
     "char": "丮",
     "pinyin": "jǐ",
     "meaning": "to catch",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "kịch",
+    "meaning_vi": "cầm, nắm"
   },
   {
     "char": "丱",
     "pinyin": "guàn",
     "meaning": "two tufts of hair; young",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "quán",
+    "meaning_vi": "tết tóc hai búi hai bên"
   },
   {
     "char": "丳",
     "pinyin": "chǎn",
     "meaning": "skewer",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "sạn",
+    "meaning_vi": "xiên"
   },
   {
     "char": "丵",
     "pinyin": "zhuó",
     "meaning": "thick grass; \"bush\" component in Chinese characters",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "trác",
+    "meaning_vi": "cỏ mọc rậm rạp"
   },
   {
     "char": "丶",
     "pinyin": "zhǔ",
-    "meaning": "\"dot\" radical in Chinese characters (Kangxi radical 3), aka 點|点[dian3]",
+    "meaning": "\"dot\" radical in Chinese characters (Kangxi radical 3), aka 點|点[diǎn]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "丷",
-    "pinyin": "bā",
-    "meaning": "\"eight\" component in Chinese characters",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "chủ",
+    "meaning_vi": "dấu đánh để ghi nhớ hoặc phân biệt; nét chấm; bộ chủ"
   },
   {
     "char": "丼",
     "pinyin": "dòng",
     "meaning": "(Tw) bowl of steamed rice with other food on top (loanword from Japanese \"donburi\")",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đảm",
+    "meaning_vi": "tiếng đồ vật quăng xuống giếng"
   },
   {
     "char": "丿",
     "pinyin": "piě",
-    "meaning": "radical in Chinese characters (Kangxi radical 4), aka 撇[pie3]",
+    "meaning": "radical in Chinese characters (Kangxi radical 4), aka 撇[piě]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "['phẩy",
+    "meaning_vi": "nét phảy, nét phẩy; bộ triệt"
   },
   {
     "char": "乀",
     "pinyin": "fú",
     "meaning": "stretch",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "['phật",
+    "meaning_vi": "nét mác"
   },
   {
     "char": "乂",
     "pinyin": "yì",
     "meaning": "to regulate; to govern",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nghệ",
+    "meaning_vi": "cắt cỏ; cai trị được dân yên; tài giỏi"
   },
   {
     "char": "乆",
     "pinyin": "jiǔ",
-    "meaning": "old variant of 久[jiu3]",
+    "meaning": "old variant of 久[jiǔ]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cửu",
+    "meaning_vi": "biến thể cổ của 久[jiǔ]"
   },
   {
     "char": "乑",
     "pinyin": "zhòng",
     "meaning": "to stand side by side",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "chúng",
+    "meaning_vi": "người đứng đông đúc; thông với: chúng 衆; xưa dùng như chữ: phan 攀"
   },
   {
     "char": "乕",
     "pinyin": "hǔ",
-    "meaning": "old variant of 虎[hu3]",
+    "meaning": "old variant of 虎[hǔ]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hổ",
+    "meaning_vi": "con hổ"
   },
   {
     "char": "乚",
     "pinyin": "gōu",
     "meaning": "secret, hidden, mysterious; small, minute; to conceal",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "乛",
-    "pinyin": "zhé",
-    "meaning": "variant of 乙[zhe2]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ất",
+    "meaning_vi": "sợi lông (như chữ 毫); như chữ \"hào\" 毫; chữ nước Tề, Lỗ xưa dùng gọi một loài chim màu đen, âm đọc dựa theo tiếng kêu"
   },
   {
     "char": "乢",
     "pinyin": "gài",
-    "meaning": "ancient variant of 蓋|盖[gai4]; ancient variant of 丐[gai4]",
+    "meaning": "ancient variant of 蓋|盖[gài]; ancient variant of 丐[gài]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "乣",
-    "pinyin": "jiǔ",
-    "meaning": "old variant of 糺[jiu3]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cái",
+    "meaning_vi": "dạng cổ của chữ 蓋, 盖; dạng cổ của chữ 丐"
   },
   {
     "char": "乨",
     "pinyin": "shǐ",
-    "meaning": "old variant of 始[shi3]",
+    "meaning": "old variant of 始[shǐ]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "乪",
-    "pinyin": "nāng",
-    "meaning": "a bend in a river (Cantonese)",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thí",
+    "meaning_vi": "biến thể cổ của 始[shǐ]"
   },
   {
     "char": "乴",
     "pinyin": "xué",
     "meaning": "to grasp",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "乶",
-    "pinyin": "fǔ",
-    "meaning": "(phonetic \"pol\", used in Korean place names)",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "乸",
-    "pinyin": "nǎ",
-    "meaning": "feminine suffix (Cantonese); postfix indicating feminine",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tích",
+    "meaning_vi": "nắm bắt"
   },
   {
     "char": "乹",
     "pinyin": "gān",
     "meaning": "to clean; to dry up",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "['càn",
+    "meaning_vi": "khô, cạn kiệt; tiếng hão gọi mà không có thực sự; quẻ Càn (tam liên) trong Kinh Dịch (có 3 vạch liền, tượng Thiên (trời), tượng trưng người cha, hành Kim, tuổi Tuất và Hợi, hướng Tây Bắc)"
   },
   {
     "char": "乿",
     "pinyin": "luàn",
-    "meaning": "old variant of 亂|乱[luan4]",
+    "meaning": "old variant of 亂|乱[luàn]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "loạn",
+    "meaning_vi": "biến thể cổ của 亂|乱[luàn]"
   },
   {
     "char": "亀",
     "pinyin": "guī",
-    "meaning": "old variant of 龜|龟[gui1]",
+    "meaning": "old variant of 龜|龟[guī]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "quy",
+    "meaning_vi": "con rùa"
   },
   {
     "char": "亂",
     "pinyin": "luàn",
     "meaning": "anarchy, chaos; revolt",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "亃",
-    "pinyin": "lín",
-    "meaning": "mythical animal, said to have yellow body and white tail",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "loạn",
+    "meaning_vi": "lẫn lộn; rối; phá hoại"
   },
   {
     "char": "亄",
     "pinyin": "yì",
     "meaning": "covetous; greedy; stingy",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ý",
+    "meaning_vi": "tham lam; keo kiệt"
   },
   {
     "char": "亅",
     "pinyin": "jué",
-    "meaning": "\"vertical stroke with hook\" radical in Chinese characters (Kangxi radical 6), aka 豎鉤|竖钩[shu4 gou1]",
+    "meaning": "\"vertical stroke with hook\" radical in Chinese characters (Kangxi radical 6), aka 豎鉤|竖钩[shù gōu]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "亇",
-    "pinyin": "gè",
-    "meaning": "variant of 個|个[ge4]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "quyết",
+    "meaning_vi": "nét xổ có móc; bộ quyết"
   },
   {
     "char": "亊",
     "pinyin": "shì",
-    "meaning": "variant of 事[shi4]",
+    "meaning": "variant of 事[shì]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "sự",
+    "meaning_vi": "việc; làm việc; thờ"
   },
   {
     "char": "亍",
     "pinyin": "chù",
-    "meaning": "to step with the right foot (used in 彳亍[chi4 chu4])",
+    "meaning": "to step with the right foot (used in 彳亍[chì chù])",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "亐",
-    "pinyin": "yú",
-    "meaning": "old variant of 于[yu2]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "xúc",
+    "meaning_vi": "bước chân phải"
   },
   {
     "char": "亖",
     "pinyin": "sì",
-    "meaning": "old variant of 四[si4]",
+    "meaning": "old variant of 四[sì]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tứ",
+    "meaning_vi": "biến thể cũ của 四[sì]"
   },
   {
     "char": "亙",
     "pinyin": "gèn",
     "meaning": "through; to extend across; to, from",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cắng",
+    "meaning_vi": "khoảng dài từ đầu đến cuối"
   },
   {
     "char": "亝",
     "pinyin": "qí",
-    "meaning": "old variant of 齊|齐[qi2]",
+    "meaning": "old variant of 齊|齐[qí]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tề",
+    "meaning_vi": "biến thể cũ của 齊|齐[qí]"
   },
   {
     "char": "亞",
     "pinyin": "yà",
     "meaning": "Asia; second",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "á",
+    "meaning_vi": "thứ hai; châu Á"
   },
   {
     "char": "亠",
     "pinyin": "tóu",
     "meaning": "\"lid\" radical in Chinese characters (Kangxi radical 8)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đầu",
+    "meaning_vi": "bộ đầu"
   },
   {
     "char": "亶",
     "pinyin": "dǎn",
     "meaning": "surname Dan",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đản",
+    "meaning_vi": "tin"
   },
   {
     "char": "亸",
     "pinyin": "duǒ",
     "meaning": "hang down",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đả",
+    "meaning_vi": "rủ xuống"
   },
   {
     "char": "亹",
     "pinyin": "mén",
     "meaning": "mountain pass; defile (archaic)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "['mên",
+    "meaning_vi": "cố gắng"
   },
   {
     "char": "亻",
     "pinyin": "rén",
     "meaning": "\"person\" radical in Chinese characters (Kangxi radical 9)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nhân",
+    "meaning_vi": "người; người"
   },
   {
     "char": "亼",
     "pinyin": "jí",
-    "meaning": "variant of 集[ji2]",
+    "meaning": "variant of 集[jí]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "亽",
-    "pinyin": "jí",
-    "meaning": "old variant of 亼[ji2]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tập",
+    "meaning_vi": "biến thể của 集[jí]"
   },
   {
     "char": "亾",
     "pinyin": "wáng",
     "meaning": "death, destruction; to lose, to perish",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "仈",
-    "pinyin": "bā",
-    "meaning": "surname Ba",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "vong",
+    "meaning_vi": "biến thể cũ của 亡[wáng]"
   },
   {
     "char": "仌",
     "pinyin": "bīng",
-    "meaning": "old variant of 冰[bing1]",
+    "meaning": "old variant of 冰[bīng]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "băng",
+    "meaning_vi": "biến thể cũ của 冰[bīng]"
   },
   {
     "char": "仚",
     "pinyin": "xiān",
-    "meaning": "old variant of 仙[xian1]",
+    "meaning": "old variant of 仙[xiān]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tiên",
+    "meaning_vi": "biến thể cũ của 仙[xiān]"
   },
   {
     "char": "伀",
     "pinyin": "zhōng",
     "meaning": "restless; agitated",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "chung",
+    "meaning_vi": "xúc động; hoảng sợ, khiếp sợ"
   },
   {
     "char": "伄",
     "pinyin": "diào",
-    "meaning": "used in 伄儅[diao4 dang1]",
+    "meaning": "used in 伄儅[diào dāng]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "điếu",
+    "meaning_vi": "dùng trong 伄儅[diào dāng]"
   },
   {
     "char": "伇",
     "pinyin": "yì",
-    "meaning": "old variant of 役[yi4]",
+    "meaning": "old variant of 役[yì]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "dịch",
+    "meaning_vi": "biến thể cũ của 役[yì]"
   },
   {
     "char": "伈",
     "pinyin": "xǐn",
     "meaning": "nervous; fearful",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tẩm",
+    "meaning_vi": "sợ sệt"
   },
   {
     "char": "伋",
     "pinyin": "jí",
     "meaning": "unreal",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cấp",
+    "meaning_vi": "múc nước"
   },
   {
     "char": "伕",
     "pinyin": "fū",
-    "meaning": "variant of 夫[fu1]",
+    "meaning": "variant of 夫[fū]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "phu",
+    "meaning_vi": "phu xe"
   },
   {
     "char": "伜",
     "pinyin": "cuì",
-    "meaning": "variant of 倅[cui4]",
+    "meaning": "variant of 倅[cuì]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thối",
+    "meaning_vi": "biến thể của 倅[cuì]"
   },
   {
     "char": "伣",
     "pinyin": "qiàn",
     "meaning": "(old) like; as",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "伩",
-    "pinyin": "xìn",
-    "meaning": "variant of 信[xin4] (originally meant as part of the second round of simplified Chinese characters)",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "伭",
-    "pinyin": "xián",
-    "meaning": "surname Xian",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "khiếm",
+    "meaning_vi": "(cổ) như; là"
   },
   {
     "char": "伱",
     "pinyin": "nǐ",
-    "meaning": "old variant of 你[ni3]",
+    "meaning": "old variant of 你[nǐ]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "伹",
-    "pinyin": "qū",
-    "meaning": "clumsy and dumb; slow-witted",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nễ",
+    "meaning_vi": "anh, bạn, mày; vậy (dùng để kết thúc câu)"
   },
   {
     "char": "伻",
     "pinyin": "bēng",
     "meaning": "to cause",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "bình",
+    "meaning_vi": "sai khiến"
   },
   {
     "char": "伾",
     "pinyin": "pī",
     "meaning": "multitudinous; powerful",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "phi",
+    "meaning_vi": "nhiều; mạnh mẽ"
   },
   {
     "char": "佇",
     "pinyin": "zhù",
     "meaning": "to wait; to look towards; to turn one's back on",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "trữ",
+    "meaning_vi": "mong đợi, đứng lâu"
   },
   {
     "char": "佈",
     "pinyin": "bù",
     "meaning": "to spread, to publicize, to announce",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "bố",
+    "meaning_vi": "công khai hoá"
   },
   {
     "char": "佉",
     "pinyin": "qū",
     "meaning": "surname Qu",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "khư",
+    "meaning_vi": "đuổi, trừ khử"
   },
   {
     "char": "佌",
     "pinyin": "cǐ",
     "meaning": "petty; wretched",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thử",
+    "meaning_vi": "nhỏ, địa vị thấp kém"
   },
   {
     "char": "佔",
     "pinyin": "zhàn",
     "meaning": "to possess, to usurp, to take by force",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "佡",
-    "pinyin": "xiān",
-    "meaning": "light (as a feather)",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "chiếm",
+    "meaning_vi": "quan sát, theo dõi; chiếm đoạt của người khác"
   },
   {
     "char": "佢",
     "pinyin": "qú",
     "meaning": "(Cantonese) he, she, it",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cừ",
+    "meaning_vi": "(Quảng Đông) anh ấy, cô ấy, nó"
   },
   {
     "char": "佪",
     "pinyin": "huái",
     "meaning": "irresolute; to move back and forth",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "佫",
-    "pinyin": "hè",
-    "meaning": "surname He",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "佱",
-    "pinyin": "fǎ",
-    "meaning": "old variant of 法[fa3]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hồi",
+    "meaning_vi": "(xem: bồi hồi 徘徊)"
   },
   {
     "char": "併",
     "pinyin": "bìng",
     "meaning": "to combine, to annex; also, what's more",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tính",
+    "meaning_vi": "hợp lại, gộp lại, dồn lại; chặt, ăn (cờ)"
   },
   {
     "char": "佷",
     "pinyin": "hěn",
     "meaning": "to act contrary to",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hận",
+    "meaning_vi": "hành động trái ngược"
   },
   {
     "char": "佸",
     "pinyin": "huó",
     "meaning": "meet",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "quát",
+    "meaning_vi": "gặp gỡ"
   },
   {
     "char": "佹",
     "pinyin": "guǐ",
     "meaning": "(literary) perverse; unreasonable; (literary) eccentric; enigmatic",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "quỷ",
+    "meaning_vi": "trái lạ, không hợp lý; quái lạ, kỳ quái; chồng chất"
   },
   {
     "char": "佺",
     "pinyin": "quán",
     "meaning": "immortal",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thuyên",
+    "meaning_vi": "(xem: ốc thuyên 偓佺); tất cả, toàn bộ"
   },
   {
     "char": "佽",
     "pinyin": "cì",
     "meaning": "surname Ci",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thứ",
+    "meaning_vi": "tiện lợi"
   },
   {
     "char": "侀",
     "pinyin": "xíng",
     "meaning": "shape; statute",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hinh",
+    "meaning_vi": "hình dạng; điều luật"
   },
   {
     "char": "侁",
     "pinyin": "shēn",
     "meaning": "large crowd",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thân",
+    "meaning_vi": "nước Thân; đông đúc, đông đảo"
   },
   {
     "char": "侂",
     "pinyin": "tuō",
-    "meaning": "(literary) to entrust (variant of 託|托[tuo1])",
+    "meaning": "(literary) to entrust (variant of 託|托[tuō])",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thác",
+    "meaning_vi": "giao phó; uỷ thác; đề cử"
   },
   {
     "char": "侅",
     "pinyin": "gāi",
     "meaning": "to give; prepared for included in",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cai",
+    "meaning_vi": "đưa cho; chuẩn bị để bao gồm trong; được bao hàm trong"
   },
   {
     "char": "來",
     "pinyin": "lái",
     "meaning": "to arrive, to come, to return; in the future, later on",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lai",
+    "meaning_vi": "đến nơi"
   },
   {
     "char": "侇",
     "pinyin": "yí",
     "meaning": "(literary) class; category; (literary) to place; to lay out",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "di",
+    "meaning_vi": "(cũ) loại; hạng; xác"
   },
   {
     "char": "侌",
     "pinyin": "yīn",
-    "meaning": "old variant of 陰|阴[yin1]",
+    "meaning": "old variant of 陰|阴[yīn]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "âm",
+    "meaning_vi": "biến thể cũ của 陰|阴[yīn]"
   },
   {
     "char": "侐",
     "pinyin": "xù",
     "meaning": "still; silent",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tuất",
+    "meaning_vi": "thanh tĩnh"
   },
   {
     "char": "侖",
     "pinyin": "lún",
     "meaning": "logical reasons, logical order",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "luân",
+    "meaning_vi": "sắp xếp"
   },
   {
     "char": "侘",
     "pinyin": "chà",
     "meaning": "boast; despondent",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "sá",
+    "meaning_vi": "nản lòng, chán nản"
   },
   {
     "char": "侚",
     "pinyin": "xùn",
     "meaning": "(literary) quick",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tuẫn",
+    "meaning_vi": "nhanh nhẹn"
   },
   {
     "char": "侜",
     "pinyin": "zhōu",
     "meaning": "to conceal; to cover",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "侢",
-    "pinyin": "dài",
-    "meaning": "old variant of 戴[dai4]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "侴",
-    "pinyin": "chǒu",
-    "meaning": "surname Chou",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "chu",
+    "meaning_vi": "che giấu; che đậy"
   },
   {
     "char": "侶",
     "pinyin": "lǚ",
     "meaning": "companion; associate with",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lữ",
+    "meaning_vi": "bạn bè"
   },
   {
     "char": "侷",
     "pinyin": "jú",
     "meaning": "narrow, cramped, confined",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cục",
+    "meaning_vi": "chật hẹp"
   },
   {
     "char": "侹",
     "pinyin": "tǐng",
     "meaning": "(literary) level and straight",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "侽",
-    "pinyin": "nán",
-    "meaning": "old variant of 男[nan2]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đĩnh",
+    "meaning_vi": "(văn học) ngang và thẳng"
   },
   {
     "char": "係",
     "pinyin": "xì",
     "meaning": "system; line, link, connection",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hệ",
+    "meaning_vi": "buộc, bó, nối"
   },
   {
     "char": "俉",
     "pinyin": "wú",
-    "meaning": "used in 逢俉[feng2 wu2]",
+    "meaning": "used in 逢俉[féng wú]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ngộ",
+    "meaning_vi": "dùng trong 逢俉[féngwú]"
   },
   {
     "char": "俍",
     "pinyin": "liáng",
     "meaning": "(literary) to be good at; to be expert in; (literary) skilled craftsman",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lương",
+    "meaning_vi": "(văn học) giỏi về; chuyên nghiệp trong; (văn học) thợ thủ công lành nghề"
   },
   {
     "char": "俛",
     "pinyin": "miǎn",
     "meaning": "to exhort",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "miễn",
+    "meaning_vi": "hô hào, cổ vũ"
   },
   {
     "char": "俠",
     "pinyin": "xiá",
     "meaning": "chivalrous person; knight-errant",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "俤",
-    "pinyin": "dì",
-    "meaning": "variant of 弟[di4]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hiệp",
+    "meaning_vi": "hào hiệp; hiệp sĩ"
   },
   {
     "char": "俴",
     "pinyin": "jiàn",
     "meaning": "short; shallow",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "kiến",
+    "meaning_vi": "ngắn; nông; tấm mỏng"
   },
   {
     "char": "俵",
     "pinyin": "biào",
-    "meaning": "(literary) to distribute; Taiwan pr. [biao3]",
+    "meaning": "(literary) to distribute; Taiwan pr. [biǎo]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "biểu",
+    "meaning_vi": "ban phát, phân chia"
   },
   {
     "char": "俶",
     "pinyin": "chù",
     "meaning": "to begin",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thục",
+    "meaning_vi": "mới, bắt đầu; chỉnh tề"
   },
   {
     "char": "俷",
     "pinyin": "fèi",
     "meaning": "(literary) to violate (a moral code)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "phị",
+    "meaning_vi": "(văn học) vi phạm (đạo đức)"
   },
   {
     "char": "倀",
     "pinyin": "chāng",
     "meaning": "the ghost of one devoured by a tiger",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "trành",
+    "meaning_vi": "lông bông"
   },
   {
     "char": "倂",
     "pinyin": "bìng",
-    "meaning": "variant of 併|并[bing4]",
+    "meaning": "variant of 併|并[bìng]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "倃",
-    "pinyin": "jiù",
-    "meaning": "to malign; to slander",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tính",
+    "meaning_vi": "hợp lại, gộp lại, dồn lại; chặt, ăn (cờ)"
   },
   {
     "char": "倅",
     "pinyin": "cuì",
     "meaning": "auxiliary; spare",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thối",
+    "meaning_vi": "chức phó, thứ hai"
   },
   {
     "char": "倆",
     "pinyin": "liǎ",
     "meaning": "two, a pair, a couple",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lưỡng",
+    "meaning_vi": "tài, khéo"
   },
   {
     "char": "倉",
     "pinyin": "cāng",
     "meaning": "granary, barn; cabin, berth",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "['thương",
+    "meaning_vi": "kho, vựa; (xem: thảng thốt 倉猝); kho, vựa"
   },
   {
     "char": "個",
     "pinyin": "gè",
     "meaning": "this, that; single; measure word for individuals",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cá",
+    "meaning_vi": "cái, quả, con"
   },
   {
     "char": "們",
     "pinyin": "men",
     "meaning": "plural marker for pronouns and some nouns",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "môn",
+    "meaning_vi": "bọn, các, chúng"
   },
   {
     "char": "倓",
     "pinyin": "tán",
     "meaning": "quiet; peaceful",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đàm",
+    "meaning_vi": "yên tĩnh; bình yên"
   },
   {
     "char": "倖",
     "pinyin": "xìng",
     "meaning": "lucky, fortunate; to spoil, to dote on",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hãnh",
+    "meaning_vi": "may mắn"
   },
   {
     "char": "倝",
     "pinyin": "gàn",
     "meaning": "dawn (archaic)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cán",
+    "meaning_vi": "bình minh (cổ đại)"
   },
   {
     "char": "倞",
     "pinyin": "jìng",
     "meaning": "strong; powerful",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "倠",
-    "pinyin": "suī",
-    "meaning": "",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "kính",
+    "meaning_vi": "mạnh, cứng mạnh"
   },
   {
     "char": "倢",
     "pinyin": "jié",
     "meaning": "handsome",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tiệp",
+    "meaning_vi": "(xem: tiệp dư 婕妤)"
   },
   {
     "char": "値",
     "pinyin": "zhí",
-    "meaning": "variant of 值[zhi2]",
+    "meaning": "variant of 值[zhí]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "trị",
+    "meaning_vi": "trị giá, đáng giá"
   },
   {
     "char": "倫",
     "pinyin": "lún",
     "meaning": "human relationships; society",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "倵",
-    "pinyin": "wǔ",
-    "meaning": "(used in given names)",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "luân",
+    "meaning_vi": "luân thường, đạo lý; loài, bực"
   },
   {
     "char": "倶",
     "pinyin": "jù",
-    "meaning": "variant of 俱[ju4]; variant of 具[ju4]",
+    "meaning": "variant of 俱[jù]; variant of 具[jù]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "câu",
+    "meaning_vi": "như chữ 俱"
   },
   {
     "char": "倷",
     "pinyin": "nǎi",
     "meaning": "you (dialect)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "倻",
-    "pinyin": "yē",
-    "meaning": "used to represent phonetic \"ya\" in Korean names",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nãi",
+    "meaning_vi": "mày (tiếng địa phương)"
   },
   {
     "char": "倽",
     "pinyin": "shá",
-    "meaning": "old variant of 啥[sha2]",
+    "meaning": "old variant of 啥[shá]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "xá",
+    "meaning_vi": "biến thể cũ của 啥[shá]"
   },
   {
     "char": "偁",
     "pinyin": "chēng",
-    "meaning": "variant of 稱|称[cheng1]",
+    "meaning": "variant of 稱|称[chēng]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "xưng",
+    "meaning_vi": "gọi, kêu"
   },
   {
     "char": "偉",
     "pinyin": "wěi",
     "meaning": "great, imposing; extraordinary",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "vĩ",
+    "meaning_vi": "cao to"
   },
   {
     "char": "偓",
     "pinyin": "wò",
     "meaning": "constrained",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ốc",
+    "meaning_vi": "cấp bách, gấp rút; họ Ốc"
   },
   {
     "char": "偝",
     "pinyin": "bèi",
     "meaning": "to disobey; to stand back-to-back",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "bội",
+    "meaning_vi": "không vâng lời; đứng quay lưng vào nhau"
   },
   {
     "char": "偟",
     "pinyin": "huáng",
     "meaning": "(literary) free time; leisure",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "偡",
-    "pinyin": "zhàn",
-    "meaning": "(literary) orderly; neat",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hoàng",
+    "meaning_vi": "kíp, gấp; nhàn rỗi"
   },
   {
     "char": "偢",
     "pinyin": "chǒu",
     "meaning": "to stare at",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thiễu",
+    "meaning_vi": "nhìn, trông thấy; (xem: thu thải 瞅睬); nhìn, trông thấy"
   },
   {
     "char": "偨",
     "pinyin": "cī",
     "meaning": "uneven",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "sai",
+    "meaning_vi": "không đồng đều"
   },
   {
     "char": "偩",
     "pinyin": "fù",
     "meaning": "to rely on; to resemble",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "phụ",
+    "meaning_vi": "dựa vào; giống như"
   },
   {
     "char": "偫",
     "pinyin": "zhì",
     "meaning": "to wait for; to lay in",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "trĩ",
+    "meaning_vi": "chờ đợi; đặt ở"
   },
   {
     "char": "偭",
     "pinyin": "miǎn",
     "meaning": "to transgress",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "diện",
+    "meaning_vi": "mặt; bề mặt"
   },
   {
     "char": "偯",
     "pinyin": "yǐ",
     "meaning": "to sob; wail",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ỷ",
+    "meaning_vi": "khóc nức nở"
   },
   {
     "char": "偰",
     "pinyin": "xiè",
-    "meaning": "contract (variant of 契[qi4])",
+    "meaning": "contract (variant of 契[qì])",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "偱",
-    "pinyin": "xún",
-    "meaning": "to tell",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tiết",
+    "meaning_vi": "hợp đồng (biến thể của 契[qì])"
   },
   {
     "char": "偲",
     "pinyin": "cāi",
     "meaning": "(literary) learned; erudite; (literary) gifted; highly talented",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ti",
+    "meaning_vi": "có tài, có khiếu; khẩn cấp"
   },
   {
     "char": "側",
     "pinyin": "cè",
     "meaning": "side; to slant, to lean, to incline",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "trắc",
+    "meaning_vi": "một bên"
   },
   {
     "char": "偵",
     "pinyin": "zhēn",
     "meaning": "to spy, to reconnoiter; detective",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "trinh",
+    "meaning_vi": "thăm dò, do thám, điều tra"
   },
   {
     "char": "偸",
     "pinyin": "tōu",
-    "meaning": "variant of 偷[tou1]",
+    "meaning": "variant of 偷[tōu]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thâu",
+    "meaning_vi": "thu, thâu tóm"
   },
   {
     "char": "偽",
     "pinyin": "wěi",
     "meaning": "false, counterfeit, bogus",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nguỵ",
+    "meaning_vi": "giả, nguỵ"
   },
   {
     "char": "傎",
     "pinyin": "diān",
     "meaning": "inversion; mistake",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "điên",
+    "meaning_vi": "lộn ngược; sai lầm, lỗi"
   },
   {
     "char": "傑",
     "pinyin": "jié",
     "meaning": "hero; heroic, outstanding",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "kiệt",
+    "meaning_vi": "giỏi giang (trong tuấn kiệt)"
   },
   {
     "char": "傒",
     "pinyin": "xī",
-    "meaning": "(old) native of Jiangxi 江西[Jiang1 xi1]; to wait",
+    "meaning": "(old) native of Jiangxi 江西[Jiāng xī]; to wait",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hề",
+    "meaning_vi": "người hầu; người Giang Hữu"
   },
   {
     "char": "傓",
     "pinyin": "shān",
-    "meaning": "old variant of 煽[shan1]",
+    "meaning": "old variant of 煽[shān]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "phiến",
+    "meaning_vi": "biến thể cũ của 煽[shān]"
   },
   {
     "char": "傔",
     "pinyin": "qiàn",
     "meaning": "servant",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "khiểm",
+    "meaning_vi": "kẻ hầu"
   },
   {
     "char": "傕",
     "pinyin": "jué",
     "meaning": "surname Jue",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "quyết",
+    "meaning_vi": "họ [Jué]"
   },
   {
     "char": "傖",
     "pinyin": "cāng",
     "meaning": "vulgar person, country man",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "sanh",
+    "meaning_vi": "khiếm nhã; gã, thằng cha (khinh bỉ)"
   },
   {
     "char": "傘",
     "pinyin": "sǎn",
     "meaning": "umbrella, parasol, parachute",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tản",
+    "meaning_vi": "cái tán; (tên núi)"
   },
   {
     "char": "備",
     "pinyin": "bèi",
     "meaning": "to prepare; to get ready, to equip; ready; perfect",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "bị",
+    "meaning_vi": "có đủ, hoàn toàn; sửa soạn, sắp sẵn; đề phòng, phòng trước"
   },
   {
     "char": "傚",
     "pinyin": "xiào",
     "meaning": "to mimic, to imitate",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hiệu",
+    "meaning_vi": "bắt chước"
   },
   {
     "char": "傜",
     "pinyin": "yáo",
     "meaning": "Yao tribe",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "dao",
+    "meaning_vi": "bộ lạc Dao"
   },
   {
     "char": "傞",
     "pinyin": "suō",
     "meaning": "uneven; unsteady (in dancing)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thoa",
+    "meaning_vi": "so le không đều"
   },
   {
     "char": "傢",
     "pinyin": "jiā",
     "meaning": "stubborn, obstinate, intransigent",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "gia",
+    "meaning_vi": "đồ dùng trong nhà"
   },
   {
     "char": "傤",
     "pinyin": "zài",
     "meaning": "load; cargo",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "['tải",
+    "meaning_vi": "tải; hàng hóa; biến thể cũ của 載|载[zài]"
   },
   {
     "char": "傭",
     "pinyin": "yōng",
     "meaning": "to hire, to employ; commission; servant",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "['dong",
+    "meaning_vi": "làm thuê"
   },
   {
     "char": "傮",
     "pinyin": "zāo",
     "meaning": "finish, to go around",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tao",
+    "meaning_vi": "hoàn thành, đi xung quanh"
   },
   {
     "char": "傯",
     "pinyin": "zǒng",
     "meaning": "busy, hurried; urgent",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tổng",
+    "meaning_vi": "(xem: không tổng 倥傯,倥偬)"
   },
   {
     "char": "傳",
     "pinyin": "chuán",
     "meaning": "to pass on; to propagate; to transmit; summons",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "truyền",
+    "meaning_vi": "truyền; truyện"
   },
   {
     "char": "債",
     "pinyin": "zhài",
     "meaning": "debt, loan, liability",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "trái",
+    "meaning_vi": "nợ nần"
   },
   {
     "char": "傷",
     "pinyin": "shāng",
     "meaning": "to injure, to harm; wound, injury; to fall ill",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thương",
+    "meaning_vi": "đau đớn"
   },
   {
     "char": "傾",
     "pinyin": "qīng",
     "meaning": "to upset, to pour out, to overflow",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "傿",
-    "pinyin": "yān",
-    "meaning": "name of an immortal; ancient place name",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "khuynh",
+    "meaning_vi": "nghiêng; đè úp; dốc hết"
   },
   {
     "char": "僂",
     "pinyin": "lóu",
     "meaning": "humpback; surname",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lâu",
+    "meaning_vi": "gù lưng, còng lưng; gù lưng, còng lưng"
   },
   {
     "char": "僃",
     "pinyin": "bèi",
-    "meaning": "old variant of 備|备[bei4]",
+    "meaning": "old variant of 備|备[bèi]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "bị",
+    "meaning_vi": "có đủ, hoàn toàn; sửa soạn, sắp sẵn; đề phòng, phòng trước"
   },
   {
     "char": "僄",
     "pinyin": "piào",
     "meaning": "light; airy",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "phiêu",
+    "meaning_vi": "thân thể tráng kiện; dáng vẻ tươi tắn; thân thể tráng kiện"
   },
   {
     "char": "僅",
     "pinyin": "jǐn",
     "meaning": "only, merely, solely, just",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cận",
+    "meaning_vi": "chỉ, ít ỏi, vẻn vẹn; chỉ, ít ỏi, vẻn vẹn"
   },
   {
     "char": "僇",
     "pinyin": "lù",
     "meaning": "to despise; to insult",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lục",
+    "meaning_vi": "nhục nhã"
   },
   {
     "char": "僉",
     "pinyin": "qiān",
     "meaning": "all, together, unanimous",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thiêm",
+    "meaning_vi": "đều, cùng"
   },
   {
     "char": "働",
     "pinyin": "xx",
     "meaning": "(Japanese kokuji) labor; work",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "động",
+    "meaning_vi": "động đậy, cử động, hoạt động"
   },
   {
     "char": "僎",
     "pinyin": "zhuàn",
     "meaning": "collect",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "soạn",
+    "meaning_vi": "biên soạn, soạn thảo"
   },
   {
     "char": "僑",
     "pinyin": "qiáo",
     "meaning": "emigrant; to sojourn",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "kiều",
+    "meaning_vi": "ở nhờ, đi ở nơi khác; kiều dân"
   },
   {
     "char": "僔",
     "pinyin": "zǔn",
     "meaning": "to congregate; to crowd",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tổn",
+    "meaning_vi": "tập hợp; chen chúc"
   },
   {
     "char": "僕",
     "pinyin": "pú",
     "meaning": "to fall forward; prostrate, prone; servant",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "僜",
-    "pinyin": "dèng",
-    "meaning": "Deng ethnic minority of Tibet",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "bộc",
+    "meaning_vi": "người đầy tớ; người cầm cương ngựa"
   },
   {
     "char": "僝",
     "pinyin": "chán",
     "meaning": "to revile; to abuse",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "sàn",
+    "meaning_vi": "nêu tỏ, nêu rõ; (xem: sàn sậu 僝僽)"
   },
   {
     "char": "僣",
     "pinyin": "jiàn",
     "meaning": "to overstep one's authority; to usurp",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tiếm",
+    "meaning_vi": "chiếm đoạt, cướp"
   },
   {
     "char": "僥",
     "pinyin": "jiǎo",
     "meaning": "to be lucky; by chance, by luck",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "kiểu",
+    "meaning_vi": "(xem: tiêu nghiêu 僬僥,僬侥); (xem: nghiêu hãnh 僥倖,侥倖); (xem: tiêu nghiêu 僬僥,僬侥)"
   },
   {
     "char": "僩",
     "pinyin": "xiàn",
     "meaning": "courageous; valiant",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "giản",
+    "meaning_vi": "cứng cỏi, dũng cảm"
   },
   {
     "char": "僯",
     "pinyin": "lǐn",
     "meaning": "ashamed",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lấn",
+    "meaning_vi": "xấu hổ"
   },
   {
     "char": "僰",
     "pinyin": "bó",
     "meaning": "name of an ethnic group",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "bặc",
+    "meaning_vi": "tên một dân tộc"
   },
   {
     "char": "僱",
     "pinyin": "gù",
     "meaning": "to hire, to employ",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cố",
+    "meaning_vi": "thuê, mướn"
   },
   {
     "char": "僴",
     "pinyin": "xiàn",
-    "meaning": "old variant of 僩[xian4]",
+    "meaning": "old variant of 僩[xiàn]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "giản",
+    "meaning_vi": "biến thể cũ của 僩[xiàn]"
   },
   {
     "char": "價",
     "pinyin": "jià",
     "meaning": "price, value",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "giá",
+    "meaning_vi": "giá trị, giá cả"
   },
   {
     "char": "僾",
     "pinyin": "ài",
     "meaning": "indistinct; hazy",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ái",
+    "meaning_vi": "phảng phất, lờ mờ"
   },
   {
     "char": "僿",
     "pinyin": "sài",
     "meaning": "small, minute; lacking sincerity",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tái",
+    "meaning_vi": "nhỏ bé, vụn vặt; thiếu chân thành"
   },
   {
     "char": "儀",
     "pinyin": "yí",
     "meaning": "instrument, apparatus; ceremony, rites",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nghi",
+    "meaning_vi": "dáng bên ngoài; lễ nghi, nghi thức"
   },
   {
     "char": "儂",
     "pinyin": "nóng",
     "meaning": "I; you; surname",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nùng",
+    "meaning_vi": "(từ khiếm xưng của phụ nữ)"
   },
   {
     "char": "儃",
     "pinyin": "chán",
     "meaning": "indecisive; irresolute",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thản",
+    "meaning_vi": "thiếu quyết đoán; lưỡng lự"
   },
   {
     "char": "億",
     "pinyin": "yì",
     "meaning": "hundred million; many",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ức",
+    "meaning_vi": "ức, mười vạn; liệu, lường; yên ổn"
   },
   {
     "char": "儅",
     "pinyin": "dāng",
     "meaning": "stop",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đang",
+    "meaning_vi": "dừng lại"
   },
   {
     "char": "儈",
     "pinyin": "kuài",
     "meaning": "go-between, broker, proxy",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "khoái",
+    "meaning_vi": "người lái, người môi giới"
   },
   {
     "char": "儉",
     "pinyin": "jiǎn",
     "meaning": "temperate, frugal, economical",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "kiệm",
+    "meaning_vi": "tiết kiệm"
   },
   {
     "char": "儊",
     "pinyin": "chù",
     "meaning": "rough and rugged",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "sứ",
+    "meaning_vi": "thô ráp và gồ ghề"
   },
   {
     "char": "儌",
     "pinyin": "jiǎo",
     "meaning": "by mere luck",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "kiêu",
+    "meaning_vi": "cầu may"
   },
   {
     "char": "儍",
     "pinyin": "shǎ",
-    "meaning": "variant of 傻[sha3]",
+    "meaning": "variant of 傻[shǎ]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "xoạ",
+    "meaning_vi": "khờ dại, ngớ ngẩn; cứng đầu, ngang ngạnh"
   },
   {
     "char": "儓",
     "pinyin": "tái",
     "meaning": "servant",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đài",
+    "meaning_vi": "người hầu"
   },
   {
     "char": "儕",
     "pinyin": "chái",
     "meaning": "a class, a company; companion; together",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "sài",
+    "meaning_vi": "lũ, chúng, bọn"
   },
   {
     "char": "儘",
     "pinyin": "jǐn",
     "meaning": "to exhaust, to use up, to deplete",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tận",
+    "meaning_vi": "hết; nhất, lớn nhất, to nhất; hết"
   },
   {
     "char": "儜",
     "pinyin": "níng",
     "meaning": "weak; wearied",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ninh",
+    "meaning_vi": "yếu mệt; mệt mỏi; khốn đốn"
   },
   {
     "char": "儞",
     "pinyin": "nǐ",
-    "meaning": "old variant of 你[ni3]",
+    "meaning": "old variant of 你[nǐ]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nễ",
+    "meaning_vi": "biến thể cũ của 你[nǐ]"
   },
   {
     "char": "償",
     "pinyin": "cháng",
     "meaning": "to repay, to recompense; restitution",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thường",
+    "meaning_vi": "đền lại"
   },
   {
     "char": "儤",
     "pinyin": "bào",
     "meaning": "on night duty",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "儦",
-    "pinyin": "biāo",
-    "meaning": "walking to and fro",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "bạo",
+    "meaning_vi": "trực đêm"
   },
   {
     "char": "儩",
     "pinyin": "sì",
     "meaning": "the end; to finish",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tứ",
+    "meaning_vi": "kết thúc; hoàn thành"
   },
   {
     "char": "優",
     "pinyin": "yōu",
     "meaning": "superior; elegant",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ưu",
+    "meaning_vi": "hơn, xuất sắc; nhiều, thừa thãi"
   },
   {
     "char": "儭",
     "pinyin": "chèn",
     "meaning": "to assist; to give alms",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "sấn",
+    "meaning_vi": "bố thí cho tu sĩ hay tăng ni"
   },
   {
     "char": "儱",
     "pinyin": "lǒng",
     "meaning": "rude; barbarous",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lũng",
+    "meaning_vi": "(xem: lung đông 儱倲); (xem: lũng thống 儱侗)"
   },
   {
     "char": "儲",
     "pinyin": "chǔ",
     "meaning": "to save money, to store, to reserve; heir",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "trữ",
+    "meaning_vi": "chứa, cất, lưu giữ"
   },
   {
     "char": "儳",
     "pinyin": "chàn",
     "meaning": "irregular; mixed",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "sàm",
+    "meaning_vi": "hỗn tạp, không chỉnh tề; nhanh, tắt; tướng mạo xấu xí"
   },
   {
     "char": "儷",
     "pinyin": "lì",
     "meaning": "spouse; pair, couple",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lệ",
+    "meaning_vi": "đôi, vợ chồng"
   },
   {
     "char": "儸",
     "pinyin": "luó",
     "meaning": "smart; clever",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "la",
+    "meaning_vi": "vải lụa; cái lưới; bày biện"
   },
   {
     "char": "儹",
     "pinyin": "zǎn",
     "meaning": "to accumulate, to hoard, to store up",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "toản",
+    "meaning_vi": "tích luỹ, dự trữ, tích trữ"
   },
   {
     "char": "儺",
     "pinyin": "nuó",
     "meaning": "rich",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "na",
+    "meaning_vi": "lễ cầu mát"
   },
   {
     "char": "儻",
     "pinyin": "tǎng",
     "meaning": "if, supposing, in case",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thảng",
+    "meaning_vi": "giả sử; bất ngờ, không mong muốn"
   },
   {
     "char": "儼",
     "pinyin": "yǎn",
     "meaning": "grave, respectful; majestic",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nghiễm",
+    "meaning_vi": "kinh sợ"
   },
   {
     "char": "儽",
     "pinyin": "lěi",
     "meaning": "lazy; tired out, worn fatigued",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "luy",
+    "meaning_vi": "lười; mệt mỏi, kiệt sức"
   },
   {
     "char": "兇",
     "pinyin": "xiōng",
     "meaning": "atrocious, brutal, ferocious",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hung",
+    "meaning_vi": "hung ác, dữ tợn; sợ hãi"
   },
   {
     "char": "兌",
     "pinyin": "duì",
     "meaning": "cash, check; to exchange",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đoái",
+    "meaning_vi": "quẻ Đoài (thượng khuyết) trong Kinh Dịch (chỉ có vạch trên đứt, tượng Trạch (đầm), tượng trưng cho con gái út, hành Kim và Thuỷ, tuổi Dậu, hướng Tây); đổi; chi, trả"
   },
   {
     "char": "兒",
     "pinyin": "ér",
     "meaning": "son, child",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "兓",
-    "pinyin": "jīn",
-    "meaning": "",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nhi",
+    "meaning_vi": "đứa trẻ; con (từ xưng hô với cha mẹ)"
   },
   {
     "char": "兗",
     "pinyin": "yǎn",
     "meaning": "to establish; a province",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "兘",
-    "pinyin": "shǐ",
-    "meaning": "old variant of 始[shi3]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "duyện",
+    "meaning_vi": "châu Duyện (thuộc tỉnh Sơn Đông và Trực Lệ, Trung Quốc)"
   },
   {
     "char": "兙",
     "pinyin": "shí kè",
-    "meaning": "(old) contracted variant of 十克[shi2 ke4]",
+    "meaning": "(old) contracted variant of 十克[shí kè]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thập khắc",
+    "meaning_vi": "đềca (cũ) (tương đương một chữ của 十克[shí kè])"
   },
   {
     "char": "兛",
     "pinyin": "qiān kè",
-    "meaning": "(old) contracted variant of 千克[qian1 ke4]",
+    "meaning": "(old) contracted variant of 千克[qiān kè]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thiên khắc",
+    "meaning_vi": "kilôgam (cũ) (tương đương một chữ của 千克[qiān kè])"
   },
   {
     "char": "兝",
     "pinyin": "fēn kè",
-    "meaning": "(old) contracted variant of 分克[fen1 ke4]",
+    "meaning": "(old) contracted variant of 分克[fēn kè]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "phân",
+    "meaning_vi": "đề-xi-gram (cũ) (chữ đơn tương đương với 分克[fēn kè])"
   },
   {
     "char": "兞",
     "pinyin": "háo kè",
-    "meaning": "(old) contracted variant of 毫克[hao2 ke4]",
+    "meaning": "(old) contracted variant of 毫克[háo kè]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "mao",
+    "meaning_vi": "mi-li-gram (cũ) (chữ đơn tương đương với 毫克[háo kè])"
   },
   {
     "char": "兟",
     "pinyin": "shēn",
     "meaning": "to advance",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "兡",
-    "pinyin": "bǎi kè",
-    "meaning": "(old) contracted variant of 百克[bai3 ke4]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "sân",
+    "meaning_vi": "tiến lên"
   },
   {
     "char": "兣",
     "pinyin": "lí kè",
-    "meaning": "(old) contracted variant of 釐克|厘克[li2 ke4]",
+    "meaning": "(old) contracted variant of 釐克|厘克[lí kè]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "li",
+    "meaning_vi": "xentigam (cũ) (chữ đơn tương đương với 釐克|厘克[lí kè])"
   },
   {
     "char": "內",
     "pinyin": "nèi",
     "meaning": "inside",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nội",
+    "meaning_vi": "bên trong; nội bộ; trong"
   },
   {
     "char": "兩",
     "pinyin": "liǎng",
     "meaning": "two, both, pair, couple; ounce",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "['lưỡng",
+    "meaning_vi": "hai, 2; lạng (đơn vị đo khối lượng); lạng (đơn vị đo khối lượng)"
   },
   {
     "char": "兪",
     "pinyin": "yú",
-    "meaning": "variant of 俞[yu2]",
+    "meaning": "variant of 俞[yú]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "du",
+    "meaning_vi": "phải, vâng (lời đáp lại)"
   },
   {
     "char": "兲",
     "pinyin": "tiān",
-    "meaning": "variant of 天[tian1]",
+    "meaning": "variant of 天[tiān]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thiên",
+    "meaning_vi": "biến thể của 天[tiān]"
   },
   {
     "char": "冂",
     "pinyin": "jiōng",
-    "meaning": "radical in Chinese characters (Kangxi radical 13), occurring in 用[yong4], 同[tong2], 網|网[wang3] etc, referred to as 同字框[tong2 zi4 kuang4]",
+    "meaning": "radical in Chinese characters (Kangxi radical 13), occurring in 用[yòng], 同[tóng], 網|网[wǎng] etc, referred to as 同字框[tóng zì kuàng]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "quynh",
+    "meaning_vi": "đất ở xa ngoài cõi nước; ngoài đồng"
   },
   {
     "char": "冃",
     "pinyin": "mào",
     "meaning": "hat; cap",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "mạo",
+    "meaning_vi": "biến thể cũ của 帽[mào]; mũ; nón"
   },
   {
     "char": "円",
     "pinyin": "yuán",
     "meaning": "yen (Japanese currency); Japanese variant of 圓|圆",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "viên",
+    "meaning_vi": "tròn, hình tròn; cầu, hình cầu; tròn (trăng)"
   },
   {
     "char": "冇",
     "pinyin": "mǎo",
-    "meaning": "to not have (Cantonese) (Mandarin equivalent: 沒有|没有[mei2 you3])",
+    "meaning": "to not have (Cantonese) (Mandarin equivalent: 沒有|没有[méi yǒu])",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "mão",
+    "meaning_vi": "không có (tiếng Quảng Đông) (tương đương trong tiếng Quan Thoại: 沒有|没有[méi yǒu])"
   },
   {
     "char": "冊",
     "pinyin": "cè",
     "meaning": "book, volume, register, list",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "sách",
+    "meaning_vi": "quyển sách, sổ"
   },
   {
     "char": "冋",
     "pinyin": "jiōng",
-    "meaning": "old variant of 坰[jiong1]",
+    "meaning": "old variant of 坰[jiōng]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "冎",
-    "pinyin": "guǎ",
-    "meaning": "bone",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "quynh",
+    "meaning_vi": "biến thể cổ của 坰[jiōng]"
   },
   {
     "char": "冏",
     "pinyin": "jiǒng",
     "meaning": "velvetleaf (Abutilon avicennae), plant of the jute family; bright",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "quýnh",
+    "meaning_vi": "cây đay (Abutilon avicennae), thực vật họ đay; sáng sủa"
   },
   {
     "char": "冑",
     "pinyin": "zhòu",
-    "meaning": "variant of 胄[zhou4]",
+    "meaning": "variant of 胄[zhòu]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "trụ",
+    "meaning_vi": "mũ trụ"
   },
   {
     "char": "冓",
     "pinyin": "gòu",
     "meaning": "inner rooms of palace; ten billions",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cấu",
+    "meaning_vi": "nơi kín đáo"
   },
   {
     "char": "冔",
     "pinyin": "xǔ",
     "meaning": "cap of Yin dynasty",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hu",
+    "meaning_vi": "mũ của triều đại Ân"
   },
   {
     "char": "冖",
     "pinyin": "mì",
-    "meaning": "\"cover\" radical in Chinese characters (Kangxi radical 14), occurring in 軍|军[jun1], 冠[guan1] etc, known as 禿寶蓋|秃宝盖[tu1 bao3 gai4] or 平寶蓋|平宝盖[ping2 bao3 gai4]",
+    "meaning": "\"cover\" radical in Chinese characters (Kangxi radical 14), occurring in 軍|军[jūn], 冠[guān] etc, known as 禿寶蓋|秃宝盖[tū bǎo gài] or 平寶蓋|平宝盖[píng bǎo gài]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "mịch",
+    "meaning_vi": "trùm khăn lên đầu; bộ mịch"
   },
   {
     "char": "冘",
     "pinyin": "yín",
     "meaning": "to go forward; to advance",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "冝",
-    "pinyin": "yí",
-    "meaning": "suitable, right, proper",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "dâm",
+    "meaning_vi": "tiến lên; tiến tới"
   },
   {
     "char": "冞",
     "pinyin": "mí",
     "meaning": "deep",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "my",
+    "meaning_vi": "sâu"
   },
   {
     "char": "冡",
     "pinyin": "méng",
-    "meaning": "old variant of 蒙[meng2]",
+    "meaning": "old variant of 蒙[méng]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "mông",
+    "meaning_vi": "biến thể cũ của 蒙[méng]"
   },
   {
     "char": "冣",
     "pinyin": "jù",
-    "meaning": "old variant of 聚[ju4]",
+    "meaning": "old variant of 聚[jù]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "冧",
-    "pinyin": "lín",
-    "meaning": "(Cantonese) to topple; to collapse",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tối",
+    "meaning_vi": "biến thể cũ của 聚[jù]"
   },
   {
     "char": "冪",
     "pinyin": "mì",
     "meaning": "cover-cloth; exponent, power",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "mịch",
+    "meaning_vi": "cái màn căng ở trên, cái bạt; cái khăn phủ đồ; cái mạng che mặt"
   },
   {
     "char": "冫",
     "pinyin": "bīng",
-    "meaning": "\"ice\" radical in Chinese characters (Kangxi radical 15), occurring in 冰[bing1], 次[ci4] etc, known as 兩點水|两点水[liang3 dian3 shui3]",
+    "meaning": "\"ice\" radical in Chinese characters (Kangxi radical 15), occurring in 冰[bīng], 次[cì] etc, known as 兩點水|两点水[liǎng diǎn shuǐ]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "冮",
-    "pinyin": "gāng",
-    "meaning": "surname Gang",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "băng",
+    "meaning_vi": "bộ băng"
   },
   {
     "char": "凃",
     "pinyin": "tú",
-    "meaning": "old variant of 涂[tu2]",
+    "meaning": "old variant of 涂[tú]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đồ",
+    "meaning_vi": "biến thể cũ của 涂[tú]"
   },
   {
     "char": "凅",
     "pinyin": "gù",
     "meaning": "dried up; dry",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hạc",
+    "meaning_vi": "khô cạn; khô kiệt; suy kiệt"
   },
   {
     "char": "凈",
     "pinyin": "jìng",
     "meaning": "clean, pure; to cleanse",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tịnh",
+    "meaning_vi": "sạch sẽ; đóng vai hề"
   },
   {
     "char": "凊",
     "pinyin": "qìng",
     "meaning": "(literary) cold; cool; chilly",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "sảnh",
+    "meaning_vi": "mát mẻ"
   },
   {
     "char": "凍",
     "pinyin": "dòng",
     "meaning": "cold; to freeze, to congeal; jelly",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đông",
+    "meaning_vi": "đóng băng; nước đá"
   },
   {
     "char": "凓",
     "pinyin": "lì",
     "meaning": "cold; frigid",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lật",
+    "meaning_vi": "rét rùng mình"
   },
   {
     "char": "凔",
     "pinyin": "cāng",
     "meaning": "cold",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "sương",
+    "meaning_vi": "lạnh"
   },
   {
     "char": "凜",
     "pinyin": "lǐn",
     "meaning": "to shiver with cold or fear",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lẫm",
+    "meaning_vi": "giá rét; nghiêm nghị"
   },
   {
     "char": "凞",
     "pinyin": "xī",
     "meaning": "bright; splendid",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hi",
+    "meaning_vi": "sáng rực; lộng lẫy; vẻ vang"
   },
   {
     "char": "凟",
     "pinyin": "dú",
-    "meaning": "variant of 瀆|渎[du2]",
+    "meaning": "variant of 瀆|渎[dú]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "độc",
+    "meaning_vi": "biến thể của 瀆|渎[dú]"
   },
   {
     "char": "凥",
     "pinyin": "jū",
-    "meaning": "old variant of 居[ju1]",
+    "meaning": "old variant of 居[jū]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cư",
+    "meaning_vi": "biến thể cũ của 居[jū]"
   },
   {
     "char": "処",
     "pinyin": "chǔ",
-    "meaning": "old variant of 處|处[chu3]",
+    "meaning": "old variant of 處|处[chǔ]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "xử",
+    "meaning_vi": "biến thể cũ của 處|处[chǔ]"
   },
   {
     "char": "凮",
     "pinyin": "fēng",
-    "meaning": "old variant of 風|风[feng1]",
+    "meaning": "old variant of 風|风[fēng]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "phong",
+    "meaning_vi": "biến thể cũ của 風|风[fēng]"
   },
   {
     "char": "凱",
     "pinyin": "kǎi",
     "meaning": "triumphant; triumph, victory",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "khải",
+    "meaning_vi": "sự thắng lợi"
   },
   {
     "char": "凵",
     "pinyin": "kǎn",
     "meaning": "receptacle",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "khảm",
+    "meaning_vi": "há mồm"
   },
   {
     "char": "刂",
     "pinyin": "dāo",
-    "meaning": "Kangxi radical 18 (刀[dao1]) as a vertical side element, referred to as 立刀旁[li4 dao1 pang2] or 側刀旁|侧刀旁[ce4 dao1 pang2]",
+    "meaning": "Kangxi radical 18 (刀[dāo]) as a vertical side element, referred to as 立刀旁[lì dāo páng] or 側刀旁|侧刀旁[cè dāo páng]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đao",
+    "meaning_vi": "con dao, cái đao"
   },
   {
     "char": "刅",
     "pinyin": "chuāng",
     "meaning": "to create, to make, to invent",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "sang",
+    "meaning_vi": "đau, bị thương"
   },
   {
     "char": "刌",
     "pinyin": "cǔn",
     "meaning": "(literary) to cut off; to sever",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thiển",
+    "meaning_vi": "(văn học) cắt đứt; chia cắt"
   },
   {
     "char": "刓",
     "pinyin": "wán",
     "meaning": "to trim",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ngoan",
+    "meaning_vi": "vót, gọt, nạo"
   },
   {
     "char": "刜",
     "pinyin": "fú",
     "meaning": "to chop; strike",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "刞",
-    "pinyin": "qù",
-    "meaning": "old variant of 耝[qu4]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "刡",
-    "pinyin": "mǐn",
-    "meaning": "to scrape; to pare",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "phất",
+    "meaning_vi": "chặt; đánh"
   },
   {
     "char": "別",
     "pinyin": "bié",
     "meaning": "to separate, to distinguish, to classify; to leave; other; do not, must not",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "biệt",
+    "meaning_vi": "chia tay, xa cách; khác biệt; quay, ngoảnh, chuyển"
   },
   {
     "char": "刪",
     "pinyin": "shān",
     "meaning": "to delete; to cut; to censor",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "san",
+    "meaning_vi": "lọc bỏ"
   },
   {
     "char": "刬",
     "pinyin": "chǎn",
-    "meaning": "variant of 鏟|铲[chan3]",
+    "meaning": "variant of 鏟|铲[chǎn]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "sản",
+    "meaning_vi": "biến thể của 鏟|铲[chǎn]"
   },
   {
     "char": "刱",
     "pinyin": "chuāng",
-    "meaning": "variant of 創|创[chuang1]",
+    "meaning": "variant of 創|创[chuāng]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "['thương",
+    "meaning_vi": "đau, bị thương"
   },
   {
     "char": "刲",
     "pinyin": "kuī",
     "meaning": "cut open and clean",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "khuê",
+    "meaning_vi": "cắt"
   },
   {
     "char": "刴",
     "pinyin": "duò",
-    "meaning": "variant of 剁[duo4]",
+    "meaning": "variant of 剁[duò]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đoá",
+    "meaning_vi": "biến thể của 剁[duò]"
   },
   {
     "char": "刵",
     "pinyin": "èr",
     "meaning": "cutting off the ears as punishment",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nhĩ",
+    "meaning_vi": "hình phạt cắt tai"
   },
   {
     "char": "刾",
     "pinyin": "cì",
-    "meaning": "old variant of 刺[ci4]",
+    "meaning": "old variant of 刺[cì]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thích",
+    "meaning_vi": "biến thể cũ của 刺[cì]"
   },
   {
     "char": "剅",
     "pinyin": "lóu",
     "meaning": "(dialect) an opening at the bottom of a dike for letting water in or out; small channel across a river embankment",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lâu",
+    "meaning_vi": "(phương ngữ) một lỗ ở đáy đê để cho nước ra vào; kênh nhỏ qua bờ sông; (dùng trong địa danh)"
   },
   {
     "char": "則",
     "pinyin": "zé",
     "meaning": "rule, law, regulation; grades",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tắc",
+    "meaning_vi": "quy tắc; bắt chước"
   },
   {
     "char": "剋",
     "pinyin": "kēi",
     "meaning": "to scold; to beat",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "khắc",
+    "meaning_vi": "khắc phục, phục hồi; tất phải thế"
   },
   {
     "char": "剎",
     "pinyin": "shā",
     "meaning": "temple, shrine, monastary; an instant, a moment; to brake",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "sát",
+    "meaning_vi": "chùa, đền hoặc miếu Phật giáo (viết tắt của 剎多羅|刹多罗[chàduōluó], tiếng Phạn \"ksetra\")"
   },
   {
     "char": "剒",
     "pinyin": "cuò",
     "meaning": "to cut; to carve",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thố",
+    "meaning_vi": "cắt; khắc"
   },
   {
     "char": "剕",
     "pinyin": "fèi",
     "meaning": "amputation of limbs as corporal punishment",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "phí",
+    "meaning_vi": "hình phạt chặt chân tay; biến thể của 腓, bắp chân"
   },
   {
     "char": "剚",
     "pinyin": "zì",
     "meaning": "erect; stab",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tứ",
+    "meaning_vi": "cắm dao, đâm dao"
   },
   {
     "char": "剛",
     "pinyin": "gāng",
     "meaning": "hard, strong, tough; just, barely",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cương",
+    "meaning_vi": "cứng, rắn; vừa mới qua, vừa xong"
   },
   {
     "char": "剝",
     "pinyin": "bō",
     "meaning": "to peel, to skin; to exploit",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "bác",
+    "meaning_vi": "bóc vỏ, lột"
   },
   {
     "char": "剟",
     "pinyin": "duō",
     "meaning": "to prick; to cut blocks, to engrave",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "xuyết",
+    "meaning_vi": "đâm, chọc, xiên"
   },
   {
     "char": "剮",
     "pinyin": "guǎ",
     "meaning": "to cut; to sever flesh from bone",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "quả",
+    "meaning_vi": "lăng trì, hình phạt róc thịt"
   },
   {
     "char": "剳",
     "pinyin": "dá",
     "meaning": "hook; sickle",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tráp",
+    "meaning_vi": "lưỡi câu; lưỡi liềm"
   },
   {
     "char": "創",
     "pinyin": "chuàng",
     "meaning": "to establish, to create; cut, wound, trauma",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "['thương",
+    "meaning_vi": "đau, bị thương; mới"
   },
   {
     "char": "剷",
     "pinyin": "chǎn",
     "meaning": "to raze, to pare, to level off",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "sản",
+    "meaning_vi": "lấy liềm phát cỏ"
   },
   {
     "char": "剸",
     "pinyin": "tuán",
     "meaning": "slash",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "chuyên",
+    "meaning_vi": "đẵn, chặt"
   },
   {
     "char": "剺",
     "pinyin": "lí",
     "meaning": "mark",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "劀",
-    "pinyin": "guā",
-    "meaning": "(archaic) to scrape away decayed flesh or pus",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ly",
+    "meaning_vi": "vết cứa"
   },
   {
     "char": "劃",
     "pinyin": "huà",
     "meaning": "to row or paddle a boat; to scratch; to plan; profitable",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hoạch",
+    "meaning_vi": "dùng dao rạch ra; vạch ra, phân chia; nét ngang"
   },
   {
     "char": "劄",
     "pinyin": "zhā",
     "meaning": "to prick with a needle",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "['trát",
+    "meaning_vi": "thẻ tre để viết; công văn"
   },
   {
     "char": "劇",
     "pinyin": "jù",
     "meaning": "theatrical plays, opera, drama; severe, acute",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "kịch",
+    "meaning_vi": "quá mức; trò đùa, vở kịch"
   },
   {
     "char": "劉",
     "pinyin": "liú",
     "meaning": "to kill, to destroy; surname",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lưu",
+    "meaning_vi": "giết; giãi bày; họ Lưu"
   },
   {
     "char": "劊",
     "pinyin": "guì",
     "meaning": "to amputate, to cut off",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "quái",
+    "meaning_vi": "chặt, chém"
   },
   {
     "char": "劍",
     "pinyin": "jiàn",
     "meaning": "sword, dagger, saber",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "kiếm",
+    "meaning_vi": "cái kiếm"
   },
   {
     "char": "劑",
     "pinyin": "jì",
     "meaning": "dose; medicine; measure word for medicines",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tễ",
+    "meaning_vi": "văn tự loại nhỏ; do nhiều thứ hợp thành; thuốc"
   },
   {
     "char": "劖",
     "pinyin": "chán",
     "meaning": "bore; cut",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thiền",
+    "meaning_vi": "đục bằng cái đục; châm chích, châm biếm; diệt trừ, tiêu diệt"
   },
   {
     "char": "劘",
     "pinyin": "mó",
     "meaning": "whittle",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "my",
+    "meaning_vi": "cắt"
   },
   {
     "char": "劙",
     "pinyin": "lí",
     "meaning": "a divide, to partition",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ly",
+    "meaning_vi": "chia ra, phân chia"
   },
   {
     "char": "劦",
     "pinyin": "liè",
     "meaning": "unending exertion",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "劮",
-    "pinyin": "yì",
-    "meaning": "leisurely",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hiệp",
+    "meaning_vi": "nỗ lực không ngừng"
   },
   {
     "char": "劵",
     "pinyin": "juàn",
-    "meaning": "old variant of 倦[juan4]",
+    "meaning": "old variant of 倦[juàn]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "quyển",
+    "meaning_vi": "biến thể của 券[quàn]"
   },
   {
     "char": "劻",
     "pinyin": "kuāng",
     "meaning": "zealous",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "khuông",
+    "meaning_vi": "(xem: khuông nhương 劻勷)"
   },
   {
     "char": "劼",
     "pinyin": "jié",
     "meaning": "careful; diligent",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cật",
+    "meaning_vi": "cẩn thận"
   },
   {
     "char": "勁",
     "pinyin": "jìn",
     "meaning": "strong, tough, unyielding; power, energy",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "['kình",
+    "meaning_vi": "sức mạnh; cứng"
   },
   {
     "char": "勄",
     "pinyin": "mǐn",
-    "meaning": "old variant of 敏[min3]",
+    "meaning": "old variant of 敏[mǐn]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "勈",
-    "pinyin": "yǒng",
-    "meaning": "old variant of 勇[yong3]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "mẫn",
+    "meaning_vi": "biến thể cũ của 敏[mǐn]"
   },
   {
     "char": "勍",
     "pinyin": "qíng",
     "meaning": "violent; strong",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "kình",
+    "meaning_vi": "mạnh, có sức mạnh"
   },
   {
     "char": "勔",
     "pinyin": "miǎn",
-    "meaning": "variant of 勉[mian3]",
+    "meaning": "variant of 勉[miǎn]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "miễn",
+    "meaning_vi": "cố sức, cố gắng; cố sức, cố gắng"
   },
   {
     "char": "動",
     "pinyin": "dòng",
     "meaning": "to move, to happen; movement, action",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "động",
+    "meaning_vi": "động đậy, cử động, hoạt động"
   },
   {
     "char": "勗",
     "pinyin": "xù",
     "meaning": "exhort; stimulate",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "húc",
+    "meaning_vi": "cố gắng"
   },
   {
     "char": "務",
     "pinyin": "wù",
     "meaning": "affairs, business; should; must",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "vụ",
+    "meaning_vi": "công việc"
   },
   {
     "char": "勚",
     "pinyin": "yì",
     "meaning": "(literary) toilsome; laborious",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "duệ",
+    "meaning_vi": "(văn học) vất vả; cực nhọc; (mép, cạnh, v.v.) mòn"
   },
   {
     "char": "勛",
     "pinyin": "xūn",
     "meaning": "deeds, feats; merit; rank",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "huân",
+    "meaning_vi": "công lao; huân chương"
   },
   {
     "char": "勝",
     "pinyin": "shèng",
     "meaning": "victory; to excel, to truimph",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thắng",
+    "meaning_vi": "được, thắng lợi; hơn, giỏi; tốt đẹp"
   },
   {
     "char": "勞",
     "pinyin": "láo",
     "meaning": "to labor, to toil; to do manual work",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "['lao",
+    "meaning_vi": "nặng nhọc; an ủi"
   },
   {
     "char": "勠",
     "pinyin": "lù",
     "meaning": "(bound form) to join (forces)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lục",
+    "meaning_vi": "đóng góp, chung góp"
   },
   {
     "char": "勢",
     "pinyin": "shì",
     "meaning": "power, force; tendency, attitude",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thế",
+    "meaning_vi": "thế lực; tình hình, tình thế; hột dái"
   },
   {
     "char": "勦",
     "pinyin": "chāo",
     "meaning": "to annihilate, to destroy, to exterminate",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tiễu",
+    "meaning_vi": "chặn lại, trừ khử"
   },
   {
     "char": "勯",
     "pinyin": "dān",
     "meaning": "exhausted",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đan",
+    "meaning_vi": "kiệt sức"
   },
   {
     "char": "勳",
     "pinyin": "xūn",
     "meaning": "dead, feat; merit, rank",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "huân",
+    "meaning_vi": "công lao; huân chương"
   },
   {
     "char": "勵",
     "pinyin": "lì",
     "meaning": "to encourage; to strive",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lệ",
+    "meaning_vi": "gắng sức; khích lệ"
   },
   {
     "char": "勷",
     "pinyin": "ráng",
     "meaning": "haste",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nhương",
+    "meaning_vi": "(xem: khuông nhương 劻勷)"
   },
   {
     "char": "勸",
     "pinyin": "quàn",
     "meaning": "to recommend, to advise; to urge, to exhort",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "khuyến",
+    "meaning_vi": "khuyên bảo"
   },
   {
     "char": "勹",
     "pinyin": "bāo",
-    "meaning": "old variant of 包[bao1]",
+    "meaning": "old variant of 包[bāo]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "bao",
+    "meaning_vi": "bộ bao"
   },
   {
     "char": "勻",
     "pinyin": "yún",
     "meaning": "equal; even, uniform",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "quân",
+    "meaning_vi": "đều đặn"
   },
   {
     "char": "匉",
     "pinyin": "pēng",
     "meaning": "noise of waters",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "phanh",
+    "meaning_vi": "tiếng nước chảy"
   },
   {
     "char": "匊",
     "pinyin": "jū",
-    "meaning": "variant of 掬[ju1]",
+    "meaning": "variant of 掬[jū]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cúc",
+    "meaning_vi": "nắm đồ vật trong tay"
   },
   {
     "char": "匋",
     "pinyin": "táo",
     "meaning": "pottery",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đào",
+    "meaning_vi": "đồ gốm; họ Đào"
   },
   {
     "char": "匑",
     "pinyin": "gōng",
     "meaning": "to bow; to salute",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cung",
+    "meaning_vi": "cúi chào; chào"
   },
   {
     "char": "匔",
     "pinyin": "gōng",
-    "meaning": "old variant of 匑[gong1]",
+    "meaning": "old variant of 匑[gōng]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cung",
+    "meaning_vi": "biến thể cũ của 匑[gōng]"
   },
   {
     "char": "匘",
     "pinyin": "nǎo",
-    "meaning": "old variant of 腦|脑[nao3]",
+    "meaning": "old variant of 腦|脑[nǎo]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "匛",
-    "pinyin": "jiù",
-    "meaning": "",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "não",
+    "meaning_vi": "biến thể cũ của 腦|脑[nǎo]"
   },
   {
     "char": "匜",
     "pinyin": "yí",
     "meaning": "washbasin with a tubular handle",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "匞",
-    "pinyin": "jiàng",
-    "meaning": "old variant of 匠[jiang4]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "di",
+    "meaning_vi": "chậu rửa mặt thời xưa"
   },
   {
     "char": "匧",
     "pinyin": "qiè",
-    "meaning": "old variant of 篋|箧[qie4]",
+    "meaning": "old variant of 篋|箧[qiè]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "kiếp",
+    "meaning_vi": "biến thể cũ của 篋|箧[qiè]"
   },
   {
     "char": "匭",
     "pinyin": "guǐ",
     "meaning": "chest, casket, small box",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "quỹ",
+    "meaning_vi": "cái hòm"
   },
   {
     "char": "匯",
     "pinyin": "huì",
     "meaning": "to gather, to collect; confluence",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hối",
+    "meaning_vi": "quay lại"
   },
   {
     "char": "匱",
     "pinyin": "kuì",
     "meaning": "to lack; lacking, deficient; exhausted; empty",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "quỹ",
+    "meaning_vi": "cái hòm, cái rương"
   },
   {
     "char": "匴",
     "pinyin": "suǎn",
-    "meaning": "bamboo utensil used for washing rice in ancient times; bamboo container for a hat used in the capping ceremony 冠禮|冠礼[guan4 li3] in ancient times",
+    "meaning": "bamboo utensil used for washing rice in ancient times; bamboo container for a hat used in the capping ceremony 冠禮|冠礼[guàn lǐ] in ancient times",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "toán",
+    "meaning_vi": "dụng cụ tre dùng để đãi gạo thời cổ đại; vật đựng bằng tre cho mũ dùng trong lễ đội mũ 冠禮|冠礼[guàn lǐ] thời cổ đại"
   },
   {
     "char": "匵",
     "pinyin": "dú",
-    "meaning": "old variant of 櫝|椟[du2]",
+    "meaning": "old variant of 櫝|椟[dú]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "độc",
+    "meaning_vi": "cái hòm lớn"
   },
   {
     "char": "匶",
     "pinyin": "jiù",
-    "meaning": "old variant of 柩[jiu4]",
+    "meaning": "old variant of 柩[jiù]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cữu",
+    "meaning_vi": "biến thể cũ của 柩[jiù]"
   },
   {
     "char": "匸",
     "pinyin": "xì",
-    "meaning": "\"cover\" or \"conceal\" radical in Chinese characters (Kangxi radical 23) (distinguished from 匚[fang1])",
+    "meaning": "\"cover\" or \"conceal\" radical in Chinese characters (Kangxi radical 23) (distinguished from 匚[fāng])",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hệ",
+    "meaning_vi": "che đậy"
   },
   {
     "char": "匽",
     "pinyin": "yǎn",
     "meaning": "to hide, to secrete, to repress; to bend",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "yển",
+    "meaning_vi": "ẩn giấu; ngã xuống; dừng lại"
   },
   {
     "char": "區",
     "pinyin": "qū",
     "meaning": "area, district, region, ward; surname",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "âu",
+    "meaning_vi": "khu vực, vùng; cái âu; âu (đơn vị đo khối lượng, bằng bốn đấu)"
   },
   {
     "char": "卂",
     "pinyin": "xùn",
     "meaning": "(archaic) to fly rapidly",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tín",
+    "meaning_vi": "bay mau, xưa dùng như chữ 迅"
   },
   {
     "char": "卄",
     "pinyin": "niàn",
     "meaning": "twenty, twentieth",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nhập",
+    "meaning_vi": "hai mươi, thứ hai mươi"
   },
   {
     "char": "卆",
     "pinyin": "zú",
     "meaning": "to die",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tốt",
+    "meaning_vi": "cuối cùng"
   },
   {
     "char": "卋",
     "pinyin": "shì",
-    "meaning": "old variant of 世[shi4]",
+    "meaning": "old variant of 世[shì]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thế",
+    "meaning_vi": "đời, trên đời; nối đời nhau; chỗ quen biết cũ"
   },
   {
     "char": "卌",
     "pinyin": "xì",
     "meaning": "forty",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tấp",
+    "meaning_vi": "bốn mươi, 40"
   },
   {
     "char": "卍",
     "pinyin": "wàn",
     "meaning": "swastika, a sacred and auspicious symbol in Hinduism, Buddhism, and Jainism",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "vạn",
+    "meaning_vi": "dấu của nhà Phật"
   },
   {
     "char": "卐",
     "pinyin": "wàn",
     "meaning": "swastika, a sacred and auspicious symbol in Hinduism, Buddhism, and Jainism, later adopted by Nazi Germany",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "vạn",
+    "meaning_vi": "chữ vạn, một biểu tượng linh thiêng và cát tường trong Ấn Độ giáo, Phật giáo và Kỳ Na giáo, sau này được Đức Quốc Xã sử dụng"
   },
   {
     "char": "協",
     "pinyin": "xié",
     "meaning": "to assist; to cooperate, to join; to harmonize",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "卛",
-    "pinyin": "lǜ",
-    "meaning": "old variant of 率[lu:4]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hiệp",
+    "meaning_vi": "hoà hợp; giúp đỡ"
   },
   {
     "char": "卝",
     "pinyin": "guàn",
     "meaning": "two bunches of hair on a child",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "quán",
+    "meaning_vi": "hai búi tóc trên đầu trẻ con"
   },
   {
     "char": "卨",
     "pinyin": "xiè",
     "meaning": "used in old names; phonetic seol used in Korean names",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tiết",
+    "meaning_vi": "dùng trong tên cổ; tương tự âm tiết 'seol' dùng trong tên Hàn Quốc"
   },
   {
     "char": "卩",
     "pinyin": "jié",
     "meaning": "\"seal\" radical in Chinese characters (Kangxi radical 26)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "卪",
-    "pinyin": "jié",
-    "meaning": "old variant of 節|节[jie2]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tiết",
+    "meaning_vi": "bộ tiết"
   },
   {
     "char": "卬",
     "pinyin": "áng",
     "meaning": "surname Ang",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ngang",
+    "meaning_vi": "ta, tôi"
   },
   {
     "char": "卲",
     "pinyin": "shào",
     "meaning": "surname Shao",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thiệu",
+    "meaning_vi": "cao; họ Thiệu"
   },
   {
     "char": "卹",
     "pinyin": "xù",
     "meaning": "sympathy, pity; comfort",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tuất",
+    "meaning_vi": "thương xót"
   },
   {
     "char": "卻",
     "pinyin": "què",
     "meaning": "still, but; decline; retreat",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "khước",
+    "meaning_vi": "lùi bước; từ chối; mất đi"
   },
   {
     "char": "卼",
     "pinyin": "wù",
     "meaning": "uncomfortable; unsteady",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ngột",
+    "meaning_vi": "khó chịu; không vững"
   },
   {
     "char": "卽",
     "pinyin": "jí",
     "meaning": "promptly",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "厃",
-    "pinyin": "wěi",
-    "meaning": "to look upward",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tức",
+    "meaning_vi": "tới gần; ngay, tức thì; chính là"
   },
   {
     "char": "厎",
     "pinyin": "zhǐ",
     "meaning": "whetstone",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "chỉ",
+    "meaning_vi": "đến"
   },
   {
     "char": "厐",
     "pinyin": "páng",
     "meaning": "enormous",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "bàng",
+    "meaning_vi": "biến thể của 龐|庞[páng], to lớn; khổng lồ"
   },
   {
     "char": "厓",
     "pinyin": "yá",
     "meaning": "old form of 崖 (cliff) and 涯 (bank)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nhai",
+    "meaning_vi": "ven núi, cạnh núi, vách núi"
   },
   {
     "char": "厔",
     "pinyin": "zhì",
     "meaning": "river bent",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "chất",
+    "meaning_vi": "chỗ nước uốn cong"
   },
   {
     "char": "厖",
     "pinyin": "páng",
     "meaning": "huge",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "厗",
-    "pinyin": "tí",
-    "meaning": "old stone or mineral, possibly related to antimony Sb 銻|锑[ti1]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "bàng",
+    "meaning_vi": "dày, to; lẫn lộn"
   },
   {
     "char": "厜",
     "pinyin": "zuī",
     "meaning": "a mountain peak",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tuy",
+    "meaning_vi": "đỉnh núi"
   },
   {
     "char": "厞",
     "pinyin": "fèi",
     "meaning": "to hide; hideout",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "phi",
+    "meaning_vi": "che giấu; nơi ẩn náu"
   },
   {
     "char": "厤",
     "pinyin": "lì",
     "meaning": "to calculate; the calendar",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lịch",
+    "meaning_vi": "lịch pháp, lịch chí"
   },
   {
     "char": "厪",
     "pinyin": "jǐn",
     "meaning": "hut",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "['cận",
+    "meaning_vi": "cái nhà nhỏ; chỉ có"
   },
   {
     "char": "厭",
     "pinyin": "yàn",
     "meaning": "to dislike, to detest; to reject; to satiate",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "yếm",
+    "meaning_vi": "chán ghét"
   },
   {
     "char": "厰",
     "pinyin": "chǎng",
-    "meaning": "variant of 廠|厂[chang3]",
+    "meaning": "variant of 廠|厂[chǎng]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "xưởng",
+    "meaning_vi": "cái xưởng"
   },
   {
     "char": "厲",
     "pinyin": "lì",
     "meaning": "whetstone; to grind, to sharpen, to whet",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lệ",
+    "meaning_vi": "mài; gắng sức"
   },
   {
     "char": "厶",
     "pinyin": "mǒu",
-    "meaning": "old variant of 某[mou3]",
+    "meaning": "old variant of 某[mǒu]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "mỗ",
+    "meaning_vi": "bộ khư"
   },
   {
     "char": "厷",
     "pinyin": "gōng",
-    "meaning": "old variant of 肱[gong1]",
+    "meaning": "old variant of 肱[gōng]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "quăng",
+    "meaning_vi": "biến thể cũ của 肱[gōng]"
   },
   {
     "char": "厹",
     "pinyin": "qiú",
     "meaning": "spear",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cầu",
+    "meaning_vi": "cây giáo"
   },
   {
     "char": "厺",
     "pinyin": "qù",
-    "meaning": "old variant of 去[qu4]",
+    "meaning": "old variant of 去[qù]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "厽",
-    "pinyin": "lěi",
-    "meaning": "",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "khứ",
+    "meaning_vi": "đi; bỏ; đã qua"
   },
   {
     "char": "厾",
     "pinyin": "dū",
     "meaning": "to tap lightly",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "叀",
-    "pinyin": "zhuān",
-    "meaning": "spindle; to hang",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đâu",
+    "meaning_vi": "gõ nhẹ"
   },
   {
     "char": "參",
     "pinyin": "cān",
     "meaning": "to take part in, to intervene; ginseng",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tam",
+    "meaning_vi": "cỏ sâm (thứ cỏ quý, lá như bàn tay, hoa trắng, dùng làm thuốc); sao Sâm (một trong Nhị thập bát tú); ba, 3"
   },
   {
     "char": "叄",
     "pinyin": "sān",
-    "meaning": "variant of 參|叁[san1]",
+    "meaning": "variant of 參|叁[sān]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tam",
+    "meaning_vi": "biến thể của 參|叁[sān]"
   },
   {
     "char": "叆",
     "pinyin": "ài",
     "meaning": "misty; cloudy sky",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ái",
+    "meaning_vi": "trời mù mịt; bầu trời nhiều mây; tối tăm"
   },
   {
     "char": "叇",
     "pinyin": "dài",
-    "meaning": "see 靉靆|叆叇[ai4 dai4]",
+    "meaning": "see 靉靆|叆叇[ài dài]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đãi",
+    "meaning_vi": "xem 靉靆|叆叇[ài dài]"
   },
   {
     "char": "収",
     "pinyin": "shōu",
-    "meaning": "variant of 收[shou1]",
+    "meaning": "variant of 收[shōu]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thâu",
+    "meaning_vi": "biến thể của 收[shōu]"
   },
   {
     "char": "叒",
     "pinyin": "ruò",
     "meaning": "obedient; ancient mythical tree",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nhược",
+    "meaning_vi": "biến thể cũ của 若[ruò]; ngoan ngoãn; cây thần thoại cổ đại"
   },
   {
     "char": "叕",
     "pinyin": "zhuó",
     "meaning": "to join together; to lack",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "chuyết",
+    "meaning_vi": "kết hợp lại; thiếu; hẹp và nông"
   },
   {
     "char": "叚",
     "pinyin": "jiǎ",
     "meaning": "false",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "giả",
+    "meaning_vi": "dối trá; mượn, vay; nghỉ tắm gội"
   },
   {
     "char": "叢",
     "pinyin": "cóng",
     "meaning": "bush, shrub; thicket; collection",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "吂",
-    "pinyin": "máng",
-    "meaning": "",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tùng",
+    "meaning_vi": "hợp, nhiều; rậm rạp"
   },
   {
     "char": "吅",
     "pinyin": "sòng",
-    "meaning": "variant of 訟|讼[song4]",
+    "meaning": "variant of 訟|讼[sòng]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tụng",
+    "meaning_vi": "biến thể của 訟|讼[sòng]"
   },
   {
     "char": "吋",
     "pinyin": "cùn",
     "meaning": "inch (English)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "吔",
-    "pinyin": "yē",
-    "meaning": "onomat. for surprise, amazement and sigh",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "吜",
-    "pinyin": "chǒu",
-    "meaning": "(onom.)",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thốn",
+    "meaning_vi": "tấc (đơn vị đo chiều dài)"
   },
   {
     "char": "吥",
     "pinyin": "bù",
-    "meaning": "used for transcription in 嗊吥|唝吥[Gong4 bu4]",
+    "meaning": "used for transcription in 嗊吥|唝吥[Gòng bù]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "bất",
+    "meaning_vi": "dùng phiên âm trong 嗊吥|唝吥[Gòng bù]"
   },
   {
     "char": "吪",
     "pinyin": "é",
     "meaning": "move",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ngoa",
+    "meaning_vi": "động đậy"
   },
   {
     "char": "吰",
     "pinyin": "hóng",
     "meaning": "clang",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hoành",
+    "meaning_vi": "loảng xoảng"
   },
   {
     "char": "吳",
     "pinyin": "wú",
     "meaning": "one of several warring states; surname",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ngô",
+    "meaning_vi": "họ [Wú]; khu vực gồm phía nam Giang Tô, phía bắc Chiết Giang và Thượng Hải; tên các nước ở miền nam Trung Quốc trong các thời kỳ lịch sử khác nhau"
   },
   {
     "char": "吶",
     "pinyin": "nà",
     "meaning": "to raise one's voice; to yell, to shout; to stammer",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "['nột",
+    "meaning_vi": "nói năng cẩn trọng; reo hò trong trận đánh"
   },
   {
     "char": "吽",
     "pinyin": "hōng",
     "meaning": "sound of a Buddhist incantation",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "吿",
-    "pinyin": "gào",
-    "meaning": "variant of 告[gao4]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hồng",
+    "meaning_vi": "(tiếng thần chú trong tiếng Phạn)"
   },
   {
     "char": "呂",
     "pinyin": "lǚ",
     "meaning": "a musical note; surname",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "呇",
-    "pinyin": "qǐ",
-    "meaning": "star",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "['lữ",
+    "meaning_vi": "xương sống; họ Lã, họ Lữ; xương sống"
   },
   {
     "char": "呎",
     "pinyin": "chǐ",
-    "meaning": "foot (unit of length equal to 0.3048 m); old form of modern 英尺[ying1 chi3]",
+    "meaning": "foot (unit of length equal to 0.3048 m); old form of modern 英尺[yīng chǐ]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "xích",
+    "meaning_vi": "mã (foot Anh)"
   },
   {
     "char": "呏",
     "pinyin": "shēng",
     "meaning": "gallon; quart",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thăng",
+    "meaning_vi": "ga-lông (đơn vị đo dung tích của Anh, Mỹ)"
   },
   {
     "char": "呑",
     "pinyin": "tūn",
-    "meaning": "variant of 吞[tun1]",
+    "meaning": "variant of 吞[tūn]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thôn",
+    "meaning_vi": "nuốt; tiêu diệt"
   },
   {
     "char": "呝",
     "pinyin": "è",
-    "meaning": "old variant of 呃[e4]",
+    "meaning": "old variant of 呃[è]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "呠",
-    "pinyin": "pēn",
-    "meaning": "to spurt; to blow out",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "呡",
-    "pinyin": "wěn",
-    "meaning": "the corners of the mouth; the lips",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ách",
+    "meaning_vi": "biến thể cũ của 呃[è]"
   },
   {
     "char": "呣",
     "pinyin": "m",
     "meaning": "interjection expressing a question",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "mô",
+    "meaning_vi": "thán từ biểu thị câu hỏi"
   },
   {
     "char": "呧",
     "pinyin": "dǐ",
     "meaning": "vex",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "để",
+    "meaning_vi": "mắng mỏ; vu cáo"
   },
   {
     "char": "呫",
     "pinyin": "chè",
-    "meaning": "used in 呫嚅[che4 ru2]",
+    "meaning": "used in 呫嚅[chè rú]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "chiếp",
+    "meaning_vi": "nếm, uống; nói thầm, thì thầm"
   },
   {
     "char": "呬",
     "pinyin": "xì",
     "meaning": "to rest",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "呯",
-    "pinyin": "píng",
-    "meaning": "(onom.) bang! (gong, gun firing etc)",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hi",
+    "meaning_vi": "nghỉ ngơi"
   },
   {
     "char": "呰",
     "pinyin": "zǐ",
     "meaning": "to slander; to blame",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tử",
+    "meaning_vi": "phỉ báng; trách mắng; chửi rủa"
   },
   {
     "char": "呴",
     "pinyin": "xū",
     "meaning": "breathe on; yawn",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hú",
+    "meaning_vi": "chim trĩ kêu"
   },
   {
     "char": "呺",
     "pinyin": "xiāo",
     "meaning": "voice of anger; vast",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hiêu",
+    "meaning_vi": "giọng tức giận; rộng lớn; rộng rãi"
   },
   {
     "char": "呿",
     "pinyin": "qū",
     "meaning": "to yawn",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "khư",
+    "meaning_vi": "há miệng, há mồm"
   },
   {
     "char": "咁",
     "pinyin": "gān",
-    "meaning": "so (Cantonese); Mandarin equivalent: 這樣|这样[zhe4 yang4]",
+    "meaning": "so (Cantonese); Mandarin equivalent: 這樣|这样[zhè yàng]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cám",
+    "meaning_vi": "gì, nào"
   },
   {
     "char": "咅",
     "pinyin": "pǒu",
     "meaning": "pooh; pah",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "phủ",
+    "meaning_vi": "ô hay, hừ, úi chà (thán từ); tiếng cãi nhau"
   },
   {
     "char": "咇",
     "pinyin": "bì",
     "meaning": "fragrant",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tất",
+    "meaning_vi": "thơm"
   },
   {
     "char": "咈",
     "pinyin": "fú",
     "meaning": "oppose",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "phật",
+    "meaning_vi": "ngang trái, mâu thuẫn"
   },
   {
     "char": "咍",
     "pinyin": "hāi",
     "meaning": "(interj.); happy",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hai",
+    "meaning_vi": "cười vui; chê cười"
   },
   {
     "char": "咑",
     "pinyin": "dā",
     "meaning": "da! (sound used to move animals along)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "咗",
-    "pinyin": "zuǒ",
-    "meaning": "Cantonese particle equivalent to 了[le5] or 過|过[guo4]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đát",
+    "meaning_vi": "đa! (âm thanh dùng để lùa động vật)"
   },
   {
     "char": "咠",
     "pinyin": "qì",
     "meaning": "to whisper; to blame, to slander",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thấp",
+    "meaning_vi": "thì thầm; trách, vu khống"
   },
   {
     "char": "咡",
     "pinyin": "èr",
     "meaning": "space between mouth and ears",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nhị",
+    "meaning_vi": "mép miệng; mồi câu; tằm nhả tơ"
   },
   {
     "char": "咢",
     "pinyin": "è",
     "meaning": "beat a drum; startle",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ngạc",
+    "meaning_vi": "cao; tranh biện, nói thẳng; ca hát một mình"
   },
   {
     "char": "咥",
     "pinyin": "dié",
     "meaning": "gnaw; bite",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "điệt",
+    "meaning_vi": "cười lớn, cười to; cắn, gặm"
   },
   {
     "char": "咮",
     "pinyin": "zhòu",
     "meaning": "beak of bird; peck at",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "trụ",
+    "meaning_vi": "mỏ chim; tên gọi khác của sao Liễu (một trong Nhị thập bát tú)"
   },
   {
     "char": "咷",
     "pinyin": "táo",
     "meaning": "wail",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "咹",
-    "pinyin": "è",
-    "meaning": "eh?",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đào",
+    "meaning_vi": "tiếng than"
   },
   {
     "char": "咺",
     "pinyin": "xuǎn",
     "meaning": "glorious; sob",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tuyển",
+    "meaning_vi": "rõ ràng; khóc sướt mướt"
   },
   {
     "char": "咼",
     "pinyin": "guō",
     "meaning": "to chat, to gossip, to jaw, to talk; mouth",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "咾",
-    "pinyin": "lǎo",
-    "meaning": "a noise; a sound",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "哃",
-    "pinyin": "tóng",
-    "meaning": "(literary) to talk nonsense; to boast",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "哋",
-    "pinyin": "dì",
-    "meaning": "(Cant.) plural for pronouns",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "qua",
+    "meaning_vi": "méo, lệch; méo, lệch"
   },
   {
     "char": "員",
     "pinyin": "yuán",
     "meaning": "employee; member; personnel, staff",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "viên",
+    "meaning_vi": "người, kẻ, gã"
   },
   {
     "char": "哢",
     "pinyin": "lòng",
     "meaning": "to sing or chirp (of birds); music sound",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lộng",
+    "meaning_vi": "chim hót"
   },
   {
     "char": "哤",
     "pinyin": "máng",
     "meaning": "jargon",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "mang",
+    "meaning_vi": "biệt ngữ"
   },
   {
     "char": "哫",
     "pinyin": "zú",
     "meaning": "to cajole",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "túc",
+    "meaning_vi": "dỗ dành"
   },
   {
     "char": "哰",
     "pinyin": "láo",
-    "meaning": "used in 㘓哰|𪢌哰[lan2 lao2]",
+    "meaning": "used in 㘓哰|𪢌哰[lán láo]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lao",
+    "meaning_vi": "dùng trong 囒哰[lán láo]"
   },
   {
     "char": "哱",
     "pinyin": "bō",
-    "meaning": "used in 呼哱哱[hu1 bo1 bo1]",
+    "meaning": "used in 呼哱哱[hū bō bō]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "唂",
-    "pinyin": "gū",
-    "meaning": "(onom.) bird call",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "唃",
-    "pinyin": "gū",
-    "meaning": "old variant of 唂[gu1]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "bột",
+    "meaning_vi": "dùng trong 呼哱哱[hū bō bō]"
   },
   {
     "char": "唄",
     "pinyin": "bei",
     "meaning": "final particle of an assertion",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "bái",
+    "meaning_vi": "tụng kinh"
   },
   {
     "char": "唅",
     "pinyin": "hán",
     "meaning": "(literary) to put in the mouth",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hàm",
+    "meaning_vi": "(văn học) đưa vào miệng"
   },
   {
     "char": "唈",
     "pinyin": "yì",
     "meaning": "palpitation; short breathing",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ấp",
+    "meaning_vi": "(tiếng thở)"
   },
   {
     "char": "唊",
     "pinyin": "jiá",
     "meaning": "(old) to talk recklessly; to talk nonsense",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "giáp",
+    "meaning_vi": "(cổ) nói bừa bãi; nói nhảm; lắm lời"
   },
   {
     "char": "唎",
     "pinyin": "lì",
     "meaning": "(final particle); sound",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "唚",
-    "pinyin": "qìn",
-    "meaning": "to vomit",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lợi",
+    "meaning_vi": "(trợ từ ngữ khí); âm thanh; tiếng động"
   },
   {
     "char": "唝",
     "pinyin": "gòng",
-    "meaning": "used for transcription in 嗊吥|唝吥[Gong4 bu4]",
+    "meaning": "used for transcription in 嗊吥|唝吥[Gòng bù]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "唞",
-    "pinyin": "dǒu",
-    "meaning": "to take a rest (Cantonese)",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cống",
+    "meaning_vi": "dùng để phiên âm trong 嗊吥|唝吥[Gòng bù]"
   },
   {
     "char": "唡",
     "pinyin": "liǎng",
     "meaning": "ounce (British imperial system) (old)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lượng",
+    "meaning_vi": "ao (hệ đo lường Anh) (cũ)"
   },
   {
     "char": "唫",
     "pinyin": "jìn",
     "meaning": "to stutter; to shut one's mouth",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ngâm",
+    "meaning_vi": "ngậm miệng lại; hít vào"
   },
   {
     "char": "唲",
     "pinyin": "ér",
     "meaning": "forced laughter",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nhi",
+    "meaning_vi": "cười gượng ép"
   },
   {
     "char": "唵",
     "pinyin": "ǎn",
     "meaning": "(interjection) oh!; (dialect) to stuff sth in one's mouth",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "úm",
+    "meaning_vi": "đưa bột thức ăn hoặc bột thuốc vào trong miệng; tiếng khởi đầu câu thần chú của nhà Phật"
   },
   {
     "char": "唶",
     "pinyin": "jiè",
     "meaning": "sigh; groan",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "giới",
+    "meaning_vi": "than thở; hô to, hô lớn; hút vào"
   },
   {
     "char": "唸",
     "pinyin": "niàn",
     "meaning": "to recite, to read, to chant",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "niệm",
+    "meaning_vi": "rên rỉ"
   },
   {
     "char": "唹",
     "pinyin": "yú",
     "meaning": "to smile at",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "dục",
+    "meaning_vi": "mỉm cười với"
   },
   {
     "char": "啀",
     "pinyin": "ái",
     "meaning": "to growl (of dog); to bare fangs",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nhai",
+    "meaning_vi": "chó gầm gừ; khoe răng nanh"
   },
   {
     "char": "啅",
     "pinyin": "zhào",
     "meaning": "chirp",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "啇",
-    "pinyin": "dì",
-    "meaning": "stalk, stem, root, foot, base",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "trác",
+    "meaning_vi": "hót líu lo"
   },
   {
     "char": "啍",
     "pinyin": "tūn",
     "meaning": "move slowly",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thôn",
+    "meaning_vi": "nặng nề chậm chạp; nói nhiều; khoẻ mạnh"
   },
   {
     "char": "啎",
     "pinyin": "wǔ",
     "meaning": "obstinate, disobedient, intractable",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ngỗ",
+    "meaning_vi": "bướng bỉnh, không vâng lời, khó bảo"
   },
   {
     "char": "問",
     "pinyin": "wèn",
     "meaning": "to ask about, to inquire after",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "vấn",
+    "meaning_vi": "hỏi; tra xét; hỏi thăm"
   },
   {
     "char": "啓",
     "pinyin": "qǐ",
     "meaning": "to open; to explain; to begin",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "['khởi",
+    "meaning_vi": "mở ra; bắt đầu; mở ra"
   }
 ]

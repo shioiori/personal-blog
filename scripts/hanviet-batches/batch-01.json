@@ -34,7 +34,7 @@
   {
     "char": "时",
     "pinyin": "shí",
-    "meaning": "old variant of 時|时[shi2]",
+    "meaning": "old variant of 時|时[shí]",
     "frequency_rank": 25,
     "han_viet": "thời",
     "meaning_vi": "thời gian, lúc"
@@ -98,7 +98,7 @@
   {
     "char": "道",
     "pinyin": "dào",
-    "meaning": "road; path (CL:條|条[tiao2],股[gu3]); (bound form) way; reason; principle",
+    "meaning": "road; path (CL:條|条[tiáo],股[gǔ]); (bound form) way; reason; principle",
     "frequency_rank": 52,
     "han_viet": "đạo",
     "meaning_vi": "đường, đạo lý"
@@ -122,7 +122,7 @@
   {
     "char": "成",
     "pinyin": "chéng",
-    "meaning": "surname Cheng; short name for Chengdu 成都[Cheng2 du1]",
+    "meaning": "surname Cheng; short name for Chengdu 成都[Chéng dū]",
     "frequency_rank": 59,
     "han_viet": "thành",
     "meaning_vi": "thành công"
@@ -146,7 +146,7 @@
   {
     "char": "法",
     "pinyin": "fǎ",
-    "meaning": "variant of 法[fa3]",
+    "meaning": "variant of 法[fǎ]",
     "frequency_rank": 65,
     "han_viet": "pháp",
     "meaning_vi": "pháp luật, cách"
@@ -290,7 +290,7 @@
   {
     "char": "因",
     "pinyin": "yīn",
-    "meaning": "old variant of 因[yin1]",
+    "meaning": "old variant of 因[yīn]",
     "frequency_rank": 96,
     "han_viet": "nhân",
     "meaning_vi": "vì, nguyên nhân"
@@ -354,7 +354,7 @@
   {
     "char": "第",
     "pinyin": "dì",
-    "meaning": "(prefix indicating ordinal number, as in 第六[di4 liu4] \"sixth\"); (literary) grades in which successful candidates in the imperial examinations were placed",
+    "meaning": "(prefix indicating ordinal number, as in 第六[dì liù] \"sixth\"); (literary) grades in which successful candidates in the imperial examinations were placed",
     "frequency_rank": 114,
     "han_viet": "đệ",
     "meaning_vi": "thứ (thứ tự)"
@@ -482,7 +482,7 @@
   {
     "char": "应",
     "pinyin": "yīng",
-    "meaning": "surname Ying; Taiwan pr. [Ying4]",
+    "meaning": "surname Ying; Taiwan pr. [Yìng]",
     "frequency_rank": 144,
     "han_viet": "ứng",
     "meaning_vi": "nên, ứng"
@@ -514,7 +514,7 @@
   {
     "char": "体",
     "pinyin": "tī",
-    "meaning": "used in 體己|体己[ti1 ji5]; Taiwan pr. [ti3]",
+    "meaning": "used in 體己|体己[tī ji]; Taiwan pr. [tǐ]",
     "frequency_rank": 149,
     "han_viet": "thể",
     "meaning_vi": "thể, cơ thể"
@@ -530,7 +530,7 @@
   {
     "char": "美",
     "pinyin": "měi",
-    "meaning": "(bound form) the Americas (abbr. for 美洲[Mei3 zhou1]); (bound form) USA (abbr. for 美國|美国[Mei3 guo2])",
+    "meaning": "(bound form) the Americas (abbr. for 美洲[Měi zhōu]); (bound form) USA (abbr. for 美國|美国[Měi guó])",
     "frequency_rank": 151,
     "han_viet": "mỹ",
     "meaning_vi": "đẹp, Mỹ"
@@ -618,7 +618,7 @@
   {
     "char": "加",
     "pinyin": "jiā",
-    "meaning": "Canada (abbr. for 加拿大[Jia1 na2 da4]); surname Jia",
+    "meaning": "Canada (abbr. for 加拿大[Jiā ná dà]); surname Jia",
     "frequency_rank": 166,
     "han_viet": "gia",
     "meaning_vi": "thêm, cộng"
@@ -674,7 +674,7 @@
   {
     "char": "化",
     "pinyin": "huā",
-    "meaning": "variant of 花[hua1]",
+    "meaning": "variant of 花[huā]",
     "frequency_rank": 178,
     "han_viet": "hóa",
     "meaning_vi": "hóa, biến đổi"
@@ -794,7 +794,7 @@
   {
     "char": "论",
     "pinyin": "lún",
-    "meaning": "abbr. for 論語|论语[Lun2 yu3], The Analects (of Confucius)",
+    "meaning": "abbr. for 論語|论语[Lún yǔ], The Analects (of Confucius)",
     "frequency_rank": 205,
     "han_viet": "luận",
     "meaning_vi": "luận, bàn luận"
@@ -810,7 +810,7 @@
   {
     "char": "义",
     "pinyin": "yì",
-    "meaning": "surname Yi; (Tw) Italy (abbr. for 義大利|义大利[Yi4 da4 li4])",
+    "meaning": "surname Yi; (Tw) Italy (abbr. for 義大利|义大利[Yì dà lì])",
     "frequency_rank": 208,
     "han_viet": "nghĩa",
     "meaning_vi": "nghĩa, ý nghĩa"
@@ -850,7 +850,7 @@
   {
     "char": "尔",
     "pinyin": "ěr",
-    "meaning": "variant of 爾|尔[er3]",
+    "meaning": "variant of 爾|尔[ěr]",
     "frequency_rank": 220,
     "han_viet": "nhĩ",
     "meaning_vi": "ngươi, vậy"
@@ -858,7 +858,7 @@
   {
     "char": "打",
     "pinyin": "dá",
-    "meaning": "(loanword) dozen; Taiwan pr. [da3]",
+    "meaning": "(loanword) dozen; Taiwan pr. [dǎ]",
     "frequency_rank": 223,
     "han_viet": "đả",
     "meaning_vi": "đánh, gọi điện"
@@ -930,7 +930,7 @@
   {
     "char": "结",
     "pinyin": "jiē",
-    "meaning": "(of a plant) to produce (fruit or seeds); Taiwan pr. [jie2]",
+    "meaning": "(of a plant) to produce (fruit or seeds); Taiwan pr. [jié]",
     "frequency_rank": 236,
     "han_viet": "kết",
     "meaning_vi": "kết, kết thúc"
@@ -1010,7 +1010,7 @@
   {
     "char": "管",
     "pinyin": "guǎn",
-    "meaning": "variant of 管[guan3]",
+    "meaning": "variant of 管[guǎn]",
     "frequency_rank": 252,
     "han_viet": "quản",
     "meaning_vi": "quản lý, ống"
@@ -1098,7 +1098,7 @@
   {
     "char": "保",
     "pinyin": "bǎo",
-    "meaning": "Bulgaria (abbr. for 保加利亞|保加利亚[Bao3 jia1 li4 ya4])",
+    "meaning": "Bulgaria (abbr. for 保加利亞|保加利亚[Bǎo jiā lì yà])",
     "frequency_rank": 266,
     "han_viet": "bảo",
     "meaning_vi": "bảo vệ"
@@ -1194,7 +1194,7 @@
   {
     "char": "眼",
     "pinyin": "yǎn",
-    "meaning": "eye (CL:隻|只[zhi1],雙|双[shuang1]); (often used with 一[yi1]) a look; a glance",
+    "meaning": "eye (CL:隻|只[zhī],雙|双[shuāng]); (often used with 一[yī]) a look; a glance",
     "frequency_rank": 281,
     "han_viet": "nhãn",
     "meaning_vi": "mắt, nhãn"
@@ -1266,7 +1266,7 @@
   {
     "char": "象",
     "pinyin": "xiàng",
-    "meaning": "elephant; CL:隻|只[zhi1]",
+    "meaning": "elephant; CL:隻|只[zhī]",
     "frequency_rank": 300,
     "han_viet": "tượng",
     "meaning_vi": "hình tượng, voi"
@@ -1290,7 +1290,7 @@
   {
     "char": "色",
     "pinyin": "sè",
-    "meaning": "color; CL:種|种[zhong3]",
+    "meaning": "color; CL:種|种[zhǒng]",
     "frequency_rank": 304,
     "han_viet": "sắc",
     "meaning_vi": "màu sắc"
@@ -1330,7 +1330,7 @@
   {
     "char": "据",
     "pinyin": "jù",
-    "meaning": "variant of 據|据[ju4]",
+    "meaning": "variant of 據|据[jù]",
     "frequency_rank": 313,
     "han_viet": "cứ",
     "meaning_vi": "theo, căn cứ"
@@ -1370,7 +1370,7 @@
   {
     "char": "规",
     "pinyin": "guī",
-    "meaning": "variant of 規|规[gui1]",
+    "meaning": "variant of 規|规[guī]",
     "frequency_rank": 321,
     "han_viet": "quy",
     "meaning_vi": "quy định"
@@ -1378,7 +1378,7 @@
   {
     "char": "格",
     "pinyin": "gē",
-    "meaning": "used in 格登[ge1 deng1]; used in 格格[ge1 ge1]",
+    "meaning": "used in 格登[gē dēng]; used in 格格[gē gē]",
     "frequency_rank": 325,
     "han_viet": "cách",
     "meaning_vi": "cách, tiêu chuẩn"
@@ -1426,7 +1426,7 @@
   {
     "char": "确",
     "pinyin": "què",
-    "meaning": "variant of 確|确[que4]; variant of 埆[que4]",
+    "meaning": "variant of 確|确[què]; variant of 埆[què]",
     "frequency_rank": 331,
     "han_viet": "xác",
     "meaning_vi": "xác nhận, chính xác"
@@ -1586,7 +1586,7 @@
   {
     "char": "济",
     "pinyin": "jǐ",
-    "meaning": "used in place names associated with the Ji River 濟水|济水[Ji3 Shui3]; surname Ji",
+    "meaning": "used in place names associated with the Ji River 濟水|济水[Jǐ Shuǐ]; surname Ji",
     "frequency_rank": 360,
     "han_viet": "tế",
     "meaning_vi": "kinh tế, tế"
@@ -1674,7 +1674,7 @@
   {
     "char": "转",
     "pinyin": "zhuǎi",
-    "meaning": "see 轉文|转文[zhuai3 wen2]",
+    "meaning": "see 轉文|转文[zhuǎi wén]",
     "frequency_rank": 376,
     "han_viet": "chuyển",
     "meaning_vi": "chuyển, xoay"
@@ -1690,7 +1690,7 @@
   {
     "char": "令",
     "pinyin": "líng",
-    "meaning": "used in 脊令[ji2 ling2]; used in 令狐[Ling2 hu2] (Taiwan pr. [ling4])",
+    "meaning": "used in 脊令[jí líng]; used in 令狐[Líng hú] (Taiwan pr. [lìng])",
     "frequency_rank": 378,
     "han_viet": "lệnh",
     "meaning_vi": "lệnh, lệnh lạc"
@@ -1778,7 +1778,7 @@
   {
     "char": "备",
     "pinyin": "bèi",
-    "meaning": "variant of 備|备[bei4]",
+    "meaning": "variant of 備|备[bèi]",
     "frequency_rank": 397,
     "han_viet": "bị",
     "meaning_vi": "chuẩn bị, thiết bị"
@@ -1858,7 +1858,7 @@
   {
     "char": "石",
     "pinyin": "shí",
-    "meaning": "surname Shi; abbr. for Shijiazhuang 石家莊|石家庄[Shi2 jia1 zhuang1], the capital of Hebei",
+    "meaning": "surname Shi; abbr. for Shijiazhuang 石家莊|石家庄[Shí jiā zhuāng], the capital of Hebei",
     "frequency_rank": 414,
     "han_viet": "thạch",
     "meaning_vi": "đá, thạch"
@@ -1946,7 +1946,7 @@
   {
     "char": "病",
     "pinyin": "bìng",
-    "meaning": "illness; CL:場|场[chang2]",
+    "meaning": "illness; CL:場|场[cháng]",
     "frequency_rank": 427,
     "han_viet": "bệnh",
     "meaning_vi": "bệnh, ốm"
@@ -1970,7 +1970,7 @@
   {
     "char": "线",
     "pinyin": "xiàn",
-    "meaning": "variant of 線|线[xian4]",
+    "meaning": "variant of 線|线[xiàn]",
     "frequency_rank": 430,
     "han_viet": "tuyến",
     "meaning_vi": "đường, tuyến"
@@ -1978,7 +1978,7 @@
   {
     "char": "似",
     "pinyin": "shì",
-    "meaning": "used in 似的[shi4 de5]",
+    "meaning": "used in 似的[shì de]",
     "frequency_rank": 431,
     "han_viet": "tự",
     "meaning_vi": "giống, tương tự"
@@ -1994,7 +1994,7 @@
   {
     "char": "视",
     "pinyin": "shì",
-    "meaning": "variant of 視|视[shi4]; variant of 示[shi4]",
+    "meaning": "variant of 視|视[shì]; variant of 示[shì]",
     "frequency_rank": 438,
     "han_viet": "thị",
     "meaning_vi": "xem, thị lực"
@@ -2066,7 +2066,7 @@
   {
     "char": "企",
     "pinyin": "qǐ",
-    "meaning": "(bound form) to stand on tiptoe and look; to anticipate; to look forward to; (bound form) company; firm; enterprise; corporation (abbr. for 企業|企业[qi3 ye4])",
+    "meaning": "(bound form) to stand on tiptoe and look; to anticipate; to look forward to; (bound form) company; firm; enterprise; corporation (abbr. for 企業|企业[qǐ yè])",
     "frequency_rank": 450,
     "han_viet": "xí",
     "meaning_vi": "doanh nghiệp"
@@ -2098,7 +2098,7 @@
   {
     "char": "乎",
     "pinyin": "hū",
-    "meaning": "(classical particle similar to 於|于[yu2]) in; at",
+    "meaning": "(classical particle similar to 於|于[yú]) in; at",
     "frequency_rank": 458,
     "han_viet": "hồ",
     "meaning_vi": "(trợ từ), có vẻ"
@@ -2114,7 +2114,7 @@
   {
     "char": "易",
     "pinyin": "yì",
-    "meaning": "surname Yi; I Ching; Book of Changes (abbr. for 易經|易经[Yi4 jing1])",
+    "meaning": "surname Yi; I Ching; Book of Changes (abbr. for 易經|易经[Yì jīng])",
     "frequency_rank": 461,
     "han_viet": "dịch",
     "meaning_vi": "dễ, thay đổi"
@@ -2202,7 +2202,7 @@
   {
     "char": "历",
     "pinyin": "lì",
-    "meaning": "old variant of 曆|历[li4]; old variant of 歷|历[li4]",
+    "meaning": "old variant of 曆|历[lì]; old variant of 歷|历[lì]",
     "frequency_rank": 480,
     "han_viet": "lịch",
     "meaning_vi": "lịch sử, trải qua"
@@ -2378,7 +2378,7 @@
   {
     "char": "参",
     "pinyin": "cān",
-    "meaning": "variant of 參|参[can1]",
+    "meaning": "variant of 參|参[cān]",
     "frequency_rank": 507,
     "han_viet": "tham",
     "meaning_vi": "tham gia"
@@ -2402,7 +2402,7 @@
   {
     "char": "众",
     "pinyin": "zhòng",
-    "meaning": "abbr. for 眾議院|众议院[Zhong4 yi4 yuan4], House of Representatives",
+    "meaning": "abbr. for 眾議院|众议院[Zhòng yì yuàn], House of Representatives",
     "frequency_rank": 510,
     "han_viet": "chúng",
     "meaning_vi": "đám đông, chúng"
@@ -2410,7 +2410,7 @@
   {
     "char": "构",
     "pinyin": "gòu",
-    "meaning": "(Tw) (coll.) variant of 夠|够[gou4]; to reach by stretching",
+    "meaning": "(Tw) (coll.) variant of 夠|够[gòu]; to reach by stretching",
     "frequency_rank": 511,
     "han_viet": "cấu",
     "meaning_vi": "cấu trúc"
@@ -2450,7 +2450,7 @@
   {
     "char": "维",
     "pinyin": "wéi",
-    "meaning": "abbr. for Uighur 維吾爾|维吾尔[Wei2 wu2 er3]; surname Wei",
+    "meaning": "abbr. for Uighur 維吾爾|维吾尔[Wéi wú ěr]; surname Wei",
     "frequency_rank": 520,
     "han_viet": "duy",
     "meaning_vi": "duy trì"
@@ -2546,7 +2546,7 @@
   {
     "char": "验",
     "pinyin": "yàn",
-    "meaning": "variant of 驗|验[yan4]",
+    "meaning": "variant of 驗|验[yàn]",
     "frequency_rank": 534,
     "han_viet": "nghiệm",
     "meaning_vi": "kinh nghiệm, thí nghiệm"
@@ -2650,7 +2650,7 @@
   {
     "char": "效",
     "pinyin": "xiào",
-    "meaning": "variant of 傚|效[xiao4]",
+    "meaning": "variant of 傚|效[xiào]",
     "frequency_rank": 551,
     "han_viet": "hiệu",
     "meaning_vi": "hiệu quả"
@@ -2698,7 +2698,7 @@
   {
     "char": "答",
     "pinyin": "dā",
-    "meaning": "bound form having the same meaning as the free word 答[da2], used in 答應|答应[da1 ying5], 答理[da1 li5] etc",
+    "meaning": "bound form having the same meaning as the free word 答[dá], used in 答應|答应[dā ying], 答理[dā li] etc",
     "frequency_rank": 559,
     "han_viet": "đáp",
     "meaning_vi": "trả lời"
@@ -2722,7 +2722,7 @@
   {
     "char": "察",
     "pinyin": "chá",
-    "meaning": "short name for Chahar Province 察哈爾|察哈尔[Cha2 ha1 er3]",
+    "meaning": "short name for Chahar Province 察哈爾|察哈尔[Chá hā ěr]",
     "frequency_rank": 564,
     "han_viet": "sát",
     "meaning_vi": "quan sát, cảnh sát"
@@ -2802,7 +2802,7 @@
   {
     "char": "斗",
     "pinyin": "dǒu",
-    "meaning": "abbr. for the Big Dipper constellation 北斗星[Bei3 dou3 xing1]",
+    "meaning": "abbr. for the Big Dipper constellation 北斗星[Běi dǒu xīng]",
     "frequency_rank": 580,
     "han_viet": "đấu",
     "meaning_vi": "đấu tranh"
@@ -2826,7 +2826,7 @@
   {
     "char": "纪",
     "pinyin": "jǐ",
-    "meaning": "surname Ji; also pr. [Ji4]",
+    "meaning": "surname Ji; also pr. [Jì]",
     "frequency_rank": 584,
     "han_viet": "kỷ",
     "meaning_vi": "kỷ luật, thế kỷ"
@@ -2850,7 +2850,7 @@
   {
     "char": "父",
     "pinyin": "fù",
-    "meaning": "(bound form) father; (bound form) male relative of father's generation (as in 伯父[bo2 fu4])",
+    "meaning": "(bound form) father; (bound form) male relative of father's generation (as in 伯父[bó fù])",
     "frequency_rank": 589,
     "han_viet": "phụ",
     "meaning_vi": "cha, phụ"
@@ -2858,7 +2858,7 @@
   {
     "char": "苏",
     "pinyin": "sū",
-    "meaning": "used in 嚕囌|噜苏[lu1 su1]",
+    "meaning": "used in 嚕囌|噜苏[lū sū]",
     "frequency_rank": 590,
     "han_viet": "tô",
     "meaning_vi": "hồi phục, họ Tô"
@@ -2882,7 +2882,7 @@
   {
     "char": "诉",
     "pinyin": "sù",
-    "meaning": "variant of 訴|诉[su4]",
+    "meaning": "variant of 訴|诉[sù]",
     "frequency_rank": 595,
     "han_viet": "tố",
     "meaning_vi": "kể, tố cáo"
@@ -2930,7 +2930,7 @@
   {
     "char": "男",
     "pinyin": "nán",
-    "meaning": "(bound form) male; baron, the lowest of the five ranks of nobility 五等爵位[wu3 deng3 jue2 wei4]",
+    "meaning": "(bound form) male; baron, the lowest of the five ranks of nobility 五等爵位[wǔ děng jué wèi]",
     "frequency_rank": 602,
     "han_viet": "nam",
     "meaning_vi": "nam, đàn ông"
@@ -3050,7 +3050,7 @@
   {
     "char": "甚",
     "pinyin": "shén",
-    "meaning": "variant of 什[shen2]",
+    "meaning": "variant of 什[shén]",
     "frequency_rank": 626,
     "han_viet": "thậm",
     "meaning_vi": "thậm chí, rất"
@@ -3066,7 +3066,7 @@
   {
     "char": "球",
     "pinyin": "qiú",
-    "meaning": "ball used for playing games (variant of 球[qiu2])",
+    "meaning": "ball used for playing games (variant of 球[qiú])",
     "frequency_rank": 628,
     "han_viet": "cầu",
     "meaning_vi": "quả cầu, bóng"
@@ -3106,7 +3106,7 @@
   {
     "char": "创",
     "pinyin": "chuàng",
-    "meaning": "variant of 創|创[chuang4]",
+    "meaning": "variant of 創|创[chuàng]",
     "frequency_rank": 635,
     "han_viet": "sáng",
     "meaning_vi": "sáng tạo, thành lập"
@@ -3114,7 +3114,7 @@
   {
     "char": "承",
     "pinyin": "chéng",
-    "meaning": "surname Cheng; Cheng (c. 2000 BC), third of the legendary Flame Emperors 炎帝[Yan2 di4] descended from Shennong 神農|神农[Shen2 nong2] Farmer God",
+    "meaning": "surname Cheng; Cheng (c. 2000 BC), third of the legendary Flame Emperors 炎帝[Yán dì] descended from Shennong 神農|神农[Shén nóng] Farmer God",
     "frequency_rank": 639,
     "han_viet": "thừa",
     "meaning_vi": "thừa nhận, kế thừa"
@@ -3122,7 +3122,7 @@
   {
     "char": "印",
     "pinyin": "yìn",
-    "meaning": "surname Yin; abbr. for 印度[Yin4 du4], India",
+    "meaning": "surname Yin; abbr. for 印度[Yìn dù], India",
     "frequency_rank": 640,
     "han_viet": "ấn",
     "meaning_vi": "ấn, in"
@@ -3138,7 +3138,7 @@
   {
     "char": "兰",
     "pinyin": "lán",
-    "meaning": "surname Lan; abbr. for Lanzhou 蘭州|兰州[Lan2 zhou1], Gansu",
+    "meaning": "surname Lan; abbr. for Lanzhou 蘭州|兰州[Lán zhōu], Gansu",
     "frequency_rank": 642,
     "han_viet": "lan",
     "meaning_vi": "hoa lan"
@@ -3186,7 +3186,7 @@
   {
     "char": "若",
     "pinyin": "rě",
-    "meaning": "used in 般若[bo1 re3]; used in 蘭若|兰若[lan2 re3]",
+    "meaning": "used in 般若[bō rě]; used in 蘭若|兰若[lán rě]",
     "frequency_rank": 651,
     "han_viet": "nhược",
     "meaning_vi": "nếu, nhược"
@@ -3250,7 +3250,7 @@
   {
     "char": "适",
     "pinyin": "kuò",
-    "meaning": "see 李适[Li3 Kuo4]",
+    "meaning": "see 李适[Lǐ Kuò]",
     "frequency_rank": 663,
     "han_viet": "thích",
     "meaning_vi": "thích hợp"
@@ -3258,7 +3258,7 @@
   {
     "char": "波",
     "pinyin": "bō",
-    "meaning": "(bound form) Poland (abbr. for 波蘭|波兰[Bo1 lan2]); surname Bo",
+    "meaning": "(bound form) Poland (abbr. for 波蘭|波兰[Bō lán]); surname Bo",
     "frequency_rank": 664,
     "han_viet": "ba",
     "meaning_vi": "sóng, ba"
@@ -3394,7 +3394,7 @@
   {
     "char": "福",
     "pinyin": "fú",
-    "meaning": "surname Fu; abbr. for Fujian province 福建省[Fu2 jian4 Sheng3]",
+    "meaning": "surname Fu; abbr. for Fujian province 福建省[Fú jiàn Shěng]",
     "frequency_rank": 683,
     "han_viet": "phúc",
     "meaning_vi": "hạnh phúc"
@@ -3410,7 +3410,7 @@
   {
     "char": "欢",
     "pinyin": "huān",
-    "meaning": "variant of 歡|欢[huan1]",
+    "meaning": "variant of 歡|欢[huān]",
     "frequency_rank": 685,
     "han_viet": "hoan",
     "meaning_vi": "vui mừng"
@@ -3498,7 +3498,7 @@
   {
     "char": "射",
     "pinyin": "shè",
-    "meaning": "old variant of 射[she4]",
+    "meaning": "old variant of 射[shè]",
     "frequency_rank": 703,
     "han_viet": "xạ",
     "meaning_vi": "bắn, xạ"
@@ -3530,7 +3530,7 @@
   {
     "char": "句",
     "pinyin": "gōu",
-    "meaning": "variant of 勾[gou1]",
+    "meaning": "variant of 勾[gōu]",
     "frequency_rank": 707,
     "han_viet": "cú",
     "meaning_vi": "câu, cú"
@@ -3650,7 +3650,7 @@
   {
     "char": "衣",
     "pinyin": "yī",
-    "meaning": "clothes; CL:件[jian4]",
+    "meaning": "clothes; CL:件[jiàn]",
     "frequency_rank": 725,
     "han_viet": "y",
     "meaning_vi": "quần áo"
@@ -3714,7 +3714,7 @@
   {
     "char": "占",
     "pinyin": "zhàn",
-    "meaning": "variant of 占[zhan4]",
+    "meaning": "variant of 占[zhàn]",
     "frequency_rank": 737,
     "han_viet": "chiếm",
     "meaning_vi": "chiếm, chiếm đoạt"
@@ -3762,7 +3762,7 @@
   {
     "char": "阶",
     "pinyin": "jiē",
-    "meaning": "variant of 階|阶[jie1]",
+    "meaning": "variant of 階|阶[jiē]",
     "frequency_rank": 745,
     "han_viet": "giai",
     "meaning_vi": "giai đoạn, bậc"
@@ -3778,7 +3778,7 @@
   {
     "char": "沉",
     "pinyin": "chén",
-    "meaning": "variant of 沉[chen2]",
+    "meaning": "variant of 沉[chén]",
     "frequency_rank": 747,
     "han_viet": "trầm",
     "meaning_vi": "chìm, trầm"
@@ -3906,7 +3906,7 @@
   {
     "char": "帮",
     "pinyin": "bāng",
-    "meaning": "old variant of 幫|帮[bang1]",
+    "meaning": "old variant of 幫|帮[bāng]",
     "frequency_rank": 769,
     "han_viet": "bang",
     "meaning_vi": "giúp đỡ"
@@ -3922,7 +3922,7 @@
   {
     "char": "佛",
     "pinyin": "fó",
-    "meaning": "Buddha; Buddhism (abbr. for 佛陀[Fo2 tuo2])",
+    "meaning": "Buddha; Buddhism (abbr. for 佛陀[Fó tuó])",
     "frequency_rank": 771,
     "han_viet": "phật",
     "meaning_vi": "Phật, Phật giáo"

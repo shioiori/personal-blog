@@ -4,1895 +4,1239 @@
     "pinyin": "yǎn",
     "meaning": "nightmare, bad dream",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "魝",
-    "pinyin": "jié",
-    "meaning": "",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "魠",
-    "pinyin": "tuō",
-    "meaning": "Japanese mackerel",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "yểm",
+    "meaning_vi": "mơ bị bóng đè"
   },
   {
     "char": "魦",
     "pinyin": "shā",
     "meaning": "shark family, including some rays and skates",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "魬",
-    "pinyin": "fǎn",
-    "meaning": "sole or flounder",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "sa",
+    "meaning_vi": "họ cá mập, bao gồm một số loài cá đuối"
   },
   {
     "char": "魭",
     "pinyin": "yuán",
-    "meaning": "old variant of 黿|鼋[yuan2]",
+    "meaning": "old variant of 黿|鼋[yuán]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nguyên",
+    "meaning_vi": "biến thể cũ của 黿|鼋[yuán]"
   },
   {
     "char": "魯",
     "pinyin": "lǔ",
     "meaning": "foolish, stupid, rash; vulgar",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lỗ",
+    "meaning_vi": "chậm chạp; thô lỗ; đần độn"
   },
   {
     "char": "魷",
     "pinyin": "yóu",
     "meaning": "cuttlefish",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "vưu",
+    "meaning_vi": "cá mực"
   },
   {
     "char": "鮃",
     "pinyin": "píng",
     "meaning": "sole",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "bình",
+    "meaning_vi": "cá bơn vỉ ôliu"
   },
   {
     "char": "鮑",
     "pinyin": "bào",
     "meaning": "abalone; dried fish; surname",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "bào",
+    "meaning_vi": "cá đã ướp"
   },
   {
     "char": "鮪",
     "pinyin": "wěi",
     "meaning": "little tuna; Euthynnus alletteratus",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "vị",
+    "meaning_vi": "cá vị, cá tầm"
   },
   {
     "char": "鮫",
     "pinyin": "jiāo",
     "meaning": "shark",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "giao",
+    "meaning_vi": "cá giao"
   },
   {
     "char": "鮿",
     "pinyin": "zhé",
     "meaning": "(fresh-water fish)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "triếp",
+    "meaning_vi": "con cá diếc"
   },
   {
     "char": "鯇",
     "pinyin": "huàn",
     "meaning": "carp",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cán",
+    "meaning_vi": "cá trắm trắng, cá trắm cỏ"
   },
   {
     "char": "鯉",
     "pinyin": "lǐ",
     "meaning": "carp",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lý",
+    "meaning_vi": "con cá chép"
   },
   {
     "char": "鯢",
     "pinyin": "ní",
     "meaning": "salamander; Cryptobranchus japonicus",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nghê",
+    "meaning_vi": "cá kình, cá voi"
   },
   {
     "char": "鯤",
     "pinyin": "kūn",
     "meaning": "spawn; roe; fry",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "鯥",
-    "pinyin": "lù",
-    "meaning": "Pomatomus saltatrix; bluefish",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "côn",
+    "meaning_vi": "con cá côn"
   },
   {
     "char": "鯧",
     "pinyin": "chāng",
     "meaning": "silvery pomfret, Stromateoides argenteus",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "xương",
+    "meaning_vi": "con cá xương"
   },
   {
     "char": "鯨",
     "pinyin": "jīng",
     "meaning": "whale",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "kình",
+    "meaning_vi": "cá kình, cá voi"
   },
   {
     "char": "鯪",
     "pinyin": "líng",
     "meaning": "carp",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lăng",
+    "meaning_vi": "cá lăng, cá đác"
   },
   {
     "char": "鯫",
     "pinyin": "zōu",
     "meaning": "small fish; small; minnow",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tưu",
+    "meaning_vi": "con cá tép"
   },
   {
     "char": "鯰",
     "pinyin": "nián",
     "meaning": "sheatfish",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "niêm",
+    "meaning_vi": "cá măng, cá ngát, cá nheo, cá niêm"
   },
   {
     "char": "鯷",
     "pinyin": "tí",
     "meaning": "anchovy",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "di",
+    "meaning_vi": "cá cơm"
   },
   {
     "char": "鯸",
     "pinyin": "hóu",
     "meaning": "blowfish",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hầu",
+    "meaning_vi": "cá nóc"
   },
   {
     "char": "鰂",
     "pinyin": "zéi",
     "meaning": "cuttlefish",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "鰅",
-    "pinyin": "yú",
-    "meaning": "a kind of striped fish",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tặc",
+    "meaning_vi": "(xem: ô tặc 烏鰂,乌鲗)"
   },
   {
     "char": "鰆",
     "pinyin": "chūn",
     "meaning": "a kind of long, flat, silver-gray striped fish",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "xuân",
+    "meaning_vi": "cá thu âu"
   },
   {
     "char": "鰈",
     "pinyin": "dié",
     "meaning": "flatfish; flounder; sole",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "điệp",
+    "meaning_vi": "cá điệp, cá bơn"
   },
   {
     "char": "鰋",
     "pinyin": "yǎn",
     "meaning": "mudfish",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "yển",
+    "meaning_vi": "cá yển"
   },
   {
     "char": "鰓",
     "pinyin": "sāi",
     "meaning": "fish gills",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "鰛",
-    "pinyin": "wēn",
-    "meaning": "variant of 鰮|鳁, sardine",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tai",
+    "meaning_vi": "mang cá"
   },
   {
     "char": "鰣",
     "pinyin": "shí",
     "meaning": "Reeves' shad; hilsa herring",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thì",
+    "meaning_vi": "cá cháy"
   },
   {
     "char": "鰥",
     "pinyin": "guān",
     "meaning": "huge fish; widower; bachelor",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "quan",
+    "meaning_vi": "cá lớn; người goá vợ"
   },
   {
     "char": "鰦",
     "pinyin": "zī",
     "meaning": "(archaic) a kind of black fish; bad person (Cantonese slang)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tư",
+    "meaning_vi": "(cổ) một loại cá màu đen; người xấu (tiếng lóng Quảng Đông)"
   },
   {
     "char": "鰭",
     "pinyin": "qí",
     "meaning": "fin",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "kỳ",
+    "meaning_vi": "vây cá"
   },
   {
     "char": "鰱",
     "pinyin": "lián",
     "meaning": "silver carp, hypophthalmiathys",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "liên",
+    "meaning_vi": "cá liên, cá mè"
   },
   {
     "char": "鰾",
     "pinyin": "biào",
     "meaning": "swim bladder",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "phiêu",
+    "meaning_vi": "cái bong bóng cá"
   },
   {
     "char": "鱀",
     "pinyin": "jì",
     "meaning": "Chinese river dolphin",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ký",
+    "meaning_vi": "xem 白鱀豚|白𬶨豚[bái jì tún]"
   },
   {
     "char": "鱄",
     "pinyin": "zhuān",
     "meaning": "surname Zhuan",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "chuyên",
+    "meaning_vi": "họ [Zhuān]"
   },
   {
     "char": "鱅",
     "pinyin": "yōng",
     "meaning": "bighead",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "dung",
+    "meaning_vi": "cá mè hoa"
   },
   {
     "char": "鱆",
     "pinyin": "zhāng",
     "meaning": "octopus, devilfish",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "chương",
+    "meaning_vi": "bạch tuộc"
   },
   {
     "char": "鱈",
     "pinyin": "xuě",
     "meaning": "codfish",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "鱐",
-    "pinyin": "sù",
-    "meaning": "dried fish",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tuyết",
+    "meaning_vi": "cá tuyết, cá moruy"
   },
   {
     "char": "鱒",
     "pinyin": "zūn",
     "meaning": "barbel",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tôn",
+    "meaning_vi": "cá chầy, cá rói"
   },
   {
     "char": "鱔",
     "pinyin": "shàn",
     "meaning": "eel",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thiện",
+    "meaning_vi": "con lươn"
   },
   {
     "char": "鱘",
     "pinyin": "xún",
     "meaning": "sturgeon",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tầm",
+    "meaning_vi": "cá tầm (dài hơn một trượng)"
   },
   {
     "char": "鱠",
     "pinyin": "kuài",
     "meaning": "minced fish; hash",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "khoái",
+    "meaning_vi": "thái thịt cá nhỏ ra; cá bẹ"
   },
   {
     "char": "鱷",
     "pinyin": "è",
     "meaning": "alligator",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ngạc",
+    "meaning_vi": "con cá sấu"
   },
   {
     "char": "鱸",
     "pinyin": "lú",
     "meaning": "perch; sea bass",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lư",
+    "meaning_vi": "cá vược; cá vược"
   },
   {
     "char": "鲖",
     "pinyin": "tóng",
     "meaning": "snakefish",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "鲘",
-    "pinyin": "hòu",
-    "meaning": "see 鱯|鳠[hu4]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "鲺",
-    "pinyin": "shī",
-    "meaning": "cat fish",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đồng",
+    "meaning_vi": "cá quả"
   },
   {
     "char": "鳥",
     "pinyin": "niǎo",
     "meaning": "bird",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "điểu",
+    "meaning_vi": "con chim"
   },
   {
     "char": "鳦",
     "pinyin": "yǐ",
     "meaning": "a swallow (bird)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ất",
+    "meaning_vi": "con chim én"
   },
   {
     "char": "鳧",
     "pinyin": "fú",
     "meaning": "wild duck; teal; swim",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "phù",
+    "meaning_vi": "vịt trời"
   },
   {
     "char": "鳫",
     "pinyin": "yàn",
-    "meaning": "old variant of 雁[yan4]",
+    "meaning": "old variant of 雁[yàn]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "鳯",
-    "pinyin": "fèng",
-    "meaning": "variant of 鳳|凤[feng4]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "鳻",
-    "pinyin": "fēn",
-    "meaning": "the wild pigeon",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nhạn",
+    "meaning_vi": "biến thể cũ của 雁[yàn]"
   },
   {
     "char": "鳽",
     "pinyin": "yán",
-    "meaning": "(used in naming bitterns and several other species of heron); also pr. [jian1]",
+    "meaning": "(used in naming bitterns and several other species of heron); also pr. [jiān]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "khiên",
+    "meaning_vi": "(dùng để đặt tên cho loài vạc và một số loài diệc khác); cũng đọc là [jiān]"
   },
   {
     "char": "鴄",
     "pinyin": "pī",
     "meaning": "wild duck",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thất",
+    "meaning_vi": "vịt trời"
   },
   {
     "char": "鴆",
     "pinyin": "zhèn",
     "meaning": "a bird resembling the secretary falcon",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "trậm",
+    "meaning_vi": "loài chim độc; rượu có độc"
   },
   {
     "char": "鴇",
     "pinyin": "bǎo",
     "meaning": "bustard; procuress; Otis species (various)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "bảo",
+    "meaning_vi": "chim bảo (giống con mòng, tương truyền là giống rất dâm)"
   },
   {
     "char": "鴈",
     "pinyin": "yàn",
     "meaning": "wild goose",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nhạn",
+    "meaning_vi": "chim nhạn"
   },
   {
     "char": "鴒",
     "pinyin": "líng",
     "meaning": "lark, wagtail; Motacilla species (various)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "鴔",
-    "pinyin": "fú",
-    "meaning": "hoopoe, crested bird",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "linh",
+    "meaning_vi": "(xem: tích linh 鶺鴒,鹡鸰)"
   },
   {
     "char": "鴕",
     "pinyin": "tuó",
     "meaning": "ostrich",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đà",
+    "meaning_vi": "(xem: đà điểu 駝鳥,鸵鸟)"
   },
   {
     "char": "鴗",
     "pinyin": "lì",
     "meaning": "Alcedo bengalensis",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lập",
+    "meaning_vi": "Alcedo bengalensis"
   },
   {
     "char": "鴛",
     "pinyin": "yuān",
     "meaning": "male mandarin duck (Aix galericulata)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "uyên",
+    "meaning_vi": "con vịt đực"
   },
   {
     "char": "鴠",
     "pinyin": "dàn",
     "meaning": "a kind of nightingale",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "váy",
+    "meaning_vi": "một loại sơn ca"
   },
   {
     "char": "鴯",
     "pinyin": "ér",
     "meaning": "swallow",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nhi",
+    "meaning_vi": "(xem: ý nhi 鷾鴯); (xem: nhi miêu 鴯鶓,鸸鹋)"
   },
   {
     "char": "鵑",
     "pinyin": "juān",
     "meaning": "cuckoo",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "quyên",
+    "meaning_vi": "con chim cuốc"
   },
   {
     "char": "鵒",
     "pinyin": "yù",
     "meaning": "mynah; Acridotheres tristis",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "dục",
+    "meaning_vi": "(xem: cù dục 鴝鵒,鸜鵒,鸲鹆)"
   },
   {
     "char": "鵓",
     "pinyin": "bó",
     "meaning": "a species of pigeon",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "bột",
+    "meaning_vi": "(xem: bột cáp 鵓鴿,鹁鸽)"
   },
   {
     "char": "鵗",
     "pinyin": "xī",
     "meaning": "pheasant",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hy",
+    "meaning_vi": "gà lôi"
   },
   {
     "char": "鵙",
     "pinyin": "jú",
     "meaning": "a shrike",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "quyết",
+    "meaning_vi": "chim bách thiệt (kêu được trăm thứ tiếng)"
   },
   {
     "char": "鵜",
     "pinyin": "tí",
     "meaning": "pelican",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đề",
+    "meaning_vi": "(xem: đề hồ 鵜鶘,鹈鹕)"
   },
   {
     "char": "鵠",
     "pinyin": "gǔ",
     "meaning": "swan",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cốc",
+    "meaning_vi": "chim hộc, ngỗng trời"
   },
   {
     "char": "鵡",
     "pinyin": "wǔ",
     "meaning": "species of parrot",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "vũ",
+    "meaning_vi": "con vẹt"
   },
   {
     "char": "鵩",
     "pinyin": "fú",
     "meaning": "owl",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "phục",
+    "meaning_vi": "con vọ"
   },
   {
     "char": "鵫",
     "pinyin": "zhào",
     "meaning": "pheasant",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "鵯",
-    "pinyin": "bēi",
-    "meaning": "bulbul, songbird; Pycnonotidae",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "鵵",
-    "pinyin": "tù",
-    "meaning": "Scops semitorques",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "鵺",
-    "pinyin": "yè",
-    "meaning": "a kind of bird similar to pheasant",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "trạo",
+    "meaning_vi": "gà lôi"
   },
   {
     "char": "鵻",
     "pinyin": "zhuī",
     "meaning": "snipe; turtle-dove",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "chuy",
+    "meaning_vi": "(như: chá cô, giá cô 鷓鴣,鹧鸪)"
   },
   {
     "char": "鵾",
     "pinyin": "kūn",
     "meaning": "a bird resembling a crane",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "côn",
+    "meaning_vi": "(xem: côn kê 鵾雞,鹍鸡)"
   },
   {
     "char": "鶂",
     "pinyin": "yì",
     "meaning": "hawk",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nghịch",
+    "meaning_vi": "chim ưng"
   },
   {
     "char": "鶉",
     "pinyin": "chún",
     "meaning": "quail; Turnix species (various)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thuần",
+    "meaning_vi": "(xem: am thuần 鵪鶉,鹌鹑)"
   },
   {
     "char": "鶖",
     "pinyin": "qiū",
     "meaning": "waterfowl; Garrulus glandarius",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thu",
+    "meaning_vi": "cò già (một loài chim nước)"
   },
   {
     "char": "鶘",
     "pinyin": "hú",
     "meaning": "pelican",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hồ",
+    "meaning_vi": "(xem: đề hồ 鵜鶘,鹈鹕)"
   },
   {
     "char": "鶤",
     "pinyin": "kūn",
-    "meaning": "variant of 鵾|鹍[kun1]",
+    "meaning": "variant of 鵾|鹍[kūn]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "鶦",
-    "pinyin": "hú",
-    "meaning": "pelican",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "côn",
+    "meaning_vi": "biến thể của 鵾|鹍, chim lớn, có thể liên quan đến sếu hoặc thiên nga (cổ đại); chim huyền thoại quái dị, so với chim roc của Sinbad"
   },
   {
     "char": "鶬",
     "pinyin": "cāng",
     "meaning": "oriole",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thương",
+    "meaning_vi": "(xem: thương quát 鶬鴰,鸧鸹)"
   },
   {
     "char": "鶯",
     "pinyin": "yīng",
     "meaning": "oriole, green finch; Sylvia species (various)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "oanh",
+    "meaning_vi": "chim oanh"
   },
   {
     "char": "鶹",
     "pinyin": "liú",
     "meaning": "owl",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lưu",
+    "meaning_vi": "(xem: hưu lưu 鵂鶹,鸺鹠)"
   },
   {
     "char": "鶻",
     "pinyin": "gǔ",
     "meaning": "a kind of pigeon; treron permagna",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "hoạt",
+    "meaning_vi": "(một loài chim hung ác)"
   },
   {
     "char": "鶼",
     "pinyin": "jiān",
     "meaning": "phoenix; fabulous mythical bird",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "kiêm",
+    "meaning_vi": "(xem: kiêm kiêm 鶼鶼,鹣鹣)"
   },
   {
     "char": "鷀",
     "pinyin": "cí",
     "meaning": "the fishing cormorant",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tư",
+    "meaning_vi": "(xem: lô tư 鸕鷀,鸕鷥,鸬鷀,鸬鸶)"
   },
   {
     "char": "鷂",
     "pinyin": "yào",
     "meaning": "sparrow hawk; Circus species (various)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "diêu",
+    "meaning_vi": "diều mướp, diều hâu, chim diêu"
   },
   {
     "char": "鷄",
     "pinyin": "jī",
     "meaning": "chicken",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "kê",
+    "meaning_vi": "con gà"
   },
   {
     "char": "鷈",
     "pinyin": "tī",
     "meaning": "a kind of bird",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "鷏",
-    "pinyin": "zhēn",
-    "meaning": "bird name",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đề",
+    "meaning_vi": "dùng trong 鷿鷈|䴙䴘[pì tī]"
   },
   {
     "char": "鷓",
     "pinyin": "zhè",
     "meaning": "partridge",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "giá",
+    "meaning_vi": "(xem: chá cô 鷓鴣,鹧鸪); (xem: chá cô 鷓鴣,鹧鸪); (xem: chá cô 鷓鴣,鹧鸪)"
   },
   {
     "char": "鷕",
     "pinyin": "yǎo",
     "meaning": "cry of hen pheasant",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "diểu",
+    "meaning_vi": "tiếng kêu của gà lôi mái"
   },
   {
     "char": "鷗",
     "pinyin": "ōu",
     "meaning": "seagull, tern; Larus species (various)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "âu",
+    "meaning_vi": "chim hải âu, con cò biển"
   },
   {
     "char": "鷙",
     "pinyin": "zhì",
     "meaning": "hawk, vulture",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "chí",
+    "meaning_vi": "(một loài chim dữ)"
   },
   {
     "char": "鷞",
     "pinyin": "shuāng",
-    "meaning": "variant of 鸘|鹴[shuang1]",
+    "meaning": "variant of 鸘|鹴[shuāng]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "鷬",
-    "pinyin": "huáng",
-    "meaning": "black-naped oriole (Oriolus chinensis)",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "sương",
+    "meaning_vi": "(xem: sương cưu 鷞鳩,鹴鸠; túc sương 鷫鷞,鹔鹴)"
   },
   {
     "char": "鷯",
     "pinyin": "liáo",
     "meaning": "wren",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "liêu",
+    "meaning_vi": "(xem: tiêu liêu 鷦鷯,鹪鹩)"
   },
   {
     "char": "鷸",
     "pinyin": "yù",
     "meaning": "snipe, kingfisher",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "duật",
+    "meaning_vi": "chim dẽ giun"
   },
   {
     "char": "鷾",
     "pinyin": "yì",
     "meaning": "a swallow",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ý",
+    "meaning_vi": "(xem: ý nhi 鷾鴯)"
   },
   {
     "char": "鸐",
     "pinyin": "dí",
     "meaning": "Reeves's pheasant (Syrmaticus reevesii)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "địch",
+    "meaning_vi": "gà lôi Reeves (Syrmaticus reevesii)"
   },
   {
     "char": "鸒",
     "pinyin": "yú",
     "meaning": "the eastern jackdaw",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "dư",
+    "meaning_vi": "chim giẻ cùi Đông Á"
   },
   {
     "char": "鸕",
     "pinyin": "lú",
     "meaning": "cormorant",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lô",
+    "meaning_vi": "(xem: lô tư 鸕鷀,鸕鷥,鸬鸬,鸬鸶)"
   },
   {
     "char": "鸚",
     "pinyin": "yīng",
     "meaning": "parrot",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "anh",
+    "meaning_vi": "(xem: anh vũ 鸚鵡,鹦鹉)"
   },
   {
     "char": "鸜",
     "pinyin": "qú",
-    "meaning": "variant of 鴝|鸲[qu2]",
+    "meaning": "variant of 鴝|鸲[qú]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cù",
+    "meaning_vi": "(xem: cù dục 鴝鵒,鸜鵒,鸲鹆)"
   },
   {
     "char": "鸝",
     "pinyin": "lí",
     "meaning": "Chinese oriole; Oriolus oriolus",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ly",
+    "meaning_vi": "chim vàng anh"
   },
   {
     "char": "鸞",
     "pinyin": "luán",
     "meaning": "fabulous bird",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "loan",
+    "meaning_vi": "chim phượng cái; cái chuông nhỏ"
   },
   {
     "char": "鸤",
     "pinyin": "shī",
     "meaning": "turtledove",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thi",
+    "meaning_vi": "chim cu gáy"
   },
   {
     "char": "鹔",
     "pinyin": "sù",
-    "meaning": "used in 鷫鸘|鹔鹴[su4 shuang1]",
+    "meaning": "used in 鷫鸘|鹔鹴[sù shuāng]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "túc",
+    "meaning_vi": "dùng trong 鷫鸘|鹔鹴[sù shuāng]"
   },
   {
     "char": "鹝",
     "pinyin": "yì",
     "meaning": "pheasant; turkey",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nghịch",
+    "meaning_vi": "gà lôi; gà tây; biến thể cũ của 鷁|鹢[yì]"
   },
   {
     "char": "鹢",
     "pinyin": "yì",
     "meaning": "a kind of aquatic bird",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nghịch",
+    "meaning_vi": "một loại chim nước"
   },
   {
     "char": "鹥",
     "pinyin": "yī",
     "meaning": "wigeon (Anas penelope, a Eurasian duck); seagull (arch.)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "鹲",
-    "pinyin": "méng",
-    "meaning": "tropic bird",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ê",
+    "meaning_vi": "vịt mào (Anas penelope, một loài vịt Âu-Á); mòng biển (cổ)"
   },
   {
     "char": "鹴",
     "pinyin": "shuāng",
-    "meaning": "used in 鷫鸘|鹔鹴[su4 shuang1]",
+    "meaning": "used in 鷫鸘|鹔鹴[sù shuāng]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "sương",
+    "meaning_vi": "dùng trong 鷫鸘|鹔鹴[sù shuāng]"
   },
   {
     "char": "鹵",
     "pinyin": "lǔ",
     "meaning": "salt",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "lỗ",
+    "meaning_vi": "đất mặn; mỏ muối"
   },
   {
     "char": "麁",
     "pinyin": "cū",
-    "meaning": "variant of 麤|粗[cu1]",
+    "meaning": "variant of 麤|粗[cū]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thô",
+    "meaning_vi": "biến thể của 麤|粗[cū]"
   },
   {
     "char": "麌",
     "pinyin": "wú",
     "meaning": "stag; herd",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ngu",
+    "meaning_vi": "con khuân cái"
   },
   {
     "char": "麛",
     "pinyin": "mí",
     "meaning": "fawn; young of animals",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "mê",
+    "meaning_vi": "con nai con; con thú con"
   },
   {
     "char": "麠",
     "pinyin": "jīng",
     "meaning": "red deer; sambar deer",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "canh",
+    "meaning_vi": "nai đỏ; hươu sambar"
   },
   {
     "char": "麫",
     "pinyin": "miàn",
-    "meaning": "variant of 麵|面[mian4]",
+    "meaning": "variant of 麵|面[miàn]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "麭",
-    "pinyin": "pào",
-    "meaning": "pastry; cake",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "miến",
+    "meaning_vi": "biến thể của 麵|面[miàn]"
   },
   {
     "char": "麮",
     "pinyin": "qù",
     "meaning": "porridge",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "khứ",
+    "meaning_vi": "cháo"
   },
   {
     "char": "麺",
     "pinyin": "miàn",
-    "meaning": "old variant of 麵|面[mian4]",
+    "meaning": "old variant of 麵|面[miàn]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "miến",
+    "meaning_vi": "bột gạo, sợi miến"
   },
   {
     "char": "黀",
     "pinyin": "zōu",
     "meaning": "hemp stem",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tưu",
+    "meaning_vi": "thân cây gai"
   },
   {
     "char": "黁",
     "pinyin": "nún",
     "meaning": "warm and fragrant",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nuyên",
+    "meaning_vi": "ấm và thơm"
   },
   {
     "char": "黈",
     "pinyin": "tǒu",
     "meaning": "a yellow color",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thẩu",
+    "meaning_vi": "màu vàng; tăng thêm"
   },
   {
     "char": "黐",
     "pinyin": "chī",
     "meaning": "birdlime",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "li",
+    "meaning_vi": "nhựa để bẫy chim"
   },
   {
     "char": "黓",
     "pinyin": "yì",
     "meaning": "black",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "dặc",
+    "meaning_vi": "màu đen"
   },
   {
     "char": "黕",
     "pinyin": "zhěn",
     "meaning": "red",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "黗",
-    "pinyin": "tūn",
-    "meaning": "yellowish-black",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đảm",
+    "meaning_vi": "đỏ"
   },
   {
     "char": "黦",
     "pinyin": "yù",
     "meaning": "yellowish black",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "uất",
+    "meaning_vi": "đen hơi vàng"
   },
   {
     "char": "黰",
     "pinyin": "zhěn",
     "meaning": "bushy black hair",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "chẩn",
+    "meaning_vi": "tóc mượt"
   },
   {
     "char": "黱",
     "pinyin": "dài",
-    "meaning": "old variant of 黛[dai4]",
+    "meaning": "old variant of 黛[dài]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đại",
+    "meaning_vi": "biến thể cũ của 黛[dài]"
   },
   {
     "char": "黷",
     "pinyin": "dú",
     "meaning": "to dishonor, to defile, to corrupt; soiled",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "độc",
+    "meaning_vi": "nhàm chán"
   },
   {
     "char": "黽",
     "pinyin": "miǎn",
     "meaning": "frog, toad; to strive, to endeavor",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "mãnh",
+    "meaning_vi": "cố gắng"
   },
   {
     "char": "鼒",
     "pinyin": "zī",
     "meaning": "tripod with a small opening on top",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tư",
+    "meaning_vi": "cái đỉnh bóp miệng; cái đỉnh bóp miệng"
   },
   {
     "char": "鼕",
     "pinyin": "dōng",
     "meaning": "the sound of drums",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đông",
+    "meaning_vi": "tiếng trống đánh tùng tùng"
   },
   {
     "char": "鼚",
     "pinyin": "chāng",
     "meaning": "sound of drum",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "xương",
+    "meaning_vi": "tiếng trống tung tung; động"
   },
   {
     "char": "鼛",
     "pinyin": "gāo",
     "meaning": "large drum",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cao",
+    "meaning_vi": "cái trống lớn"
   },
   {
     "char": "鼟",
     "pinyin": "tēng",
     "meaning": "(onom.) the thump of a big drum",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thăng",
+    "meaning_vi": "(từ tượng thanh) tiếng thùng thùng của trống lớn"
   },
   {
     "char": "鼡",
     "pinyin": "shǔ",
-    "meaning": "variant of 鼠[shu3]",
+    "meaning": "variant of 鼠[shǔ]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thử",
+    "meaning_vi": "biến thể của 鼠[shǔ]"
   },
   {
     "char": "鼭",
     "pinyin": "shí",
     "meaning": "a kind of rat",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "thi",
+    "meaning_vi": "một loại chuột"
   },
   {
     "char": "鼴",
     "pinyin": "yǎn",
     "meaning": "a kind of insectivorous rodent",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "yển",
+    "meaning_vi": "con chuột chũi"
   },
   {
     "char": "鼽",
     "pinyin": "qiú",
     "meaning": "congested nose",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "cừu",
+    "meaning_vi": "ngạt mũi"
   },
   {
     "char": "齇",
     "pinyin": "zhā",
     "meaning": "rosacea",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tra",
+    "meaning_vi": "bệnh rosacea"
   },
   {
     "char": "齈",
     "pinyin": "nóng",
     "meaning": "cold in the head catarrh of the nose",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nông",
+    "meaning_vi": "cảm lạnh sổ mũi"
   },
   {
     "char": "齉",
     "pinyin": "nàng",
     "meaning": "stuffy (nose); nasal (voice)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nang",
+    "meaning_vi": "nghẹt (mũi); giọng mũi"
   },
   {
     "char": "齌",
     "pinyin": "jì",
-    "meaning": "used in 齌怒[ji4 nu4]",
+    "meaning": "used in 齌怒[jì nù]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tễ",
+    "meaning_vi": "dùng trong 齌怒[jì nù]"
   },
   {
     "char": "齎",
     "pinyin": "jī",
     "meaning": "gift, present; offering",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "tê",
+    "meaning_vi": "đem cho, mang cho; tiễn đưa"
   },
   {
     "char": "齙",
     "pinyin": "bāo",
     "meaning": "buck teeth",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "bao",
+    "meaning_vi": "răng hô"
   },
   {
     "char": "齚",
     "pinyin": "zé",
-    "meaning": "variant of 齰[ze2]",
+    "meaning": "variant of 齰[zé]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "trách",
+    "meaning_vi": "cắn"
   },
   {
     "char": "齞",
     "pinyin": "niàn",
     "meaning": "to display the teeth",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "nghiễn",
+    "meaning_vi": "nhe răng"
   },
   {
     "char": "齟",
     "pinyin": "jǔ",
     "meaning": "irregular teeth; discord",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "trở",
+    "meaning_vi": "(xem: trở ngữ 齟齬,龃龉)"
   },
   {
     "char": "齪",
     "pinyin": "chuò",
     "meaning": "narrow, small-minded; dirty (2)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "xúc",
+    "meaning_vi": "(xem: ác xúc 齷齪,龌龊)"
   },
   {
     "char": "齬",
     "pinyin": "yǔ",
     "meaning": "uneven teeth; to disagree",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ngữ",
+    "meaning_vi": "(xem: trở ngữ 齟齬,龃龉)"
   },
   {
     "char": "齱",
     "pinyin": "zōu",
     "meaning": "uneven teeth; buck-toothed",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "châu",
+    "meaning_vi": "răng không đều; răng hô"
   },
   {
     "char": "齵",
     "pinyin": "óu",
     "meaning": "uneven teeth; buck-toothed",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ngu",
+    "meaning_vi": "không đều (răng)"
   },
   {
     "char": "齶",
     "pinyin": "è",
     "meaning": "palate, the roof of the mouth",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ngạc",
+    "meaning_vi": "vòm miệng"
   },
   {
     "char": "齷",
     "pinyin": "wò",
     "meaning": "narrow, small-minded; dirty (1)",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "ác",
+    "meaning_vi": "(xem: ác xúc 齷齪,龌龊)"
   },
   {
     "char": "龐",
     "pinyin": "páng",
     "meaning": "disorderly, messy; huge, big",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "bàng",
+    "meaning_vi": "nhiều; khổng lồ; rối rắm"
   },
   {
     "char": "龕",
     "pinyin": "kān",
     "meaning": "niche, shrine",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "kham",
+    "meaning_vi": "cái tháp thờ Phật; cái tháp thờ Phật"
   },
   {
     "char": "龖",
     "pinyin": "dá",
     "meaning": "a vista of a dragon in flight",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "龗",
-    "pinyin": "líng",
-    "meaning": "dragon",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đạp",
+    "meaning_vi": "cảnh tượng rồng đang bay"
   },
   {
     "char": "龘",
     "pinyin": "dá",
-    "meaning": "old variant of 龖[da2]",
+    "meaning": "old variant of 龖[dá]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "đạp",
+    "meaning_vi": "biến thể cũ của 龖[dá]"
   },
   {
     "char": "龡",
     "pinyin": "chuì",
     "meaning": "to blow (a flute); archaic version of 吹",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "xuý",
+    "meaning_vi": "thổi; thổi"
   },
   {
     "char": "龥",
     "pinyin": "yù",
-    "meaning": "variant of 籲|吁[yu4]",
+    "meaning": "variant of 籲|吁[yù]",
     "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "龶",
-    "pinyin": "",
-    "meaning": "",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "龹",
-    "pinyin": "quǎn",
-    "meaning": "Form of 卷 used as a phonetic component",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "龺",
-    "pinyin": "gān",
-    "meaning": "sunlight; the rays of the sun",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "鿍",
-    "pinyin": "gàng",
-    "meaning": "hill; long and narrow highland",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "鿏",
-    "pinyin": "mài",
-    "meaning": "meitnerium (chemistry)",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "鿔",
-    "pinyin": "gē",
-    "meaning": "copernicium (chemistry)",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "鿫",
-    "pinyin": "ào",
-    "meaning": "oganesson (chemistry)",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "鿬",
-    "pinyin": "tián",
-    "meaning": "tennessine (chemistry)",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "鿭",
-    "pinyin": "nǐ",
-    "meaning": "nihonium (chemistry)",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𠇹",
-    "pinyin": "jìng",
-    "meaning": "(literary) to pass through; straight",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𠈌",
-    "pinyin": "yú",
-    "meaning": "used in 人從眾𠈌|人从众𠈌[ren2 cong2 zhong4 yu2]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𠙶",
-    "pinyin": "ǒu",
-    "meaning": "(name of a mountain)",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𠩺",
-    "pinyin": "xī",
-    "meaning": "to split open; crack",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𠮶",
-    "pinyin": "gè",
-    "meaning": "that (Cantonese); Mandarin equivalent: 那[na4]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𠯠",
-    "pinyin": "huī",
-    "meaning": "to speak falsely or wrongly; ugly",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𠯪",
-    "pinyin": "dǎi",
-    "meaning": "(dialect) to eat",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𠳐",
-    "pinyin": "bāng",
-    "meaning": "(onom.) bang (door slamming shut etc); rat-a-tat (knocking on a door etc)",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𡒄",
-    "pinyin": "lǎn",
-    "meaning": "disappointed",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𡥧",
-    "pinyin": "lái",
-    "meaning": "last",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𡳞",
-    "pinyin": "lìn",
-    "meaning": "(Minnan dialect) male genitals; penis",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𡶴",
-    "pinyin": "chǎn",
-    "meaning": "winding mountain path",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𢙐",
-    "pinyin": "náo",
-    "meaning": "used in 懊憹|懊𢙐[ao4 nao2]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𢬍",
-    "pinyin": "yè",
-    "meaning": "to press down",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𣍰",
-    "pinyin": "qiǎn",
-    "meaning": "pelvic cavity; lower abdomen",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𣨼",
-    "pinyin": "tì",
-    "meaning": "fatigue",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𣲗",
-    "pinyin": "wéi",
-    "meaning": "to flow back (of water)",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𣲘",
-    "pinyin": "wǔ",
-    "meaning": "river in Henan",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𣸣",
-    "pinyin": "fén",
-    "meaning": "edge of water",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𣸨",
-    "pinyin": "yíng",
-    "meaning": "used in 汫濙|汫𣸨[jing3 ying2]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𤈶",
-    "pinyin": "yún",
-    "meaning": "(yellow color)",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𤞤",
-    "pinyin": "xiǎn",
-    "meaning": "variant of 獫|猃[xian3]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𤶊",
-    "pinyin": "guài",
-    "meaning": "(literary) serious illness; (Cantonese) variant of 攰[gui4]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𥆧",
-    "pinyin": "rún",
-    "meaning": "twitch (muscle or eyelid)",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𥫣",
-    "pinyin": "yú",
-    "meaning": "round basket used for feeding the cattle",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𥬠",
-    "pinyin": "chōu",
-    "meaning": "basket for straining; to strain",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𥻗",
-    "pinyin": "chá",
-    "meaning": "(bound form) coarsely ground maize",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𦈌",
-    "pinyin": "shū",
-    "meaning": "a kind of sackcloth",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𦈏",
-    "pinyin": "mín",
-    "meaning": "old variant of 緡|缗[min2]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𦈕",
-    "pinyin": "yú",
-    "meaning": "net",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𦈡",
-    "pinyin": "xū",
-    "meaning": "multicolored silk; piece of silk torn in two, used to verify the holder's identity by matching up the two halves",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𦙶",
-    "pinyin": "gǔ",
-    "meaning": "(used in place names)",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𧏖",
-    "pinyin": "bīn",
-    "meaning": "pearl-oyster",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𧮪",
-    "pinyin": "zhān",
-    "meaning": "garrulous; to whisper",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𧿹",
-    "pinyin": "mǔ",
-    "meaning": "(bound form) big toe",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𨀁",
-    "pinyin": "lóng",
-    "meaning": "to walk",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𨅬",
-    "pinyin": "lán",
-    "meaning": "to pass; to step over",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𨰿",
-    "pinyin": "xì",
-    "meaning": "(arch.) metal horn attached as shield to horse or to the axle of a chariot",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𨱇",
-    "pinyin": "qiú",
-    "meaning": "single-headed pick; stone chisel",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𨱍",
-    "pinyin": "láng",
-    "meaning": "large hammer",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𨱏",
-    "pinyin": "tǎ",
-    "meaning": "technetium (chemistry) (Tw)",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𨱑",
-    "pinyin": "héng",
-    "meaning": "bell",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𨱔",
-    "pinyin": "zūn",
-    "meaning": "butt end of spear",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𩉜",
-    "pinyin": "jī",
-    "meaning": "(literary) bit (of a horse's bridle)",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𩙫",
-    "pinyin": "sāo",
-    "meaning": "blowing of the wind",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𩠌",
-    "pinyin": "sòng",
-    "meaning": "(Cantonese) dish, usu. eaten with rice",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𩽾",
-    "pinyin": "ān",
-    "meaning": "used in 鮟鱇|𩽾𩾌[an1 kang1]; Taiwan pr. [an4]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𩾁",
-    "pinyin": "qiú",
-    "meaning": "Lepidotrigla strauchi",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𩾃",
-    "pinyin": "miǎn",
-    "meaning": "Sciaena albiflora; otolithoidesmiiuy",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𩾌",
-    "pinyin": "kāng",
-    "meaning": "used in 鮟鱇|𩽾𩾌[an1 kang1]",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
-  },
-  {
-    "char": "𪉈",
-    "pinyin": "cí",
-    "meaning": "(a kind of waterbird)",
-    "frequency_rank": null,
-    "han_viet": null,
-    "meaning_vi": null
+    "han_viet": "dụ",
+    "meaning_vi": "kêu, gọi, thỉnh cầu"
   }
 ]
