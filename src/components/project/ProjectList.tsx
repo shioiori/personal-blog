@@ -5,13 +5,13 @@ import {
   CardContent,
   CardHeader,
   CardTitle
-} from "@/src/components/ui/card";
-import { Badge } from "@/src/components/ui/badge";
+} from "@/src/components/ui/Card";
+import { Badge } from "@/src/components/ui/Badge";
 import { Button } from "@/src/components/ui/Button";
 import { useTranslations } from "next-intl";
 import { getProjectList } from "@/src/service/project";
 import moment from "moment";
-import { Project } from "../declaration/project";
+import { Project } from "@/src/declaration/project";
 export function ProjectList({ projects }: { projects: Project[] }) {
   const t = useTranslations("Project");
   const statusConfig = {

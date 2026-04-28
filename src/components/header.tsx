@@ -1,52 +1,55 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Search, Sun, Moon, Bird } from "lucide-react";
-import { useTheme } from "next-themes";
-import { Button } from "@/src/components/ui/Button";
-import { SearchDialog } from "@/src/components/SearchDialog";
-import { useContext, useEffect, useState } from "react";
-import { Language, LanguagesLabel, Theme } from "./enums";
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { Search, Sun, Moon, Bird } from 'lucide-react'
+import { useTheme } from 'next-themes'
+import { Button } from '@/src/components/ui/Button'
+import { SearchDialog } from '@/src/components/SearchDialog'
+import { useContext, useEffect, useState } from 'react'
+import { Language, LanguagesLabel, Theme } from './enums'
 
-import { ChevronDown } from "lucide-react";
+import { ChevronDown } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem
-} from "@/src/components/ui/DropdownMenu";
-import { useTranslations } from "next-intl";
-import { LanguageContext } from "../context/language";
+} from '@/src/components/ui/DropdownMenu'
+import { useTranslations } from 'next-intl'
+import { LanguageContext } from '../context/language'
 
 export function Header() {
-  const t = useTranslations("Header");
-  const pathname = usePathname();
-  const { theme, setTheme } = useTheme();
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [language, setLanguage] = useState<Language>();
-  const languageContext = useContext(LanguageContext);
+  const t = useTranslations('Header')
+  const pathname = usePathname()
+  const { theme, setTheme } = useTheme()
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [language, setLanguage] = useState<Language>()
+  const languageContext = useContext(LanguageContext)
 
   const handleLanguageChange = (lang: Language) => {
-    setLanguage(lang);
-    languageContext?.setLocale && languageContext.setLocale(lang);
-  };
+    setLanguage(lang)
+    languageContext?.setLocale && languageContext.setLocale(lang)
+  }
 
   const toggleTheme = () => {
-    setTheme(theme == Theme.Light ? Theme.Dark : Theme.Light);
-  };
+    setTheme(theme == Theme.Light ? Theme.Dark : Theme.Light)
+  }
 
   const navigation = [
-    { name: t("home"), href: "/" },
-    { name: t("blog"), href: "/blog" },
-    { name: t("project"), href: "/projects" },
-    { name: t("aboutme"), href: "/about" },
-    { name: t("music"), href: "/music" }
-  ];
+    { name: t('home'), href: '/' },
+    { name: t('guide'), href: '/guide' },
+    // { name: t('aboutme'), href: '/about' },
+    // { name: t('blog'), href: '/blog' },
+    { name: t('project'), href: '/projects' },
+    { name: t('music'), href: '/music' },
+    { name: t('discipline'), href: '/discipline' },
+    { name: t('hantu'), href: '/chinese' }
+  ]
 
   useEffect(() => {
-    setLanguage(languageContext?.locale);
-  }, []);
+    setLanguage(languageContext?.locale)
+  }, [])
 
   return (
     <>
@@ -64,8 +67,8 @@ export function Header() {
                 href={item.href}
                 className={`text-sm font-medium transition-colors hover:text-primary ${
                   pathname === item.href
-                    ? "text-primary"
-                    : "text-muted-foreground"
+                    ? 'text-primary'
+                    : 'text-muted-foreground'
                 }`}
               >
                 {item.name}
@@ -102,7 +105,7 @@ export function Header() {
               className="h-9 w-9"
             >
               <Search className="h-4 w-4" />
-              <span className="sr-only">{t("search")}</span>
+              <span className="sr-only">{t('search')}</span>
             </Button>
 
             <Button
@@ -118,7 +121,7 @@ export function Header() {
                   <Moon className="h-4 w-4 transition-all duration-300 rotate-0 scale-100" />
                 )}
               </div>
-              <span className="sr-only">{t("toggleTheme")}</span>
+              <span className="sr-only">{t('toggleTheme')}</span>
             </Button>
           </div>
         </div>
@@ -126,5 +129,5 @@ export function Header() {
         <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
       </header>
     </>
-  );
+  )
 }

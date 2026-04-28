@@ -7,10 +7,10 @@ import {
   CardContent,
   CardHeader,
   CardTitle
-} from "@/src/components/ui/card";
-import { Badge } from "@/src/components/ui/badge";
+} from "@/src/components/ui/Card";
+import { Badge } from "@/src/components/ui/Badge";
 import { Button } from "@/src/components/ui/Button";
-import { Post } from "../declaration/blog";
+import { Post } from "@/src/declaration/blog";
 import { useState, useMemo } from "react";
 import {
   DropdownMenu,

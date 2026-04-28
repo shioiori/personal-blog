@@ -9,13 +9,13 @@ import {
   Users
 } from "lucide-react";
 import { Button } from "@/src/components/ui/Button";
-import { Badge } from "@/src/components/ui/badge";
-import { Card, CardContent } from "@/src/components/ui/card";
+import { Badge } from "@/src/components/ui/Badge";
+import { Card, CardContent } from "@/src/components/ui/Card";
 import Link from "next/link";
 import { getProject } from "@/src/service/project";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
-import { Project } from "../declaration/project";
+import { Project } from "@/src/declaration/project";
 import { notFound } from "next/navigation";
 import moment from "moment";
 

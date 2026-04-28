@@ -1,0 +1,3786 @@
+[
+  {
+    "char": "镟",
+    "pinyin": "xuàn",
+    "meaning": "to shape on a lathe; to peel with a knife",
+    "frequency_rank": 6729,
+    "han_viet": "tuyền",
+    "meaning_vi": "gia công trên máy tiện; gọt bằng dao; vặn (đinh ốc)"
+  },
+  {
+    "char": "癍",
+    "pinyin": "bān",
+    "meaning": "abnormal pigment deposit on the skin",
+    "frequency_rank": 6730,
+    "han_viet": "ban",
+    "meaning_vi": "lắng đọng sắc tố bất thường trên da"
+  },
+  {
+    "char": "霪",
+    "pinyin": "yín",
+    "meaning": "heavy rain",
+    "frequency_rank": 6731,
+    "han_viet": "dâm",
+    "meaning_vi": "mưa dầm"
+  },
+  {
+    "char": "袪",
+    "pinyin": "qū",
+    "meaning": "sleeve opening",
+    "frequency_rank": 6732,
+    "han_viet": "khư",
+    "meaning_vi": "tay áo"
+  },
+  {
+    "char": "劓",
+    "pinyin": "yì",
+    "meaning": "cut off the nose",
+    "frequency_rank": 6733,
+    "han_viet": "['nhị",
+    "meaning_vi": "hình phạt cắt mũi; hình phạt cắt mũi"
+  },
+  {
+    "char": "殂",
+    "pinyin": "cú",
+    "meaning": "to die",
+    "frequency_rank": 6734,
+    "han_viet": "tồ",
+    "meaning_vi": "phách, vía"
+  },
+  {
+    "char": "脞",
+    "pinyin": "cuǒ",
+    "meaning": "chopped meat; trifles",
+    "frequency_rank": 6735,
+    "han_viet": "toả",
+    "meaning_vi": "nhỏ nhặn, tủn mủn; nhỏ nhặn, tủn mủn"
+  },
+  {
+    "char": "霨",
+    "pinyin": "wèi",
+    "meaning": "rising of clouds",
+    "frequency_rank": 6736,
+    "han_viet": "uý",
+    "meaning_vi": "mây hiện lên"
+  },
+  {
+    "char": "饾",
+    "pinyin": "dòu",
+    "meaning": "to set out food",
+    "frequency_rank": 6737,
+    "han_viet": "đậu",
+    "meaning_vi": "bày biện thức ăn"
+  },
+  {
+    "char": "耵",
+    "pinyin": "dīng",
+    "meaning": "used in 耵聹|耵聍[dīng níng]; Taiwan pr. [dǐng]",
+    "frequency_rank": 6738,
+    "han_viet": "đinh",
+    "meaning_vi": "dùng trong 耵聹|耵聍[dīngníng]; Phiên âm Đài Loan: [dǐng]"
+  },
+  {
+    "char": "泺",
+    "pinyin": "luò",
+    "meaning": "name of a river",
+    "frequency_rank": 6739,
+    "han_viet": "lạc",
+    "meaning_vi": "tên một con sông"
+  },
+  {
+    "char": "埤",
+    "pinyin": "pí",
+    "meaning": "low wall",
+    "frequency_rank": 6740,
+    "han_viet": "bì",
+    "meaning_vi": "phụ thêm, tăng thêm"
+  },
+  {
+    "char": "鲐",
+    "pinyin": "tái",
+    "meaning": "mackerel; Pacific mackerel (Pneumatophorus japonicus)",
+    "frequency_rank": 6742,
+    "han_viet": "thai",
+    "meaning_vi": "cá thu; cá thu Nhật (Pneumatophorus japonicus)"
+  },
+  {
+    "char": "膬",
+    "pinyin": "cuì",
+    "meaning": "old variant of 脆[cuì]",
+    "frequency_rank": 6744,
+    "han_viet": "sế",
+    "meaning_vi": "biến thể cũ của 脆[cuì]"
+  },
+  {
+    "char": "茲",
+    "pinyin": "zī",
+    "meaning": "now, here; this; time, year",
+    "frequency_rank": 6745,
+    "han_viet": "tư",
+    "meaning_vi": "ích, thêm; ấy, đó, này, đây, nay, như thế; chiếu"
+  },
+  {
+    "char": "糞",
+    "pinyin": "fèn",
+    "meaning": "manure, dung; shit, excrement",
+    "frequency_rank": 6747,
+    "han_viet": "phân",
+    "meaning_vi": "phân, cứt; bón phân; phân, cứt"
+  },
+  {
+    "char": "聲",
+    "pinyin": "shēng",
+    "meaning": "sound, noise; voice, tone, music",
+    "frequency_rank": 6748,
+    "han_viet": "thanh",
+    "meaning_vi": "tiếng, âm thanh"
+  },
+  {
+    "char": "貼",
+    "pinyin": "tiē",
+    "meaning": "to stick, to paste; attached; allowance, subsidy",
+    "frequency_rank": 6749,
+    "han_viet": "thiếp",
+    "meaning_vi": "dán; áp sát, men theo; cho thêm, trợ cấp, bù thêm"
+  },
+  {
+    "char": "陴",
+    "pinyin": "pí",
+    "meaning": "parapet",
+    "frequency_rank": 6750,
+    "han_viet": "bì",
+    "meaning_vi": "bức tường thấp trên mặt thành; bức tường thấp trên mặt thành"
+  },
+  {
+    "char": "橼",
+    "pinyin": "yuán",
+    "meaning": "used in 枸櫞|枸橼[jǔ yuán] and 香櫞|香橼[xiāng yuán]",
+    "frequency_rank": 6751,
+    "han_viet": "duyên",
+    "meaning_vi": "Citrus medica"
+  },
+  {
+    "char": "唣",
+    "pinyin": "zào",
+    "meaning": "variant of 唣[zào]",
+    "frequency_rank": 6753,
+    "han_viet": "tạo",
+    "meaning_vi": "biến thể của 唣[zào]"
+  },
+  {
+    "char": "蜩",
+    "pinyin": "tiáo",
+    "meaning": "cicada",
+    "frequency_rank": 6754,
+    "han_viet": "điêu",
+    "meaning_vi": "con ve sầu"
+  },
+  {
+    "char": "埯",
+    "pinyin": "ǎn",
+    "meaning": "hole in the ground to plant seeds in; to make a hole for seeds",
+    "frequency_rank": 6755,
+    "han_viet": "am",
+    "meaning_vi": "lỗ trên mặt đất để gieo hạt; tạo lỗ để gieo hạt; dùng cây tạo lỗ"
+  },
+  {
+    "char": "蓥",
+    "pinyin": "yíng",
+    "meaning": "polish",
+    "frequency_rank": 6756,
+    "han_viet": "oánh",
+    "meaning_vi": "đánh bóng"
+  },
+  {
+    "char": "谞",
+    "pinyin": "xū",
+    "meaning": "(literary) ability and wisdom; scheme",
+    "frequency_rank": 6758,
+    "han_viet": "tư",
+    "meaning_vi": "(văn học) tài năng và trí tuệ; mưu kế; sách lược"
+  },
+  {
+    "char": "馘",
+    "pinyin": "guó",
+    "meaning": "(literary) to cut off the left ear of a slain enemy; the severed ear of a slain enemy",
+    "frequency_rank": 6759,
+    "han_viet": "quắc",
+    "meaning_vi": "tai đã cắt ra"
+  },
+  {
+    "char": "谫",
+    "pinyin": "jiǎn",
+    "meaning": "shallow; superficial",
+    "frequency_rank": 6760,
+    "han_viet": "tiễn",
+    "meaning_vi": "nông cạn; hời hợt"
+  },
+  {
+    "char": "廑",
+    "pinyin": "jǐn",
+    "meaning": "careful; hut",
+    "frequency_rank": 6762,
+    "han_viet": "cận",
+    "meaning_vi": "cái nhà nhỏ; chỉ có"
+  },
+  {
+    "char": "瘐",
+    "pinyin": "yǔ",
+    "meaning": "to maltreat (as prisoners)",
+    "frequency_rank": 6763,
+    "han_viet": "dũ",
+    "meaning_vi": "ngược đãi (như tù nhân)"
+  },
+  {
+    "char": "躐",
+    "pinyin": "liè",
+    "meaning": "step across",
+    "frequency_rank": 6764,
+    "han_viet": "liệp",
+    "meaning_vi": "xéo, giẫm lên; vượt qua; cầm, giữ"
+  },
+  {
+    "char": "黟",
+    "pinyin": "yī",
+    "meaning": "black and shining ebony",
+    "frequency_rank": 6765,
+    "han_viet": "y",
+    "meaning_vi": "gỗ đen"
+  },
+  {
+    "char": "纔",
+    "pinyin": "cái",
+    "meaning": "talent, ability; only, just",
+    "frequency_rank": 6766,
+    "han_viet": "tài",
+    "meaning_vi": "mới, vừa mới"
+  },
+  {
+    "char": "礙",
+    "pinyin": "ài",
+    "meaning": "to block, to deter, to hinder, to obstruct",
+    "frequency_rank": 6767,
+    "han_viet": "ngại",
+    "meaning_vi": "trở ngại"
+  },
+  {
+    "char": "華",
+    "pinyin": "huá",
+    "meaning": "flowery; illustrious; Chinese",
+    "frequency_rank": 6769,
+    "han_viet": "hoa",
+    "meaning_vi": "đẹp; quầng trăng, quầng mặt trời; người Trung Quốc"
+  },
+  {
+    "char": "藭",
+    "pinyin": "qióng",
+    "meaning": "Sichuan lovage rhizome",
+    "frequency_rank": 6770,
+    "han_viet": "cùng",
+    "meaning_vi": "xem 芎藭|芎䓖[xiōng qióng]"
+  },
+  {
+    "char": "號",
+    "pinyin": "hào",
+    "meaning": "mark, sign; symbol; number; to call, to cry, to roar",
+    "frequency_rank": 6772,
+    "han_viet": "['gào",
+    "meaning_vi": "hiệu (phù hiệu, biển hiệu, ...); làm hiệu, dấu hiệu; gào khóc, kêu gào"
+  },
+  {
+    "char": "談",
+    "pinyin": "tán",
+    "meaning": "to talk, to chat; conversation; surname",
+    "frequency_rank": 6773,
+    "han_viet": "đàm",
+    "meaning_vi": "bàn bạc"
+  },
+  {
+    "char": "費",
+    "pinyin": "fèi",
+    "meaning": "expenses, fees; to cost, to spend; wasteful",
+    "frequency_rank": 6774,
+    "han_viet": "phí",
+    "meaning_vi": "chi phí, lệ phí, tiêu phí; phí phạm"
+  },
+  {
+    "char": "顏",
+    "pinyin": "yán",
+    "meaning": "face, facial appearance",
+    "frequency_rank": 6775,
+    "han_viet": "nhan",
+    "meaning_vi": "dáng mặt, vẻ mặt"
+  },
+  {
+    "char": "飯",
+    "pinyin": "fàn",
+    "meaning": "meal, food; cooked rice",
+    "frequency_rank": 6776,
+    "han_viet": "phạn",
+    "meaning_vi": "cơm; ăn cơm; cơm"
+  },
+  {
+    "char": "縠",
+    "pinyin": "hú",
+    "meaning": "fine silk gauze",
+    "frequency_rank": 6778,
+    "han_viet": "hộc",
+    "meaning_vi": "vải sa trun"
+  },
+  {
+    "char": "揠",
+    "pinyin": "yà",
+    "meaning": "to eradicate; to pull up",
+    "frequency_rank": 6779,
+    "han_viet": "yển",
+    "meaning_vi": "nhổ lên"
+  },
+  {
+    "char": "绐",
+    "pinyin": "dài",
+    "meaning": "to cheat; to pretend",
+    "frequency_rank": 6780,
+    "han_viet": "đãi",
+    "meaning_vi": "lừa gạt; giả vờ; lừa dối"
+  },
+  {
+    "char": "鸰",
+    "pinyin": "líng",
+    "meaning": "used in 鶺鴒|鹡鸰[jí líng]",
+    "frequency_rank": 6781,
+    "han_viet": "linh",
+    "meaning_vi": "chim chìa vôi; chim sơn ca"
+  },
+  {
+    "char": "搛",
+    "pinyin": "jiān",
+    "meaning": "to pick up with chopsticks",
+    "frequency_rank": 6782,
+    "han_viet": "kiêm",
+    "meaning_vi": "gắp bằng đũa"
+  },
+  {
+    "char": "黹",
+    "pinyin": "zhǐ",
+    "meaning": "embroidery",
+    "frequency_rank": 6783,
+    "han_viet": "chỉ",
+    "meaning_vi": "may áo"
+  },
+  {
+    "char": "恧",
+    "pinyin": "nǜ",
+    "meaning": "ashamed",
+    "frequency_rank": 6784,
+    "han_viet": "nục",
+    "meaning_vi": "hổ thẹn"
+  },
+  {
+    "char": "柒",
+    "pinyin": "qī",
+    "meaning": "seven (banker's anti-fraud numeral)",
+    "frequency_rank": 6786,
+    "han_viet": "thất",
+    "meaning_vi": "7, bảy (như: 七, dùng viết trong văn tự)"
+  },
+  {
+    "char": "裒",
+    "pinyin": "póu",
+    "meaning": "collect",
+    "frequency_rank": 6787,
+    "han_viet": "bầu",
+    "meaning_vi": "tụ lại"
+  },
+  {
+    "char": "栳",
+    "pinyin": "lǎo",
+    "meaning": "basket",
+    "frequency_rank": 6788,
+    "han_viet": "lão",
+    "meaning_vi": "cái giỏ"
+  },
+  {
+    "char": "钸",
+    "pinyin": "bū",
+    "meaning": "metal plate",
+    "frequency_rank": 6789,
+    "han_viet": "bố",
+    "meaning_vi": "tấm kim loại"
+  },
+  {
+    "char": "饸",
+    "pinyin": "hé",
+    "meaning": "used in 餄餎|饸饹[hé le]",
+    "frequency_rank": 6790,
+    "han_viet": "hợp",
+    "meaning_vi": "xem 餄餎|饸饹[hé le]"
+  },
+  {
+    "char": "販",
+    "pinyin": "fàn",
+    "meaning": "merchant, peddler; to deal in, to trade",
+    "frequency_rank": 6792,
+    "han_viet": "phiến",
+    "meaning_vi": "mua rẻ bán đắt; buôn bán; mua rẻ bán đắt"
+  },
+  {
+    "char": "铕",
+    "pinyin": "yǒu",
+    "meaning": "europium (chemistry)",
+    "frequency_rank": 6793,
+    "han_viet": "hữu",
+    "meaning_vi": "europi (hóa học)"
+  },
+  {
+    "char": "絷",
+    "pinyin": "zhí",
+    "meaning": "to connect; to tie up",
+    "frequency_rank": 6794,
+    "han_viet": "trập",
+    "meaning_vi": "kết nối; trói buộc"
+  },
+  {
+    "char": "蒨",
+    "pinyin": "qiàn",
+    "meaning": "luxuriant growth",
+    "frequency_rank": 6795,
+    "han_viet": "thiến",
+    "meaning_vi": "tươi tốt; màu đỏ"
+  },
+  {
+    "char": "蓣",
+    "pinyin": "yù",
+    "meaning": "see 薯蕷|薯蓣[shǔ yù]",
+    "frequency_rank": 6796,
+    "han_viet": "dự",
+    "meaning_vi": "xem 薯蕷|薯蓣[shǔ yù]"
+  },
+  {
+    "char": "迻",
+    "pinyin": "yí",
+    "meaning": "to shift; to transfer",
+    "frequency_rank": 6797,
+    "han_viet": "di",
+    "meaning_vi": "di chuyển"
+  },
+  {
+    "char": "釆",
+    "pinyin": "biàn",
+    "meaning": "old variant of 辨[biàn]",
+    "frequency_rank": 6798,
+    "han_viet": "biện",
+    "meaning_vi": "phân biệt"
+  },
+  {
+    "char": "鲕",
+    "pinyin": "ér",
+    "meaning": "caviar; fish roe",
+    "frequency_rank": 6799,
+    "han_viet": "nhi",
+    "meaning_vi": "trứng cá; roe cá"
+  },
+  {
+    "char": "頗",
+    "pinyin": "pō",
+    "meaning": "rather, quite; partial, biased",
+    "frequency_rank": 6800,
+    "han_viet": "pha",
+    "meaning_vi": "nghiêng, lệch; hơi hơi; nghiêng, lệch"
+  },
+  {
+    "char": "鷉",
+    "pinyin": "tī",
+    "meaning": "grebe, duck",
+    "frequency_rank": 6802,
+    "han_viet": "đề",
+    "meaning_vi": "biến thể của 鷈|䴘[tī]"
+  },
+  {
+    "char": "郄",
+    "pinyin": "qiè",
+    "meaning": "surname Qie",
+    "frequency_rank": 6803,
+    "han_viet": "khích",
+    "meaning_vi": "(tên đất); chỗ xương thịt giáp nhau"
+  },
+  {
+    "char": "埘",
+    "pinyin": "shí",
+    "meaning": "hen roost",
+    "frequency_rank": 6804,
+    "han_viet": "thì",
+    "meaning_vi": "chuồng gà"
+  },
+  {
+    "char": "薤",
+    "pinyin": "xiè",
+    "meaning": "Allium bakeri; shallot",
+    "frequency_rank": 6805,
+    "han_viet": "giới",
+    "meaning_vi": "củ kiệu"
+  },
+  {
+    "char": "鲞",
+    "pinyin": "xiǎng",
+    "meaning": "dried fish",
+    "frequency_rank": 6806,
+    "han_viet": "tưởng",
+    "meaning_vi": "cá khô"
+  },
+  {
+    "char": "鼯",
+    "pinyin": "wú",
+    "meaning": "flying squirrel",
+    "frequency_rank": 6807,
+    "han_viet": "ngô",
+    "meaning_vi": "con sóc bay"
+  },
+  {
+    "char": "坭",
+    "pinyin": "ní",
+    "meaning": "variant of 泥[ní]",
+    "frequency_rank": 6808,
+    "han_viet": "nê",
+    "meaning_vi": "bùn đất"
+  },
+  {
+    "char": "蔌",
+    "pinyin": "sù",
+    "meaning": "surname Su",
+    "frequency_rank": 6809,
+    "han_viet": "tốc",
+    "meaning_vi": "rau cỏ; thô sơ; rơi lả tả"
+  },
+  {
+    "char": "缳",
+    "pinyin": "huán",
+    "meaning": "to bind; to tie",
+    "frequency_rank": 6810,
+    "han_viet": "hoán",
+    "meaning_vi": "trói; buộc; dây buộc"
+  },
+  {
+    "char": "靦",
+    "pinyin": "miǎn",
+    "meaning": "modest, bashful",
+    "frequency_rank": 6811,
+    "han_viet": "điển",
+    "meaning_vi": "bẽn lẽn, thẹn thùng, e thẹn; bẽn lẽn, thẹn thùng, e thẹn"
+  },
+  {
+    "char": "筸",
+    "pinyin": "gān",
+    "meaning": "used in 鎮筸|镇筸[Zhèn gān]",
+    "frequency_rank": 6812,
+    "han_viet": "can",
+    "meaning_vi": "tên một địa danh ở Hà Nam"
+  },
+  {
+    "char": "蘋",
+    "pinyin": "píng",
+    "meaning": "apple; duckweed, Artemisia",
+    "frequency_rank": 6813,
+    "han_viet": "bình",
+    "meaning_vi": "cây rau tần; bèo tấm; cây rau tần"
+  },
+  {
+    "char": "椐",
+    "pinyin": "jū",
+    "meaning": "Zelkowa acuminata",
+    "frequency_rank": 6815,
+    "han_viet": "cư",
+    "meaning_vi": "Zelkova acuminata"
+  },
+  {
+    "char": "轹",
+    "pinyin": "lì",
+    "meaning": "to bully; wheel-rut",
+    "frequency_rank": 6816,
+    "han_viet": "lịch",
+    "meaning_vi": "bắt nạt; vết bánh xe"
+  },
+  {
+    "char": "脬",
+    "pinyin": "pāo",
+    "meaning": "bladder",
+    "frequency_rank": 6817,
+    "han_viet": "phao",
+    "meaning_vi": "bong bóng; bóng đái"
+  },
+  {
+    "char": "眍",
+    "pinyin": "kōu",
+    "meaning": "to sink in (of eyes)",
+    "frequency_rank": 6818,
+    "han_viet": "khu",
+    "meaning_vi": "bị lõm vào (mắt)"
+  },
+  {
+    "char": "饹",
+    "pinyin": "gē",
+    "meaning": "used in 餎餷|饹馇[gē zha]",
+    "frequency_rank": 6819,
+    "han_viet": "lạc",
+    "meaning_vi": "dùng trong 餎餷|饹馇[gē zha]"
+  },
+  {
+    "char": "瘥",
+    "pinyin": "chài",
+    "meaning": "to recover from disease",
+    "frequency_rank": 6820,
+    "han_viet": "sái",
+    "meaning_vi": "bị ốm"
+  },
+  {
+    "char": "瘵",
+    "pinyin": "zhài",
+    "meaning": "(literary) disease (esp. tuberculosis)",
+    "frequency_rank": 6821,
+    "han_viet": "sái",
+    "meaning_vi": "bệnh tật"
+  },
+  {
+    "char": "蝦",
+    "pinyin": "xiā",
+    "meaning": "shrimp, prawn",
+    "frequency_rank": 6822,
+    "han_viet": "hà",
+    "meaning_vi": "con tôm"
+  },
+  {
+    "char": "誌",
+    "pinyin": "zhì",
+    "meaning": "determination, will; mark, sign; to record, to write",
+    "frequency_rank": 6823,
+    "han_viet": "chí",
+    "meaning_vi": "ghi chép; văn ký sự"
+  },
+  {
+    "char": "邴",
+    "pinyin": "bǐng",
+    "meaning": "surname Bing",
+    "frequency_rank": 6824,
+    "han_viet": "bỉnh",
+    "meaning_vi": "vui mừng; huyện Bỉnh (nay thuộc tỉnh Sơn Đông của Trung Quốc)"
+  },
+  {
+    "char": "鞮",
+    "pinyin": "dī",
+    "meaning": "surname Di",
+    "frequency_rank": 6826,
+    "han_viet": "đê",
+    "meaning_vi": "giày da; giày đơn; thông dịch, phiên dịch"
+  },
+  {
+    "char": "舄",
+    "pinyin": "xì",
+    "meaning": "shoe; slipper",
+    "frequency_rank": 6827,
+    "han_viet": "tích",
+    "meaning_vi": "giày 2 lần đế"
+  },
+  {
+    "char": "麄",
+    "pinyin": "cū",
+    "meaning": "variant of 粗[cū]",
+    "frequency_rank": 6828,
+    "han_viet": "thô",
+    "meaning_vi": "to lớn; sơ lược; gạo giã chưa kỹ"
+  },
+  {
+    "char": "翛",
+    "pinyin": "shù",
+    "meaning": "hastiness",
+    "frequency_rank": 6829,
+    "han_viet": "dựu",
+    "meaning_vi": "vội vàng, gấp; (xem: tiêu tiêu 翛翛); vội vàng, gấp"
+  },
+  {
+    "char": "纩",
+    "pinyin": "kuàng",
+    "meaning": "fine floss-silk or cotton",
+    "frequency_rank": 6831,
+    "han_viet": "khoáng",
+    "meaning_vi": "tơ hoặc bông mịn"
+  },
+  {
+    "char": "蓮",
+    "pinyin": "lián",
+    "meaning": "lotus, water lily; paradise",
+    "frequency_rank": 6832,
+    "han_viet": "liên",
+    "meaning_vi": "hoa sen"
+  },
+  {
+    "char": "唛",
+    "pinyin": "mài",
+    "meaning": "mark (loanword); also pr. [mà]",
+    "frequency_rank": 6833,
+    "han_viet": "mác",
+    "meaning_vi": "dấu (từ mượn); cũng đọc là [mà]"
+  },
+  {
+    "char": "祂",
+    "pinyin": "tā",
+    "meaning": "(third-person pronoun for God in the Christian Bible); (third-person pronoun for divine beings in fiction)",
+    "frequency_rank": 6835,
+    "han_viet": "tha",
+    "meaning_vi": "(đại từ ngôi thứ ba cho một đấng thiêng liêng)"
+  },
+  {
+    "char": "轎",
+    "pinyin": "jiào",
+    "meaning": "sedan-chair, palanquin, litter",
+    "frequency_rank": 6836,
+    "han_viet": "kiệu",
+    "meaning_vi": "cái kiệu"
+  },
+  {
+    "char": "紀",
+    "pinyin": "jì",
+    "meaning": "discipline, age; period, era; record, annal",
+    "frequency_rank": 6837,
+    "han_viet": "kỷ",
+    "meaning_vi": "gỡ mối rối; 12 năm; kỷ cương, kỷ luật"
+  },
+  {
+    "char": "纖",
+    "pinyin": "xiān",
+    "meaning": "fine, delicate; tiny, minute",
+    "frequency_rank": 6838,
+    "han_viet": "tiêm",
+    "meaning_vi": "nhỏ nhặt"
+  },
+  {
+    "char": "輔",
+    "pinyin": "fǔ",
+    "meaning": "side road; to assist, to coach, to tutor",
+    "frequency_rank": 6839,
+    "han_viet": "phụ",
+    "meaning_vi": "xương má; giúp đỡ; giáp, gần kề"
+  },
+  {
+    "char": "鉀",
+    "pinyin": "jiǎ",
+    "meaning": "potassium",
+    "frequency_rank": 6840,
+    "han_viet": "giáp",
+    "meaning_vi": "nguyên tố kali, K"
+  },
+  {
+    "char": "領",
+    "pinyin": "lǐng",
+    "meaning": "neck, collar; lead, guide",
+    "frequency_rank": 6841,
+    "han_viet": "lãnh",
+    "meaning_vi": "cổ áo; lĩnh, nhận; cổ áo"
+  },
+  {
+    "char": "螵",
+    "pinyin": "piāo",
+    "meaning": "used in 螵蛸[piāo xiāo]",
+    "frequency_rank": 6842,
+    "han_viet": "phiêu",
+    "meaning_vi": "(xem: phiêu sao 螵蛸)"
+  },
+  {
+    "char": "鸊",
+    "pinyin": "pì",
+    "meaning": "a kind of duck; Podiceps ruficolus",
+    "frequency_rank": 6843,
+    "han_viet": "tịch",
+    "meaning_vi": "biến thể của 鷿|䴙[pì]"
+  },
+  {
+    "char": "禛",
+    "pinyin": "zhēn",
+    "meaning": "to receive blessings in a sincere spirit",
+    "frequency_rank": 6845,
+    "han_viet": "chân",
+    "meaning_vi": "nhận được phúc lành với tinh thần chân thành"
+  },
+  {
+    "char": "袆",
+    "pinyin": "huī",
+    "meaning": "a queen's ceremonial gowns",
+    "frequency_rank": 6846,
+    "han_viet": "huy",
+    "meaning_vi": "lễ phục của hoàng hậu"
+  },
+  {
+    "char": "邾",
+    "pinyin": "zhū",
+    "meaning": "surname Zhu",
+    "frequency_rank": 6848,
+    "han_viet": "chu",
+    "meaning_vi": "nước Chu (tên cũ của nước Trâu 鄒,邹)"
+  },
+  {
+    "char": "酲",
+    "pinyin": "chéng",
+    "meaning": "(literary) inebriated; hungover",
+    "frequency_rank": 6850,
+    "han_viet": "trình",
+    "meaning_vi": "nghiện rượu, cơn say"
+  },
+  {
+    "char": "龁",
+    "pinyin": "hé",
+    "meaning": "(literary) to gnaw; to bite",
+    "frequency_rank": 6851,
+    "han_viet": "hột",
+    "meaning_vi": "(văn học) gặm; cắn"
+  },
+  {
+    "char": "汔",
+    "pinyin": "qì",
+    "meaning": "near",
+    "frequency_rank": 6852,
+    "han_viet": "khất",
+    "meaning_vi": "gần"
+  },
+  {
+    "char": "眄",
+    "pinyin": "miǎn",
+    "meaning": "to ogle at; to squint at",
+    "frequency_rank": 6853,
+    "han_viet": "miện",
+    "meaning_vi": "trông, liếc"
+  },
+  {
+    "char": "眊",
+    "pinyin": "mào",
+    "meaning": "having poor eyesight",
+    "frequency_rank": 6854,
+    "han_viet": "mạo",
+    "meaning_vi": "mờ, nhập nhèm"
+  },
+  {
+    "char": "鬲",
+    "pinyin": "gé",
+    "meaning": "surname Ge",
+    "frequency_rank": 6855,
+    "han_viet": "cách",
+    "meaning_vi": "nước Cách; một đồ để đựng giống cái đỉnh"
+  },
+  {
+    "char": "阨",
+    "pinyin": "è",
+    "meaning": "defile; pass",
+    "frequency_rank": 6856,
+    "han_viet": "ách",
+    "meaning_vi": "khốn ách; hẹp"
+  },
+  {
+    "char": "靸",
+    "pinyin": "sǎ",
+    "meaning": "children's shoe (old); to wear one's shoes babouche style",
+    "frequency_rank": 6857,
+    "han_viet": "táp",
+    "meaning_vi": "lê, kéo lê; giày, dép"
+  },
+  {
+    "char": "臉",
+    "pinyin": "liǎn",
+    "meaning": "face, cheek; reputation",
+    "frequency_rank": 6858,
+    "han_viet": "kiểm",
+    "meaning_vi": "mặt, má"
+  },
+  {
+    "char": "酺",
+    "pinyin": "pú",
+    "meaning": "drink heavily; drink in company",
+    "frequency_rank": 6860,
+    "han_viet": "bô",
+    "meaning_vi": "hội họp uống rượu"
+  },
+  {
+    "char": "狃",
+    "pinyin": "niǔ",
+    "meaning": "accustomed to",
+    "frequency_rank": 6861,
+    "han_viet": "nữu",
+    "meaning_vi": "nhờn, quen; nhờn, quen"
+  },
+  {
+    "char": "轺",
+    "pinyin": "yáo",
+    "meaning": "light carriage",
+    "frequency_rank": 6862,
+    "han_viet": "diêu",
+    "meaning_vi": "xe nhẹ"
+  },
+  {
+    "char": "霅",
+    "pinyin": "zhá",
+    "meaning": "surname Zha",
+    "frequency_rank": 6863,
+    "han_viet": "tráp",
+    "meaning_vi": "bỗng, chợt, thình lình; nhanh chóng"
+  },
+  {
+    "char": "鼷",
+    "pinyin": "xī",
+    "meaning": "used in 鼷鼠[xī shǔ]",
+    "frequency_rank": 6865,
+    "han_viet": "hề",
+    "meaning_vi": "chuột nhắt"
+  },
+  {
+    "char": "蠃",
+    "pinyin": "luǒ",
+    "meaning": "used in 蜾蠃[guǒ luǒ]",
+    "frequency_rank": 6866,
+    "han_viet": "loả",
+    "meaning_vi": "(xem: quả loả 蜾蠃)"
+  },
+  {
+    "char": "埴",
+    "pinyin": "zhí",
+    "meaning": "soil with large clay content",
+    "frequency_rank": 6867,
+    "han_viet": "thực",
+    "meaning_vi": "đất thó, đất sét"
+  },
+  {
+    "char": "鴥",
+    "pinyin": "yù",
+    "meaning": "(of a bird) to fly swiftly; to swoop",
+    "frequency_rank": 6868,
+    "han_viet": "duật",
+    "meaning_vi": "(chim) bay nhanh; lao xuống"
+  },
+  {
+    "char": "隊",
+    "pinyin": "duì",
+    "meaning": "team, group, band, army unit; measure word for groups of people",
+    "frequency_rank": 6869,
+    "han_viet": "đội",
+    "meaning_vi": "đội quân; dàn thành hàng"
+  },
+  {
+    "char": "髆",
+    "pinyin": "bó",
+    "meaning": "shoulder blade",
+    "frequency_rank": 6870,
+    "han_viet": "bác",
+    "meaning_vi": "vai"
+  },
+  {
+    "char": "綱",
+    "pinyin": "gāng",
+    "meaning": "program, outline; principle, guiding thread",
+    "frequency_rank": 6871,
+    "han_viet": "cương",
+    "meaning_vi": "dây cáp"
+  },
+  {
+    "char": "謹",
+    "pinyin": "jǐn",
+    "meaning": "prudent, cautious, attentive",
+    "frequency_rank": 6873,
+    "han_viet": "cẩn",
+    "meaning_vi": "cẩn thận, không sơ suất"
+  },
+  {
+    "char": "铪",
+    "pinyin": "hā",
+    "meaning": "hafnium (chemistry)",
+    "frequency_rank": 6874,
+    "han_viet": "cáp",
+    "meaning_vi": "hafnium (hóa học)"
+  },
+  {
+    "char": "鹼",
+    "pinyin": "jiǎn",
+    "meaning": "alkaline, alkali, lye, salt",
+    "frequency_rank": 6875,
+    "han_viet": "kiềm",
+    "meaning_vi": "chất kiềm, chất dảm (trong đất, như xà phòng, dùng để giặt), bazơ; chất kiềm, chất dảm (trong đất, như xà phòng, dùng để giặt), bazơ; chất kiềm, chất dảm (trong đất, như xà phòng, dùng để giặt), bazơ"
+  },
+  {
+    "char": "終",
+    "pinyin": "zhōng",
+    "meaning": "end; finally, in the end",
+    "frequency_rank": 6877,
+    "han_viet": "chung",
+    "meaning_vi": "hết; cuối, kết thúc"
+  },
+  {
+    "char": "綜",
+    "pinyin": "zōng",
+    "meaning": "to sum up; to arrange threads for weaving",
+    "frequency_rank": 6878,
+    "han_viet": "tống",
+    "meaning_vi": "dệt lẫn lộn với nhau; hợp cả lại"
+  },
+  {
+    "char": "裝",
+    "pinyin": "zhuāng",
+    "meaning": "dress, clothes, attire; to wear, to install",
+    "frequency_rank": 6879,
+    "han_viet": "trang",
+    "meaning_vi": "quần áo, trang phục; giả làm, đóng giả, giả bộ; trang điểm, trang sức, hoá trang"
+  },
+  {
+    "char": "銀",
+    "pinyin": "yín",
+    "meaning": "silver; cash, money, wealth",
+    "frequency_rank": 6881,
+    "han_viet": "ngân",
+    "meaning_vi": "bạc, Ag"
+  },
+  {
+    "char": "汆",
+    "pinyin": "cuān",
+    "meaning": "quick-boil; to boil for a short time",
+    "frequency_rank": 6885,
+    "han_viet": "thoản",
+    "meaning_vi": "chần; chần trong thời gian ngắn"
+  },
+  {
+    "char": "硃",
+    "pinyin": "zhū",
+    "meaning": "cinnabar; a red mole",
+    "frequency_rank": 6886,
+    "han_viet": "chu",
+    "meaning_vi": "một thứ đá đỏ dùng làm thuốc chế từ thuỷ ngân"
+  },
+  {
+    "char": "仝",
+    "pinyin": "tóng",
+    "meaning": "variant of 同[tóng] (used as a surname and in given names)",
+    "frequency_rank": 6887,
+    "han_viet": "đồng",
+    "meaning_vi": "biến thể của 同[tóng] (dùng làm họ và trong tên)"
+  },
+  {
+    "char": "堍",
+    "pinyin": "tù",
+    "meaning": "side of bridge",
+    "frequency_rank": 6889,
+    "han_viet": "thố",
+    "meaning_vi": "bờ cầu"
+  },
+  {
+    "char": "揸",
+    "pinyin": "zhā",
+    "meaning": "to stretch fingers out",
+    "frequency_rank": 6890,
+    "han_viet": "tra",
+    "meaning_vi": "nặn, nhúm lấy"
+  },
+  {
+    "char": "忭",
+    "pinyin": "biàn",
+    "meaning": "(literary) happy; delighted",
+    "frequency_rank": 6891,
+    "han_viet": "biện",
+    "meaning_vi": "vui thích"
+  },
+  {
+    "char": "銧",
+    "pinyin": "guāng",
+    "meaning": "point of a sword",
+    "frequency_rank": 6892,
+    "han_viet": "quang",
+    "meaning_vi": "tên gọi cũ của nguyên tố rađi, Ra"
+  },
+  {
+    "char": "妤",
+    "pinyin": "yú",
+    "meaning": "used in 婕妤[jié yú]",
+    "frequency_rank": 6893,
+    "han_viet": "dư",
+    "meaning_vi": "(xem: tiệp dư 婕妤)"
+  },
+  {
+    "char": "龠",
+    "pinyin": "yuè",
+    "meaning": "ancient unit of volume (half a 合[gě], equivalent to 50ml); ancient flute",
+    "frequency_rank": 6897,
+    "han_viet": "dược",
+    "meaning_vi": "một thứ nhạc khí như sáo, có 3 lỗ"
+  },
+  {
+    "char": "垤",
+    "pinyin": "dié",
+    "meaning": "anthill; mound",
+    "frequency_rank": 6898,
+    "han_viet": "điệt",
+    "meaning_vi": "đống đất nhỏ; đống đất do kiến đùn"
+  },
+  {
+    "char": "擐",
+    "pinyin": "huàn",
+    "meaning": "pass through; to get into (armor)",
+    "frequency_rank": 6899,
+    "han_viet": "hoàn",
+    "meaning_vi": "mặc vào người, đeo vào người"
+  },
+  {
+    "char": "噍",
+    "pinyin": "jiào",
+    "meaning": "to chew",
+    "frequency_rank": 6900,
+    "han_viet": "tiếu",
+    "meaning_vi": "cắn, nhai, nhấm"
+  },
+  {
+    "char": "洫",
+    "pinyin": "xù",
+    "meaning": "to ditch; a moat",
+    "frequency_rank": 6901,
+    "han_viet": "hức",
+    "meaning_vi": "rãnh, hào, mương; kè, bờ ngăn nước; thành trì"
+  },
+  {
+    "char": "滏",
+    "pinyin": "fǔ",
+    "meaning": "name of a river in Hebei",
+    "frequency_rank": 6902,
+    "han_viet": "phủ",
+    "meaning_vi": "tên một con sông ở Hà Bắc"
+  },
+  {
+    "char": "璁",
+    "pinyin": "cōng",
+    "meaning": "stone similar to jade",
+    "frequency_rank": 6903,
+    "han_viet": "thông",
+    "meaning_vi": "đá giống ngọc"
+  },
+  {
+    "char": "癃",
+    "pinyin": "lóng",
+    "meaning": "infirmity; retention of urine",
+    "frequency_rank": 6904,
+    "han_viet": "lung",
+    "meaning_vi": "bị gù lưng"
+  },
+  {
+    "char": "邡",
+    "pinyin": "fāng",
+    "meaning": "used in 什邡[Shí fāng] (the name of a place in Sichuan)",
+    "frequency_rank": 6905,
+    "han_viet": "phương",
+    "meaning_vi": "tên của một huyện ở Tứ Xuyên"
+  },
+  {
+    "char": "絁",
+    "pinyin": "shī",
+    "meaning": "rough, indelicate silk",
+    "frequency_rank": 6906,
+    "han_viet": "thi",
+    "meaning_vi": "một loại vải tơ to sợi"
+  },
+  {
+    "char": "趨",
+    "pinyin": "qū",
+    "meaning": "to hurry, to hasten; to approach, to be attracted to",
+    "frequency_rank": 6908,
+    "han_viet": "xu",
+    "meaning_vi": "chạy mau, rảo bước, đi nhanh"
+  },
+  {
+    "char": "蒽",
+    "pinyin": "ēn",
+    "meaning": "anthracene",
+    "frequency_rank": 6909,
+    "han_viet": "ân",
+    "meaning_vi": "antraxen (hoá học)"
+  },
+  {
+    "char": "絲",
+    "pinyin": "sī",
+    "meaning": "silk, fine thread; wire; strings",
+    "frequency_rank": 6910,
+    "han_viet": "tơ",
+    "meaning_vi": "sợi tơ"
+  },
+  {
+    "char": "茖",
+    "pinyin": "gé",
+    "meaning": "allium victorialis",
+    "frequency_rank": 6913,
+    "han_viet": "lạc",
+    "meaning_vi": "cây tỏi rừng (allium victorialis)"
+  },
+  {
+    "char": "蘇",
+    "pinyin": "sū",
+    "meaning": "to awaken, to revive, to resurrect; used in transliterations",
+    "frequency_rank": 6914,
+    "han_viet": "tô",
+    "meaning_vi": "(xem: tử tô 紫蘇); sống lại, tái thế; kiếm cỏ"
+  },
+  {
+    "char": "詞",
+    "pinyin": "cí",
+    "meaning": "phrase, expression; words, speech",
+    "frequency_rank": 6915,
+    "han_viet": "từ",
+    "meaning_vi": "lời văn; từ khúc, bài từ"
+  },
+  {
+    "char": "農",
+    "pinyin": "nóng",
+    "meaning": "agriculture, farming; farmer",
+    "frequency_rank": 6919,
+    "han_viet": "nông",
+    "meaning_vi": "người làm ruộng"
+  },
+  {
+    "char": "錄",
+    "pinyin": "lù",
+    "meaning": "to copy, to record, to write down",
+    "frequency_rank": 6920,
+    "han_viet": "lục",
+    "meaning_vi": "ghi chép"
+  },
+  {
+    "char": "鐘",
+    "pinyin": "zhōng",
+    "meaning": "clock; bell",
+    "frequency_rank": 6921,
+    "han_viet": "chung",
+    "meaning_vi": "cái chuông; phút thời gian"
+  },
+  {
+    "char": "鹽",
+    "pinyin": "yán",
+    "meaning": "salt",
+    "frequency_rank": 6923,
+    "han_viet": "diêm",
+    "meaning_vi": "muối ăn"
+  },
+  {
+    "char": "赕",
+    "pinyin": "dǎn",
+    "meaning": "(old barbarian dialects) to pay a fine in atonement; river",
+    "frequency_rank": 6924,
+    "han_viet": "đàm",
+    "meaning_vi": "(tiếng man di cổ) nộp phạt để chuộc tội; sông; tiếng Đài Loan đọc là [tàn]"
+  },
+  {
+    "char": "鯔",
+    "pinyin": "zī",
+    "meaning": "mullet",
+    "frequency_rank": 6925,
+    "han_viet": "tri",
+    "meaning_vi": "cá đối"
+  },
+  {
+    "char": "蔯",
+    "pinyin": "chén",
+    "meaning": "a variety of artemisia",
+    "frequency_rank": 6927,
+    "han_viet": "trần",
+    "meaning_vi": "(xem: nhân trần 茵蔯)"
+  },
+  {
+    "char": "餬",
+    "pinyin": "hú",
+    "meaning": "porridge, gruel, congee; paste",
+    "frequency_rank": 6929,
+    "han_viet": "hồ",
+    "meaning_vi": "cháo nhừ"
+  },
+  {
+    "char": "躜",
+    "pinyin": "zuān",
+    "meaning": "to jump",
+    "frequency_rank": 6930,
+    "han_viet": "toàn",
+    "meaning_vi": "nhảy"
+  },
+  {
+    "char": "鳀",
+    "pinyin": "tí",
+    "meaning": "anchovy",
+    "frequency_rank": 6931,
+    "han_viet": "di",
+    "meaning_vi": "cá cơm"
+  },
+  {
+    "char": "鹡",
+    "pinyin": "jí",
+    "meaning": "used in 鶺鴒|鹡鸰[jí líng]",
+    "frequency_rank": 6932,
+    "han_viet": "tích",
+    "meaning_vi": "chim chìa vôi đuôi trắng"
+  },
+  {
+    "char": "䴘",
+    "pinyin": "tī",
+    "meaning": "used in 鷿鷈|䴙䴘[pì tī]",
+    "frequency_rank": 6933,
+    "han_viet": "đề",
+    "meaning_vi": "dùng trong 鷿鷈|䴙䴘[pì tī]"
+  },
+  {
+    "char": "蠋",
+    "pinyin": "zhú",
+    "meaning": "caterpillar",
+    "frequency_rank": 6934,
+    "han_viet": "trục",
+    "meaning_vi": "sâu róm ăn lá cây; sâu róm ăn lá cây"
+  },
+  {
+    "char": "钲",
+    "pinyin": "zhēng",
+    "meaning": "gong used to halt troops",
+    "frequency_rank": 6935,
+    "han_viet": "chinh",
+    "meaning_vi": "cồng dùng để dừng quân"
+  },
+  {
+    "char": "兕",
+    "pinyin": "sì",
+    "meaning": "animal cited in ancient texts, resembling a buffalo (some say rhinoceros or female rhinoceros)",
+    "frequency_rank": 6937,
+    "han_viet": "huỷ",
+    "meaning_vi": "con tê giác"
+  },
+  {
+    "char": "阽",
+    "pinyin": "diàn",
+    "meaning": "dangerous; also pr. [yán]",
+    "frequency_rank": 6938,
+    "han_viet": "điếm",
+    "meaning_vi": "nguy hiểm; cũng đọc là [yán]"
+  },
+  {
+    "char": "绋",
+    "pinyin": "fú",
+    "meaning": "heavy rope; rope of a bier",
+    "frequency_rank": 6940,
+    "han_viet": "phất",
+    "meaning_vi": "dây thừng nặng; dây của quan tài"
+  },
+  {
+    "char": "铓",
+    "pinyin": "máng",
+    "meaning": "sharp point; point of sword",
+    "frequency_rank": 6941,
+    "han_viet": "mang",
+    "meaning_vi": "điểm sắc; mũi kiếm"
+  },
+  {
+    "char": "爝",
+    "pinyin": "jué",
+    "meaning": "torch",
+    "frequency_rank": 6942,
+    "han_viet": "tước",
+    "meaning_vi": "ngọn đuốc"
+  },
+  {
+    "char": "葷",
+    "pinyin": "hūn",
+    "meaning": "non-vegetarian food; garlic; a foul smell",
+    "frequency_rank": 6944,
+    "han_viet": "huân",
+    "meaning_vi": "thức cay, rau hăng (như hành, hẹ, tỏi,...); đĩa thịt; ăn mặn"
+  },
+  {
+    "char": "螘",
+    "pinyin": "yǐ",
+    "meaning": "ant",
+    "frequency_rank": 6945,
+    "han_viet": "nghĩ",
+    "meaning_vi": "con kiến"
+  },
+  {
+    "char": "仂",
+    "pinyin": "lè",
+    "meaning": "surplus; tithe",
+    "frequency_rank": 6946,
+    "han_viet": "lặc",
+    "meaning_vi": "dư ra; một phần mười"
+  },
+  {
+    "char": "雲",
+    "pinyin": "yún",
+    "meaning": "cloud; to say, to speak",
+    "frequency_rank": 6947,
+    "han_viet": "vân",
+    "meaning_vi": "mây"
+  },
+  {
+    "char": "顗",
+    "pinyin": "yǐ",
+    "meaning": "quiet",
+    "frequency_rank": 6948,
+    "han_viet": "ỷ",
+    "meaning_vi": "yên tĩnh, yên vui; nghiêm cẩn"
+  },
+  {
+    "char": "蕺",
+    "pinyin": "jí",
+    "meaning": "Houttuynia cordata",
+    "frequency_rank": 6950,
+    "han_viet": "trấp",
+    "meaning_vi": "Houttuynia cordata"
+  },
+  {
+    "char": "骃",
+    "pinyin": "yīn",
+    "meaning": "iron-gray (horse)",
+    "frequency_rank": 6951,
+    "han_viet": "nhân",
+    "meaning_vi": "ngựa màu xám sắt"
+  },
+  {
+    "char": "蔀",
+    "pinyin": "bù",
+    "meaning": "(literary) to cover; to shelter; (literary) 76 years (unit of time in ancient calendars)",
+    "frequency_rank": 6952,
+    "han_viet": "bộ",
+    "meaning_vi": "che lấp"
+  },
+  {
+    "char": "诪",
+    "pinyin": "zhōu",
+    "meaning": "(literary) to curse; to deceive",
+    "frequency_rank": 6953,
+    "han_viet": "trù",
+    "meaning_vi": "(văn học) nguyền rủa; lừa dối; nói dối"
+  },
+  {
+    "char": "盤",
+    "pinyin": "pán",
+    "meaning": "tray, plate, dish; to examine",
+    "frequency_rank": 6956,
+    "han_viet": "bàn",
+    "meaning_vi": "cái mâm; cái chậu"
+  },
+  {
+    "char": "埕",
+    "pinyin": "chéng",
+    "meaning": "earthen jar",
+    "frequency_rank": 6958,
+    "han_viet": "trình",
+    "meaning_vi": "chai đất"
+  },
+  {
+    "char": "聞",
+    "pinyin": "wén",
+    "meaning": "news; to hear, to smell; to make known",
+    "frequency_rank": 6959,
+    "han_viet": "văn",
+    "meaning_vi": "nghe; tiếng động tới, tiếng truyền tới"
+  },
+  {
+    "char": "舉",
+    "pinyin": "jǔ",
+    "meaning": "to raise; to recommend; to praise",
+    "frequency_rank": 6960,
+    "han_viet": "cử",
+    "meaning_vi": "ngẩng (đầu), nâng lên, nhấc lên; cử động"
+  },
+  {
+    "char": "虡",
+    "pinyin": "jù",
+    "meaning": "bell pendant stand",
+    "frequency_rank": 6961,
+    "han_viet": "cự",
+    "meaning_vi": "cái giá (treo chuông, khánh); ghế cao"
+  },
+  {
+    "char": "評",
+    "pinyin": "píng",
+    "meaning": "to appraise, to criticize, to evaluate",
+    "frequency_rank": 6962,
+    "han_viet": "bình",
+    "meaning_vi": "phê bình, bình phẩm"
+  },
+  {
+    "char": "鍋",
+    "pinyin": "guō",
+    "meaning": "cooking-pot, saucepan",
+    "frequency_rank": 6963,
+    "han_viet": "oa",
+    "meaning_vi": "cái nồi"
+  },
+  {
+    "char": "陣",
+    "pinyin": "zhèn",
+    "meaning": "row, column; ranks, troop formation",
+    "frequency_rank": 6964,
+    "han_viet": "trận",
+    "meaning_vi": "trận đánh; trận, cơn"
+  },
+  {
+    "char": "訢",
+    "pinyin": "xīn",
+    "meaning": "delighted, pleased; happy",
+    "frequency_rank": 6966,
+    "han_viet": "hân",
+    "meaning_vi": "sung sướng, mừng, vui vẻ"
+  },
+  {
+    "char": "蔎",
+    "pinyin": "shè",
+    "meaning": "Thea sinensis",
+    "frequency_rank": 6967,
+    "han_viet": "thiết",
+    "meaning_vi": "Thea sinensis"
+  },
+  {
+    "char": "绖",
+    "pinyin": "dié",
+    "meaning": "hempen band worn on the head or waist by a mourner",
+    "frequency_rank": 6969,
+    "han_viet": "điệt",
+    "meaning_vi": "dải vải gai đeo trên đầu hoặc thắt lưng của người để tang"
+  },
+  {
+    "char": "埭",
+    "pinyin": "dài",
+    "meaning": "dam",
+    "frequency_rank": 6970,
+    "han_viet": "đại",
+    "meaning_vi": "đập ngăn nước"
+  },
+  {
+    "char": "駮",
+    "pinyin": "bó",
+    "meaning": "fierce animal; piebald horse; to argue; to join, to transfer",
+    "frequency_rank": 6971,
+    "han_viet": "bác",
+    "meaning_vi": "loang lổ; lẫn lộn; phản bác, chống lại"
+  },
+  {
+    "char": "柁",
+    "pinyin": "tuó",
+    "meaning": "main beam of roof",
+    "frequency_rank": 6974,
+    "han_viet": "đà",
+    "meaning_vi": "bánh lái thuyền"
+  },
+  {
+    "char": "珧",
+    "pinyin": "yáo",
+    "meaning": "mother-of-pearl",
+    "frequency_rank": 6976,
+    "han_viet": "diêu",
+    "meaning_vi": "con trai biển (làm ngọc trai); ngọc diêu; cung nạm ngọc trai"
+  },
+  {
+    "char": "贳",
+    "pinyin": "shì",
+    "meaning": "to borrow; to buy on credit",
+    "frequency_rank": 6977,
+    "han_viet": "thế",
+    "meaning_vi": "mượn; mua chịu; cho thuê"
+  },
+  {
+    "char": "贶",
+    "pinyin": "kuàng",
+    "meaning": "to bestow; to confer",
+    "frequency_rank": 6978,
+    "han_viet": "huống",
+    "meaning_vi": "ban tặng; phong tặng"
+  },
+  {
+    "char": "腩",
+    "pinyin": "nǎn",
+    "meaning": "brisket; belly beef",
+    "frequency_rank": 6979,
+    "han_viet": "nạm",
+    "meaning_vi": "thịt ức; bụng bò; thịt mềm từ dưới bụng bò và xương sườn lân cận"
+  },
+  {
+    "char": "臌",
+    "pinyin": "gǔ",
+    "meaning": "dropsical; swollen",
+    "frequency_rank": 6980,
+    "han_viet": "cổ",
+    "meaning_vi": "phù thủng; sưng"
+  },
+  {
+    "char": "礓",
+    "pinyin": "jiāng",
+    "meaning": "a small stone",
+    "frequency_rank": 6981,
+    "han_viet": "cương",
+    "meaning_vi": "một hòn đá nhỏ"
+  },
+  {
+    "char": "蹐",
+    "pinyin": "jí",
+    "meaning": "walk with short steps",
+    "frequency_rank": 6984,
+    "han_viet": "tích",
+    "meaning_vi": "bước ngắn; lê chân đi"
+  },
+  {
+    "char": "圬",
+    "pinyin": "wū",
+    "meaning": "to plaster; whitewash",
+    "frequency_rank": 6985,
+    "han_viet": "ô",
+    "meaning_vi": "thợ nề, thợ xây"
+  },
+  {
+    "char": "堠",
+    "pinyin": "hòu",
+    "meaning": "mounds for beacons",
+    "frequency_rank": 6986,
+    "han_viet": "hậu",
+    "meaning_vi": "ụ đất, lô cốt"
+  },
+  {
+    "char": "屦",
+    "pinyin": "jù",
+    "meaning": "sandals",
+    "frequency_rank": 6987,
+    "han_viet": "lũ",
+    "meaning_vi": "dép sandals"
+  },
+  {
+    "char": "驵",
+    "pinyin": "zǎng",
+    "meaning": "powerful horse",
+    "frequency_rank": 6988,
+    "han_viet": "tảng",
+    "meaning_vi": "ngựa mạnh"
+  },
+  {
+    "char": "鑑",
+    "pinyin": "jiàn",
+    "meaning": "mirror, looking glass; to reflect",
+    "frequency_rank": 6989,
+    "han_viet": "giám",
+    "meaning_vi": "cái gương soi bằng đồng"
+  },
+  {
+    "char": "桄",
+    "pinyin": "guāng",
+    "meaning": "used in 桄榔[guāng láng]",
+    "frequency_rank": 6990,
+    "han_viet": "quang",
+    "meaning_vi": "(xem: quang lang 桄榔); cái suốt ngang khung cửi"
+  },
+  {
+    "char": "霑",
+    "pinyin": "zhān",
+    "meaning": "moist, soaked; to moisten",
+    "frequency_rank": 6991,
+    "han_viet": "triêm",
+    "meaning_vi": "thấm ướt, ngấm vào; tiêm nhiễm; đụng chạm"
+  },
+  {
+    "char": "憝",
+    "pinyin": "duì",
+    "meaning": "dislike; hate",
+    "frequency_rank": 6992,
+    "han_viet": "đỗi",
+    "meaning_vi": "oan khuất; ghét"
+  },
+  {
+    "char": "瘳",
+    "pinyin": "chōu",
+    "meaning": "to convalesce; to recover",
+    "frequency_rank": 6993,
+    "han_viet": "sưu",
+    "meaning_vi": "ốm khỏi"
+  },
+  {
+    "char": "騃",
+    "pinyin": "ái",
+    "meaning": "stupid; idiotic",
+    "frequency_rank": 6994,
+    "han_viet": "ngai",
+    "meaning_vi": "ngây ngô, ngớ ngẩn, ngu đần; ngây ngô, ngớ ngẩn, ngu đần"
+  },
+  {
+    "char": "茌",
+    "pinyin": "chí",
+    "meaning": "used in 茌平[Chí píng] (the name of a place in Shandong)",
+    "frequency_rank": 6995,
+    "han_viet": "trì",
+    "meaning_vi": "tên một huyện ở Sơn Đông"
+  },
+  {
+    "char": "辀",
+    "pinyin": "zhōu",
+    "meaning": "(literary) shaft (of a cart); cart",
+    "frequency_rank": 6996,
+    "han_viet": "chu",
+    "meaning_vi": "(văn học) trục (xe ngựa); xe ngựa"
+  },
+  {
+    "char": "胠",
+    "pinyin": "qū",
+    "meaning": "flank of animal; side",
+    "frequency_rank": 6997,
+    "han_viet": "khư",
+    "meaning_vi": "mở ra; sườn, nách; cánh quân đi bên hữu"
+  },
+  {
+    "char": "埏",
+    "pinyin": "shān",
+    "meaning": "to mix water with clay",
+    "frequency_rank": 6998,
+    "han_viet": "thiên",
+    "meaning_vi": "biên giới, ranh giới"
+  },
+  {
+    "char": "腠",
+    "pinyin": "còu",
+    "meaning": "the tissue between the skin and the flesh",
+    "frequency_rank": 6999,
+    "han_viet": "thấu",
+    "meaning_vi": "thớ da (phần giữa da và thịt)"
+  },
+  {
+    "char": "靰",
+    "pinyin": "wù",
+    "meaning": "used in 靰鞡[wù la]",
+    "frequency_rank": 7000,
+    "han_viet": "ngột",
+    "meaning_vi": "bịt chân giữ ấm"
+  },
+  {
+    "char": "鞡",
+    "pinyin": "la",
+    "meaning": "used in 靰鞡[wù la]; Taiwan pr. [lā]",
+    "frequency_rank": 7001,
+    "han_viet": "lạp",
+    "meaning_vi": "tất ủ ấm chân"
+  },
+  {
+    "char": "闆",
+    "pinyin": "bǎn",
+    "meaning": "board, plank; plate, slab; unnatural, stiff",
+    "frequency_rank": 7004,
+    "han_viet": "bản",
+    "meaning_vi": "tấm, miếng; gỗ đóng quan tài; cứng, rắn"
+  },
+  {
+    "char": "铼",
+    "pinyin": "lái",
+    "meaning": "rhenium (chemistry)",
+    "frequency_rank": 7005,
+    "han_viet": "lai",
+    "meaning_vi": "rhenium (hóa học)"
+  },
+  {
+    "char": "翹",
+    "pinyin": "qiào",
+    "meaning": "outstanding; to elevate, to lift, to raise",
+    "frequency_rank": 7007,
+    "han_viet": "kiều",
+    "meaning_vi": "lông dài ở đuôi chim; nâng lên, cất lên, ngẩng lên"
+  },
+  {
+    "char": "聯",
+    "pinyin": "lián",
+    "meaning": "ally, associate; to connect, to join",
+    "frequency_rank": 7008,
+    "han_viet": "liên",
+    "meaning_vi": "liên minh, liên kết; câu đối"
+  },
+  {
+    "char": "詢",
+    "pinyin": "xún",
+    "meaning": "to ask about, to inquire into; to consult",
+    "frequency_rank": 7009,
+    "han_viet": "tuân",
+    "meaning_vi": "hỏi ý kiến mọi người để quyết định"
+  },
+  {
+    "char": "課",
+    "pinyin": "kè",
+    "meaning": "subject, lesson, course; classwork",
+    "frequency_rank": 7010,
+    "han_viet": "khoá",
+    "meaning_vi": "bài học"
+  },
+  {
+    "char": "豐",
+    "pinyin": "fēng",
+    "meaning": "abundant, lush, bountiful, plenty",
+    "frequency_rank": 7011,
+    "han_viet": "phong",
+    "meaning_vi": "đầy; thịnh; được mùa"
+  },
+  {
+    "char": "賴",
+    "pinyin": "lài",
+    "meaning": "to depend on, to rely on; to bilk, to deny; poor",
+    "frequency_rank": 7012,
+    "han_viet": "lại",
+    "meaning_vi": "nhờ cậy; ích lợi"
+  },
+  {
+    "char": "輸",
+    "pinyin": "shū",
+    "meaning": "to carry, to haul, to transport",
+    "frequency_rank": 7013,
+    "han_viet": "['thâu",
+    "meaning_vi": "chở đồ đi; nộp, đưa đồ; thua bạc"
+  },
+  {
+    "char": "遲",
+    "pinyin": "chí",
+    "meaning": "tardy, slow, late; to delay",
+    "frequency_rank": 7014,
+    "han_viet": "trì",
+    "meaning_vi": "trì hoãn; chậm trễ, muộn"
+  },
+  {
+    "char": "齡",
+    "pinyin": "líng",
+    "meaning": "age; years",
+    "frequency_rank": 7016,
+    "han_viet": "linh",
+    "meaning_vi": "tuổi tác"
+  },
+  {
+    "char": "缽",
+    "pinyin": "bō",
+    "meaning": "earthen basin; alms bowl",
+    "frequency_rank": 7019,
+    "han_viet": "bát",
+    "meaning_vi": "cái bát; cái bát xin ăn của sư"
+  },
+  {
+    "char": "邲",
+    "pinyin": "bì",
+    "meaning": "surname Bi; ancient place name",
+    "frequency_rank": 7020,
+    "han_viet": "bật",
+    "meaning_vi": "nước Bật (tên cũ của nước Trịnh)"
+  },
+  {
+    "char": "唼",
+    "pinyin": "shǎ",
+    "meaning": "to speak evil; gobbling sound made by ducks",
+    "frequency_rank": 7021,
+    "han_viet": "xiệp",
+    "meaning_vi": "mổ, đớp mồi"
+  },
+  {
+    "char": "鐻",
+    "pinyin": "jù",
+    "meaning": "(mus. instr.)",
+    "frequency_rank": 7022,
+    "han_viet": "cự",
+    "meaning_vi": "(nhạc cụ)"
+  },
+  {
+    "char": "閟",
+    "pinyin": "bì",
+    "meaning": "hidden; hide",
+    "frequency_rank": 7023,
+    "han_viet": "bí",
+    "meaning_vi": "giấu kín; đóng cửa"
+  },
+  {
+    "char": "篥",
+    "pinyin": "lì",
+    "meaning": "bamboos good for poles; horn",
+    "frequency_rank": 7025,
+    "han_viet": "lật",
+    "meaning_vi": "cái kèn để làm hiện trong quân đội"
+  },
+  {
+    "char": "茈",
+    "pinyin": "cí",
+    "meaning": "used in 鳧茈|凫茈[fú cí]",
+    "frequency_rank": 7026,
+    "han_viet": "sài",
+    "meaning_vi": "xem: phù tì 鳧茈; tên một loại cỏ dùng làm thuốc, như: tử hồ 茈胡"
+  },
+  {
+    "char": "萩",
+    "pinyin": "qiū",
+    "meaning": "Lespedeza bicolor",
+    "frequency_rank": 7028,
+    "han_viet": "thu",
+    "meaning_vi": "một loài ngải"
+  },
+  {
+    "char": "跐",
+    "pinyin": "cǐ",
+    "meaning": "to trample; to step",
+    "frequency_rank": 7029,
+    "han_viet": "thử",
+    "meaning_vi": "dẫm; đạp; đi nhón chân"
+  },
+  {
+    "char": "蹅",
+    "pinyin": "chǎ",
+    "meaning": "(coll.) to trudge (in mud, snow etc)",
+    "frequency_rank": 7030,
+    "han_viet": "tra",
+    "meaning_vi": "(khẩu ngữ) lội thụt (trong bùn, tuyết, v.v.)"
+  },
+  {
+    "char": "瞢",
+    "pinyin": "méng",
+    "meaning": "eyesight obscured; to feel ashamed",
+    "frequency_rank": 7031,
+    "han_viet": "măng",
+    "meaning_vi": "mắt mờ; thẹn"
+  },
+  {
+    "char": "罽",
+    "pinyin": "jì",
+    "meaning": "(fishing net); woolen rug",
+    "frequency_rank": 7032,
+    "han_viet": "kế",
+    "meaning_vi": "len, dạ"
+  },
+  {
+    "char": "铚",
+    "pinyin": "zhì",
+    "meaning": "sickle",
+    "frequency_rank": 7035,
+    "han_viet": "chí",
+    "meaning_vi": "lưỡi liềm"
+  },
+  {
+    "char": "箦",
+    "pinyin": "zé",
+    "meaning": "reed mat",
+    "frequency_rank": 7036,
+    "han_viet": "trách",
+    "meaning_vi": "chiếu cói"
+  },
+  {
+    "char": "踣",
+    "pinyin": "bó",
+    "meaning": "(literary) to tumble; to fall down; (literary) to fall dead",
+    "frequency_rank": 7037,
+    "han_viet": "bặc",
+    "meaning_vi": "ngã, té; ngã chết giữa đường"
+  },
+  {
+    "char": "菑",
+    "pinyin": "zī",
+    "meaning": "surname Zi",
+    "frequency_rank": 7038,
+    "han_viet": "tai",
+    "meaning_vi": "ruộng vỡ đã được một năm; nhổ cỏ, giẫy cỏ; ruộng vỡ đã được một năm"
+  },
+  {
+    "char": "蹟",
+    "pinyin": "jī",
+    "meaning": "trace, tracks; footprints",
+    "frequency_rank": 7039,
+    "han_viet": "tích",
+    "meaning_vi": "dấu vết, dấu tích"
+  },
+  {
+    "char": "捃",
+    "pinyin": "jùn",
+    "meaning": "gather; to sort",
+    "frequency_rank": 7040,
+    "han_viet": "quấn",
+    "meaning_vi": "thu thập; phân loại"
+  },
+  {
+    "char": "瘕",
+    "pinyin": "jiǎ",
+    "meaning": "obstruction in the intestine",
+    "frequency_rank": 7041,
+    "han_viet": "gia",
+    "meaning_vi": "bệnh hòn (tích hòn rắn chắc trong bụng)"
+  },
+  {
+    "char": "睺",
+    "pinyin": "hóu",
+    "meaning": "(appears as phonetic ho, especially in words taken from Sanskrit); half-blind (archaic)",
+    "frequency_rank": 7042,
+    "han_viet": "hầu",
+    "meaning_vi": "(xuất hiện như âm \"ho\", đặc biệt trong các từ mượn từ tiếng Phạn); bán mù (cổ)"
+  },
+  {
+    "char": "閒",
+    "pinyin": "jiān",
+    "meaning": "variant of 間|间[jiān]",
+    "frequency_rank": 7043,
+    "han_viet": "gian",
+    "meaning_vi": "biến thể của 間|间[jiān]"
+  },
+  {
+    "char": "鈦",
+    "pinyin": "tài",
+    "meaning": "titanium",
+    "frequency_rank": 7044,
+    "han_viet": "thái",
+    "meaning_vi": "nguyên tố titan, Ti"
+  },
+  {
+    "char": "鳓",
+    "pinyin": "lè",
+    "meaning": "Chinese herring (Ilisha elongata); white herring",
+    "frequency_rank": 7046,
+    "han_viet": "lặc",
+    "meaning_vi": "cá trích Trung Quốc (Ilisha elongata); cá trích trắng; cá mòi thon"
+  },
+  {
+    "char": "鹹",
+    "pinyin": "xián",
+    "meaning": "all, together, united; salted",
+    "frequency_rank": 7048,
+    "han_viet": "hàm",
+    "meaning_vi": "mặn, vị mặn"
+  },
+  {
+    "char": "禍",
+    "pinyin": "huò",
+    "meaning": "misfortune, disaster, calamity",
+    "frequency_rank": 7050,
+    "han_viet": "hoạ",
+    "meaning_vi": "tai hoạ, tai vạ"
+  },
+  {
+    "char": "窩",
+    "pinyin": "wō",
+    "meaning": "cave, den, nest; hiding place; measure word for small animals",
+    "frequency_rank": 7051,
+    "han_viet": "oa",
+    "meaning_vi": "tổ, hang, ổ"
+  },
+  {
+    "char": "純",
+    "pinyin": "chún",
+    "meaning": "pure, clean; simple, genuine",
+    "frequency_rank": 7052,
+    "han_viet": "thuần",
+    "meaning_vi": "thuần tuý, không  có loại khác"
+  },
+  {
+    "char": "縱",
+    "pinyin": "zòng",
+    "meaning": "to indulge in, to give free reign to",
+    "frequency_rank": 7053,
+    "han_viet": "['tung",
+    "meaning_vi": "thả ra, phóng ra; tung lên; tha hồ, thoả sức, nuông chiều"
+  },
+  {
+    "char": "聖",
+    "pinyin": "shèng",
+    "meaning": "holy, sacred; sage, saint",
+    "frequency_rank": 7054,
+    "han_viet": "thánh",
+    "meaning_vi": "thần thánh"
+  },
+  {
+    "char": "衝",
+    "pinyin": "chōng",
+    "meaning": "wash, rinse, flush; dash; soar",
+    "frequency_rank": 7057,
+    "han_viet": "xung",
+    "meaning_vi": "đường cái; dội, xối (nước); bay lên"
+  },
+  {
+    "char": "訊",
+    "pinyin": "xùn",
+    "meaning": "news, information; to question, to interrogate",
+    "frequency_rank": 7058,
+    "han_viet": "tấn",
+    "meaning_vi": "hỏi, hỏi thăm; tin tức; can ngăn"
+  },
+  {
+    "char": "馬",
+    "pinyin": "mǎ",
+    "meaning": "horse; surname",
+    "frequency_rank": 7059,
+    "han_viet": "mã",
+    "meaning_vi": "con ngựa"
+  },
+  {
+    "char": "睒",
+    "pinyin": "shǎn",
+    "meaning": "furtively glance; glittering",
+    "frequency_rank": 7064,
+    "han_viet": "thiểm",
+    "meaning_vi": "nháy mắt, chớp mắt; rình, dòm, nhòm; lấp lánh, nhấp nháy"
+  },
+  {
+    "char": "笰",
+    "pinyin": "fú",
+    "meaning": "duster",
+    "frequency_rank": 7065,
+    "han_viet": "phất",
+    "meaning_vi": "chổi lông"
+  },
+  {
+    "char": "籥",
+    "pinyin": "yuè",
+    "meaning": "flute; key",
+    "frequency_rank": 7066,
+    "han_viet": "dược",
+    "meaning_vi": "cái thược (như sáo nhưng ngắn); then khoá"
+  },
+  {
+    "char": "镩",
+    "pinyin": "cuān",
+    "meaning": "ice spud (aka ice chisel) with a pointy tip; to break a hole in ice (for ice fishing etc) using an ice spud",
+    "frequency_rank": 7068,
+    "han_viet": "thoản",
+    "meaning_vi": "dụng cụ đục băng (còn gọi là đục nước đá) có đầu nhọn; khoan lỗ trên băng (để câu cá, v.v.) bằng dụng cụ đục băng"
+  },
+  {
+    "char": "耧",
+    "pinyin": "lóu",
+    "meaning": "drill for sowing grain",
+    "frequency_rank": 7069,
+    "han_viet": "lâu",
+    "meaning_vi": "máy gieo hạt"
+  },
+  {
+    "char": "蜞",
+    "pinyin": "qí",
+    "meaning": "used in 蟛蜞[péng qí]",
+    "frequency_rank": 7070,
+    "han_viet": "kỳ",
+    "meaning_vi": "cua bò"
+  },
+  {
+    "char": "舡",
+    "pinyin": "gāng",
+    "meaning": "boat; ship",
+    "frequency_rank": 7071,
+    "han_viet": "hang",
+    "meaning_vi": "cái thuyền"
+  },
+  {
+    "char": "鰲",
+    "pinyin": "áo",
+    "meaning": "huge sea turtle",
+    "frequency_rank": 7072,
+    "han_viet": "ngao",
+    "meaning_vi": "con ngao, con trạch"
+  },
+  {
+    "char": "䴙",
+    "pinyin": "pì",
+    "meaning": "used in 鷿鷈|䴙䴘[pì tī]",
+    "frequency_rank": 7074,
+    "han_viet": "tịch",
+    "meaning_vi": "dùng trong 鷿鷈|䴙䴘[pì tī]"
+  },
+  {
+    "char": "罣",
+    "pinyin": "guà",
+    "meaning": "variant of 掛|挂[guà]",
+    "frequency_rank": 7075,
+    "han_viet": "quái",
+    "meaning_vi": "trở ngại, ngăn cản"
+  },
+  {
+    "char": "觍",
+    "pinyin": "tiǎn",
+    "meaning": "shameful; shameless",
+    "frequency_rank": 7076,
+    "han_viet": "điễn",
+    "meaning_vi": "đáng xấu hổ; không biết xấu hổ"
+  },
+  {
+    "char": "臜",
+    "pinyin": "zā",
+    "meaning": "used in 腌臢|腌臜[ā zā]; Taiwan pr. [zāng]",
+    "frequency_rank": 7079,
+    "han_viet": "trâm",
+    "meaning_vi": "xem 腌臢|腌臜[ā zā]"
+  },
+  {
+    "char": "觔",
+    "pinyin": "jīn",
+    "meaning": "variant of 筋[jīn]; variant of 斤[jīn]",
+    "frequency_rank": 7081,
+    "han_viet": "cân",
+    "meaning_vi": "cái rìu; cân (đơn vị khối lượng)"
+  },
+  {
+    "char": "岈",
+    "pinyin": "yá",
+    "meaning": "see 嵖岈山[Chá yá Shān]",
+    "frequency_rank": 7083,
+    "han_viet": "ha",
+    "meaning_vi": "xem 嵖岈山[Chá yá Shān]"
+  },
+  {
+    "char": "潲",
+    "pinyin": "shào",
+    "meaning": "driving rain; to sprinkle",
+    "frequency_rank": 7084,
+    "han_viet": "sảo",
+    "meaning_vi": "mưa xối xả; rơi tạt"
+  },
+  {
+    "char": "枧",
+    "pinyin": "jiǎn",
+    "meaning": "bamboo conduit; wooden peg",
+    "frequency_rank": 7085,
+    "han_viet": "kiển",
+    "meaning_vi": "ống dẫn bằng tre; chốt gỗ; vòi"
+  },
+  {
+    "char": "觌",
+    "pinyin": "dí",
+    "meaning": "face to face",
+    "frequency_rank": 7086,
+    "han_viet": "địch",
+    "meaning_vi": "mặt đối mặt"
+  },
+  {
+    "char": "膦",
+    "pinyin": "lìn",
+    "meaning": "phosphine",
+    "frequency_rank": 7087,
+    "han_viet": "lân",
+    "meaning_vi": "phosphin"
+  },
+  {
+    "char": "礞",
+    "pinyin": "méng",
+    "meaning": "(mineral)",
+    "frequency_rank": 7088,
+    "han_viet": "mông",
+    "meaning_vi": "(khoáng chất)"
+  },
+  {
+    "char": "蝤",
+    "pinyin": "qiú",
+    "meaning": "used in 蝤蠐|蝤蛴[qiú qí]",
+    "frequency_rank": 7089,
+    "han_viet": "tù",
+    "meaning_vi": "dùng trong 蝤蠐|蝤蛴[qiú qí]"
+  },
+  {
+    "char": "螗",
+    "pinyin": "táng",
+    "meaning": "variety of small cicada with a green back and a clear song (in ancient books)",
+    "frequency_rank": 7090,
+    "han_viet": "đường",
+    "meaning_vi": "(xem: đường điêu 螗蜩)"
+  },
+  {
+    "char": "酹",
+    "pinyin": "lèi",
+    "meaning": "pour out libation; sprinkle",
+    "frequency_rank": 7091,
+    "han_viet": "lỗi",
+    "meaning_vi": "lấy rượu rót xuống đất để tế"
+  },
+  {
+    "char": "醅",
+    "pinyin": "pēi",
+    "meaning": "unstrained spirits",
+    "frequency_rank": 7092,
+    "han_viet": "phôi",
+    "meaning_vi": "rượu chưa lọc"
+  },
+  {
+    "char": "郇",
+    "pinyin": "xún",
+    "meaning": "name of a feudal state",
+    "frequency_rank": 7096,
+    "han_viet": "tuân",
+    "meaning_vi": "nước Tuân"
+  },
+  {
+    "char": "躄",
+    "pinyin": "bì",
+    "meaning": "both feet crippled; lame",
+    "frequency_rank": 7097,
+    "han_viet": "tích",
+    "meaning_vi": "khoèo cả hai chân"
+  },
+  {
+    "char": "茼",
+    "pinyin": "tóng",
+    "meaning": "Chrysanthemum coronarium",
+    "frequency_rank": 7098,
+    "han_viet": "đồng",
+    "meaning_vi": "cải cúc"
+  },
+  {
+    "char": "洧",
+    "pinyin": "wěi",
+    "meaning": "name of a river",
+    "frequency_rank": 7099,
+    "han_viet": "vị",
+    "meaning_vi": "sông Vị"
+  },
+  {
+    "char": "滠",
+    "pinyin": "shè",
+    "meaning": "name of a river",
+    "frequency_rank": 7100,
+    "han_viet": "nhiếp",
+    "meaning_vi": "tên một con sông"
+  },
+  {
+    "char": "澉",
+    "pinyin": "gǎn",
+    "meaning": "place name; wash",
+    "frequency_rank": 7101,
+    "han_viet": "cảm",
+    "meaning_vi": "tên địa danh; rửa"
+  },
+  {
+    "char": "鎭",
+    "pinyin": "zhèn",
+    "meaning": "town",
+    "frequency_rank": 7102,
+    "han_viet": "trấn",
+    "meaning_vi": "canh giữ"
+  },
+  {
+    "char": "铏",
+    "pinyin": "xíng",
+    "meaning": "soup cauldron; (arch.) sacrificial tripod with two handles and a lid",
+    "frequency_rank": 7103,
+    "han_viet": "hình",
+    "meaning_vi": "nồi canh; (cổ) đỉnh cúng tế có hai quai và nắp; biến thể cũ của 硎[xíng]"
+  },
+  {
+    "char": "閤",
+    "pinyin": "gé",
+    "meaning": "chamber; shelf; side-door",
+    "frequency_rank": 7104,
+    "han_viet": "['hợp",
+    "meaning_vi": "cửa ngách"
+  },
+  {
+    "char": "赆",
+    "pinyin": "jìn",
+    "meaning": "farewell presents",
+    "frequency_rank": 7105,
+    "han_viet": "tẫn",
+    "meaning_vi": "quà tặng ly biệt"
+  },
+  {
+    "char": "赇",
+    "pinyin": "qiú",
+    "meaning": "to bribe",
+    "frequency_rank": 7106,
+    "han_viet": "cầu",
+    "meaning_vi": "hối lộ"
+  },
+  {
+    "char": "顣",
+    "pinyin": "qī",
+    "meaning": "frown",
+    "frequency_rank": 7107,
+    "han_viet": "túc",
+    "meaning_vi": "nhăn, cau mày"
+  },
+  {
+    "char": "骕",
+    "pinyin": "sù",
+    "meaning": "used in 驌驦|骕骦[sù shuāng]",
+    "frequency_rank": 7108,
+    "han_viet": "túc",
+    "meaning_vi": "dùng trong 驌驦|骕骦[sù shuāng]"
+  },
+  {
+    "char": "飑",
+    "pinyin": "biāo",
+    "meaning": "whirlwind",
+    "frequency_rank": 7109,
+    "han_viet": "tiêu",
+    "meaning_vi": "gió lốc"
+  },
+  {
+    "char": "訄",
+    "pinyin": "qiú",
+    "meaning": "(literary) to coerce sb; to compel sb",
+    "frequency_rank": 7110,
+    "han_viet": "cầu",
+    "meaning_vi": "(văn học) ép buộc ai đó; cưỡng bách ai đó"
+  },
+  {
+    "char": "輓",
+    "pinyin": "wǎn",
+    "meaning": "to pull, to lead; to pull back, to draw a bow",
+    "frequency_rank": 7111,
+    "han_viet": "vãn",
+    "meaning_vi": "kéo xe"
+  },
+  {
+    "char": "鉤",
+    "pinyin": "gōu",
+    "meaning": "hook, barb, sickle; to hook, to link",
+    "frequency_rank": 7112,
+    "han_viet": "câu",
+    "meaning_vi": "cái móc, lưỡi câu"
+  },
+  {
+    "char": "钘",
+    "pinyin": "xíng",
+    "meaning": "long-necked wine flask",
+    "frequency_rank": 7114,
+    "han_viet": "hình",
+    "meaning_vi": "bình rượu cổ dài"
+  },
+  {
+    "char": "陁",
+    "pinyin": "tuó",
+    "meaning": "variant of 阤[tuó]; variant of 陀[tuó]",
+    "frequency_rank": 7115,
+    "han_viet": "di",
+    "meaning_vi": "biến thể của 阤[tuó]; biến thể của 陀[tuó]"
+  },
+  {
+    "char": "繫",
+    "pinyin": "xì",
+    "meaning": "system; line, link, connection",
+    "frequency_rank": 7117,
+    "han_viet": "hệ",
+    "meaning_vi": "buộc, bó, nối"
+  },
+  {
+    "char": "鱵",
+    "pinyin": "zhēn",
+    "meaning": "Hyporhampus sajuri",
+    "frequency_rank": 7119,
+    "han_viet": "châm",
+    "meaning_vi": "Hyporhampus sajuri"
+  },
+  {
+    "char": "黨",
+    "pinyin": "dǎng",
+    "meaning": "political party, gang, faction",
+    "frequency_rank": 7120,
+    "han_viet": "đảng",
+    "meaning_vi": "bè, đảng"
+  },
+  {
+    "char": "禿",
+    "pinyin": "tū",
+    "meaning": "bald",
+    "frequency_rank": 7121,
+    "han_viet": "thốc",
+    "meaning_vi": "trọc, trụi, hói; cùn, cụt; trọc, trụi, hói"
+  },
+  {
+    "char": "貧",
+    "pinyin": "pín",
+    "meaning": "poor, needy, impoverished; lacking",
+    "frequency_rank": 7122,
+    "han_viet": "bần",
+    "meaning_vi": "nghèo"
+  },
+  {
+    "char": "買",
+    "pinyin": "mǎi",
+    "meaning": "to buy, to purchase; to bribe, to persuade",
+    "frequency_rank": 7123,
+    "han_viet": "mãi",
+    "meaning_vi": "mua, sắm, tậu"
+  },
+  {
+    "char": "賈",
+    "pinyin": "jiǎ",
+    "meaning": "merchant; to buy, to trade; surname",
+    "frequency_rank": 7124,
+    "han_viet": "giả",
+    "meaning_vi": "cửa hàng buôn bán; giả, không thật"
+  },
+  {
+    "char": "緣",
+    "pinyin": "yuán",
+    "meaning": "reason, cause; fate; margin, hem",
+    "frequency_rank": 7126,
+    "han_viet": "duyên",
+    "meaning_vi": "duyên; noi theo"
+  },
+  {
+    "char": "誘",
+    "pinyin": "yòu",
+    "meaning": "to tempt, to persuade, to entice; guide",
+    "frequency_rank": 7131,
+    "han_viet": "dụ",
+    "meaning_vi": "dỗ dành; dẫn dụ"
+  },
+  {
+    "char": "賦",
+    "pinyin": "fù",
+    "meaning": "tax; to give, to bestow",
+    "frequency_rank": 7132,
+    "han_viet": "phú",
+    "meaning_vi": "cho, ban cho; thuế; bài phú"
+  },
+  {
+    "char": "贅",
+    "pinyin": "zhuì",
+    "meaning": "unnecessary, superfluous",
+    "frequency_rank": 7133,
+    "han_viet": "chuế",
+    "meaning_vi": "thừa ra, rườm rà; ở rể, kén rể"
+  },
+  {
+    "char": "鄬",
+    "pinyin": "wéi",
+    "meaning": "place in Henan province",
+    "frequency_rank": 7134,
+    "han_viet": "vy",
+    "meaning_vi": "địa danh ở tỉnh Hà Nam"
+  },
+  {
+    "char": "鍵",
+    "pinyin": "jiàn",
+    "meaning": "lock, door bolt; key",
+    "frequency_rank": 7136,
+    "han_viet": "kiện",
+    "meaning_vi": "cái chìa khoá"
+  },
+  {
+    "char": "隻",
+    "pinyin": "zhī",
+    "meaning": "only, merely, just",
+    "frequency_rank": 7138,
+    "han_viet": "chích",
+    "meaning_vi": "chiếc, cái; đơn chiếc, lẻ loi"
+  },
+  {
+    "char": "飽",
+    "pinyin": "bǎo",
+    "meaning": "satisfied; to eat one's fill",
+    "frequency_rank": 7139,
+    "han_viet": "bão",
+    "meaning_vi": "no bụng; hạt gạo mẩy; đủ, nhiều, từng trải"
+  },
+  {
+    "char": "齒",
+    "pinyin": "chǐ",
+    "meaning": "teeth; gears, cogs; age",
+    "frequency_rank": 7140,
+    "han_viet": "xỉ",
+    "meaning_vi": "răng; tuổi tác"
+  },
+  {
+    "char": "鯆",
+    "pinyin": "fǔ",
+    "meaning": "the skate or ray",
+    "frequency_rank": 7141,
+    "han_viet": "phô",
+    "meaning_vi": "cá heo"
+  },
+  {
+    "char": "逿",
+    "pinyin": "dàng",
+    "meaning": "to fall; to sway",
+    "frequency_rank": 7142,
+    "han_viet": "đãng",
+    "meaning_vi": "ngã; lảo đảo; băng qua"
+  },
+  {
+    "char": "郕",
+    "pinyin": "chéng",
+    "meaning": "surname Cheng; Zhou Dynasty (1046–256 BCE) vassal state",
+    "frequency_rank": 7147,
+    "han_viet": "thành",
+    "meaning_vi": "nước Thành thời cổ (nay thuộc phía bắc huyện Vấn Thượng, tỉnh Sơn Đông của Trung Quốc)"
+  },
+  {
+    "char": "镴",
+    "pinyin": "là",
+    "meaning": "solder; tin",
+    "frequency_rank": 7148,
+    "han_viet": "lạp",
+    "meaning_vi": "hàn; thiếc"
+  },
+  {
+    "char": "韻",
+    "pinyin": "yùn",
+    "meaning": "rhyme; vowel",
+    "frequency_rank": 7149,
+    "han_viet": "vận",
+    "meaning_vi": "vần; phong nhã"
+  },
+  {
+    "char": "鲙",
+    "pinyin": "kuài",
+    "meaning": "used in 鱠魚|鲙鱼[kuài yú]; minced or diced fish (variant of 膾|脍[kuài])",
+    "frequency_rank": 7151,
+    "han_viet": "khoái",
+    "meaning_vi": "dùng trong 鱠魚|鲙鱼[kuài yú]; cá băm hoặc thái nhỏ (biến thể của 膾|脍[kuài])"
+  },
+  {
+    "char": "齁",
+    "pinyin": "hōu",
+    "meaning": "to snore; thirsty from excessively salty or sweet food",
+    "frequency_rank": 7153,
+    "han_viet": "hâu",
+    "meaning_vi": "ngáy khi ngủ; quá, lắm"
+  },
+  {
+    "char": "舖",
+    "pinyin": "pù",
+    "meaning": "store, shop; bunk, bed",
+    "frequency_rank": 7154,
+    "han_viet": "phố",
+    "meaning_vi": "phô, bày; lát phẳng; cửa hàng buôn bán"
+  },
+  {
+    "char": "陧",
+    "pinyin": "niè",
+    "meaning": "dangerous",
+    "frequency_rank": 7158,
+    "han_viet": "niết",
+    "meaning_vi": "nguy hiểm"
+  },
+  {
+    "char": "坜",
+    "pinyin": "lì",
+    "meaning": "hole, pit",
+    "frequency_rank": 7159,
+    "han_viet": "lịch",
+    "meaning_vi": "hố, hầm"
+  },
+  {
+    "char": "坫",
+    "pinyin": "diàn",
+    "meaning": "stand for goblets",
+    "frequency_rank": 7160,
+    "han_viet": "điếm",
+    "meaning_vi": "cái bục, cái bệ; góc nhà"
+  },
+  {
+    "char": "甍",
+    "pinyin": "méng",
+    "meaning": "rafters supporting tiles; ridge of a roof",
+    "frequency_rank": 7161,
+    "han_viet": "manh",
+    "meaning_vi": "cái rui (đóng trên mái nhà để móc ngói vào)"
+  },
+  {
+    "char": "绠",
+    "pinyin": "gěng",
+    "meaning": "(literary) well rope (for drawing water)",
+    "frequency_rank": 7162,
+    "han_viet": "cảnh",
+    "meaning_vi": "(văn học) dây giếng (để kéo nước)"
+  },
+  {
+    "char": "恝",
+    "pinyin": "jiá",
+    "meaning": "indifferent",
+    "frequency_rank": 7163,
+    "han_viet": "kiết",
+    "meaning_vi": "quên bẵng đi"
+  },
+  {
+    "char": "飗",
+    "pinyin": "liú",
+    "meaning": "soughing of wind",
+    "frequency_rank": 7164,
+    "han_viet": "lưu",
+    "meaning_vi": "gió rít"
+  },
+  {
+    "char": "镱",
+    "pinyin": "yì",
+    "meaning": "ytterbium (chemistry)",
+    "frequency_rank": 7166,
+    "han_viet": "ý",
+    "meaning_vi": "ytterbium (hóa học)"
+  },
+  {
+    "char": "騾",
+    "pinyin": "luó",
+    "meaning": "mule",
+    "frequency_rank": 7167,
+    "han_viet": "la",
+    "meaning_vi": "con la"
+  },
+  {
+    "char": "魋",
+    "pinyin": "tuí",
+    "meaning": "Japanese brown bear",
+    "frequency_rank": 7168,
+    "han_viet": "đồi",
+    "meaning_vi": "một giống thú ở rừng"
+  },
+  {
+    "char": "祫",
+    "pinyin": "xiá",
+    "meaning": "triennial sacrifice to ancestors",
+    "frequency_rank": 7170,
+    "han_viet": "hợp",
+    "meaning_vi": "ông tổ đã chết lâu năm"
+  },
+  {
+    "char": "筍",
+    "pinyin": "sǔn",
+    "meaning": "bamboo shoots",
+    "frequency_rank": 7171,
+    "han_viet": "duẩn",
+    "meaning_vi": "măng tre; măng tre"
+  },
+  {
+    "char": "郙",
+    "pinyin": "fǔ",
+    "meaning": "ancient place name",
+    "frequency_rank": 7175,
+    "han_viet": "phủ",
+    "meaning_vi": "tên địa danh cổ"
+  },
+  {
+    "char": "酖",
+    "pinyin": "dān",
+    "meaning": "addicted to liquor",
+    "frequency_rank": 7176,
+    "han_viet": "đam",
+    "meaning_vi": "pha rượu với thuốc độc; mê rượu, ham rượu; mê rượu, ham rượu"
+  },
+  {
+    "char": "遘",
+    "pinyin": "gòu",
+    "meaning": "meet unexpectedly",
+    "frequency_rank": 7177,
+    "han_viet": "cấu",
+    "meaning_vi": "không hẹn mà gặp"
+  },
+  {
+    "char": "阘",
+    "pinyin": "tà",
+    "meaning": "door or window in an upper story",
+    "frequency_rank": 7178,
+    "han_viet": "tháp",
+    "meaning_vi": "cửa sổ hoặc cửa trên tầng lầu"
+  },
+  {
+    "char": "眭",
+    "pinyin": "suī",
+    "meaning": "surname Sui",
+    "frequency_rank": 7179,
+    "han_viet": "tuy",
+    "meaning_vi": "họ [Suī]"
+  },
+  {
+    "char": "耖",
+    "pinyin": "chào",
+    "meaning": "harrow-like implement for pulverizing clods of soil; to level ground with such an implement",
+    "frequency_rank": 7181,
+    "han_viet": "sáo",
+    "meaning_vi": "dụng cụ giống bừa để đập đất; san phẳng đất bằng dụng cụ đó"
+  },
+  {
+    "char": "邶",
+    "pinyin": "bèi",
+    "meaning": "name of a feudal state",
+    "frequency_rank": 7183,
+    "han_viet": "bội",
+    "meaning_vi": "nước Bội; nước Bội"
+  },
+  {
+    "char": "颥",
+    "pinyin": "rú",
+    "meaning": "see 顳顬|颞颥, temple (the sides of human head)",
+    "frequency_rank": 7185,
+    "han_viet": "nhu",
+    "meaning_vi": "xem 顳顬|颞颥, thái dương (hai bên đầu người)"
+  },
+  {
+    "char": "篚",
+    "pinyin": "fěi",
+    "meaning": "round covered basket",
+    "frequency_rank": 7186,
+    "han_viet": "phỉ",
+    "meaning_vi": "cái thúng tròn có nắp"
+  },
+  {
+    "char": "鳘",
+    "pinyin": "mǐn",
+    "meaning": "cod",
+    "frequency_rank": 7187,
+    "han_viet": "mẫn",
+    "meaning_vi": "cá tuyết"
+  },
+  {
+    "char": "虒",
+    "pinyin": "sī",
+    "meaning": "amphibious animal with one horn",
+    "frequency_rank": 7189,
+    "han_viet": "ty",
+    "meaning_vi": "con hổ"
+  },
+  {
+    "char": "裈",
+    "pinyin": "kūn",
+    "meaning": "pants (old)",
+    "frequency_rank": 7190,
+    "han_viet": "côn",
+    "meaning_vi": "quần (cũ)"
+  },
+  {
+    "char": "麑",
+    "pinyin": "ní",
+    "meaning": "fawn",
+    "frequency_rank": 7192,
+    "han_viet": "nghê",
+    "meaning_vi": "con hươu con"
+  },
+  {
+    "char": "託",
+    "pinyin": "tuō",
+    "meaning": "to commission, to entrust, to rely on",
+    "frequency_rank": 7194,
+    "han_viet": "thác",
+    "meaning_vi": "nhờ cậy, phó thác"
+  },
+  {
+    "char": "鄚",
+    "pinyin": "mò",
+    "meaning": "surname Mo",
+    "frequency_rank": 7195,
+    "han_viet": "mạc",
+    "meaning_vi": "(xem: mạo châu 鄚州)"
+  },
+  {
+    "char": "軌",
+    "pinyin": "guǐ",
+    "meaning": "track, rut, path",
+    "frequency_rank": 7196,
+    "han_viet": "quỹ",
+    "meaning_vi": "cỡ bánh xe; vết bánh xe; đường sắt, đường ray"
+  },
+  {
+    "char": "饋",
+    "pinyin": "kuì",
+    "meaning": "gift, present",
+    "frequency_rank": 7197,
+    "han_viet": "quỹ",
+    "meaning_vi": "đưa tặng, tặng quà"
+  },
+  {
+    "char": "銳",
+    "pinyin": "ruì",
+    "meaning": "sharp, pointed; keen, acute",
+    "frequency_rank": 7198,
+    "han_viet": "nhuệ",
+    "meaning_vi": "sắc bén"
+  },
+  {
+    "char": "紙",
+    "pinyin": "zhǐ",
+    "meaning": "paper",
+    "frequency_rank": 7200,
+    "han_viet": "chỉ",
+    "meaning_vi": "giấy viết"
+  },
+  {
+    "char": "職",
+    "pinyin": "zhí",
+    "meaning": "duty, profession; office, post",
+    "frequency_rank": 7201,
+    "han_viet": "chức",
+    "meaning_vi": "phần việc về mình"
+  },
+  {
+    "char": "莖",
+    "pinyin": "jīng",
+    "meaning": "stem, stalk",
+    "frequency_rank": 7203,
+    "han_viet": "hành",
+    "meaning_vi": "thân cây cỏ; cái chuôi"
+  },
+  {
+    "char": "豬",
+    "pinyin": "zhū",
+    "meaning": "pig, hog, wild boar",
+    "frequency_rank": 7205,
+    "han_viet": "trư",
+    "meaning_vi": "con lợn"
+  },
+  {
+    "char": "違",
+    "pinyin": "wéi",
+    "meaning": "to violate, to disobey, to defy; to separate from",
+    "frequency_rank": 7207,
+    "han_viet": "vi",
+    "meaning_vi": "không theo, không nghe, không tuân, làm trái; xa nhau"
+  },
+  {
+    "char": "鄉",
+    "pinyin": "xiāng",
+    "meaning": "country, village; rural",
+    "frequency_rank": 7208,
+    "han_viet": "hương",
+    "meaning_vi": "nông thôn; quê hương; quê nhà"
+  },
+  {
+    "char": "闊",
+    "pinyin": "kuò",
+    "meaning": "ample, broad, wide; separate; to be apart",
+    "frequency_rank": 7210,
+    "han_viet": "khoát",
+    "meaning_vi": "rộng rãi; xa vắng; sơ suất"
+  },
+  {
+    "char": "頂",
+    "pinyin": "dǐng",
+    "meaning": "top, summit, peak; to carry on the head",
+    "frequency_rank": 7211,
+    "han_viet": "đỉnh",
+    "meaning_vi": "đỉnh đầu; chỗ cao nhất; đỉnh đầu"
+  },
+  {
+    "char": "飢",
+    "pinyin": "jī",
+    "meaning": "hungry, starving; hunger, famine",
+    "frequency_rank": 7212,
+    "han_viet": "cơ",
+    "meaning_vi": "đói; mất mùa; đói"
+  },
+  {
+    "char": "驅",
+    "pinyin": "qū",
+    "meaning": "to spur a horse on; to expel, to drive away",
+    "frequency_rank": 7213,
+    "han_viet": "khu",
+    "meaning_vi": "khua, lùa, đuổi; ruổi ngựa; chạy, bôn tẩu"
+  },
+  {
+    "char": "魚",
+    "pinyin": "yú",
+    "meaning": "fish",
+    "frequency_rank": 7214,
+    "han_viet": "ngư",
+    "meaning_vi": "con cá"
+  },
+  {
+    "char": "黴",
+    "pinyin": "méi",
+    "meaning": "bacteria, fungi, mold",
+    "frequency_rank": 7218,
+    "han_viet": "mốc",
+    "meaning_vi": "mốc, meo, nấm; mốc, meo, nấm; mốc, meo, nấm"
+  },
+  {
+    "char": "祼",
+    "pinyin": "guàn",
+    "meaning": "pour out libation",
+    "frequency_rank": 7219,
+    "han_viet": "quán",
+    "meaning_vi": "tưới rượu xuống đất để tế"
+  },
+  {
+    "char": "镈",
+    "pinyin": "bó",
+    "meaning": "ancient musical intrument shaped as a bell; hoe",
+    "frequency_rank": 7221,
+    "han_viet": "bác",
+    "meaning_vi": "nhạc khí cổ hình cái chuông; cái cuốc; cái xẻng"
+  },
+  {
+    "char": "罶",
+    "pinyin": "liǔ",
+    "meaning": "creel; fish basket",
+    "frequency_rank": 7223,
+    "han_viet": "lữu",
+    "meaning_vi": "giỏ cá; giỏ đựng cá"
+  },
+  {
+    "char": "羑",
+    "pinyin": "yǒu",
+    "meaning": "to lead",
+    "frequency_rank": 7224,
+    "han_viet": "dữu",
+    "meaning_vi": "gắng làm việc thiện; gắng làm việc thiện"
+  },
+  {
+    "char": "黉",
+    "pinyin": "hóng",
+    "meaning": "school",
+    "frequency_rank": 7225,
+    "han_viet": "huỳnh",
+    "meaning_vi": "trường học"
+  },
+  {
+    "char": "郐",
+    "pinyin": "kuài",
+    "meaning": "surname Kuai; name of a feudal state",
+    "frequency_rank": 7228,
+    "han_viet": "cối",
+    "meaning_vi": "họ [Kuài]; tên của một nước chư hầu"
+  },
+  {
+    "char": "溻",
+    "pinyin": "tā",
+    "meaning": "(of clothes) to be soaked with sweat",
+    "frequency_rank": 7229,
+    "han_viet": "thạp",
+    "meaning_vi": "ướt đẫm mồ hôi"
+  },
+  {
+    "char": "骯",
+    "pinyin": "āng",
+    "meaning": "dirty, filthy",
+    "frequency_rank": 7230,
+    "han_viet": "khảng",
+    "meaning_vi": "dơ bẩn"
+  },
+  {
+    "char": "訚",
+    "pinyin": "yín",
+    "meaning": "surname Yin",
+    "frequency_rank": 7233,
+    "han_viet": "ngân",
+    "meaning_vi": "họ [Yín]"
+  },
+  {
+    "char": "谉",
+    "pinyin": "shěn",
+    "meaning": "to investigate; to try (in court)",
+    "frequency_rank": 7234,
+    "han_viet": "thẩm",
+    "meaning_vi": "điều tra; xét xử (trong tòa án)"
+  },
+  {
+    "char": "莛",
+    "pinyin": "tíng",
+    "meaning": "stalk of grass",
+    "frequency_rank": 7235,
+    "han_viet": "đình",
+    "meaning_vi": "sợi cỏ, thân cây cỏ"
+  },
+  {
+    "char": "哕",
+    "pinyin": "huì",
+    "meaning": "used in 噦噦|哕哕[huì huì]",
+    "frequency_rank": 7236,
+    "han_viet": "hối",
+    "meaning_vi": "dùng trong 噦噦|哕哕[huì huì]"
+  },
+  {
+    "char": "滗",
+    "pinyin": "bì",
+    "meaning": "to pour off (the liquid); to decant; to strain off",
+    "frequency_rank": 7237,
+    "han_viet": "tiết",
+    "meaning_vi": "rót chất lỏng ra; gạn; lọc"
+  },
+  {
+    "char": "瀹",
+    "pinyin": "yuè",
+    "meaning": "to cleanse; to boil",
+    "frequency_rank": 7238,
+    "han_viet": "thược",
+    "meaning_vi": "nấu; làm sạch"
+  },
+  {
+    "char": "稃",
+    "pinyin": "fū",
+    "meaning": "husk; outside shell of grain",
+    "frequency_rank": 7240,
+    "han_viet": "phu",
+    "meaning_vi": "vỏ trấu; lớp ngoài của hạt thóc"
+  },
+  {
+    "char": "眳",
+    "pinyin": "míng",
+    "meaning": "space between the eyebrows and the eyelashes",
+    "frequency_rank": 7242,
+    "han_viet": "danh",
+    "meaning_vi": "khoảng giữa lông mày và lông mi"
+  },
+  {
+    "char": "矞",
+    "pinyin": "yù",
+    "meaning": "grand; elegant",
+    "frequency_rank": 7243,
+    "han_viet": "duật",
+    "meaning_vi": "rực rỡ, tốt đẹp; sợ hãi; giả dối"
+  },
+  {
+    "char": "硚",
+    "pinyin": "qiáo",
+    "meaning": "used in place names; see 礄頭|硚头[Qiáo tóu]",
+    "frequency_rank": 7244,
+    "han_viet": "kiều",
+    "meaning_vi": "dùng trong địa danh; xem 礄頭|硚头[Qiáo tóu]"
+  },
+  {
+    "char": "禋",
+    "pinyin": "yīn",
+    "meaning": "sacrifice",
+    "frequency_rank": 7245,
+    "han_viet": "yên",
+    "meaning_vi": "cúng hết lòng thành"
+  },
+  {
+    "char": "翀",
+    "pinyin": "chōng",
+    "meaning": "soar",
+    "frequency_rank": 7246,
+    "han_viet": "xung",
+    "meaning_vi": "bay vút"
+  },
+  {
+    "char": "苾",
+    "pinyin": "bì",
+    "meaning": "(phonetic); fragrant",
+    "frequency_rank": 7247,
+    "han_viet": "bật",
+    "meaning_vi": "thơm phức, thơm ngát"
+  },
+  {
+    "char": "襕",
+    "pinyin": "lán",
+    "meaning": "full length gown (old)",
+    "frequency_rank": 7248,
+    "han_viet": "lan",
+    "meaning_vi": "áo dài (xưa)"
+  },
+  {
+    "char": "軿",
+    "pinyin": "píng",
+    "meaning": "curtained carriage used by women; to gather together",
+    "frequency_rank": 7251,
+    "han_viet": "bình",
+    "meaning_vi": "xe có rèm che dùng cho phụ nữ; tập hợp lại; tụ họp"
+  },
+  {
+    "char": "逌",
+    "pinyin": "yóu",
+    "meaning": "distant; joyous",
+    "frequency_rank": 7252,
+    "han_viet": "du",
+    "meaning_vi": "có vẻ tự đắc; có vẻ tự đắc"
+  },
+  {
+    "char": "唪",
+    "pinyin": "fěng",
+    "meaning": "recite; chant",
+    "frequency_rank": 7253,
+    "han_viet": "phủng",
+    "meaning_vi": "cười to"
+  },
+  {
+    "char": "庳",
+    "pinyin": "bì",
+    "meaning": "low-built house",
+    "frequency_rank": 7254,
+    "han_viet": "tý",
+    "meaning_vi": "thấp hẹp; nước Bí"
+  },
+  {
+    "char": "殪",
+    "pinyin": "yì",
+    "meaning": "to exterminate",
+    "frequency_rank": 7255,
+    "han_viet": "ế",
+    "meaning_vi": "chết, giết"
+  },
+  {
+    "char": "隃",
+    "pinyin": "yú",
+    "meaning": "exceed; jump over",
+    "frequency_rank": 7256,
+    "han_viet": "du",
+    "meaning_vi": "(tên đất)"
+  },
+  {
+    "char": "糈",
+    "pinyin": "xǔ",
+    "meaning": "official pay; sacrificial rice",
+    "frequency_rank": 7257,
+    "han_viet": "tư",
+    "meaning_vi": "tư lương; gạo ngon"
+  },
+  {
+    "char": "龜",
+    "pinyin": "guī",
+    "meaning": "turtle, tortoise; cuckold",
+    "frequency_rank": 7259,
+    "han_viet": "quy",
+    "meaning_vi": "(xem: khưu từ 龜茲,龟兹); con rùa"
+  },
+  {
+    "char": "鲣",
+    "pinyin": "jiān",
+    "meaning": "bonito",
+    "frequency_rank": 7261,
+    "han_viet": "kiên",
+    "meaning_vi": "cá ngừ sọc dưa"
+  },
+  {
+    "char": "綎",
+    "pinyin": "tīng",
+    "meaning": "silk braided cord",
+    "frequency_rank": 7262,
+    "han_viet": "đinh",
+    "meaning_vi": "dây tết bằng lụa"
+  },
+  {
+    "char": "栝",
+    "pinyin": "guā",
+    "meaning": "Juniperus chinensis; measuring-frame",
+    "frequency_rank": 7263,
+    "han_viet": "quát",
+    "meaning_vi": "cây quát, cây cối"
+  },
+  {
+    "char": "轵",
+    "pinyin": "zhǐ",
+    "meaning": "end of axle outside of hub",
+    "frequency_rank": 7264,
+    "han_viet": "chỉ",
+    "meaning_vi": "đầu trục ngoài của moyơ"
+  },
+  {
+    "char": "穈",
+    "pinyin": "mén",
+    "meaning": "porridge; rice sprouts",
+    "frequency_rank": 7267,
+    "han_viet": "môn",
+    "meaning_vi": "lúa mầm đỏ"
+  },
+  {
+    "char": "翃",
+    "pinyin": "hóng",
+    "meaning": "to swarm (of insects)",
+    "frequency_rank": 7268,
+    "han_viet": "hồng",
+    "meaning_vi": "bay (côn trùng)"
+  },
+  {
+    "char": "衒",
+    "pinyin": "xuàn",
+    "meaning": "(literary) to boast; to show off",
+    "frequency_rank": 7270,
+    "han_viet": "huyễn",
+    "meaning_vi": "tự khoe mình"
+  },
+  {
+    "char": "礦",
+    "pinyin": "kuàng",
+    "meaning": "mine; mineral, ore",
+    "frequency_rank": 7272,
+    "han_viet": "['khoáng",
+    "meaning_vi": "quặng, khoáng sản; quặng, khoáng sản"
+  },
+  {
+    "char": "遞",
+    "pinyin": "dì",
+    "meaning": "to deliver, to hand over; substitute",
+    "frequency_rank": 7275,
+    "han_viet": "đệ",
+    "meaning_vi": "đưa, chuyển, giao"
+  },
+  {
+    "char": "蒼",
+    "pinyin": "cāng",
+    "meaning": "dark blue; deep green; old, hoary",
+    "frequency_rank": 7279,
+    "han_viet": "thương",
+    "meaning_vi": "xanh, nhợt nhạt"
+  },
+  {
+    "char": "蟬",
+    "pinyin": "chán",
+    "meaning": "cicada; continuous",
+    "frequency_rank": 7280,
+    "han_viet": "thiền",
+    "meaning_vi": "con ve sầu"
+  },
+  {
+    "char": "講",
+    "pinyin": "jiǎng",
+    "meaning": "talk, speech, lecture; to speak, to explain",
+    "frequency_rank": 7283,
+    "han_viet": "giảng",
+    "meaning_vi": "giảng giải"
+  },
+  {
+    "char": "購",
+    "pinyin": "gòu",
+    "meaning": "to buy, to purchase",
+    "frequency_rank": 7285,
+    "han_viet": "cấu",
+    "meaning_vi": "mua sắm; mưu bàn"
+  },
+  {
+    "char": "趕",
+    "pinyin": "gǎn",
+    "meaning": "to pursue, to overtake; to hurry; to expel",
+    "frequency_rank": 7286,
+    "han_viet": "cản",
+    "meaning_vi": "đuổi theo"
+  },
+  {
+    "char": "閃",
+    "pinyin": "shǎn",
+    "meaning": "flash, lightning; to dodge, to evade",
+    "frequency_rank": 7289,
+    "han_viet": "thiểm",
+    "meaning_vi": "né, nấp, tránh, lánh; chớp, loé, lấp loáng; đau sái"
+  },
+  {
+    "char": "龤",
+    "pinyin": "xié",
+    "meaning": "to harmonize; to accord with",
+    "frequency_rank": 7293,
+    "han_viet": "hài",
+    "meaning_vi": "hòa hợp; phù hợp; đồng ý"
+  },
+  {
+    "char": "薿",
+    "pinyin": "nǐ",
+    "meaning": "luxuriant (of plants)",
+    "frequency_rank": 7294,
+    "han_viet": "nghĩ",
+    "meaning_vi": "um tùm (cây cối)"
+  },
+  {
+    "char": "觝",
+    "pinyin": "dǐ",
+    "meaning": "to butt; resist",
+    "frequency_rank": 7296,
+    "han_viet": "để",
+    "meaning_vi": "húc nhau"
+  },
+  {
+    "char": "觱",
+    "pinyin": "bì",
+    "meaning": "fever; tartar horn",
+    "frequency_rank": 7300,
+    "han_viet": "tất",
+    "meaning_vi": "(xem: tất lật 觱篥)"
+  },
+  {
+    "char": "轘",
+    "pinyin": "huàn",
+    "meaning": "to tear between chariots (as punishment)",
+    "frequency_rank": 7301,
+    "han_viet": "hoàn",
+    "meaning_vi": "hình phạt phanh thây"
+  },
+  {
+    "char": "筘",
+    "pinyin": "kòu",
+    "meaning": "(a measure of width of cloth)",
+    "frequency_rank": 7303,
+    "han_viet": "khấu",
+    "meaning_vi": "(đơn vị đo bề rộng vải)"
+  },
+  {
+    "char": "睏",
+    "pinyin": "kùn",
+    "meaning": "to surround; to besiege; surrounded, in distress; poor; tired, sleepy",
+    "frequency_rank": 7305,
+    "han_viet": "khốn",
+    "meaning_vi": "khốn cùng, khốn khổ, khốn đốn; vây hãm; mỏi mệt"
+  },
+  {
+    "char": "镚",
+    "pinyin": "bèng",
+    "meaning": "small coin; dime",
+    "frequency_rank": 7307,
+    "han_viet": "băng",
+    "meaning_vi": "đồng xu nhỏ; xu lẻ"
+  },
+  {
+    "char": "痦",
+    "pinyin": "wù",
+    "meaning": "(flat) mole",
+    "frequency_rank": 7308,
+    "han_viet": "ngộ",
+    "meaning_vi": "nốt ruồi (phẳng)"
+  },
+  {
+    "char": "葴",
+    "pinyin": "zhēn",
+    "meaning": "Physalis alkekengi",
+    "frequency_rank": 7311,
+    "han_viet": "châm",
+    "meaning_vi": "cây thù lù"
+  },
+  {
+    "char": "蝟",
+    "pinyin": "wèi",
+    "meaning": "porcupine, hedgehog; many, varied; vulgar, low",
+    "frequency_rank": 7312,
+    "han_viet": "vị",
+    "meaning_vi": "con dím, con nhím; xúm xít"
+  },
+  {
+    "char": "訂",
+    "pinyin": "dìng",
+    "meaning": "to make an order; to draw up an agreement",
+    "frequency_rank": 7313,
+    "han_viet": "đính",
+    "meaning_vi": "thoả thuận hai bên"
+  },
+  {
+    "char": "泖",
+    "pinyin": "mǎo",
+    "meaning": "still water",
+    "frequency_rank": 7314,
+    "han_viet": "mão",
+    "meaning_vi": "nước đọng; sông Mão"
+  },
+  {
+    "char": "骟",
+    "pinyin": "shàn",
+    "meaning": "to geld",
+    "frequency_rank": 7315,
+    "han_viet": "thiến",
+    "meaning_vi": "thiến"
+  },
+  {
+    "char": "锽",
+    "pinyin": "huáng",
+    "meaning": "sound of drums and bells; trident",
+    "frequency_rank": 7316,
+    "han_viet": "hoàng",
+    "meaning_vi": "âm thanh trống và chuông; cái xiên ba chĩa"
+  },
+  {
+    "char": "犋",
+    "pinyin": "jù",
+    "meaning": "unit of animal power (sufficient to pull a plow, harrow etc)",
+    "frequency_rank": 7317,
+    "han_viet": "cụ",
+    "meaning_vi": "đơn vị sức kéo của động vật (đủ để kéo cày, bừa, v.v.)"
+  },
+  {
+    "char": "眵",
+    "pinyin": "chī",
+    "meaning": "(bound form) sleep (dried mucus in the corner of the eye)",
+    "frequency_rank": 7318,
+    "han_viet": "si",
+    "meaning_vi": "rỉ mắt, dử mắt"
+  },
+  {
+    "char": "耩",
+    "pinyin": "jiǎng",
+    "meaning": "to plow; to sow",
+    "frequency_rank": 7319,
+    "han_viet": "giảng",
+    "meaning_vi": "cày; bừa; gieo"
+  },
+  {
+    "char": "筢",
+    "pinyin": "pá",
+    "meaning": "bamboo rake",
+    "frequency_rank": 7320,
+    "han_viet": "ba",
+    "meaning_vi": "cào tre"
+  },
+  {
+    "char": "躔",
+    "pinyin": "chán",
+    "meaning": "(literary) animal tracks; the course of a celestial body",
+    "frequency_rank": 7321,
+    "han_viet": "triền",
+    "meaning_vi": "xéo, giẫm lên; quỹ đạo của sao"
+  },
+  {
+    "char": "鬏",
+    "pinyin": "jiū",
+    "meaning": "bun (of hair)",
+    "frequency_rank": 7322,
+    "han_viet": "thu",
+    "meaning_vi": "búi (tóc)"
+  },
+  {
+    "char": "黪",
+    "pinyin": "cǎn",
+    "meaning": "dark; dim",
+    "frequency_rank": 7323,
+    "han_viet": "thảm",
+    "meaning_vi": "tối; mờ mịt; ảm đạm"
+  },
+  {
+    "char": "祔",
+    "pinyin": "fù",
+    "meaning": "worship ancestors",
+    "frequency_rank": 7325,
+    "han_viet": "phụ",
+    "meaning_vi": "tế phụ (hết tang 3 năm); chôn chung, hợp táng"
+  },
+  {
+    "char": "舲",
+    "pinyin": "líng",
+    "meaning": "small boat with windows",
+    "frequency_rank": 7327,
+    "han_viet": "linh",
+    "meaning_vi": "thuyền nhỏ có cửa sổ bên mui"
+  },
+  {
+    "char": "襢",
+    "pinyin": "zhàn",
+    "meaning": "unadorned but elegant dress",
+    "frequency_rank": 7330,
+    "han_viet": "đản",
+    "meaning_vi": "cởi trần"
+  },
+  {
+    "char": "劐",
+    "pinyin": "huō",
+    "meaning": "(coll.) to slit with a knife; (variant of 耠[huō]) hoe",
+    "frequency_rank": 7332,
+    "han_viet": "hoát",
+    "meaning_vi": "(thông tục) rạch bằng dao; (biến thể của 耠[huō]) cuốc; nới lỏng đất bằng cuốc"
+  },
+  {
+    "char": "貯",
+    "pinyin": "zhù",
+    "meaning": "to store, to stockpile, to hoard",
+    "frequency_rank": 7333,
+    "han_viet": "trữ",
+    "meaning_vi": "chứa cất"
+  },
+  {
+    "char": "搋",
+    "pinyin": "chuāi",
+    "meaning": "to knead; to rub",
+    "frequency_rank": 7334,
+    "han_viet": "soai",
+    "meaning_vi": "nhào; chà; thông cống bằng bơm"
+  },
+  {
+    "char": "醊",
+    "pinyin": "chuò",
+    "meaning": "pour libation on ground",
+    "frequency_rank": 7335,
+    "han_viet": "chuyết",
+    "meaning_vi": "lấy rượu rót xuống đất để tế"
+  },
+  {
+    "char": "廒",
+    "pinyin": "áo",
+    "meaning": "granary",
+    "frequency_rank": 7336,
+    "han_viet": "ngao",
+    "meaning_vi": "kho lúa"
+  },
+  {
+    "char": "洚",
+    "pinyin": "jiàng",
+    "meaning": "flood",
+    "frequency_rank": 7337,
+    "han_viet": "giáng",
+    "meaning_vi": "lũ lụt"
+  },
+  {
+    "char": "胲",
+    "pinyin": "hǎi",
+    "meaning": "hydroxylamine (chemistry)",
+    "frequency_rank": 7338,
+    "han_viet": "hợi",
+    "meaning_vi": "hydroxylamin (hóa học)"
+  },
+  {
+    "char": "馂",
+    "pinyin": "jùn",
+    "meaning": "(literary) leftovers (of a meal); (literary) to eat leftovers",
+    "frequency_rank": 7341,
+    "han_viet": "tuấn",
+    "meaning_vi": "thức ăn thừa của cúng tế hoặc bữa ăn"
+  },
+  {
+    "char": "筅",
+    "pinyin": "xiǎn",
+    "meaning": "bamboo brush for utensils",
+    "frequency_rank": 7342,
+    "han_viet": "tiển",
+    "meaning_vi": "cái bàn chải làm bằng tre"
+  },
+  {
+    "char": "鳆",
+    "pinyin": "fù",
+    "meaning": "Haliotis gigantea; sea ear",
+    "frequency_rank": 7343,
+    "han_viet": "phục",
+    "meaning_vi": "Haliotis gigantea; bào ngư"
+  },
+  {
+    "char": "鲊",
+    "pinyin": "zhǎ",
+    "meaning": "salted fish; dish made with ground vegetables, flour and other condiments",
+    "frequency_rank": 7344,
+    "han_viet": "trả",
+    "meaning_vi": "cá muối; món ăn làm từ rau xay, bột và gia vị khác"
+  },
+  {
+    "char": "麗",
+    "pinyin": "lì",
+    "meaning": "beautiful, elegant, magnificent",
+    "frequency_rank": 7345,
+    "han_viet": "ly",
+    "meaning_vi": "(xem: cao ly 高麗,高丽); đẹp đẽ; dính, bám"
+  },
+  {
+    "char": "腄",
+    "pinyin": "chuí",
+    "meaning": "callus on the hand or foot; upper leg bone of horse or bird",
+    "frequency_rank": 7347,
+    "han_viet": "chuỷ",
+    "meaning_vi": "vết chai ở tay hoặc chân; xương chân trên của ngựa hoặc chim; mông"
+  },
+  {
+    "char": "臑",
+    "pinyin": "nào",
+    "meaning": "biceps (in Chinese medicine); (arch.) forelimbs of livestock animal",
+    "frequency_rank": 7348,
+    "han_viet": "nạo",
+    "meaning_vi": "đã nấu chín"
+  },
+  {
+    "char": "诐",
+    "pinyin": "bì",
+    "meaning": "unfair; to flatter",
+    "frequency_rank": 7349,
+    "han_viet": "bí",
+    "meaning_vi": "không công bằng; nịnh nọt"
+  },
+  {
+    "char": "仳",
+    "pinyin": "pǐ",
+    "meaning": "to part",
+    "frequency_rank": 7350,
+    "han_viet": "tỷ",
+    "meaning_vi": "chia rẽ"
+  },
+  {
+    "char": "篩",
+    "pinyin": "shāi",
+    "meaning": "screen, sieve; to filter, to sift",
+    "frequency_rank": 7352,
+    "han_viet": "si",
+    "meaning_vi": "cái dần, cái sàng"
+  },
+  {
+    "char": "簾",
+    "pinyin": "lián",
+    "meaning": "the flag-sign of a tavern",
+    "frequency_rank": 7353,
+    "han_viet": "liêm",
+    "meaning_vi": "cái mành mành"
+  },
+  {
+    "char": "绹",
+    "pinyin": "táo",
+    "meaning": "bind; cord",
+    "frequency_rank": 7355,
+    "han_viet": "đào",
+    "meaning_vi": "buộc; dây; xoắn"
+  },
+  {
+    "char": "膵",
+    "pinyin": "cuì",
+    "meaning": "pancreas",
+    "frequency_rank": 7356,
+    "han_viet": "tuỵ",
+    "meaning_vi": "tuỵ (tiết dịch tiêu hoá)"
+  },
+  {
+    "char": "蝘",
+    "pinyin": "yǎn",
+    "meaning": "Hemidactylus bowringii",
+    "frequency_rank": 7358,
+    "han_viet": "yển",
+    "meaning_vi": "(xem: yển đình 蝘蜓)"
+  },
+  {
+    "char": "葙",
+    "pinyin": "xiāng",
+    "meaning": "see 青葙, feather cockscomb (Celosia argentea)",
+    "frequency_rank": 7361,
+    "han_viet": "tương",
+    "meaning_vi": "xem 青葙, cây mào gà (Celosia argentea)"
+  },
+  {
+    "char": "遊",
+    "pinyin": "yóu",
+    "meaning": "sto wander, to travel, to roam",
+    "frequency_rank": 7362,
+    "han_viet": "du",
+    "meaning_vi": "đi chơi"
+  },
+  {
+    "char": "饑",
+    "pinyin": "jī",
+    "meaning": "famine; to starve, to go hungry",
+    "frequency_rank": 7363,
+    "han_viet": "cơ",
+    "meaning_vi": "đói; mất mùa; đói"
+  },
+  {
+    "char": "驀",
+    "pinyin": "mò",
+    "meaning": "suddenly, quickly, abruptly",
+    "frequency_rank": 7364,
+    "han_viet": "mạch",
+    "meaning_vi": "bỗng nhiên; lên ngựa; siêu việt"
+  },
+  {
+    "char": "禘",
+    "pinyin": "dì",
+    "meaning": "imperial ancestral sacrifice",
+    "frequency_rank": 7366,
+    "han_viet": "đế",
+    "meaning_vi": "tế đế (vua tế tổ tiên)"
+  },
+  {
+    "char": "臺",
+    "pinyin": "tái",
+    "meaning": "platform; unit; term of address",
+    "frequency_rank": 7367,
+    "han_viet": "đài",
+    "meaning_vi": "cái đài, lầu; cái đài, lầu"
+  },
+  {
+    "char": "髒",
+    "pinyin": "zàng",
+    "meaning": "organs, viscera; dirty, filthy",
+    "frequency_rank": 7369,
+    "han_viet": "tang",
+    "meaning_vi": "(xem: khảng tảng 骯髒); bẩn thỉu"
+  },
+  {
+    "char": "軸",
+    "pinyin": "zhóu",
+    "meaning": "axle, pivot, shaft; axis",
+    "frequency_rank": 7370,
+    "han_viet": "trục",
+    "meaning_vi": "cái trục xe"
+  },
+  {
+    "char": "釘",
+    "pinyin": "dīng",
+    "meaning": "nail, spike",
+    "frequency_rank": 7371,
+    "han_viet": "đinh",
+    "meaning_vi": "cái đinh; đóng đinh"
+  },
+  {
+    "char": "頃",
+    "pinyin": "qǐng",
+    "meaning": "a moment; a unit of area equal to 100 mu",
+    "frequency_rank": 7372,
+    "han_viet": "khuynh",
+    "meaning_vi": "mảnh đất; phúc chốc, nhanh chóng; nửa bước chân"
+  },
+  {
+    "char": "仉",
+    "pinyin": "zhǎng",
+    "meaning": "surname Zhang",
+    "frequency_rank": 7373,
+    "han_viet": "chưởng",
+    "meaning_vi": "họ [Zhǎng]"
+  },
+  {
+    "char": "氕",
+    "pinyin": "piē",
+    "meaning": "protium 1H; light hydrogen, the most common isotope of hydrogen, having no neutron, so atomic weight 1",
+    "frequency_rank": 7374,
+    "han_viet": "phân",
+    "meaning_vi": "protium 1H; hydro nhẹ, đồng vị phổ biến nhất của hydro, không có neutron, nên có nguyên tử khối là 1"
+  }
+]

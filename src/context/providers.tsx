@@ -1,6 +1,7 @@
 "use client";
 import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "./language";
+import { MusicProvider } from "./music";
 import { Language } from "../components/enums";
 
 export function Providers({
@@ -17,7 +18,9 @@ export function Providers({
       enableSystem={false}
       disableTransitionOnChange={true}
     >
-      <LanguageProvider locale={locale}>{children}</LanguageProvider>
+      <LanguageProvider locale={locale}>
+        <MusicProvider>{children}</MusicProvider>
+      </LanguageProvider>
     </ThemeProvider>
   );
 }

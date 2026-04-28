@@ -2,7 +2,10 @@
     "Home": {
         "welcome": "Welcome to",
         "job": "Fullstack developer",
-        "description": "Programmed by Clara クラーラ — a salty fish programmer and part-time weeb who sells her soul to late-stage capitalism for personal passion. Mostly shares her learning and working journey.",
+        "description": "This website integrates all the small functions I wanted to implement, so it's a \"unspecified-idea website\".\n Anyway, if you've visited, I hope you have a pleasant experience. ദ്ദി◝ ⩊ ◜.ᐟ",
+        "guidePrompt": "First time here? Check out the",
+        "guideLink": "User Guide",
+        "guidePromptSuffix": "to explore all features.",
         "location": "Hanoi, Vietnam",
         "contact": "Contact",
         "subscribe": "Subscribe",
