@@ -51,9 +51,17 @@ interface RadicalGroupData {
 
 export function ChineseStudy() {
   const [viewMode, setViewMode] = useState<ViewMode>("all");
+  const setViewModeAndReset = useCallback((mode: ViewMode) => {
+    setViewMode(mode);
+    setAllSearch("");
+    setCommittedSearch("");
+    setCharSearch("");
+  }, []);
   const [hskFilter, setHskFilter] = useState<HskLevel | "all">("all");
   const [selectedRadical, setSelectedRadical] = useState<string>("");
   const [charSearch, setCharSearch] = useState("");
+  const [allSearch, setAllSearch] = useState("");
+  const [committedSearch, setCommittedSearch] = useState("");
   const [openGroups, setOpenGroups] = useState<Set<string>>(new Set());
   const [hiddenCards, setHiddenCards] = useState<Set<string>>(new Set());
   const [showKnownOnly, setShowKnownOnly] = useState(false);
@@ -77,9 +85,21 @@ export function ChineseStudy() {
   const allChars = useMemo(() => getAllCharacters(), []);
 
   const filtered = useMemo(() => {
-    if (hskFilter === "all") return allChars;
-    return allChars.filter((c) => c.hsk === hskFilter);
+    return hskFilter === "all" ? allChars : allChars.filter((c) => c.hsk === hskFilter);
   }, [allChars, hskFilter]);
+
+  const filteredAll = useMemo(() => {
+    if (!committedSearch.trim()) return filtered;
+    const q = committedSearch.trim();
+    const qLower = q.toLowerCase();
+    const chars = [...new Set(q.split(""))];
+    return filtered.filter((c) =>
+      chars.includes(c.char) ||
+      c.pinyin.toLowerCase().includes(qLower) ||
+      c.meaning.toLowerCase().includes(qLower) ||
+      (userEdits[c.char]?.hanViet ?? "").toLowerCase().includes(qLower)
+    );
+  }, [filtered, committedSearch, userEdits]);
 
   const radicalGroups = useMemo((): RadicalGroupData[] => {
     const map = new Map<string, RadicalGroupData>();
@@ -100,6 +120,22 @@ export function ChineseStudy() {
     if (!showKnownOnly) return radicalGroups;
     return radicalGroups.filter((g) => g.chars.some((c) => hiddenCards.has(c.char)));
   }, [radicalGroups, showKnownOnly, hiddenCards]);
+
+  const allRadicalGroups = useMemo((): RadicalGroupData[] => {
+    const map = new Map<string, RadicalGroupData>();
+    for (const c of filteredAll) {
+      const key = c.radical || "__unknown__";
+      if (!map.has(key)) map.set(key, { radical: key, radicalName: c.radicalName, chars: [] });
+      map.get(key)!.chars.push(c);
+    }
+    for (const g of map.values()) g.chars.sort(byFreq);
+    return [...map.values()].sort((a, b) => byFreq(a.chars[0], b.chars[0]));
+  }, [filteredAll]);
+
+  const allVisibleGroups = useMemo(() => {
+    if (!showKnownOnly) return allRadicalGroups;
+    return allRadicalGroups.filter((g) => g.chars.some((c) => hiddenCards.has(c.char)));
+  }, [allRadicalGroups, showKnownOnly, hiddenCards]);
 
   // Auto-select first radical in mode 2
   useEffect(() => {
@@ -215,9 +251,9 @@ export function ChineseStudy() {
                     ? "bg-primary text-primary-foreground"
                     : "bg-background text-muted-foreground hover:bg-accent"
                 )}
-                onClick={() => setViewMode("all")}
+                onClick={() => setViewModeAndReset("all")}
               >
-                Hiện all
+                Hiện tất cả
               </button>
               <button
                 className={cn(
@@ -226,7 +262,7 @@ export function ChineseStudy() {
                     ? "bg-primary text-primary-foreground"
                     : "bg-background text-muted-foreground hover:bg-accent"
                 )}
-                onClick={() => setViewMode("byRadical")}
+                onClick={() => setViewModeAndReset("byRadical")}
               >
                 Theo bộ thủ
               </button>
@@ -237,7 +273,7 @@ export function ChineseStudy() {
                     ? "bg-primary text-primary-foreground"
                     : "bg-background text-muted-foreground hover:bg-accent"
                 )}
-                onClick={() => setViewMode("review")}
+                onClick={() => setViewModeAndReset("review")}
               >
                 Ôn tập
               </button>
@@ -294,6 +330,42 @@ export function ChineseStudy() {
         {/* Review tab content */}
         {viewMode === "review" && <ReviewTab />}
 
+        {/* Search for mode "all" */}
+        {viewMode === "all" && (
+          <div className="flex gap-2 items-center">
+            <input
+              type="text"
+              value={allSearch}
+              onChange={(e) => setAllSearch(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && setCommittedSearch(allSearch)}
+              placeholder="Tìm theo chữ, pinyin, nghĩa..."
+              className={cn(
+                "w-72 h-10 px-3 rounded-md border border-border bg-background",
+                "text-sm focus:outline-none focus:ring-2 focus:ring-primary/50",
+                "placeholder:text-muted-foreground"
+              )}
+            />
+            <button
+              onClick={() => setCommittedSearch(allSearch)}
+              className={cn(
+                "h-10 px-4 flex items-center gap-2 rounded-md border border-border bg-background",
+                "text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+              )}
+            >
+              <Search className="w-4 h-4" />
+              Tìm
+            </button>
+            {committedSearch && (
+              <button
+                onClick={() => { setAllSearch(""); setCommittedSearch(""); }}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Xóa
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Radical selector + search for mode 2 */}
         {viewMode === "byRadical" && (
           <div className="flex flex-wrap gap-2 items-center">
@@ -343,7 +415,7 @@ export function ChineseStudy() {
         {viewMode !== "review" && (
           viewMode === "all" ? (
             <div className="space-y-2">
-              {visibleGroups.map((g) => (
+              {allVisibleGroups.map((g) => (
                 <RadicalGroup
                   key={g.radical}
                   radical={g.radical}
@@ -381,11 +453,14 @@ export function ChineseStudy() {
           )
         )}
 
-        {viewMode !== "review" && visibleGroups.length === 0 && (
+        {viewMode === "all" && allVisibleGroups.length === 0 && (
           <p className="text-center text-muted-foreground py-16">
-            {showKnownOnly
-          ? "Chưa có từ nào được đánh dấu đã biết. Ấn vào card để ẩn pinyin và nghĩa."
-          : "Không có bộ thủ nào phù hợp với bộ lọc hiện tại."}
+            {committedSearch ? "Không tìm thấy từ nào phù hợp." : showKnownOnly ? "Chưa có từ nào được đánh dấu đã biết." : "Không có bộ thủ nào phù hợp với bộ lọc hiện tại."}
+          </p>
+        )}
+        {viewMode === "byRadical" && visibleGroups.length === 0 && (
+          <p className="text-center text-muted-foreground py-16">
+            {showKnownOnly ? "Chưa có từ nào được đánh dấu đã biết. Ấn vào card để ẩn pinyin và nghĩa." : "Không có bộ thủ nào phù hợp với bộ lọc hiện tại."}
           </p>
         )}
 

@@ -27,9 +27,9 @@ export type ReviewResult =
   | { status: "too_few"; learnedCount: number; minWords: number }
   | { status: "ok"; text: string; learnedCount: number };
 
-export async function generateReviewText(sessionId: string): Promise<ReviewResult> {
+export async function generateReviewText(): Promise<ReviewResult> {
   await ensureTables();
-  const states = await getCardStates(sessionId);
+  const states = await getCardStates();
 
   const learnedChars = Object.entries(states)
     .filter(([, hidden]) => hidden)

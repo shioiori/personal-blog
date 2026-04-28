@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { RefreshCw, Sparkles } from "lucide-react";
 import { cn } from "@/src/utils/ui";
+import { ReviewStatus } from "@/src/components/enums";
 
 const STORAGE_KEY = "chinese_review_text";
 
@@ -12,6 +13,7 @@ type ReviewState =
   | { status: "no_words" }
   | { status: "too_few"; learnedCount: number; minWords: number }
   | { status: "ready"; text: string; learnedCount: number }
+  | { status: "rate_limited"; used: number; limit: number }
   | { status: "error" };
 
 export function ReviewTab() {
@@ -38,9 +40,13 @@ export function ReviewTab() {
         text?: string;
         learnedCount?: number;
         minWords?: number;
+        used?: number;
+        limit?: number;
       };
 
-      if (data.error === "no_words") {
+      if (data.error === "rate_limited") {
+        setState({ status: "rate_limited", used: data.used ?? 100, limit: data.limit ?? 100 });
+      } else if (data.error === "no_words") {
         setState({ status: "no_words" });
       } else if (data.error === "too_few") {
         setState({ status: "too_few", learnedCount: data.learnedCount ?? 0, minWords: data.minWords ?? 5 });
@@ -56,7 +62,8 @@ export function ReviewTab() {
     }
   }, []);
 
-  const showGenerateBtn = state.status !== "loading" && state.status !== "no_words" && state.status !== "too_few";
+  const HIDE_GENERATE_BTN: ReviewStatus[] = [ReviewStatus.Loading, ReviewStatus.NoWords, ReviewStatus.TooFew, ReviewStatus.RateLimited];
+  const showGenerateBtn = !HIDE_GENERATE_BTN.includes(state.status as ReviewStatus);
 
   return (
     <div className="flex flex-col items-center gap-6 py-8 px-4 max-w-2xl mx-auto">
@@ -89,6 +96,17 @@ export function ReviewTab() {
             <p className="text-sm text-muted-foreground">
               Bạn mới học được <span className="font-semibold text-foreground">{state.learnedCount}</span> từ.
               Cần ít nhất <span className="font-semibold text-foreground">{state.minWords}</span> từ để tạo đoạn văn ôn tập.
+            </p>
+          </div>
+        )}
+
+        {state.status === "rate_limited" && (
+          <div className="text-center py-16 space-y-2">
+            <p className="text-lg font-medium">Đã đạt giới hạn hôm nay.</p>
+            <p className="text-sm text-muted-foreground">
+              Đã sử dụng <span className="font-semibold text-foreground">{state.used}</span>/
+              <span className="font-semibold text-foreground">{state.limit}</span> lần generate trong ngày.
+              Quay lại vào ngày mai nhé!
             </p>
           </div>
         )}

@@ -18,3 +18,13 @@ export enum ProjectStatus {
   Completed = "completed",
   Upcoming = "upcoming"
 }
+
+export enum ReviewStatus {
+  Idle = "idle",
+  Loading = "loading",
+  NoWords = "no_words",
+  TooFew = "too_few",
+  Ready = "ready",
+  RateLimited = "rate_limited",
+  Error = "error",
+}
