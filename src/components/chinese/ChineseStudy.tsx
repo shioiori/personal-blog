@@ -18,6 +18,24 @@ const CompoundTab = dynamic(() => import("./CompoundTab").then((m) => m.Compound
     </div>
   ),
 });
+
+const GroupCharTab = dynamic(() => import("./GroupCharTab").then((m) => m.GroupCharTab), {
+  loading: () => (
+    <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
+      <div className="w-6 h-6 border-2 border-border border-t-foreground rounded-full animate-spin" />
+      <p className="text-sm">Đang tải...</p>
+    </div>
+  ),
+});
+
+const GrammarTab = dynamic(() => import("./GrammarTab").then((m) => m.GrammarTab), {
+  loading: () => (
+    <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
+      <div className="w-6 h-6 border-2 border-border border-t-foreground rounded-full animate-spin" />
+      <p className="text-sm">Đang tải...</p>
+    </div>
+  ),
+});
 import {
   Select,
   SelectContent,
@@ -51,7 +69,7 @@ const byFreq = (a: CharacterInfo, b: CharacterInfo) => {
 };
 const HSK_OPTIONS = ["Tất cả", "HSK 1", "HSK 2", "HSK 3", "HSK 4", "HSK 5", "HSK 6", "Không rõ"] as const;
 
-type ViewMode = "all" | "byRadical" | "review" | "compound";
+type ViewMode = "all" | "byRadical" | "review" | "compound" | "grammar" | "groupchar";
 
 interface RadicalGroupData {
   radical: string;
@@ -316,9 +334,31 @@ export function ChineseStudy() {
               >
                 Từ ghép
               </button>
+              <button
+                className={cn(
+                  "px-4 py-2 text-sm font-medium transition-colors border-l border-border",
+                  viewMode === "grammar"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-background text-muted-foreground hover:bg-accent"
+                )}
+                onClick={() => setViewModeAndReset("grammar")}
+              >
+                Ngữ pháp
+              </button>
+              <button
+                className={cn(
+                  "px-4 py-2 text-sm font-medium transition-colors border-l border-border",
+                  viewMode === "groupchar"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-background text-muted-foreground hover:bg-accent"
+                )}
+                onClick={() => setViewModeAndReset("groupchar")}
+              >
+                Gom từ
+              </button>
             </div>
 
-            {viewMode !== "review" && viewMode !== "compound" && (
+            {viewMode !== "review" && viewMode !== "compound" && viewMode !== "grammar" && viewMode !== "groupchar" && (
               <div className="flex flex-wrap gap-1.5">
                 {HSK_OPTIONS.map((opt) => {
                   const val = hskFilterValue(opt);
@@ -342,7 +382,7 @@ export function ChineseStudy() {
           </div>
 
           {/* Row 2: checkboxes — hidden in review and compound mode */}
-          {viewMode !== "review" && viewMode !== "compound" && (
+          {viewMode !== "review" && viewMode !== "compound" && viewMode !== "grammar" && viewMode !== "groupchar" && (
             <div className="flex flex-wrap gap-4 items-center">
               <label className="flex items-center gap-2 cursor-pointer shrink-0">
                 <Checkbox
@@ -371,6 +411,12 @@ export function ChineseStudy() {
 
         {/* Compound words tab */}
         {viewMode === "compound" && <CompoundTab />}
+
+        {/* Grammar tab */}
+        {viewMode === "grammar" && <GrammarTab />}
+
+        {/* Group char tab */}
+        {viewMode === "groupchar" && <GroupCharTab />}
 
         {/* Search for mode "all" — not shown in compound */}
         {viewMode === "all" && (
@@ -453,7 +499,7 @@ export function ChineseStudy() {
         )}
 
         {/* Loading overlay for initial data fetch */}
-        {!loaded && viewMode !== "review" && viewMode !== "compound" && (
+        {!loaded && viewMode !== "review" && viewMode !== "compound" && viewMode !== "grammar" && viewMode !== "groupchar" && (
           <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
             <div className="w-6 h-6 border-2 border-border border-t-foreground rounded-full animate-spin" />
             <p className="text-sm">Đang tải dữ liệu...</p>
@@ -461,7 +507,7 @@ export function ChineseStudy() {
         )}
 
         {/* Content (study modes only) */}
-        {loaded && viewMode !== "review" && viewMode !== "compound" && (
+        {loaded && viewMode !== "review" && viewMode !== "compound" && viewMode !== "grammar" && viewMode !== "groupchar" && (
           viewMode === "all" ? (
             <div className="space-y-2">
               {allVisibleGroups.map((g) => (

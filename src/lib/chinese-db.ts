@@ -190,6 +190,120 @@ export async function deleteCompoundWord(id: number): Promise<void> {
   await sql`DELETE FROM compound_words WHERE id = ${id}`;
 }
 
+// ── Char groups (Gom từ) ──────────────────────────────────────────────────────
+
+export async function ensureCharGroupTables() {
+  await sql`
+    CREATE TABLE IF NOT EXISTS char_groups (
+      id         SERIAL PRIMARY KEY,
+      name       TEXT NOT NULL UNIQUE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS char_group_members (
+      group_id INT  NOT NULL REFERENCES char_groups(id) ON DELETE CASCADE,
+      char     TEXT NOT NULL,
+      PRIMARY KEY (group_id, char)
+    )
+  `;
+}
+
+export interface CharGroup {
+  id: number;
+  name: string;
+  chars: string[];
+}
+
+export async function getCharGroups(): Promise<CharGroup[]> {
+  const rows = await sql`
+    SELECT g.id, g.name,
+           COALESCE(array_agg(m.char ORDER BY m.char) FILTER (WHERE m.char IS NOT NULL), '{}') AS chars
+    FROM char_groups g
+    LEFT JOIN char_group_members m ON g.id = m.group_id
+    GROUP BY g.id, g.name
+    ORDER BY g.name
+  `;
+  return rows.map((r) => ({ id: r.id as number, name: r.name as string, chars: r.chars as string[] }));
+}
+
+export async function createCharGroup(name: string): Promise<CharGroup> {
+  const rows = await sql`INSERT INTO char_groups (name) VALUES (${name}) RETURNING id, name`;
+  return { id: rows[0].id as number, name: rows[0].name as string, chars: [] };
+}
+
+export async function deleteCharGroup(id: number): Promise<void> {
+  await sql`DELETE FROM char_groups WHERE id = ${id}`;
+}
+
+export async function addCharsToGroup(groupId: number, chars: string[]): Promise<void> {
+  for (const char of chars) {
+    await sql`INSERT INTO char_group_members (group_id, char) VALUES (${groupId}, ${char}) ON CONFLICT DO NOTHING`;
+  }
+}
+
+export async function removeCharFromGroup(groupId: number, char: string): Promise<void> {
+  await sql`DELETE FROM char_group_members WHERE group_id = ${groupId} AND char = ${char}`;
+}
+
+// ── Grammar posts ─────────────────────────────────────────────────────────────
+
+export async function ensureGrammarTables() {
+  await sql`
+    CREATE TABLE IF NOT EXISTS grammar_posts (
+      id         SERIAL PRIMARY KEY,
+      title      TEXT NOT NULL,
+      content    TEXT NOT NULL DEFAULT '',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+}
+
+export interface GrammarPost {
+  id: number;
+  title: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function getGrammarPosts(): Promise<GrammarPost[]> {
+  const rows = await sql`SELECT id, title, content, created_at, updated_at FROM grammar_posts ORDER BY id DESC`;
+  return rows.map((r) => ({
+    id: r.id as number,
+    title: r.title as string,
+    content: r.content as string,
+    createdAt: (r.created_at as Date).toISOString(),
+    updatedAt: (r.updated_at as Date).toISOString(),
+  }));
+}
+
+export async function createGrammarPost(title: string, content: string): Promise<GrammarPost> {
+  const rows = await sql`
+    INSERT INTO grammar_posts (title, content) VALUES (${title}, ${content})
+    RETURNING id, title, content, created_at, updated_at
+  `;
+  return {
+    id: rows[0].id as number,
+    title: rows[0].title as string,
+    content: rows[0].content as string,
+    createdAt: (rows[0].created_at as Date).toISOString(),
+    updatedAt: (rows[0].updated_at as Date).toISOString(),
+  };
+}
+
+export async function updateGrammarPost(id: number, title: string, content: string): Promise<void> {
+  await sql`
+    UPDATE grammar_posts SET title = ${title}, content = ${content}, updated_at = NOW()
+    WHERE id = ${id}
+  `;
+}
+
+export async function deleteGrammarPost(id: number): Promise<void> {
+  await sql`DELETE FROM grammar_posts WHERE id = ${id}`;
+}
+
 export async function upsertCardEdits(char: string, edits: UserEdits) {
   await sql`
     INSERT INTO chinese_card_edits (char, pinyin, han_viet, meaning_vi, note, updated_at)

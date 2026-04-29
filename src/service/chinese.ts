@@ -1,7 +1,7 @@
 "use server";
 
 import Groq from "groq-sdk";
-import { ensureTables, getCardStates } from "@/src/lib/chinese-db";
+import { ensureTables, getCardStates, getCompoundWords, ensureCompoundTables } from "@/src/lib/chinese-db";
 import { buildReviewPrompt } from "@/src/utils/chinese";
 
 const MIN_WORDS = 5;
@@ -29,7 +29,8 @@ export type ReviewResult =
 
 export async function generateReviewText(): Promise<ReviewResult> {
   await ensureTables();
-  const states = await getCardStates();
+  await ensureCompoundTables();
+  const [states, compoundWords] = await Promise.all([getCardStates(), getCompoundWords()]);
 
   const learnedChars = Object.entries(states)
     .filter(([, hidden]) => hidden)
@@ -43,9 +44,14 @@ export async function generateReviewText(): Promise<ReviewResult> {
   const allowedSet = new Set(learnedChars);
   const allowedList = learnedChars.join("、");
 
+  // Only include compound words whose characters are all in the learned set
+  const eligibleCompounds = compoundWords
+    .map((cw) => cw.word)
+    .filter((word) => [...word].every((ch) => allowedSet.has(ch)));
+
   const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-  const systemPrompt = buildReviewPrompt(allowedList);
+  const systemPrompt = buildReviewPrompt(allowedList, eligibleCompounds);
   const userPrompt = `Allowed characters: ${allowedList}\n\nWrite a grammatically correct Simplified Chinese passage using ONLY these characters.`;
 
   let text = "";
