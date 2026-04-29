@@ -10,13 +10,9 @@ import {
 } from "@/src/components/ui/Dialog";
 import { Button } from "@/src/components/ui/Button";
 import type { CharacterInfo } from "@/src/data/chinese";
+import type { UserEdits } from "@/src/declaration/chinese";
 
-export interface UserEdits {
-  pinyin?: string;
-  hanViet?: string;
-  meaningVi?: string;
-  note?: string;
-}
+export type { UserEdits };
 
 interface EditCardModalProps {
   info: CharacterInfo;
@@ -27,17 +23,17 @@ interface EditCardModalProps {
 }
 
 export function EditCardModal({ info, edits, open, onClose, onSave }: EditCardModalProps) {
-  const [pinyin, setPinyin] = useState(edits.pinyin ?? "");
-  const [hanViet, setHanViet] = useState(edits.hanViet ?? "");
+  const [pinyin, setPinyin] = useState(edits.pinyin ?? info.pinyin ?? "");
+  const [hanViet, setHanViet] = useState(edits.hanViet ?? info.hanViet ?? "");
   const [meaningVi, setMeaningVi] = useState(edits.meaningVi ?? "");
   const [note, setNote] = useState(edits.note ?? "");
 
   useEffect(() => {
-    setPinyin(edits.pinyin ?? "");
-    setHanViet(edits.hanViet ?? "");
+    setPinyin(edits.pinyin ?? info.pinyin ?? "");
+    setHanViet(edits.hanViet ?? info.hanViet ?? "");
     setMeaningVi(edits.meaningVi ?? "");
     setNote(edits.note ?? "");
-  }, [info.char, edits.pinyin, edits.hanViet, edits.meaningVi, edits.note]);
+  }, [info.char, info.pinyin, info.hanViet, edits.pinyin, edits.hanViet, edits.meaningVi, edits.note]);
 
   function handleSave() {
     onSave(info.char, {
@@ -75,7 +71,7 @@ export function EditCardModal({ info, edits, open, onClose, onSave }: EditCardMo
             <input
               value={pinyin}
               onChange={(e) => setPinyin(e.target.value)}
-              placeholder={info.pinyin || "—"}
+              placeholder="Pinyin..."
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
             />
           </Field>

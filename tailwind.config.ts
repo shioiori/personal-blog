@@ -90,6 +90,7 @@ const config: Config = {
         'accordion-up': 'accordion-up 0.2s ease-out'
       },
       fontFamily: {
+        inter: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         chinese: [
           'Noto Serif CJK SC',
           'Source Han Serif SC',

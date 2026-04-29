@@ -115,10 +115,10 @@ export const CharacterCard = memo(function CharacterCard({ info, edits, hidden, 
               </div>
             </TooltipTrigger>
             <TooltipContent side="top" className="max-w-[240px] text-xs space-y-1.5 p-3">
-              {/* Chữ + pinyin */}
+              {/* Chữ + pinyin · hán việt */}
               <div className="flex items-baseline gap-2">
                 <span className="text-lg font-bold" style={{ fontFamily: "var(--font-noto-serif-sc), serif" }}>{info.char}</span>
-                <span className="tracking-wider">{displayPinyin}</span>
+                <span className="tracking-wider">{displayPinyin}{displayHanViet ? ` · ${displayHanViet}` : ""}</span>
               </div>
               {/* Stars + HSK */}
               {info.hsk !== "beyond" && (
@@ -134,9 +134,8 @@ export const CharacterCard = memo(function CharacterCard({ info, edits, hidden, 
               {/* Nghĩa */}
               <p>{displayMeaning}</p>
               {/* Thông tin thêm */}
-              {(displayHanViet || edits.meaningVi || info.meaningVi || info.meaning || edits.note) && (
+              {(edits.meaningVi || info.meaningVi || info.meaning || edits.note) && (
                 <div className="space-y-0.5 opacity-80">
-                  {displayHanViet && <p><span className="font-medium">Hán Việt:</span> {displayHanViet}</p>}
                   {edits.meaningVi && <p className="whitespace-pre-wrap"><span className="font-medium">🇻🇳</span> {edits.meaningVi}</p>}
                   {info.meaning && edits.meaningVi && <p><span className="font-medium">🇬🇧</span> {info.meaning}</p>}
                   {edits.note && <p className="italic whitespace-pre-wrap">{edits.note}</p>}

@@ -28,3 +28,10 @@ export enum ReviewStatus {
   RateLimited = "rate_limited",
   Error = "error",
 }
+
+export enum TooltipMode {
+  Full = "full",
+  NoPinyin = "no_pinyin",
+  NoMeaning = "no_meaning",
+  Off = "off",
+}

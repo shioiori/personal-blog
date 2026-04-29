@@ -8,6 +8,16 @@ import type { UserEdits } from "./EditCardModal";
 import { useEditAuth } from "./useEditAuth";
 import { KeyPromptModal } from "./KeyPromptModal";
 import { ReviewTab } from "./ReviewTab";
+import dynamic from "next/dynamic";
+
+const CompoundTab = dynamic(() => import("./CompoundTab").then((m) => m.CompoundTab), {
+  loading: () => (
+    <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
+      <div className="w-6 h-6 border-2 border-border border-t-foreground rounded-full animate-spin" />
+      <p className="text-sm">Đang tải...</p>
+    </div>
+  ),
+});
 import {
   Select,
   SelectContent,
@@ -41,7 +51,7 @@ const byFreq = (a: CharacterInfo, b: CharacterInfo) => {
 };
 const HSK_OPTIONS = ["Tất cả", "HSK 1", "HSK 2", "HSK 3", "HSK 4", "HSK 5", "HSK 6", "Không rõ"] as const;
 
-type ViewMode = "all" | "byRadical" | "review";
+type ViewMode = "all" | "byRadical" | "review" | "compound";
 
 interface RadicalGroupData {
   radical: string;
@@ -69,6 +79,22 @@ export function ChineseStudy() {
   const [userEdits, setUserEdits] = useState<Record<string, UserEdits>>({});
   const [loaded, setLoaded] = useState(false);
   const { auth, requestEdit, submitKey, dismiss } = useEditAuth();
+  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
+
+  useEffect(() => {
+    if (auth.status === "verified" && pendingAction) {
+      pendingAction();
+      setPendingAction(null);
+    }
+  }, [auth.status, pendingAction]);
+
+  const withAuth = useCallback((action: () => void) => {
+    if (requestEdit()) {
+      action();
+    } else {
+      setPendingAction(() => action);
+    }
+  }, [requestEdit]);
 
   // Load persisted state from Neon on mount
   useEffect(() => {
@@ -146,23 +172,27 @@ export function ChineseStudy() {
   }, [viewMode, visibleGroups, selectedRadical]);
 
   const handleToggleHide = useCallback((char: string) => {
-    setHiddenCards((prev) => {
-      const next = new Set(prev);
-      const nowHidden = !next.has(char);
-      if (nowHidden) next.add(char);
-      else next.delete(char);
-      void apiPost("/api/chinese/state", { char, hidden: nowHidden });
-      return next;
+    withAuth(() => {
+      setHiddenCards((prev) => {
+        const next = new Set(prev);
+        const nowHidden = !next.has(char);
+        if (nowHidden) next.add(char);
+        else next.delete(char);
+        void apiPost("/api/chinese/state", { char, hidden: nowHidden });
+        return next;
+      });
     });
-  }, []);
+  }, [withAuth]);
 
   const handleSave = useCallback((char: string, edits: UserEdits) => {
-    setUserEdits((prev) => {
-      const merged = { ...(prev[char] ?? {}), ...edits };
-      void apiPost("/api/chinese/edits", { char, edits: merged });
-      return { ...prev, [char]: merged };
+    withAuth(() => {
+      setUserEdits((prev) => {
+        const merged = { ...(prev[char] ?? {}), ...edits };
+        void apiPost("/api/chinese/edits", { char, edits: merged });
+        return { ...prev, [char]: merged };
+      });
     });
-  }, []);
+  }, [withAuth]);
 
   const handleToggleGroup = useCallback((radical: string) => {
     setOpenGroups((prev) => {
@@ -275,9 +305,20 @@ export function ChineseStudy() {
               >
                 Ôn tập
               </button>
+              <button
+                className={cn(
+                  "px-4 py-2 text-sm font-medium transition-colors border-l border-border",
+                  viewMode === "compound"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-background text-muted-foreground hover:bg-accent"
+                )}
+                onClick={() => setViewModeAndReset("compound")}
+              >
+                Từ ghép
+              </button>
             </div>
 
-            {viewMode !== "review" && (
+            {viewMode !== "review" && viewMode !== "compound" && (
               <div className="flex flex-wrap gap-1.5">
                 {HSK_OPTIONS.map((opt) => {
                   const val = hskFilterValue(opt);
@@ -300,8 +341,8 @@ export function ChineseStudy() {
             )}
           </div>
 
-          {/* Row 2: checkboxes — hidden in review mode */}
-          {viewMode !== "review" && (
+          {/* Row 2: checkboxes — hidden in review and compound mode */}
+          {viewMode !== "review" && viewMode !== "compound" && (
             <div className="flex flex-wrap gap-4 items-center">
               <label className="flex items-center gap-2 cursor-pointer shrink-0">
                 <Checkbox
@@ -326,9 +367,12 @@ export function ChineseStudy() {
         </div>
 
         {/* Review tab content */}
-        {viewMode === "review" && <ReviewTab />}
+        {viewMode === "review" && <ReviewTab allChars={allChars} userEdits={userEdits} hiddenCards={hiddenCards} />}
 
-        {/* Search for mode "all" */}
+        {/* Compound words tab */}
+        {viewMode === "compound" && <CompoundTab />}
+
+        {/* Search for mode "all" — not shown in compound */}
         {viewMode === "all" && (
           <div className="flex gap-2 items-center">
             <input
@@ -372,14 +416,13 @@ export function ChineseStudy() {
               value={charSearch}
               onChange={(e) => handleCharSearch(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && executeCharSearch()}
-              placeholder="Nhập 1 từ..."
+              placeholder="1 từ..."
               maxLength={1}
               className={cn(
-                "w-64 h-10 px-3 text-lg rounded-md border border-border bg-background",
-                "text-center focus:outline-none focus:ring-2 focus:ring-primary/50",
-                "placeholder:text-sm placeholder:text-muted-foreground"
+                "w-24 h-10 px-3 rounded-md border border-border bg-background",
+                "text-sm focus:outline-none focus:ring-2 focus:ring-primary/50",
+                "placeholder:text-muted-foreground"
               )}
-              style={{ fontFamily: "var(--font-noto-serif-sc), serif" }}
             />
             <button
               onClick={executeCharSearch}
@@ -410,7 +453,7 @@ export function ChineseStudy() {
         )}
 
         {/* Loading overlay for initial data fetch */}
-        {!loaded && viewMode !== "review" && (
+        {!loaded && viewMode !== "review" && viewMode !== "compound" && (
           <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
             <div className="w-6 h-6 border-2 border-border border-t-foreground rounded-full animate-spin" />
             <p className="text-sm">Đang tải dữ liệu...</p>
@@ -418,7 +461,7 @@ export function ChineseStudy() {
         )}
 
         {/* Content (study modes only) */}
-        {loaded && viewMode !== "review" && (
+        {loaded && viewMode !== "review" && viewMode !== "compound" && (
           viewMode === "all" ? (
             <div className="space-y-2">
               {allVisibleGroups.map((g) => (
