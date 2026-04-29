@@ -171,8 +171,6 @@ export function ChineseSearch() {
     <div className="flex flex-col lg:flex-row gap-8">
       {/* Left: Drawing pad */}
       <div className="flex flex-col gap-4 shrink-0">
-        <p className="text-sm text-muted-foreground">{t("drawInstruction")}</p>
-
         <div className="relative inline-block">
           <canvas
             ref={canvasRef}
@@ -199,7 +197,7 @@ export function ChineseSearch() {
           </svg>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 justify-center">
           <Button variant="outline" size="sm" onClick={handleUndo} disabled={strokes.length === 0} className="flex items-center gap-1.5">
             <Undo2 className="h-4 w-4" />{t("undo")}
           </Button>

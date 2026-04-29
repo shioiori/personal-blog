@@ -223,8 +223,7 @@ export function ChineseStudy() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
+    <div className="space-y-6">
         {/* Header */}
         <div>
           <h1
@@ -234,8 +233,7 @@ export function ChineseStudy() {
             漢字
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {filtered.length.toLocaleString()} ký tự · {visibleGroups.length} bộ thủ
-            {!loaded && <span className="ml-2 opacity-50">· Đang tải...</span>}
+            {filtered.length.toLocaleString()} ký tự · {visibleGroups.length} bộ thủ · {hiddenCards.size.toLocaleString()} đã học
           </p>
         </div>
 
@@ -411,8 +409,16 @@ export function ChineseStudy() {
           </div>
         )}
 
+        {/* Loading overlay for initial data fetch */}
+        {!loaded && viewMode !== "review" && (
+          <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
+            <div className="w-6 h-6 border-2 border-border border-t-foreground rounded-full animate-spin" />
+            <p className="text-sm">Đang tải dữ liệu...</p>
+          </div>
+        )}
+
         {/* Content (study modes only) */}
-        {viewMode !== "review" && (
+        {loaded && viewMode !== "review" && (
           viewMode === "all" ? (
             <div className="space-y-2">
               {allVisibleGroups.map((g) => (
@@ -453,12 +459,12 @@ export function ChineseStudy() {
           )
         )}
 
-        {viewMode === "all" && allVisibleGroups.length === 0 && (
+        {loaded && viewMode === "all" && allVisibleGroups.length === 0 && (
           <p className="text-center text-muted-foreground py-16">
             {committedSearch ? "Không tìm thấy từ nào phù hợp." : showKnownOnly ? "Chưa có từ nào được đánh dấu đã biết." : "Không có bộ thủ nào phù hợp với bộ lọc hiện tại."}
           </p>
         )}
-        {viewMode === "byRadical" && visibleGroups.length === 0 && (
+        {loaded && viewMode === "byRadical" && visibleGroups.length === 0 && (
           <p className="text-center text-muted-foreground py-16">
             {showKnownOnly ? "Chưa có từ nào được đánh dấu đã biết. Ấn vào card để ẩn pinyin và nghĩa." : "Không có bộ thủ nào phù hợp với bộ lọc hiện tại."}
           </p>
@@ -468,7 +474,6 @@ export function ChineseStudy() {
         <p className="text-xs text-muted-foreground/60 text-center pt-4">
           Data: CC-CEDICT (CC BY-SA 3.0) · HSK vocabulary list
         </p>
-      </div>
 
       {/* Key prompt modal */}
       {auth.status === "prompting" && (

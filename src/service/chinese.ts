@@ -2,7 +2,6 @@
 
 import Groq from "groq-sdk";
 import { ensureTables, getCardStates } from "@/src/lib/chinese-db";
-import { getAllCharacters } from "@/src/data/chinese";
 
 const MIN_WORDS = 5;
 const MAX_RETRIES = 3;
@@ -40,27 +39,21 @@ export async function generateReviewText(): Promise<ReviewResult> {
     return { status: "too_few", learnedCount: learnedChars.length, minWords: MIN_WORDS };
   }
 
-  const allChars = getAllCharacters();
-  const charMap = new Map(allChars.map((c) => [c.char, c]));
-  const learnedWords = learnedChars
-    .map((c) => charMap.get(c))
-    .filter(Boolean)
-    .map((c) => `${c!.char} (${c!.pinyin}: ${c!.meaning})`);
-
   const allowedSet = new Set(learnedChars);
   const allowedList = learnedChars.join("、");
 
   const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-  const systemPrompt = `You are a strict Chinese language teacher. Write a short Chinese passage of 3-5 sentences using ONLY the allowed characters below.
+  const systemPrompt = `You are a strict Chinese language teacher. Write a short Chinese passage of 3-10 sentences using ONLY the allowed characters below. Use Simplified Chinese characters only (简体字).
 
 STRICT RULES:
 1. You may ONLY use Chinese characters from this exact list: ${allowedList}
 2. Do NOT use any Chinese character outside this list — not even common particles like 的、了、吗 unless they appear in the list.
-3. Every sentence must be grammatically correct Chinese.
-4. Output ONLY the Chinese passage, no explanations, no pinyin, no translation.`;
+3. Every sentence must be grammatically correct Simplified Chinese.
+4. Output ONLY the Chinese passage, no explanations, no pinyin, no translation.
+5. Do NOT hallucinate or fabricate content. Only write what can be accurately expressed using the allowed characters. If the allowed characters are too limited to form meaningful sentences, write simpler sentences rather than inventing meaning.`;
 
-  const userPrompt = `Allowed characters with meanings:\n${learnedWords.join("\n")}\n\nWrite a grammatically correct Chinese passage using ONLY these characters.`;
+  const userPrompt = `Allowed characters: ${allowedList}\n\nWrite a grammatically correct Simplified Chinese passage using ONLY these characters.`;
 
   let text = "";
   let lastViolations: string[] = [];
@@ -98,7 +91,7 @@ STRICT RULES:
       messages: [
         {
           role: "system",
-          content: `You are a Chinese grammar expert. Fix any grammatical errors in the passage below. You may ONLY use characters from this list: ${allowedList}. Do NOT add any new characters. Return only the corrected passage, no explanations.`,
+          content: `You are a Simplified Chinese grammar expert. Fix any grammatical errors in the passage below. Use Simplified Chinese characters (简体字) only. You may ONLY use characters from this list: ${allowedList}. Do NOT add any new characters. Return only the corrected passage, no explanations.`,
         },
         { role: "user", content: text },
       ],
