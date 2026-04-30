@@ -7,13 +7,14 @@ import { Button } from "@/src/components/ui/Button";
 import { Checkbox } from "@/src/components/ui/Checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/src/components/ui/Dialog";
 import { cn } from "@/src/utils/ui";
-import { Search, ChevronDown, ChevronRight, Plus, Pencil, Trash2 } from "lucide-react";
+import { Search, ChevronDown, ChevronRight, Plus, Pencil, Trash2, Volume2 } from "lucide-react";
+import { useSpeech } from "@/src/hooks/useSpeech";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/src/components/ui/Tooltip";
-import { CharTooltip } from "./CharTooltip";
+import { CharTooltip } from "../study/CharTooltip";
 import { TooltipMode } from "@/src/components/enums";
 import type { UserEdits } from "@/src/declaration/chinese";
-import { useEditAuth } from "./useEditAuth";
-import { KeyPromptModal } from "./KeyPromptModal";
+import { useEditAuth } from "../study/useEditAuth";
+import { KeyPromptModal } from "../study/KeyPromptModal";
 
 const CAT_COLORS = [
   "#3b82f6", "#22c55e", "#f59e0b", "#ec4899", "#8b5cf6",
@@ -228,8 +229,10 @@ function isChinese(ch: string) {
 }
 
 function WordCard({ word, userEdits, tooltipMode, hidePinyin, hideMeaning, hideHanViet, hideNote, onEdit, onDelete }: WordCardProps) {
+  const { speak } = useSpeech();
   return (
     <div className="rounded-lg border border-border bg-card p-3 flex flex-col gap-1 group relative">
+      <div className="flex items-center gap-2">
       <div className="text-2xl font-medium leading-tight">
         {[...word.word].map((ch, i) => {
           const info = isChinese(ch) ? CHINESE_DATA[ch] : undefined;
@@ -242,6 +245,14 @@ function WordCard({ word, userEdits, tooltipMode, hidePinyin, hideMeaning, hideH
             <span key={i} style={{ fontFamily: "var(--font-noto-serif-sc), serif" }}>{ch}</span>
           );
         })}
+      </div>
+      <button
+        onClick={(e) => { e.stopPropagation(); speak(word.word); }}
+        className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground/50 hover:text-primary"
+        title="Phát âm"
+      >
+        <Volume2 className="h-4 w-4" />
+      </button>
       </div>
       {!hidePinyin && word.pinyin && (
         <div className="text-xs text-muted-foreground">{word.pinyin}</div>

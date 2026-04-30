@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ensureTables, getCardEdits, upsertCardEdits } from "@/src/lib/chinese-db";
-import type { UserEdits } from "@/src/components/chinese/EditCardModal";
+import type { UserEdits } from "@/src/components/chinese/study/EditCardModal";
 
 export async function GET() {
   try {

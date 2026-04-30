@@ -85,6 +85,11 @@
   @apply bg-muted-foreground/50;
 }
 
+/* Preserve empty paragraphs in prose (e.g. TipTap rendered content) */
+.prose p:empty {
+  min-height: 1em;
+}
+
 /* Smooth transitions for theme changes */
 * {
   transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
