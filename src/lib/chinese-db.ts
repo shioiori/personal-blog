@@ -1,5 +1,5 @@
 import { sql } from "./db";
-import type { UserEdits } from "@/src/components/chinese/EditCardModal";
+import type { UserEdits } from "@/src/components/chinese/study/EditCardModal";
 import type { CompoundCategory, CompoundWord } from "@/src/declaration/chinese";
 
 export async function ensureTables() {
@@ -302,6 +302,112 @@ export async function updateGrammarPost(id: number, title: string, content: stri
 
 export async function deleteGrammarPost(id: number): Promise<void> {
   await sql`DELETE FROM grammar_posts WHERE id = ${id}`;
+}
+
+// ── Flashcard SRS (SM-2) ──────────────────────────────────────────────────────
+
+export type FlashcardMode = "flip" | "write";
+
+export async function ensureFlashcardTables() {
+  await sql`
+    CREATE TABLE IF NOT EXISTS chinese_flashcard_flip (
+      char          TEXT NOT NULL PRIMARY KEY,
+      due_date      DATE NOT NULL DEFAULT CURRENT_DATE,
+      interval      INT  NOT NULL DEFAULT 1,
+      ease_factor   REAL NOT NULL DEFAULT 2.5,
+      repetitions   INT  NOT NULL DEFAULT 0,
+      updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS chinese_flashcard_write (
+      char          TEXT NOT NULL PRIMARY KEY,
+      due_date      DATE NOT NULL DEFAULT CURRENT_DATE,
+      interval      INT  NOT NULL DEFAULT 1,
+      ease_factor   REAL NOT NULL DEFAULT 2.5,
+      repetitions   INT  NOT NULL DEFAULT 0,
+      updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+}
+
+export interface FlashcardRow {
+  char: string;
+  dueDate: string;
+  interval: number;
+  easeFactor: number;
+  repetitions: number;
+}
+
+function flashcardTable(mode: FlashcardMode) {
+  return mode === "flip" ? "chinese_flashcard_flip" : "chinese_flashcard_write";
+}
+
+export async function seedFlashcardsForLearnedChars(mode: FlashcardMode): Promise<void> {
+  const table = flashcardTable(mode);
+  await sql`
+    INSERT INTO ${sql(table)} (char)
+    SELECT char FROM chinese_card_state
+    WHERE hidden = TRUE
+    ON CONFLICT (char) DO NOTHING
+  `;
+}
+
+export async function getFlashcardsDueToday(mode: FlashcardMode): Promise<string[]> {
+  await seedFlashcardsForLearnedChars(mode);
+  const table = flashcardTable(mode);
+  const rows = await sql`
+    SELECT f.char
+    FROM ${sql(table)} f
+    JOIN chinese_card_state s ON s.char = f.char
+    WHERE s.hidden = TRUE AND f.due_date <= CURRENT_DATE
+    ORDER BY f.due_date ASC
+  `;
+  return rows.map((r) => r.char as string);
+}
+
+export async function upsertFlashcard(char: string, grade: 0 | 1 | 2 | 3, mode: FlashcardMode): Promise<void> {
+  const table = flashcardTable(mode);
+  const rows = await sql`
+    SELECT interval, ease_factor, repetitions
+    FROM ${sql(table)} WHERE char = ${char}
+  `;
+
+  let interval = (rows[0]?.interval as number) ?? 1;
+  let easeFactor = (rows[0]?.ease_factor as number) ?? 2.5;
+  let repetitions = (rows[0]?.repetitions as number) ?? 0;
+
+  if (grade === 0) {
+    repetitions = 0;
+    interval = 1;
+  } else if (grade === 1) {
+    interval = Math.max(1, Math.round(interval * 1.2));
+    easeFactor = Math.max(1.3, easeFactor - 0.15);
+    repetitions += 1;
+  } else if (grade === 2) {
+    if (repetitions === 0) interval = 1;
+    else if (repetitions === 1) interval = 6;
+    else interval = Math.round(interval * easeFactor);
+    repetitions += 1;
+  } else {
+    if (repetitions === 0) interval = 1;
+    else if (repetitions === 1) interval = 6;
+    else interval = Math.round(interval * easeFactor * 1.3);
+    easeFactor = Math.min(2.5, easeFactor + 0.15);
+    repetitions += 1;
+  }
+
+  await sql`
+    INSERT INTO ${sql(table)} (char, due_date, interval, ease_factor, repetitions, updated_at)
+    VALUES (${char}, CURRENT_DATE + ${interval}, ${interval}, ${easeFactor}, ${repetitions}, NOW())
+    ON CONFLICT (char)
+    DO UPDATE SET
+      due_date    = CURRENT_DATE + ${interval},
+      interval    = ${interval},
+      ease_factor = ${easeFactor},
+      repetitions = ${repetitions},
+      updated_at  = NOW()
+  `;
 }
 
 export async function upsertCardEdits(char: string, edits: UserEdits) {

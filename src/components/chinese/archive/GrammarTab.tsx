@@ -9,8 +9,8 @@ import { Button } from "@/src/components/ui/Button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/src/components/ui/Dialog";
 import { cn } from "@/src/utils/ui";
 import { ChevronDown, ChevronRight, Plus, Pencil, Trash2, Bold, Italic, UnderlineIcon, List, ListOrdered, AlignLeft, AlignCenter, AlignRight, Heading2, Heading3, Minus } from "lucide-react";
-import { useEditAuth } from "./useEditAuth";
-import { KeyPromptModal } from "./KeyPromptModal";
+import { useEditAuth } from "../study/useEditAuth";
+import { KeyPromptModal } from "../study/KeyPromptModal";
 import type { GrammarPost } from "@/src/lib/chinese-db";
 
 // ── API helpers ───────────────────────────────────────────────────────────────
@@ -214,8 +214,8 @@ function PostItem({ post, onEdit, onDelete }: PostItemProps) {
 
   return (
     <div className="border border-border rounded-lg overflow-hidden">
-      <button
-        className="w-full flex items-start gap-2 px-4 py-3 text-left hover:bg-accent transition-colors"
+      <div
+        className="w-full flex items-start gap-2 px-4 py-3 text-left hover:bg-accent transition-colors cursor-pointer"
         onClick={() => setOpen((v) => !v)}
       >
         <span className="mt-0.5 shrink-0 text-muted-foreground">
@@ -236,7 +236,7 @@ function PostItem({ post, onEdit, onDelete }: PostItemProps) {
               <Trash2 className="w-3.5 h-3.5" />
             </button>
           </span>
-      </button>
+      </div>
 
       {open && (
         <div

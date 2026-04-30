@@ -8,8 +8,8 @@ import { Button } from "@/src/components/ui/Button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/src/components/ui/Dialog";
 import { cn } from "@/src/utils/ui";
 import { ChevronDown, ChevronRight, Plus, Pencil, Trash2, X } from "lucide-react";
-import { useEditAuth } from "./useEditAuth";
-import { KeyPromptModal } from "./KeyPromptModal";
+import { useEditAuth } from "../study/useEditAuth";
+import { KeyPromptModal } from "../study/KeyPromptModal";
 
 // ── API helpers ───────────────────────────────────────────────────────────────
 

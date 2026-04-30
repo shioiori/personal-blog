@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, memo } from "react";
-import { Pencil, Copy, Check, Star } from "lucide-react";
+import { Pencil, Copy, Check, Star, Volume2 } from "lucide-react";
+import { useSpeech } from "@/src/hooks/useSpeech";
 import { cn } from "@/src/utils/ui";
 import { Checkbox } from "@/src/components/ui/Checkbox";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/src/components/ui/Tooltip";
@@ -23,6 +24,7 @@ interface CharacterCardProps {
 export const CharacterCard = memo(function CharacterCard({ info, edits, hidden, onToggleHide, onSave, onNavigate, onEditRequest, editLocked }: CharacterCardProps) {
   const [editOpen, setEditOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const { speak, speaking } = useSpeech();
 
   const displayPinyin = edits.pinyin || info.pinyin;
   const displayHanViet = edits.hanViet || info.hanViet;
@@ -103,15 +105,24 @@ export const CharacterCard = memo(function CharacterCard({ info, edits, hidden, 
                 >
                   {info.char}
                 </div>
-                <button
-                  onClick={handleCopy}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground/50 hover:text-primary self-start mt-1"
-                  title="Copy"
-                >
-                  {copied
-                    ? <Check className="h-3 w-3 text-green-500" />
-                    : <Copy className="h-3 w-3" />}
-                </button>
+                <div className="flex flex-col gap-1 self-start mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={handleCopy}
+                    className="text-muted-foreground/50 hover:text-primary"
+                    title="Copy"
+                  >
+                    {copied
+                      ? <Check className="h-3 w-3 text-green-500" />
+                      : <Copy className="h-3 w-3" />}
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); speak(info.char); }}
+                    className={cn("text-muted-foreground/50 hover:text-primary transition-colors", speaking && "text-primary")}
+                    title="Phát âm"
+                  >
+                    <Volume2 className="h-3 w-3" />
+                  </button>
+                </div>
               </div>
             </TooltipTrigger>
             <TooltipContent side="top" className="max-w-[240px] text-xs space-y-1.5 p-3">

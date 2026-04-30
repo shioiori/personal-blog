@@ -5,7 +5,7 @@ import { RefreshCw, Sparkles, Copy } from "lucide-react";
 import { cn } from "@/src/utils/ui";
 import { TooltipMode, ReviewStatus } from "@/src/components/enums";
 import { buildReviewPrompt } from "@/src/utils/chinese";
-import { CharTooltip } from "./CharTooltip";
+import { CharTooltip } from "../study/CharTooltip";
 import type { ReviewState, ReviewTabProps, ReviewTextProps } from "@/src/declaration/chinese";
 import { CHINESE_REVIEW_TEXT } from "@/src/constants";
 

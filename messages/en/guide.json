@@ -46,7 +46,7 @@
         }
       },
       "chinese": {
-        "title": "漢字 Chinese Characters",
+        "title": "汉字 Chinese Characters",
         "description": "A flashcard tool for learning Chinese characters. Filter by HSK levels 1–6. Two view modes:",
         "modes": {
           "all": "All cards: display all flashcards in order.",

@@ -1,11 +1,13 @@
 "use client";
 
-import { Star } from "lucide-react";
+import { Star, Volume2 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/src/components/ui/Tooltip";
 import { TooltipMode } from "@/src/components/enums";
+import { useSpeech } from "@/src/hooks/useSpeech";
 import type { CharTooltipProps } from "@/src/declaration/chinese";
 
 export function CharTooltip({ char, info, edits, mode }: CharTooltipProps) {
+  const { speak } = useSpeech();
   const displayPinyin = edits.pinyin || info.pinyin;
   const displayHanViet = edits.hanViet || info.hanViet;
   const displayMeaning = edits.meaningVi || info.meaningVi || info.meaning;
@@ -22,9 +24,16 @@ export function CharTooltip({ char, info, edits, mode }: CharTooltipProps) {
           </span>
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-[240px] text-xs space-y-1.5 p-3">
-          <div className="flex items-baseline gap-2">
+          <div className="flex items-center gap-2">
             <span className="text-lg font-bold" style={{ fontFamily: "var(--font-noto-serif-sc), serif" }}>{info.char}</span>
             {mode !== TooltipMode.NoPinyin && <span className="tracking-wider">{displayPinyin}</span>}
+            <button
+              onClick={() => speak(info.char)}
+              className="ml-auto text-muted-foreground/50 hover:text-primary transition-colors"
+              title="Phát âm"
+            >
+              <Volume2 className="h-3.5 w-3.5" />
+            </button>
           </div>
           {info.hsk !== "beyond" && (
             <div className="flex items-center gap-1.5">

@@ -7,35 +7,6 @@ import { CharacterCard } from "./CharacterCard";
 import type { UserEdits } from "./EditCardModal";
 import { useEditAuth } from "./useEditAuth";
 import { KeyPromptModal } from "./KeyPromptModal";
-import { ReviewTab } from "./ReviewTab";
-import dynamic from "next/dynamic";
-
-const CompoundTab = dynamic(() => import("./CompoundTab").then((m) => m.CompoundTab), {
-  loading: () => (
-    <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-      <div className="w-6 h-6 border-2 border-border border-t-foreground rounded-full animate-spin" />
-      <p className="text-sm">Đang tải...</p>
-    </div>
-  ),
-});
-
-const GroupCharTab = dynamic(() => import("./GroupCharTab").then((m) => m.GroupCharTab), {
-  loading: () => (
-    <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-      <div className="w-6 h-6 border-2 border-border border-t-foreground rounded-full animate-spin" />
-      <p className="text-sm">Đang tải...</p>
-    </div>
-  ),
-});
-
-const GrammarTab = dynamic(() => import("./GrammarTab").then((m) => m.GrammarTab), {
-  loading: () => (
-    <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-      <div className="w-6 h-6 border-2 border-border border-t-foreground rounded-full animate-spin" />
-      <p className="text-sm">Đang tải...</p>
-    </div>
-  ),
-});
 import {
   Select,
   SelectContent,
@@ -69,7 +40,7 @@ const byFreq = (a: CharacterInfo, b: CharacterInfo) => {
 };
 const HSK_OPTIONS = ["Tất cả", "HSK 1", "HSK 2", "HSK 3", "HSK 4", "HSK 5", "HSK 6", "Không rõ"] as const;
 
-type ViewMode = "all" | "byRadical" | "review" | "compound" | "grammar" | "groupchar";
+type ViewMode = "all" | "byRadical";
 
 interface RadicalGroupData {
   radical: string;
@@ -278,7 +249,7 @@ export function ChineseStudy() {
             className="text-3xl font-bold"
             style={{ fontFamily: "var(--font-noto-serif-sc), serif" }}
           >
-            漢字
+            汉字
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             {filtered.length.toLocaleString()} ký tự · {visibleGroups.length} bộ thủ · {hiddenCards.size.toLocaleString()} đã học
@@ -312,54 +283,9 @@ export function ChineseStudy() {
               >
                 Theo bộ thủ
               </button>
-              <button
-                className={cn(
-                  "px-4 py-2 text-sm font-medium transition-colors border-l border-border",
-                  viewMode === "review"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-background text-muted-foreground hover:bg-accent"
-                )}
-                onClick={() => setViewModeAndReset("review")}
-              >
-                Ôn tập
-              </button>
-              <button
-                className={cn(
-                  "px-4 py-2 text-sm font-medium transition-colors border-l border-border",
-                  viewMode === "compound"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-background text-muted-foreground hover:bg-accent"
-                )}
-                onClick={() => setViewModeAndReset("compound")}
-              >
-                Từ ghép
-              </button>
-              <button
-                className={cn(
-                  "px-4 py-2 text-sm font-medium transition-colors border-l border-border",
-                  viewMode === "grammar"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-background text-muted-foreground hover:bg-accent"
-                )}
-                onClick={() => setViewModeAndReset("grammar")}
-              >
-                Ngữ pháp
-              </button>
-              <button
-                className={cn(
-                  "px-4 py-2 text-sm font-medium transition-colors border-l border-border",
-                  viewMode === "groupchar"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-background text-muted-foreground hover:bg-accent"
-                )}
-                onClick={() => setViewModeAndReset("groupchar")}
-              >
-                Gom từ
-              </button>
             </div>
 
-            {viewMode !== "review" && viewMode !== "compound" && viewMode !== "grammar" && viewMode !== "groupchar" && (
-              <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-1.5">
                 {HSK_OPTIONS.map((opt) => {
                   const val = hskFilterValue(opt);
                   return (
@@ -378,47 +304,32 @@ export function ChineseStudy() {
                   );
                 })}
               </div>
-            )}
           </div>
 
-          {/* Row 2: checkboxes — hidden in review and compound mode */}
-          {viewMode !== "review" && viewMode !== "compound" && viewMode !== "grammar" && viewMode !== "groupchar" && (
-            <div className="flex flex-wrap gap-4 items-center">
-              <label className="flex items-center gap-2 cursor-pointer shrink-0">
-                <Checkbox
-                  checked={showKnownOnly}
-                  onCheckedChange={(v) => setShowKnownOnly(Boolean(v))}
-                />
-                <span className="text-sm text-muted-foreground select-none">
-                  Chỉ hiện bộ thủ có từ đã biết
-                </span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer shrink-0">
-                <Checkbox
-                  checked={showKnownCardsOnly}
-                  onCheckedChange={(v) => setShowKnownCardsOnly(Boolean(v))}
-                />
-                <span className="text-sm text-muted-foreground select-none">
-                  Chỉ hiện từ đã biết
-                </span>
-              </label>
-            </div>
-          )}
+          {/* Row 2: checkboxes */}
+          <div className="flex flex-wrap gap-4 items-center">
+            <label className="flex items-center gap-2 cursor-pointer shrink-0">
+              <Checkbox
+                checked={showKnownOnly}
+                onCheckedChange={(v) => setShowKnownOnly(Boolean(v))}
+              />
+              <span className="text-sm text-muted-foreground select-none">
+                Chỉ hiện bộ thủ có từ đã biết
+              </span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer shrink-0">
+              <Checkbox
+                checked={showKnownCardsOnly}
+                onCheckedChange={(v) => setShowKnownCardsOnly(Boolean(v))}
+              />
+              <span className="text-sm text-muted-foreground select-none">
+                Chỉ hiện từ đã biết
+              </span>
+            </label>
+          </div>
         </div>
 
-        {/* Review tab content */}
-        {viewMode === "review" && <ReviewTab allChars={allChars} userEdits={userEdits} hiddenCards={hiddenCards} />}
-
-        {/* Compound words tab */}
-        {viewMode === "compound" && <CompoundTab />}
-
-        {/* Grammar tab */}
-        {viewMode === "grammar" && <GrammarTab />}
-
-        {/* Group char tab */}
-        {viewMode === "groupchar" && <GroupCharTab />}
-
-        {/* Search for mode "all" — not shown in compound */}
+        {/* Search for mode "all" */}
         {viewMode === "all" && (
           <div className="flex gap-2 items-center">
             <input
@@ -499,7 +410,7 @@ export function ChineseStudy() {
         )}
 
         {/* Loading overlay for initial data fetch */}
-        {!loaded && viewMode !== "review" && viewMode !== "compound" && viewMode !== "grammar" && viewMode !== "groupchar" && (
+        {!loaded && (
           <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
             <div className="w-6 h-6 border-2 border-border border-t-foreground rounded-full animate-spin" />
             <p className="text-sm">Đang tải dữ liệu...</p>
@@ -507,7 +418,7 @@ export function ChineseStudy() {
         )}
 
         {/* Content (study modes only) */}
-        {loaded && viewMode !== "review" && viewMode !== "compound" && viewMode !== "grammar" && viewMode !== "groupchar" && (
+        {loaded && (
           viewMode === "all" ? (
             <div className="space-y-2">
               {allVisibleGroups.map((g) => (

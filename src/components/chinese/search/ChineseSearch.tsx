@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/src/components/ui/Button";
 import { useTranslations } from "next-intl";
-import { Undo2, Trash2, Loader2 } from "lucide-react";
+import { Undo2, Trash2, Loader2, BookmarkCheck, Bookmark } from "lucide-react";
 import { HskLevel } from "@/src/data/chinese";
 
 type Point = { x: number; y: number };
@@ -41,6 +41,17 @@ export function ChineseSearch() {
   const [selectedChar, setSelectedChar] = useState<CharInfo | null>(null);
   const [isRecognizing, setIsRecognizing] = useState(false);
   const [isLoadingInfo, setIsLoadingInfo] = useState(false);
+  const [learnedChars, setLearnedChars] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    fetch("/api/chinese/state")
+      .then((r) => r.json())
+      .then((data: Record<string, boolean>) => {
+        const learned = new Set(Object.entries(data).filter(([, hidden]) => !hidden).map(([char]) => char));
+        setLearnedChars(learned);
+      })
+      .catch(() => {});
+  }, []);
 
   const redraw = useCallback((allStrokes: Stroke[], liveStroke: Stroke = []) => {
     const canvas = canvasRef.current;
@@ -159,6 +170,22 @@ export function ChineseSearch() {
     else { setSuggestions([]); setSelectedChar(null); }
   };
 
+  const handleToggleLearned = async (char: string) => {
+    const isLearned = learnedChars.has(char);
+    const newHidden = isLearned; // if currently learned (hidden=false), set hidden=true
+    await fetch("/api/chinese/state", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ char, hidden: newHidden }),
+    }).catch(() => {});
+    setLearnedChars((prev) => {
+      const next = new Set(prev);
+      if (isLearned) next.delete(char);
+      else next.add(char);
+      return next;
+    });
+  };
+
   const handleClear = () => {
     setStrokes([]);
     setCurrentStroke([]);
@@ -211,19 +238,8 @@ export function ChineseSearch() {
       <div className="flex-1 flex flex-col gap-6 min-w-0">
         {/* Suggestion buttons — char only */}
         <div>
-          <div className="flex items-center gap-2 mb-3">
-            <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-              {t("suggestions")}
-            </h3>
+          <div className="flex flex-wrap gap-2 min-h-[3rem] items-center">
             {isRecognizing && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
-          </div>
-
-          {suggestions.length === 0 && !isRecognizing ? (
-            <p className="text-sm text-muted-foreground italic">
-              {strokes.length === 0 ? t("startDrawing") : t("noSuggestions")}
-            </p>
-          ) : (
-            <div className="flex flex-wrap gap-2">
               {suggestions.map((char, i) => (
                 <button
                   key={i}
@@ -238,8 +254,7 @@ export function ChineseSearch() {
                   {char}
                 </button>
               ))}
-            </div>
-          )}
+          </div>
         </div>
 
         {/* Detail panel — shown after clicking a suggestion */}
@@ -261,6 +276,20 @@ export function ChineseSearch() {
                       {selectedChar.hsk === "beyond" ? "Beyond HSK" : `HSK ${selectedChar.hsk}`}
                     </span>
                   )}
+                  <button
+                    onClick={() => handleToggleLearned(selectedChar.char)}
+                    className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                      learnedChars.has(selectedChar.char)
+                        ? "border-green-400 bg-green-50 text-green-700 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-400 dark:border-green-600"
+                        : "border-border text-muted-foreground hover:border-primary hover:text-primary"
+                    }`}
+                    title={learnedChars.has(selectedChar.char) ? "Bỏ đánh dấu đã học" : "Đánh dấu đã học"}
+                  >
+                    {learnedChars.has(selectedChar.char)
+                      ? <><BookmarkCheck className="h-3.5 w-3.5" /> Đã học</>
+                      : <><Bookmark className="h-3.5 w-3.5" /> Đánh dấu</>
+                    }
+                  </button>
                 </div>
 
                 <div className="flex flex-col gap-3 pt-1 min-w-0">
