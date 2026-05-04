@@ -343,71 +343,96 @@ function flashcardTable(mode: FlashcardMode) {
   return mode === "flip" ? "chinese_flashcard_flip" : "chinese_flashcard_write";
 }
 
+
 export async function seedFlashcardsForLearnedChars(mode: FlashcardMode): Promise<void> {
-  const table = flashcardTable(mode);
-  await sql`
-    INSERT INTO ${sql(table)} (char)
-    SELECT char FROM chinese_card_state
-    WHERE hidden = TRUE
-    ON CONFLICT (char) DO NOTHING
-  `;
+  if (mode === "flip") {
+    await sql`INSERT INTO chinese_flashcard_flip (char) SELECT char FROM chinese_card_state WHERE hidden = TRUE ON CONFLICT (char) DO NOTHING`;
+  } else {
+    await sql`INSERT INTO chinese_flashcard_write (char) SELECT char FROM chinese_card_state WHERE hidden = TRUE ON CONFLICT (char) DO NOTHING`;
+  }
 }
 
 export async function getFlashcardsDueToday(mode: FlashcardMode): Promise<string[]> {
   await seedFlashcardsForLearnedChars(mode);
-  const table = flashcardTable(mode);
-  const rows = await sql`
-    SELECT f.char
-    FROM ${sql(table)} f
-    JOIN chinese_card_state s ON s.char = f.char
-    WHERE s.hidden = TRUE AND f.due_date <= CURRENT_DATE
-    ORDER BY f.due_date ASC
-  `;
+  let rows;
+  if (mode === "flip") {
+    rows = await sql`
+      SELECT f.char FROM chinese_flashcard_flip f
+      JOIN chinese_card_state s ON s.char = f.char
+      WHERE s.hidden = TRUE AND f.due_date <= CURRENT_DATE
+      ORDER BY f.due_date ASC
+    `;
+  } else {
+    rows = await sql`
+      SELECT f.char FROM chinese_flashcard_write f
+      JOIN chinese_card_state s ON s.char = f.char
+      WHERE s.hidden = TRUE AND f.due_date <= CURRENT_DATE
+      ORDER BY f.due_date ASC
+    `;
+  }
   return rows.map((r) => r.char as string);
 }
 
+function calcNextInterval(grade: 0 | 1 | 2 | 3, interval: number, easeFactor: number, repetitions: number) {
+  // grade 0 = Again: restart, penalize EF
+  if (grade === 0) return { interval: 1, easeFactor: Math.max(1.3, easeFactor - 0.2), repetitions: 0 };
+  // grade 1 = Hard: keep progressing but reduce EF and grow interval slowly
+  if (grade === 1) {
+    const next = repetitions === 0 ? 1 : repetitions === 1 ? 3 : Math.max(1, Math.round(interval * 1.2));
+    return { interval: next, easeFactor: Math.max(1.3, easeFactor - 0.15), repetitions: repetitions + 1 };
+  }
+  // grade 2 = Good: standard SM-2
+  if (grade === 2) {
+    const next = repetitions === 0 ? 1 : repetitions === 1 ? 6 : Math.round(interval * easeFactor);
+    return { interval: next, easeFactor, repetitions: repetitions + 1 };
+  }
+  // grade 3 = Easy: bonus interval, increase EF
+  const next = repetitions === 0 ? 4 : repetitions === 1 ? 10 : Math.round(interval * easeFactor * 1.3);
+  return { interval: next, easeFactor: Math.min(2.5, easeFactor + 0.15), repetitions: repetitions + 1 };
+}
+
 export async function upsertFlashcard(char: string, grade: 0 | 1 | 2 | 3, mode: FlashcardMode): Promise<void> {
-  const table = flashcardTable(mode);
-  const rows = await sql`
-    SELECT interval, ease_factor, repetitions
-    FROM ${sql(table)} WHERE char = ${char}
-  `;
-
-  let interval = (rows[0]?.interval as number) ?? 1;
-  let easeFactor = (rows[0]?.ease_factor as number) ?? 2.5;
-  let repetitions = (rows[0]?.repetitions as number) ?? 0;
-
-  if (grade === 0) {
-    repetitions = 0;
-    interval = 1;
-  } else if (grade === 1) {
-    interval = Math.max(1, Math.round(interval * 1.2));
-    easeFactor = Math.max(1.3, easeFactor - 0.15);
-    repetitions += 1;
-  } else if (grade === 2) {
-    if (repetitions === 0) interval = 1;
-    else if (repetitions === 1) interval = 6;
-    else interval = Math.round(interval * easeFactor);
-    repetitions += 1;
+  let rows;
+  if (mode === "flip") {
+    rows = await sql`SELECT interval, ease_factor, repetitions FROM chinese_flashcard_flip WHERE char = ${char}`;
   } else {
-    if (repetitions === 0) interval = 1;
-    else if (repetitions === 1) interval = 6;
-    else interval = Math.round(interval * easeFactor * 1.3);
-    easeFactor = Math.min(2.5, easeFactor + 0.15);
-    repetitions += 1;
+    rows = await sql`SELECT interval, ease_factor, repetitions FROM chinese_flashcard_write WHERE char = ${char}`;
   }
 
-  await sql`
-    INSERT INTO ${sql(table)} (char, due_date, interval, ease_factor, repetitions, updated_at)
-    VALUES (${char}, CURRENT_DATE + ${interval}, ${interval}, ${easeFactor}, ${repetitions}, NOW())
-    ON CONFLICT (char)
-    DO UPDATE SET
-      due_date    = CURRENT_DATE + ${interval},
-      interval    = ${interval},
-      ease_factor = ${easeFactor},
-      repetitions = ${repetitions},
-      updated_at  = NOW()
-  `;
+  const { interval, easeFactor, repetitions } = calcNextInterval(
+    grade,
+    (rows[0]?.interval as number) ?? 1,
+    (rows[0]?.ease_factor as number) ?? 2.5,
+    (rows[0]?.repetitions as number) ?? 0,
+  );
+
+  const dueDate = new Date();
+  dueDate.setDate(dueDate.getDate() + interval);
+  const dueDateStr = dueDate.toISOString().slice(0, 10);
+
+  if (mode === "flip") {
+    await sql`
+      INSERT INTO chinese_flashcard_flip (char, due_date, interval, ease_factor, repetitions, updated_at)
+      VALUES (${char}, ${dueDateStr}, ${interval}, ${easeFactor}, ${repetitions}, NOW())
+      ON CONFLICT (char) DO UPDATE SET
+        due_date = ${dueDateStr},
+        interval = ${interval},
+        ease_factor = ${easeFactor},
+        repetitions = ${repetitions},
+        updated_at = NOW()
+    `;
+  } else {
+    await sql`
+      INSERT INTO chinese_flashcard_write (char, due_date, interval, ease_factor, repetitions, updated_at)
+      VALUES (${char}, ${dueDateStr}, ${interval}, ${easeFactor}, ${repetitions}, NOW())
+      ON CONFLICT (char) DO UPDATE SET
+        due_date = ${dueDateStr},
+        interval = ${interval},
+        ease_factor = ${easeFactor},
+        repetitions = ${repetitions},
+        updated_at = NOW()
+    `;
+  }
 }
 
 export async function upsertCardEdits(char: string, edits: UserEdits) {

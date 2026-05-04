@@ -6,7 +6,11 @@ export async function GET(req: NextRequest) {
     await ensureTables();
     await ensureFlashcardTables();
     const mode = (req.nextUrl.searchParams.get("mode") ?? "flip") as FlashcardMode;
-    const cards = await getFlashcardsDueToday(mode);
+    const limit = parseInt(req.nextUrl.searchParams.get("limit") ?? "0", 10);
+    const order = req.nextUrl.searchParams.get("order") ?? "due";
+    let cards = await getFlashcardsDueToday(mode);
+    if (order === "random") cards = cards.sort(() => Math.random() - 0.5);
+    if (limit > 0) cards = cards.slice(0, limit);
     return NextResponse.json({ cards, total: cards.length });
   } catch (e) {
     console.error(e);
@@ -24,7 +28,8 @@ export async function POST(req: NextRequest) {
     await upsertFlashcard(char, grade, mode);
     return NextResponse.json({ ok: true });
   } catch (e) {
-    console.error(e);
-    return NextResponse.json({ error: "db error" }, { status: 500 });
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error("[POST flashcard error]", msg);
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

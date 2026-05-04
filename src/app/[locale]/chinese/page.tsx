@@ -17,7 +17,7 @@ export default function Page() {
   return (
     <ChineseProvider>
       <Tabs defaultValue="study" className="space-y-6">
-        <TabsList className="w-full overflow-x-auto">
+        <TabsList className="w-fit">
           <TabsTrigger value="study" className="flex items-center gap-2">
             <BookOpen className="h-4 w-4" />
             Học chữ
