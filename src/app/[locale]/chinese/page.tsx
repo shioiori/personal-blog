@@ -1,13 +1,21 @@
 "use client";
 
+import { useState } from "react";
 import { ChineseStudy } from "@/src/components/chinese/study/ChineseStudy";
+import { ImportTab } from "@/src/components/chinese/study/ImportTab";
 import { ChineseSearch } from "@/src/components/chinese/search/ChineseSearch";
 import { ReviewSection } from "@/src/components/chinese/review/ReviewSection";
 import { ArchiveSection } from "@/src/components/chinese/archive/ArchiveSection";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/Tabs";
-import { PenLine, BookOpen, RotateCcw, Archive } from "lucide-react";
+import { PenLine, BookOpen, RotateCcw, Archive, Upload } from "lucide-react";
 
 export default function Page() {
+  const [importedChars, setImportedChars] = useState<string[]>([]);
+
+  function handleImported(chars: string[]) {
+    setImportedChars((prev) => [...new Set([...prev, ...chars])]);
+  }
+
   return (
     <Tabs defaultValue="study" className="space-y-6">
       <TabsList className="w-fit">
@@ -27,10 +35,14 @@ export default function Page() {
           <PenLine className="h-4 w-4" />
           Tra bằng nét vẽ
         </TabsTrigger>
+        <TabsTrigger value="import" className="flex items-center gap-2">
+          <Upload className="h-4 w-4" />
+          Import
+        </TabsTrigger>
       </TabsList>
 
       <TabsContent value="study">
-        <ChineseStudy />
+        <ChineseStudy extraHidden={importedChars} />
       </TabsContent>
 
       <TabsContent value="review">
@@ -43,6 +55,10 @@ export default function Page() {
 
       <TabsContent value="draw">
         <ChineseSearch />
+      </TabsContent>
+
+      <TabsContent value="import">
+        <ImportTab onImported={handleImported} />
       </TabsContent>
     </Tabs>
   );

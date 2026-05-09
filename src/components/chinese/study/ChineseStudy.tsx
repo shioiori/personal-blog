@@ -48,7 +48,11 @@ interface RadicalGroupData {
   chars: CharacterInfo[];
 }
 
-export function ChineseStudy() {
+interface ChineseStudyProps {
+  extraHidden?: string[];
+}
+
+export function ChineseStudy({ extraHidden }: ChineseStudyProps = {}) {
   const [viewMode, setViewMode] = useState<ViewMode>("all");
   const setViewModeAndReset = useCallback((mode: ViewMode) => {
     setViewMode(mode);
@@ -84,6 +88,18 @@ export function ChineseStudy() {
       setPendingAction(() => action);
     }
   }, [requestEdit]);
+
+  useEffect(() => {
+    if (!extraHidden?.length) return;
+    setHiddenCards((prev) => {
+      const next = new Set(prev);
+      let changed = false;
+      for (const ch of extraHidden) {
+        if (!next.has(ch)) { next.add(ch); changed = true; }
+      }
+      return changed ? next : prev;
+    });
+  }, [extraHidden]);
 
   // Load persisted state from Neon on mount
   useEffect(() => {
