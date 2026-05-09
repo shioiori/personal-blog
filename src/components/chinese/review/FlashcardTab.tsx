@@ -6,6 +6,8 @@ import { Button } from "@/src/components/ui/Button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/Tabs";
 import { useSpeech } from "@/src/hooks/useSpeech";
 import { FlashcardWriteTab } from "./FlashcardWriteTab";
+import { FlashcardSettingsTab } from "./FlashcardSettingsTab";
+import { useFlashcardSettings } from "@/src/hooks/useFlashcardSettings";
 import type { CharacterInfo } from "@/src/data/chinese";
 import type { UserEdits } from "@/src/declaration/chinese";
 
@@ -47,6 +49,8 @@ export function FlashcardTab({ allChars, userEdits }: FlashcardTabProps) {
   const [summary, setSummary] = useState<GradeSummary>({ again: 0, hard: 0, good: 0, easy: 0 });
   const [doneSummary, setDoneSummary] = useState<GradeSummary | null>(null);
 
+  const { settings, updateSettings } = useFlashcardSettings();
+
   const charMap = Object.fromEntries(allChars.map((c) => [c.char, c]));
 
   const loadSession = useCallback(async () => {
@@ -55,7 +59,10 @@ export function FlashcardTab({ allChars, userEdits }: FlashcardTabProps) {
     setDoneSummary(null);
     setIndex(0);
     try {
-      const res = await fetch("/api/chinese/flashcard?mode=flip");
+      const params = new URLSearchParams({ mode: "flip" });
+      if (settings.maxReviews > 0) params.set("limit", String(settings.maxReviews));
+      if (settings.order === "random") params.set("order", "random");
+      const res = await fetch(`/api/chinese/flashcard?${params.toString()}`);
       const data = await res.json() as { cards: string[] };
       if (data.cards.length === 0) {
         setPhase("empty");
@@ -66,9 +73,9 @@ export function FlashcardTab({ allChars, userEdits }: FlashcardTabProps) {
     } catch {
       setPhase("empty");
     }
-  }, []);
+  }, [settings.maxReviews, settings.order]);
 
-  useEffect(() => { loadSession(); }, [loadSession]);
+  useEffect(() => { void loadSession(); }, [loadSession]);
 
   async function grade(g: 0 | 1 | 2 | 3) {
     const char = queue[index];
@@ -102,133 +109,186 @@ export function FlashcardTab({ allChars, userEdits }: FlashcardTabProps) {
   const meaningVi = edits?.meaningVi ?? info?.meaningVi ?? info?.meaning ?? "";
   const note = edits?.note ?? "";
 
-  if (phase === "loading") {
-    return (
-      <div className="flex items-center justify-center py-24 text-muted-foreground text-sm">
-        Đang tải...
-      </div>
-    );
+  function getFrontContent() {
+    if (settings.frontSide === "pinyin") return pinyin || current;
+    if (settings.frontSide === "meaning") return meaningVi || hanViet || current;
+    return current;
   }
 
-  if (phase === "empty") {
-    return (
-      <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-        <p className="text-lg font-medium">Không có thẻ đến hạn hôm nay</p>
-        <p className="text-sm">Đánh dấu thêm chữ là &quot;đã học&quot; hoặc quay lại vào ngày mai.</p>
-      </div>
-    );
-  }
-
-  if (phase === "done" && doneSummary) {
-    return <SummaryScreen summary={doneSummary} onRestart={loadSession} />;
-  }
-
-  const flipCard = () => {
-    if (phase === "front") setPhase("back");
-    else if (phase === "back") setPhase("front");
-  };
-
-  const FlipCardContent = (
-    <div className="flex flex-col items-center gap-6 max-w-md mx-auto py-8">
-      <div className="w-full flex items-center justify-between text-sm text-muted-foreground">
-        <span>{index + 1} / {queue.length}</span>
-        <div className="h-2 flex-1 mx-4 bg-muted rounded-full overflow-hidden">
-          <div className="h-full bg-primary transition-all" style={{ width: `${(index / queue.length) * 100}%` }} />
+  function getBackContent() {
+    if (settings.frontSide === "char") {
+      return (
+        <div className="flex flex-col items-center gap-2 text-center border-t pt-4 w-full">
+          {pinyin && <p className="text-xl text-muted-foreground">{pinyin}</p>}
+          {hanViet && <p className="text-base font-medium">{hanViet}</p>}
+          {meaningVi && <p className="text-base">{meaningVi}</p>}
+          {note && <p className="text-sm text-muted-foreground italic mt-1">{note}</p>}
         </div>
+      );
+    }
+    if (settings.frontSide === "pinyin") {
+      return (
+        <div className="flex flex-col items-center gap-2 text-center border-t pt-4 w-full">
+          <span className="text-6xl font-light">{current}</span>
+          {hanViet && <p className="text-base font-medium">{hanViet}</p>}
+          {meaningVi && <p className="text-base">{meaningVi}</p>}
+          {note && <p className="text-sm text-muted-foreground italic mt-1">{note}</p>}
+        </div>
+      );
+    }
+    // frontSide === "meaning"
+    return (
+      <div className="flex flex-col items-center gap-2 text-center border-t pt-4 w-full">
+        <span className="text-6xl font-light">{current}</span>
+        {pinyin && <p className="text-xl text-muted-foreground">{pinyin}</p>}
+        {hanViet && <p className="text-base font-medium">{hanViet}</p>}
+        {note && <p className="text-sm text-muted-foreground italic mt-1">{note}</p>}
       </div>
+    );
+  }
 
-      {/* flip container */}
-      <div
-        className="w-full cursor-pointer select-none"
-        style={{ perspective: "1000px", minHeight: "16rem" }}
-        onClick={flipCard}
-      >
+  const frontDisplay = getFrontContent();
+  const isCharFront = settings.frontSide === "char";
+
+  const FlipCardContent = () => {
+    if (phase === "loading") {
+      return (
+        <div className="flex items-center justify-center py-24 text-muted-foreground text-sm">
+          Đang tải...
+        </div>
+      );
+    }
+
+    if (phase === "empty") {
+      return (
+        <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
+          <p className="text-lg font-medium">Không có thẻ đến hạn hôm nay</p>
+          <p className="text-sm">Đánh dấu thêm chữ là &quot;đã học&quot; hoặc quay lại vào ngày mai.</p>
+        </div>
+      );
+    }
+
+    if (phase === "done" && doneSummary) {
+      return <SummaryScreen summary={doneSummary} onRestart={loadSession} />;
+    }
+
+    const flipCard = () => {
+      if (phase === "front") setPhase("back");
+      else if (phase === "back") setPhase("front");
+    };
+
+    return (
+      <div className="flex flex-col items-center gap-6 max-w-md mx-auto py-8">
+        <div className="w-full flex items-center justify-between text-sm text-muted-foreground">
+          <span>{index + 1} / {queue.length}</span>
+          <div className="h-2 flex-1 mx-4 bg-muted rounded-full overflow-hidden">
+            <div className="h-full bg-primary transition-all" style={{ width: `${(index / queue.length) * 100}%` }} />
+          </div>
+        </div>
+
         <div
-          style={{
-            transformStyle: "preserve-3d",
-            transition: "transform 0.5s ease",
-            transform: phase === "back" ? "rotateY(180deg)" : "rotateY(0deg)",
-            position: "relative",
-            minHeight: "16rem",
-          }}
+          className="w-full cursor-pointer select-none"
+          style={{ perspective: "1000px", minHeight: "16rem" }}
+          onClick={flipCard}
         >
-          {/* front */}
           <div
-            className="absolute inset-0 border rounded-2xl p-8 flex flex-col items-center justify-center gap-4 shadow-sm bg-background"
-            style={{ backfaceVisibility: "hidden" }}
+            style={{
+              transformStyle: "preserve-3d",
+              transition: "transform 0.5s ease",
+              transform: phase === "back" ? "rotateY(180deg)" : "rotateY(0deg)",
+              position: "relative",
+              minHeight: "16rem",
+            }}
           >
-            <div className="flex items-center gap-3">
-              <span className="text-8xl font-light">{current}</span>
-              <button
-                onClick={(e) => { e.stopPropagation(); speak(current); }}
-                className="text-muted-foreground/40 hover:text-primary transition-colors self-start mt-2"
-                title="Phát âm"
-              >
-                <Volume2 className="h-5 w-5" />
-              </button>
+            {/* front */}
+            <div
+              className="absolute inset-0 border rounded-2xl p-8 flex flex-col items-center justify-center gap-4 shadow-sm bg-background"
+              style={{ backfaceVisibility: "hidden" }}
+            >
+              <div className="flex items-center gap-3">
+                {isCharFront ? (
+                  <>
+                    <span className="text-8xl font-light">{frontDisplay}</span>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); speak(current); }}
+                      className="text-muted-foreground/40 hover:text-primary transition-colors self-start mt-2"
+                      title="Phát âm"
+                    >
+                      <Volume2 className="h-5 w-5" />
+                    </button>
+                  </>
+                ) : (
+                  <span className="text-2xl font-medium text-center">{frontDisplay}</span>
+                )}
+              </div>
+              {settings.showPinyinOnFront && isCharFront && pinyin && (
+                <p className="text-sm text-muted-foreground/60">{pinyin}</p>
+              )}
+              <p className="text-xs text-muted-foreground mt-auto">Nhấn để lật thẻ</p>
             </div>
-            <p className="text-xs text-muted-foreground mt-auto">Nhấn để lật thẻ</p>
-          </div>
 
-          {/* back */}
-          <div
-            className="absolute inset-0 border rounded-2xl p-8 flex flex-col items-center justify-center gap-4 shadow-sm bg-background"
-            style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
-          >
-            <div className="flex items-center gap-3">
-              <span className="text-8xl font-light">{current}</span>
-              <button
-                onClick={(e) => { e.stopPropagation(); speak(current); }}
-                className="text-muted-foreground/40 hover:text-primary transition-colors self-start mt-2"
-                title="Phát âm"
-              >
-                <Volume2 className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="flex flex-col items-center gap-2 text-center border-t pt-4 w-full">
-              {pinyin && <p className="text-xl text-muted-foreground">{pinyin}</p>}
-              {hanViet && <p className="text-base font-medium">{hanViet}</p>}
-              {meaningVi && <p className="text-base">{meaningVi}</p>}
-              {note && <p className="text-sm text-muted-foreground italic mt-1">{note}</p>}
+            {/* back */}
+            <div
+              className="absolute inset-0 border rounded-2xl p-8 flex flex-col items-center justify-center gap-4 shadow-sm bg-background"
+              style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
+            >
+              <div className="flex items-center gap-3">
+                {isCharFront ? (
+                  <>
+                    <span className="text-8xl font-light">{current}</span>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); speak(current); }}
+                      className="text-muted-foreground/40 hover:text-primary transition-colors self-start mt-2"
+                      title="Phát âm"
+                    >
+                      <Volume2 className="h-5 w-5" />
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); speak(current); }}
+                    className="text-muted-foreground/40 hover:text-primary transition-colors"
+                    title="Phát âm"
+                  >
+                    <Volume2 className="h-5 w-5" />
+                  </button>
+                )}
+              </div>
+              {getBackContent()}
             </div>
           </div>
         </div>
+
+        {(phase === "front" || phase === "back") && (
+          <div className="grid grid-cols-4 gap-2 w-full">
+            <Button onClick={() => grade(0)} className="bg-red-500 hover:bg-red-600 text-white text-xs py-3 h-auto">
+              <span className="font-semibold">Không nhớ</span>
+            </Button>
+            <Button onClick={() => grade(1)} className="bg-orange-500 hover:bg-orange-600 text-white text-xs py-3 h-auto">
+              <span className="font-semibold">Khó</span>
+            </Button>
+            <Button onClick={() => grade(2)} className="bg-green-600 hover:bg-green-700 text-white text-xs py-3 h-auto">
+              <span className="font-semibold">Nhớ</span>
+            </Button>
+            <Button onClick={() => grade(3)} className="bg-blue-500 hover:bg-blue-600 text-white text-xs py-3 h-auto">
+              <span className="font-semibold">Dễ</span>
+            </Button>
+          </div>
+        )}
       </div>
-
-      {phase === "front" && (
-        <Button onClick={() => grade(0)} variant="outline" className="text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600 text-xs py-3 h-auto w-full">
-          <span className="font-semibold">Không nhớ</span>
-        </Button>
-      )}
-
-      {phase === "back" && (
-        <div className="grid grid-cols-4 gap-2 w-full">
-          <Button onClick={() => grade(0)} className="bg-red-500 hover:bg-red-600 text-white text-xs py-3 h-auto">
-            <span className="font-semibold">Không nhớ</span>
-          </Button>
-          <Button onClick={() => grade(1)} className="bg-orange-500 hover:bg-orange-600 text-white text-xs py-3 h-auto">
-            <span className="font-semibold">Khó</span>
-          </Button>
-          <Button onClick={() => grade(2)} className="bg-green-600 hover:bg-green-700 text-white text-xs py-3 h-auto">
-            <span className="font-semibold">Nhớ</span>
-          </Button>
-          <Button onClick={() => grade(3)} className="bg-blue-500 hover:bg-blue-600 text-white text-xs py-3 h-auto">
-            <span className="font-semibold">Dễ</span>
-          </Button>
-        </div>
-      )}
-    </div>
-  );
+    );
+  };
 
   return (
     <Tabs defaultValue="flip" className="space-y-4">
       <TabsList className="w-fit">
         <TabsTrigger value="flip">Lật thẻ</TabsTrigger>
         <TabsTrigger value="write">Viết chữ</TabsTrigger>
+        <TabsTrigger value="settings">Cài đặt</TabsTrigger>
       </TabsList>
 
       <TabsContent value="flip">
-        {FlipCardContent}
+        <FlipCardContent />
       </TabsContent>
 
       <TabsContent value="write">
@@ -236,6 +296,10 @@ export function FlashcardTab({ allChars, userEdits }: FlashcardTabProps) {
           allChars={allChars}
           userEdits={userEdits}
         />
+      </TabsContent>
+
+      <TabsContent value="settings">
+        <FlashcardSettingsTab settings={settings} onChange={updateSettings} />
       </TabsContent>
     </Tabs>
   );

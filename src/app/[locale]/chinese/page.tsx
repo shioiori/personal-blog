@@ -1,65 +1,66 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { ChineseStudy } from "@/src/components/chinese/study/ChineseStudy";
-import { ImportTab } from "@/src/components/chinese/study/ImportTab";
-import { ChineseSearch } from "@/src/components/chinese/search/ChineseSearch";
-import { ReviewSection } from "@/src/components/chinese/review/ReviewSection";
-import { ArchiveSection } from "@/src/components/chinese/archive/ArchiveSection";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/Tabs";
-import { PenLine, BookOpen, RotateCcw, Archive, Upload } from "lucide-react";
+import { ChineseStudy } from '@/src/components/chinese/study/ChineseStudy'
+import { ImportTab } from '@/src/components/chinese/study/ImportTab'
+import { ChineseSearch } from '@/src/components/chinese/search/ChineseSearch'
+import { ReviewSection } from '@/src/components/chinese/review/ReviewSection'
+import { ArchiveSection } from '@/src/components/chinese/archive/ArchiveSection'
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger
+} from '@/src/components/ui/Tabs'
+import { PenLine, BookOpen, RotateCcw, Archive, Upload } from 'lucide-react'
+import { ChineseProvider } from '@/src/context/chinese'
 
 export default function Page() {
-  const [importedChars, setImportedChars] = useState<string[]>([]);
-
-  function handleImported(chars: string[]) {
-    setImportedChars((prev) => [...new Set([...prev, ...chars])]);
-  }
-
   return (
-    <Tabs defaultValue="study" className="space-y-6">
-      <TabsList className="w-fit">
-        <TabsTrigger value="study" className="flex items-center gap-2">
-          <BookOpen className="h-4 w-4" />
-          Học chữ
-        </TabsTrigger>
-        <TabsTrigger value="review" className="flex items-center gap-2">
-          <RotateCcw className="h-4 w-4" />
-          Ôn tập
-        </TabsTrigger>
-        <TabsTrigger value="archive" className="flex items-center gap-2">
-          <Archive className="h-4 w-4" />
-          Ghi chép
-        </TabsTrigger>
-        <TabsTrigger value="draw" className="flex items-center gap-2">
-          <PenLine className="h-4 w-4" />
-          Tra bằng nét vẽ
-        </TabsTrigger>
-        <TabsTrigger value="import" className="flex items-center gap-2">
-          <Upload className="h-4 w-4" />
-          Import
-        </TabsTrigger>
-      </TabsList>
+    <ChineseProvider>
+      <Tabs defaultValue="study" className="space-y-6">
+        <TabsList className="w-fit">
+          <TabsTrigger value="study" className="flex items-center gap-2">
+            <BookOpen className="h-4 w-4" />
+            Học chữ
+          </TabsTrigger>
+          <TabsTrigger value="review" className="flex items-center gap-2">
+            <RotateCcw className="h-4 w-4" />
+            Ôn tập
+          </TabsTrigger>
+          <TabsTrigger value="archive" className="flex items-center gap-2">
+            <Archive className="h-4 w-4" />
+            Ghi chép
+          </TabsTrigger>
+          <TabsTrigger value="draw" className="flex items-center gap-2">
+            <PenLine className="h-4 w-4" />
+            Tra bằng nét vẽ
+          </TabsTrigger>
+          <TabsTrigger value="import" className="flex items-center gap-2">
+            <Upload className="h-4 w-4" />
+            Import
+          </TabsTrigger>
+        </TabsList>
 
-      <TabsContent value="study">
-        <ChineseStudy extraHidden={importedChars} />
-      </TabsContent>
+        <TabsContent value="study">
+          <ChineseStudy />
+        </TabsContent>
 
-      <TabsContent value="review">
-        <ReviewSection />
-      </TabsContent>
+        <TabsContent value="review">
+          <ReviewSection />
+        </TabsContent>
 
-      <TabsContent value="archive">
-        <ArchiveSection />
-      </TabsContent>
+        <TabsContent value="archive">
+          <ArchiveSection />
+        </TabsContent>
 
-      <TabsContent value="draw">
-        <ChineseSearch />
-      </TabsContent>
+        <TabsContent value="draw">
+          <ChineseSearch />
+        </TabsContent>
 
-      <TabsContent value="import">
-        <ImportTab onImported={handleImported} />
-      </TabsContent>
-    </Tabs>
-  );
+        <TabsContent value="import">
+          <ImportTab />
+        </TabsContent>
+      </Tabs>
+    </ChineseProvider>
+  )
 }
