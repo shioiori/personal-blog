@@ -5,6 +5,7 @@ import { getAllCharacters } from "@/src/data/chinese";
 import type { UserEdits } from "../study/EditCardModal";
 import { ReviewTab } from "./ReviewTab";
 import { FlashcardTab } from "./FlashcardTab";
+import { HistoryTab } from "./HistoryTab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/Tabs";
 
 async function apiGet<T>(path: string): Promise<T> {
@@ -35,6 +36,7 @@ export function ReviewSection() {
       <TabsList className="w-fit">
         <TabsTrigger value="read">Tập đọc</TabsTrigger>
         <TabsTrigger value="flashcard">Flashcard</TabsTrigger>
+        <TabsTrigger value="history">Lịch sử</TabsTrigger>
       </TabsList>
 
       <TabsContent value="read">
@@ -43,6 +45,10 @@ export function ReviewSection() {
 
       <TabsContent value="flashcard">
         <FlashcardTab allChars={allChars} userEdits={userEdits} hiddenCards={hiddenCards} />
+      </TabsContent>
+
+      <TabsContent value="history">
+        <HistoryTab allChars={allChars} userEdits={userEdits} />
       </TabsContent>
     </Tabs>
   );

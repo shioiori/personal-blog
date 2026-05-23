@@ -55,6 +55,21 @@ export async function getCardStates(): Promise<Record<string, boolean>> {
   return Object.fromEntries(rows.map((r) => [r.char, r.hidden]));
 }
 
+export interface CardStateWithDate {
+  char: string;
+  hidden: boolean;
+  updatedAt: Date;
+}
+
+export async function getCardStatesWithDate(): Promise<CardStateWithDate[]> {
+  const rows = await sql`SELECT char, hidden, updated_at FROM chinese_card_state`;
+  return rows.map((r) => ({
+    char: r.char as string,
+    hidden: r.hidden as boolean,
+    updatedAt: r.updated_at as Date,
+  }));
+}
+
 export async function upsertCardState(char: string, hidden: boolean) {
   await sql`
     INSERT INTO chinese_card_state (char, hidden, updated_at)
@@ -244,6 +259,59 @@ export async function addCharsToGroup(groupId: number, chars: string[]): Promise
 
 export async function removeCharFromGroup(groupId: number, char: string): Promise<void> {
   await sql`DELETE FROM char_group_members WHERE group_id = ${groupId} AND char = ${char}`;
+}
+
+// ── Review history ───────────────────────────────────────────────────────────
+
+export async function ensureReviewHistoryTable() {
+  await sql`
+    CREATE TABLE IF NOT EXISTS chinese_review_history (
+      id            SERIAL PRIMARY KEY,
+      text          TEXT NOT NULL,
+      learned_count INT  NOT NULL DEFAULT 0,
+      created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+}
+
+export interface ReviewHistoryItem {
+  id: number;
+  text: string;
+  learnedCount: number;
+  createdAt: string;
+}
+
+export async function saveReviewHistory(text: string, learnedCount: number): Promise<ReviewHistoryItem> {
+  const rows = await sql`
+    INSERT INTO chinese_review_history (text, learned_count)
+    VALUES (${text}, ${learnedCount})
+    RETURNING id, text, learned_count, created_at
+  `;
+  return {
+    id: rows[0].id as number,
+    text: rows[0].text as string,
+    learnedCount: rows[0].learned_count as number,
+    createdAt: (rows[0].created_at as Date).toISOString(),
+  };
+}
+
+export async function getReviewHistory(limit = 20): Promise<ReviewHistoryItem[]> {
+  const rows = await sql`
+    SELECT id, text, learned_count, created_at
+    FROM chinese_review_history
+    ORDER BY created_at DESC
+    LIMIT ${limit}
+  `;
+  return rows.map((r) => ({
+    id: r.id as number,
+    text: r.text as string,
+    learnedCount: r.learned_count as number,
+    createdAt: (r.created_at as Date).toISOString(),
+  }));
+}
+
+export async function deleteReviewHistory(id: number): Promise<void> {
+  await sql`DELETE FROM chinese_review_history WHERE id = ${id}`;
 }
 
 // ── Grammar posts ─────────────────────────────────────────────────────────────

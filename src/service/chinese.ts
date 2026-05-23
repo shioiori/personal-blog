@@ -1,8 +1,8 @@
 "use server";
 
 import Groq from "groq-sdk";
-import { ensureTables, getCardStates, getCompoundWords, ensureCompoundTables } from "@/src/lib/chinese-db";
-import { buildReviewPrompt } from "@/src/utils/chinese";
+import { ensureTables, getCardStatesWithDate, getCompoundWords, ensureCompoundTables } from "@/src/lib/chinese-db";
+import { buildReviewPrompt, getPassageLengthRange } from "@/src/utils/chinese";
 
 const MIN_WORDS = 5;
 const MAX_RETRIES = 3;
@@ -27,20 +27,23 @@ export type ReviewResult =
   | { status: "too_few"; learnedCount: number; minWords: number }
   | { status: "ok"; text: string; learnedCount: number };
 
-export async function generateReviewText(): Promise<ReviewResult> {
+// Top N recent chars to highlight in prompt
+const RECENT_CHARS_LIMIT = 30;
+
+export async function generateReviewText(prioritizeRecent = false): Promise<ReviewResult> {
   await ensureTables();
   await ensureCompoundTables();
-  const [states, compoundWords] = await Promise.all([getCardStates(), getCompoundWords()]);
 
-  const learnedChars = Object.entries(states)
-    .filter(([, hidden]) => hidden)
-    .map(([char]) => char);
+  const [statesWithDate, compoundWords] = await Promise.all([getCardStatesWithDate(), getCompoundWords()]);
 
-  if (learnedChars.length === 0) return { status: "no_words" };
-  if (learnedChars.length < MIN_WORDS) {
-    return { status: "too_few", learnedCount: learnedChars.length, minWords: MIN_WORDS };
+  const learnedRows = statesWithDate.filter((r) => r.hidden);
+
+  if (learnedRows.length === 0) return { status: "no_words" };
+  if (learnedRows.length < MIN_WORDS) {
+    return { status: "too_few", learnedCount: learnedRows.length, minWords: MIN_WORDS };
   }
 
+  const learnedChars = learnedRows.map((r) => r.char);
   const allowedSet = new Set(learnedChars);
   const allowedList = learnedChars.join("、");
 
@@ -49,10 +52,23 @@ export async function generateReviewText(): Promise<ReviewResult> {
     .map((cw) => cw.word)
     .filter((word) => [...word].every((ch) => allowedSet.has(ch)));
 
+  // Sort by updatedAt desc to get most recently learned chars
+  const recentChars = prioritizeRecent
+    ? learnedRows
+        .slice()
+        .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
+        .slice(0, RECENT_CHARS_LIMIT)
+        .map((r) => r.char)
+    : undefined;
+
   const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-  const systemPrompt = buildReviewPrompt(allowedList, eligibleCompounds);
-  const userPrompt = `Allowed characters: ${allowedList}\n\nWrite a grammatically correct Simplified Chinese passage using ONLY these characters.`;
+  const systemPrompt = buildReviewPrompt(allowedList, eligibleCompounds, learnedChars.length, recentChars);
+  const { min, max } = getPassageLengthRange(learnedChars.length);
+  const recentNote = recentChars && recentChars.length > 0
+    ? ` Prioritize using these recently learned characters: ${recentChars.join("、")}.`
+    : "";
+  const userPrompt = `Allowed characters: ${allowedList}\n\nWrite a grammatically correct Simplified Chinese passage of EXACTLY ${min}-${max} Chinese characters using ONLY these characters. The passage MUST contain at least ${min} Chinese characters.${recentNote}`;
 
   let text = "";
   let lastViolations: string[] = [];
@@ -73,7 +89,7 @@ export async function generateReviewText(): Promise<ReviewResult> {
 
     const completion = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
-      max_tokens: 512,
+      max_tokens: 2048,
       messages,
     });
 
@@ -86,7 +102,7 @@ export async function generateReviewText(): Promise<ReviewResult> {
   if (lastViolations.length === 0 && text) {
     const grammarCheck = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
-      max_tokens: 512,
+      max_tokens: 2048,
       messages: [
         {
           role: "system",

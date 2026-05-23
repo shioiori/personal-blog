@@ -14,26 +14,16 @@ function isChinese(ch: string) {
   return (code >= 0x4e00 && code <= 0x9fff) || (code >= 0x3400 && code <= 0x4dbf);
 }
 
-
 function ReviewText({ text, charMap, userEdits, mode }: ReviewTextProps) {
-  const chars = Array.from(text);
   return (
     <p
       className="text-2xl leading-relaxed text-center"
       style={{ fontFamily: "var(--font-noto-serif-sc), serif" }}
     >
-      {chars.map((ch, i) => {
+      {Array.from(text).map((ch, i) => {
         const info = isChinese(ch) ? charMap.get(ch) : undefined;
         if (info && mode !== TooltipMode.Off) {
-          return (
-            <CharTooltip
-              key={i}
-              char={ch}
-              info={info}
-              edits={userEdits[ch] ?? {}}
-              mode={mode}
-            />
-          );
+          return <CharTooltip key={i} char={ch} info={info} edits={userEdits[ch] ?? {}} mode={mode} />;
         }
         return <span key={i}>{ch}</span>;
       })}
@@ -44,6 +34,7 @@ function ReviewText({ text, charMap, userEdits, mode }: ReviewTextProps) {
 export function ReviewTab({ allChars, userEdits, hiddenCards }: ReviewTabProps) {
   const [state, setState] = useState<ReviewState>({ status: ReviewStatus.Idle });
   const [tooltipMode, setTooltipMode] = useState<TooltipMode>(TooltipMode.Full);
+  const [prioritizeRecent, setPrioritizeRecent] = useState(false);
   const [copiedChars, setCopiedChars] = useState(false);
   const [copiedPrompt, setCopiedPrompt] = useState(false);
 
@@ -79,7 +70,8 @@ export function ReviewTab({ allChars, userEdits, hiddenCards }: ReviewTabProps) 
   const generate = useCallback(async () => {
     setState({ status: ReviewStatus.Loading });
     try {
-      const res = await fetch("/api/chinese/review");
+      const url = prioritizeRecent ? "/api/chinese/review?prioritizeRecent=true" : "/api/chinese/review";
+      const res = await fetch(url);
       const data = await res.json() as {
         error?: string;
         text?: string;
@@ -105,7 +97,7 @@ export function ReviewTab({ allChars, userEdits, hiddenCards }: ReviewTabProps) 
     } catch {
       setState({ status: ReviewStatus.Error });
     }
-  }, []);
+  }, [prioritizeRecent]);
 
   const modeOptions: { value: TooltipMode; label: string }[] = [
     { value: TooltipMode.Full, label: "Hiện đầy đủ" },
@@ -115,21 +107,17 @@ export function ReviewTab({ allChars, userEdits, hiddenCards }: ReviewTabProps) 
   ];
 
   return (
-    <div className="flex flex-col items-start gap-6 py-8">
-      <div className="flex items-center gap-4 flex-wrap w-full">
-        {modeOptions.map((opt) => (
-          <label key={opt.value} className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer select-none">
-            <input
-              type="radio"
-              name="tooltip-mode"
-              value={opt.value}
-              checked={tooltipMode === opt.value}
-              onChange={() => setTooltipMode(opt.value)}
-              className="accent-primary"
-            />
-            {opt.label}
-          </label>
-        ))}
+    <div className="flex flex-col items-start gap-3 py-4">
+      <div className="flex items-center gap-4 w-full">
+        <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={prioritizeRecent}
+            onChange={(e) => setPrioritizeRecent(e.target.checked)}
+            className="accent-primary"
+          />
+          Ưu tiên từ mới học gần đây
+        </label>
         <div className="ml-auto flex items-center gap-2">
           <button
             onClick={handleCopyChars}
@@ -147,6 +135,22 @@ export function ReviewTab({ allChars, userEdits, hiddenCards }: ReviewTabProps) 
           </button>
         </div>
       </div>
+      <div className="flex items-center gap-4 flex-wrap">
+        {modeOptions.map((opt) => (
+          <label key={opt.value} className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer select-none">
+            <input
+              type="radio"
+              name="tooltip-mode"
+              value={opt.value}
+              checked={tooltipMode === opt.value}
+              onChange={() => setTooltipMode(opt.value)}
+              className="accent-primary"
+            />
+            {opt.label}
+          </label>
+        ))}
+      </div>
+
       <div className="w-full max-w-2xl mx-auto">
         {state.status === ReviewStatus.Idle && (
           <div className="flex flex-col items-center gap-3 py-16 text-muted-foreground">
@@ -201,12 +205,7 @@ export function ReviewTab({ allChars, userEdits, hiddenCards }: ReviewTabProps) 
         {state.status === ReviewStatus.Ready && (
           <div className="space-y-4">
             <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-              <ReviewText
-                text={state.text}
-                charMap={charMap}
-                userEdits={userEdits}
-                mode={tooltipMode}
-              />
+              <ReviewText text={state.text} charMap={charMap} userEdits={userEdits} mode={tooltipMode} />
             </div>
             <p className="text-xs text-center text-muted-foreground">
               Tạo từ {state.learnedCount} từ đã học
@@ -215,7 +214,7 @@ export function ReviewTab({ allChars, userEdits, hiddenCards }: ReviewTabProps) 
         )}
 
         {state.status !== ReviewStatus.Loading && (
-          <div className="flex justify-center pt-2">
+          <div className="flex justify-center pt-4">
             <button
               onClick={() => void generate()}
               className={cn(
