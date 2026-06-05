@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Volume2, Undo2, Trash2, Loader2, CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "@/src/components/ui/Button";
 import { useSpeech } from "@/src/hooks/useSpeech";
@@ -24,6 +24,7 @@ interface FlashcardWriteTabProps {
 }
 
 const CANVAS_SIZE = 240;
+const HSK_FONT_STYLE = { fontFamily: "var(--font-hsk)" };
 
 export function FlashcardWriteTab({ allChars, userEdits }: FlashcardWriteTabProps) {
   const [queue, setQueue] = useState<string[]>([]);
@@ -38,6 +39,7 @@ export function FlashcardWriteTab({ allChars, userEdits }: FlashcardWriteTabProp
   const [isRecognizing, setIsRecognizing] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const lastGradedRef = useRef<string | null>(null);
   const { speak } = useSpeech();
 
   const loadSession = useCallback(async () => {
@@ -60,7 +62,7 @@ export function FlashcardWriteTab({ allChars, userEdits }: FlashcardWriteTabProp
 
   useEffect(() => { loadSession(); }, [loadSession]);
 
-  const charMap = Object.fromEntries(allChars.map((c) => [c.char, c]));
+  const charMap = useMemo(() => Object.fromEntries(allChars.map((c) => [c.char, c])), [allChars]);
   const current = queue[index];
   const info = current ? charMap[current] : null;
   const edits = current ? userEdits[current] : undefined;
@@ -188,16 +190,25 @@ export function FlashcardWriteTab({ allChars, userEdits }: FlashcardWriteTabProp
     }
   };
 
-  async function submitGrade(g: 0 | 1 | 2 | 3) {
+  function persistGrade(char: string, g: 0 | 1 | 2 | 3) {
+    void fetch("/api/chinese/flashcard", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ char, grade: g, mode: "write" }),
+      keepalive: true,
+    }).catch(() => {});
+  }
+
+  function submitGrade(g: 0 | 1 | 2 | 3) {
+    if (!current) return;
+
+    const gradeToken = `${current}:${index}`;
+    if (lastGradedRef.current === gradeToken) return;
+    lastGradedRef.current = gradeToken;
+
     const gradeKey = (["again", "hard", "good", "easy"] as const)[g];
     const nextSummary = { ...summary, [gradeKey]: summary[gradeKey] + 1 };
     setSummary(nextSummary);
-
-    await fetch("/api/chinese/flashcard", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ char: current, grade: g, mode: "write" }),
-    }).catch(() => {});
 
     const next = index + 1;
     if (next >= queue.length) {
@@ -205,6 +216,7 @@ export function FlashcardWriteTab({ allChars, userEdits }: FlashcardWriteTabProp
     } else {
       setIndex(next);
     }
+    persistGrade(current, g);
   }
 
   if (loadPhase === "loading") {
@@ -303,14 +315,14 @@ export function FlashcardWriteTab({ allChars, userEdits }: FlashcardWriteTabProp
             {writePhase === "correct" && (
               <div className="flex items-center gap-2 text-green-600 font-medium mt-1">
                 <CheckCircle2 className="h-5 w-5" />
-                <span className="text-4xl font-light">{current}</span>
+                <span className="text-4xl font-light" style={HSK_FONT_STYLE}>{current}</span>
                 <span className="text-sm">Chính xác!</span>
               </div>
             )}
             {writePhase === "wrong" && (
               <div className="flex items-center gap-2 text-red-500 font-medium mt-1">
                 <XCircle className="h-5 w-5" />
-                <span className="text-4xl font-light">{current}</span>
+                <span className="text-4xl font-light" style={HSK_FONT_STYLE}>{current}</span>
                 <span className="text-sm">Đáp án đúng</span>
               </div>
             )}
@@ -329,7 +341,7 @@ export function FlashcardWriteTab({ allChars, userEdits }: FlashcardWriteTabProp
                       ? "border-primary bg-primary/10 text-primary shadow-sm"
                       : "border-border bg-background hover:bg-accent"
                   }`}
-                  style={{ fontFamily: "serif" }}
+                  style={HSK_FONT_STYLE}
                 >
                   {char}
                 </button>

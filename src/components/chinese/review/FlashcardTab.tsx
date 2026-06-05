@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Volume2 } from "lucide-react";
 import { Button } from "@/src/components/ui/Button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/Tabs";
@@ -26,6 +26,8 @@ interface GradeSummary {
   easy: number;
 }
 
+const HSK_FONT_STYLE = { fontFamily: "var(--font-hsk)" };
+
 function SummaryScreen({ summary, onRestart }: { summary: GradeSummary; onRestart: () => void }) {
   const total = summary.again + summary.hard + summary.good + summary.easy;
   return (
@@ -48,10 +50,12 @@ export function FlashcardTab({ allChars, userEdits }: FlashcardTabProps) {
   const [index, setIndex] = useState(0);
   const [summary, setSummary] = useState<GradeSummary>({ again: 0, hard: 0, good: 0, easy: 0 });
   const [doneSummary, setDoneSummary] = useState<GradeSummary | null>(null);
+  const [isAdvancing, setIsAdvancing] = useState(false);
+  const lastGradedRef = useRef<string | null>(null);
 
   const { settings, updateSettings } = useFlashcardSettings();
 
-  const charMap = Object.fromEntries(allChars.map((c) => [c.char, c]));
+  const charMap = useMemo(() => Object.fromEntries(allChars.map((c) => [c.char, c])), [allChars]);
 
   const loadSession = useCallback(async () => {
     setPhase("loading");
@@ -77,19 +81,29 @@ export function FlashcardTab({ allChars, userEdits }: FlashcardTabProps) {
 
   useEffect(() => { void loadSession(); }, [loadSession]);
 
-  async function grade(g: 0 | 1 | 2 | 3) {
+  function persistGrade(char: string, g: 0 | 1 | 2 | 3) {
+    void fetch("/api/chinese/flashcard", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ char, grade: g, mode: "flip" }),
+      keepalive: true,
+    }).catch(() => {});
+  }
+
+  function grade(g: 0 | 1 | 2 | 3) {
     const char = queue[index];
+    if (!char) return;
+
+    const gradeToken = `${char}:${index}`;
+    if (lastGradedRef.current === gradeToken) return;
+    lastGradedRef.current = gradeToken;
+
     const gradeKey = (["again", "hard", "good", "easy"] as const)[g];
     const nextSummary = { ...summary, [gradeKey]: summary[gradeKey] + 1 };
     setSummary(nextSummary);
 
-    await fetch("/api/chinese/flashcard", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ char, grade: g, mode: "flip" }),
-    }).catch(() => {});
-
     const next = index + 1;
+    setIsAdvancing(true);
     if (next >= queue.length) {
       setDoneSummary(nextSummary);
       setPhase("done");
@@ -97,6 +111,8 @@ export function FlashcardTab({ allChars, userEdits }: FlashcardTabProps) {
       setIndex(next);
       setPhase("front");
     }
+    requestAnimationFrame(() => setIsAdvancing(false));
+    persistGrade(char, g);
   }
 
   const { speak } = useSpeech();
@@ -129,7 +145,7 @@ export function FlashcardTab({ allChars, userEdits }: FlashcardTabProps) {
     if (settings.frontSide === "pinyin") {
       return (
         <div className="flex flex-col items-center gap-2 text-center border-t pt-4 w-full">
-          <span className="text-6xl font-light">{current}</span>
+          <span className="text-6xl font-light" style={HSK_FONT_STYLE}>{current}</span>
           {hanViet && <p className="text-base font-medium">{hanViet}</p>}
           {meaningVi && <p className="text-base">{meaningVi}</p>}
           {note && <p className="text-sm text-muted-foreground italic mt-1">{note}</p>}
@@ -139,7 +155,7 @@ export function FlashcardTab({ allChars, userEdits }: FlashcardTabProps) {
     // frontSide === "meaning"
     return (
       <div className="flex flex-col items-center gap-2 text-center border-t pt-4 w-full">
-        <span className="text-6xl font-light">{current}</span>
+        <span className="text-6xl font-light" style={HSK_FONT_STYLE}>{current}</span>
         {pinyin && <p className="text-xl text-muted-foreground">{pinyin}</p>}
         {hanViet && <p className="text-base font-medium">{hanViet}</p>}
         {note && <p className="text-sm text-muted-foreground italic mt-1">{note}</p>}
@@ -194,7 +210,7 @@ export function FlashcardTab({ allChars, userEdits }: FlashcardTabProps) {
           <div
             style={{
               transformStyle: "preserve-3d",
-              transition: "transform 0.5s ease",
+              transition: isAdvancing ? "none" : "transform 0.5s ease",
               transform: phase === "back" ? "rotateY(180deg)" : "rotateY(0deg)",
               position: "relative",
               minHeight: "16rem",
@@ -208,7 +224,7 @@ export function FlashcardTab({ allChars, userEdits }: FlashcardTabProps) {
               <div className="flex items-center gap-3">
                 {isCharFront ? (
                   <>
-                    <span className="text-8xl font-light">{frontDisplay}</span>
+                    <span className="text-8xl font-light" style={HSK_FONT_STYLE}>{frontDisplay}</span>
                     <button
                       onClick={(e) => { e.stopPropagation(); speak(current); }}
                       className="text-muted-foreground/40 hover:text-primary transition-colors self-start mt-2"
@@ -235,7 +251,7 @@ export function FlashcardTab({ allChars, userEdits }: FlashcardTabProps) {
               <div className="flex items-center gap-3">
                 {isCharFront ? (
                   <>
-                    <span className="text-8xl font-light">{current}</span>
+                    <span className="text-8xl font-light" style={HSK_FONT_STYLE}>{current}</span>
                     <button
                       onClick={(e) => { e.stopPropagation(); speak(current); }}
                       className="text-muted-foreground/40 hover:text-primary transition-colors self-start mt-2"

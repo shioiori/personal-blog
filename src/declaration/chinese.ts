@@ -21,6 +21,7 @@ export interface UserEdits {
   hanViet?: string;
   meaningVi?: string;
   note?: string;
+  crawlData?: unknown;
 }
 
 export type ReviewState =

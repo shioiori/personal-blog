@@ -5,13 +5,14 @@ import { ImportTab } from '@/src/components/chinese/study/ImportTab'
 import { ChineseSearch } from '@/src/components/chinese/search/ChineseSearch'
 import { ReviewSection } from '@/src/components/chinese/review/ReviewSection'
 import { ArchiveSection } from '@/src/components/chinese/archive/ArchiveSection'
+import { TextSection } from '@/src/components/chinese/text/TextSection'
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger
 } from '@/src/components/ui/Tabs'
-import { PenLine, BookOpen, RotateCcw, Archive, Upload } from 'lucide-react'
+import { PenLine, BookOpen, RotateCcw, Archive, Upload, FileText } from 'lucide-react'
 import { ChineseProvider } from '@/src/context/chinese'
 
 export default function Page() {
@@ -26,6 +27,10 @@ export default function Page() {
           <TabsTrigger value="review" className="flex items-center gap-2">
             <RotateCcw className="h-4 w-4" />
             Ôn tập
+          </TabsTrigger>
+          <TabsTrigger value="texts" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            Văn bản
           </TabsTrigger>
           <TabsTrigger value="archive" className="flex items-center gap-2">
             <Archive className="h-4 w-4" />
@@ -47,6 +52,10 @@ export default function Page() {
 
         <TabsContent value="review">
           <ReviewSection />
+        </TabsContent>
+
+        <TabsContent value="texts">
+          <TextSection />
         </TabsContent>
 
         <TabsContent value="archive">

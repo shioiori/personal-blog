@@ -2,11 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@/src/lib/db";
 import {
   ensureCharGroupTables,
+  ensureTables,
   getCharGroups,
   createCharGroup,
   deleteCharGroup,
   addCharsToGroup,
   removeCharFromGroup,
+  upsertCardState,
 } from "@/src/lib/chinese-db";
 
 export async function GET() {
@@ -20,6 +22,8 @@ export async function POST(req: NextRequest) {
   const body = await req.json() as { name?: string; groupId?: number; chars?: string[]; char?: string; action?: string };
   if (body.action === "addChars") {
     await addCharsToGroup(body.groupId!, body.chars!);
+    await ensureTables();
+    await Promise.all(body.chars!.map((char) => upsertCardState(char, true)));
     return NextResponse.json({ ok: true });
   }
   if (body.action === "removeChar") {

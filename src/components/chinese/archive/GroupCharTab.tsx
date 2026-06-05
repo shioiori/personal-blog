@@ -10,6 +10,7 @@ import { cn } from "@/src/utils/ui";
 import { ChevronDown, ChevronRight, Plus, Pencil, Trash2, X } from "lucide-react";
 import { useEditAuth } from "../study/useEditAuth";
 import { KeyPromptModal } from "../study/KeyPromptModal";
+import { useLearnedChars } from "@/src/context/chinese";
 
 // ── API helpers ───────────────────────────────────────────────────────────────
 
@@ -55,14 +56,23 @@ interface CreateGroupDialogProps {
 
 const inputCls = "w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring";
 
+function firstCodePoint(value: string) {
+  return Array.from(value.trim())[0] ?? "";
+}
+
+function isSingleCodePoint(value: string) {
+  return Array.from(value.trim()).length === 1;
+}
+
 function CreateGroupDialog({ open, initial, onClose, onSave }: CreateGroupDialogProps) {
   const [name, setName] = useState(initial ?? "");
 
   useEffect(() => { if (open) setName(initial ?? ""); }, [open, initial]);
 
   function handleSave() {
-    if (!name.trim()) return;
-    onSave(name.trim());
+    const nextName = firstCodePoint(name);
+    if (!nextName) return;
+    onSave(nextName);
     onClose();
   }
 
@@ -76,10 +86,9 @@ function CreateGroupDialog({ open, initial, onClose, onSave }: CreateGroupDialog
           <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Tên nhóm (1 ký tự)</label>
           <input
             value={name}
-            onChange={(e) => setName(e.target.value.slice(0, 1))}
+            onChange={(e) => setName(firstCodePoint(e.target.value))}
             onKeyDown={(e) => e.key === "Enter" && handleSave()}
             placeholder="Nhập 1 ký tự..."
-            maxLength={1}
             style={name ? { fontFamily: "'Noto Serif SC', serif", fontSize: "1.5rem" } : undefined}
             className={inputCls}
             autoFocus
@@ -131,7 +140,7 @@ function AddCharsDialog({ open, group, onClose, onAdd }: AddCharsDialogProps) {
 
   function handleAdd() {
     const fromRadical = [...selectedChars];
-    const fromInput = inputRows.map((r) => r.trim()).filter((r) => r.length === 1);
+    const fromInput = inputRows.map(firstCodePoint).filter(Boolean);
     const all = [...new Set([...fromRadical, ...fromInput])];
     if (all.length === 0) return;
     onAdd(all);
@@ -143,7 +152,7 @@ function AddCharsDialog({ open, group, onClose, onAdd }: AddCharsDialogProps) {
   }
 
   function updateInputRow(i: number, val: string) {
-    setInputRows((prev) => prev.map((r, idx) => (idx === i ? val.slice(0, 1) : r)));
+    setInputRows((prev) => prev.map((r, idx) => (idx === i ? firstCodePoint(val) : r)));
   }
 
   function removeInputRow(i: number) {
@@ -151,10 +160,10 @@ function AddCharsDialog({ open, group, onClose, onAdd }: AddCharsDialogProps) {
   }
 
   const totalSelected =
-    selectedChars.size + inputRows.filter((r) => r.trim().length === 1).length;
+    selectedChars.size + inputRows.filter(isSingleCodePoint).length;
 
   const allSelected = useMemo(() => {
-    const fromInput = inputRows.map((r) => r.trim()).filter((r) => r.length === 1);
+    const fromInput = inputRows.map(firstCodePoint).filter(Boolean);
     return [...new Set([...selectedChars, ...fromInput])];
   }, [selectedChars, inputRows]);
 
@@ -220,7 +229,6 @@ function AddCharsDialog({ open, group, onClose, onAdd }: AddCharsDialogProps) {
                     <input
                       value={val}
                       onChange={(e) => updateInputRow(i, e.target.value)}
-                      maxLength={1}
                       className="w-10 h-10 rounded-md border border-input bg-background text-center text-lg outline-none focus:ring-2 focus:ring-ring"
                       style={val ? { fontFamily: "'Noto Serif SC', serif" } : undefined}
                     />
@@ -318,6 +326,7 @@ export function GroupCharTab() {
   const [activeGroup, setActiveGroup] = useState<CharGroup | null>(null);
 
   const { auth, requestEdit, submitKey, dismiss } = useEditAuth();
+  const { markLearned } = useLearnedChars();
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
 
   useEffect(() => {
@@ -374,6 +383,7 @@ export function GroupCharTab() {
   async function handleAddChars(chars: string[]) {
     if (!activeGroup) return;
     await apiPost({ action: "addChars", groupId: activeGroup.id, chars });
+    markLearned(chars);
     setGroups((prev) =>
       prev.map((g) =>
         g.id === activeGroup.id

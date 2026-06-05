@@ -17,8 +17,12 @@ export async function ensureTables() {
       han_viet    TEXT,
       meaning_vi  TEXT,
       note        TEXT,
+      crawl_data  JSONB,
       updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
+  `;
+  await sql`
+    ALTER TABLE chinese_card_edits ADD COLUMN IF NOT EXISTS crawl_data JSONB
   `;
   await sql`
     CREATE TABLE IF NOT EXISTS chinese_daily_limit (
@@ -96,6 +100,22 @@ export async function getCardEdits(): Promise<Record<string, UserEdits>> {
       } satisfies UserEdits,
     ])
   );
+}
+
+export async function getCardCrawlData(char: string): Promise<unknown | null> {
+  const rows = await sql`
+    SELECT crawl_data FROM chinese_card_edits WHERE char = ${char}
+  `;
+  return (rows[0]?.crawl_data as unknown | null) ?? null;
+}
+
+export async function upsertCardCrawlData(char: string, crawlData: unknown): Promise<void> {
+  await sql`
+    INSERT INTO chinese_card_edits (char, crawl_data, updated_at)
+    VALUES (${char}, ${JSON.stringify(crawlData)}::jsonb, NOW())
+    ON CONFLICT (char)
+    DO UPDATE SET crawl_data = EXCLUDED.crawl_data, updated_at = NOW()
+  `;
 }
 
 // ── Compound words ────────────────────────────────────────────────────────────
@@ -312,6 +332,80 @@ export async function getReviewHistory(limit = 20): Promise<ReviewHistoryItem[]>
 
 export async function deleteReviewHistory(id: number): Promise<void> {
   await sql`DELETE FROM chinese_review_history WHERE id = ${id}`;
+}
+
+export async function ensureUserTextTable() {
+  await sql`
+    CREATE TABLE IF NOT EXISTS chinese_user_texts (
+      id         SERIAL PRIMARY KEY,
+      title      TEXT,
+      text       TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+  await sql`
+    ALTER TABLE chinese_user_texts ADD COLUMN IF NOT EXISTS title TEXT
+  `;
+}
+
+export interface ChineseUserTextItem {
+  id: number;
+  title?: string;
+  text: string;
+  createdAt: string;
+}
+
+export async function saveChineseUserText(text: string, title?: string): Promise<ChineseUserTextItem> {
+  const rows = await sql`
+    INSERT INTO chinese_user_texts (title, text)
+    VALUES (${title ?? null}, ${text})
+    RETURNING id, title, text, created_at
+  `;
+  return {
+    id: rows[0].id as number,
+    title: (rows[0].title as string | null) ?? undefined,
+    text: rows[0].text as string,
+    createdAt: (rows[0].created_at as Date).toISOString(),
+  };
+}
+
+export async function getChineseUserTexts(limit = 50): Promise<ChineseUserTextItem[]> {
+  const rows = await sql`
+    SELECT id, title, text, created_at
+    FROM chinese_user_texts
+    ORDER BY created_at DESC
+    LIMIT ${limit}
+  `;
+  return rows.map((r) => ({
+    id: r.id as number,
+    title: (r.title as string | null) ?? undefined,
+    text: r.text as string,
+    createdAt: (r.created_at as Date).toISOString(),
+  }));
+}
+
+export async function updateChineseUserText(
+  id: number,
+  text: string,
+  title?: string
+): Promise<ChineseUserTextItem | null> {
+  const rows = await sql`
+    UPDATE chinese_user_texts
+    SET title = ${title ?? null}, text = ${text}
+    WHERE id = ${id}
+    RETURNING id, title, text, created_at
+  `;
+  if (!rows[0]) return null;
+  return {
+    id: rows[0].id as number,
+    title: (rows[0].title as string | null) ?? undefined,
+    text: rows[0].text as string,
+    createdAt: (rows[0].created_at as Date).toISOString(),
+  };
+}
+
+export async function deleteChineseUserText(id: number): Promise<void> {
+  await sql`DELETE FROM chinese_user_texts WHERE id = ${id}`;
 }
 
 // ── Grammar posts ─────────────────────────────────────────────────────────────
