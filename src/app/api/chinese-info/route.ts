@@ -1,5 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { CHINESE_DATA } from "@/src/data/chinese";
+import { ensureTables, getCardCrawlData } from "@/src/lib/chinese-db";
+
+async function getCachedCrawlData(char: string) {
+  try {
+    await ensureTables();
+    return await getCardCrawlData(char);
+  } catch {
+    return null;
+  }
+}
 
 export async function GET(req: NextRequest) {
   const char = req.nextUrl.searchParams.get("char");
@@ -9,9 +19,18 @@ export async function GET(req: NextRequest) {
   }
 
   const entry = CHINESE_DATA[char];
+  const crawlData = await getCachedCrawlData(char);
 
   if (!entry) {
-    return NextResponse.json({ char, pinyin: null, meaning: null, hanViet: null, meaningVi: null, hsk: null });
+    return NextResponse.json({
+      char,
+      pinyin: null,
+      meaning: null,
+      hanViet: null,
+      meaningVi: null,
+      hsk: null,
+      crawlData,
+    });
   }
 
   return NextResponse.json({
@@ -20,6 +39,7 @@ export async function GET(req: NextRequest) {
     meaning: entry.meaning,
     hanViet: entry.hanViet ?? null,
     meaningVi: entry.meaningVi ?? null,
-    hsk: entry.hsk
+    hsk: entry.hsk,
+    crawlData,
   });
 }

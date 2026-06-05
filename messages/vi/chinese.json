@@ -12,6 +12,9 @@
     "hanViet": "Hán Việt",
     "meaningVi": "Tiếng Việt",
     "meaning": "Tiếng Anh",
-    "loadingInfo": "Đang tải..."
+    "loadingInfo": "Đang tải...",
+    "thiVien": "Thi Viện",
+    "thiVienError": "Không lấy được dữ liệu Thi Viện.",
+    "thiVienEmpty": "Chưa có dữ liệu Thi Viện."
   }
 }

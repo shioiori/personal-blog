@@ -17,8 +17,10 @@ interface CharInfo {
   hanViet: string | null
   meaningVi: string | null
   hsk: HskLevel | null
+  crawlData?: unknown
 }
 
+const crawlDataCache = new Map<string, unknown>()
 const CANVAS_SIZE = 300
 
 const HSK_COLOR: Record<string, string> = {
@@ -29,6 +31,54 @@ const HSK_COLOR: Record<string, string> = {
   '5': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
   '6': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
   beyond: 'bg-muted text-muted-foreground'
+}
+
+function getPayload(data: unknown) {
+  if (data && typeof data === 'object' && 'payload' in data) {
+    return (data as { payload?: unknown }).payload
+  }
+  return data
+}
+
+function collectThiVienLines(data: unknown): string[] {
+  if (data && typeof data === 'object' && 'dictionary' in data) {
+    const dictionary = (data as {
+      dictionary?: {
+        pinyin?: string
+        hanviet?: string
+        meanings?: string[]
+      }
+    }).dictionary
+    const lines = [
+      dictionary?.pinyin ? `Pinyin: ${dictionary.pinyin}` : '',
+      dictionary?.hanviet ? `Hán Việt: ${dictionary.hanviet}` : '',
+      ...(dictionary?.meanings ?? [])
+    ].filter(Boolean)
+    if (lines.length > 0) return lines.slice(0, 7)
+  }
+
+  const payload = getPayload(data)
+  if (!payload || typeof payload !== 'object') return []
+
+  const result = (payload as { result?: unknown }).result
+  if (!Array.isArray(result)) return []
+
+  return result
+    .flatMap((entry) => {
+      if (!entry || typeof entry !== 'object') return []
+      const output = (entry as { o?: unknown }).o
+      if (Array.isArray(output)) {
+        return output
+          .map((item) => {
+            if (Array.isArray(item)) return item.filter(Boolean).join(' ')
+            return typeof item === 'string' ? item : ''
+          })
+          .filter(Boolean)
+      }
+      return typeof output === 'string' ? [output] : []
+    })
+    .filter((line, index, lines) => line && lines.indexOf(line) === index)
+    .slice(0, 4)
 }
 
 export function ChineseSearch() {
@@ -42,7 +92,11 @@ export function ChineseSearch() {
   const [selectedChar, setSelectedChar] = useState<CharInfo | null>(null)
   const [isRecognizing, setIsRecognizing] = useState(false)
   const [isLoadingInfo, setIsLoadingInfo] = useState(false)
+  const [crawlData, setCrawlData] = useState<unknown>()
+  const [crawlLoading, setCrawlLoading] = useState(false)
+  const [crawlError, setCrawlError] = useState(false)
   const { learnedChars, toggleLearned } = useLearnedChars()
+  const thiVienLines = collectThiVienLines(crawlData)
 
   const redraw = useCallback(
     (allStrokes: Stroke[], liveStroke: Stroke = []) => {
@@ -130,6 +184,8 @@ export function ChineseSearch() {
     setIsRecognizing(true)
     setSuggestions([])
     setSelectedChar(null)
+    setCrawlData(undefined)
+    setCrawlError(false)
     try {
       const ink = allStrokes.map((s) => [s.map((p) => p.x), s.map((p) => p.y)])
       const res = await fetch('/api/chinese-recognize', {
@@ -149,9 +205,14 @@ export function ChineseSearch() {
   const handleSelectChar = async (char: string) => {
     if (selectedChar?.char === char) {
       setSelectedChar(null)
+      setCrawlData(undefined)
+      setCrawlError(false)
       return
     }
     setIsLoadingInfo(true)
+    setCrawlData(undefined)
+    setCrawlLoading(false)
+    setCrawlError(false)
     setSelectedChar({
       char,
       pinyin: null,
@@ -161,10 +222,34 @@ export function ChineseSearch() {
       hsk: null
     })
     try {
-      const res = await fetch(
+      const infoRes = await fetch(
         `/api/chinese-info?char=${encodeURIComponent(char)}`
       )
-      setSelectedChar(await res.json())
+      const info = (await infoRes.json()) as CharInfo
+      setSelectedChar(info)
+
+      if (info.crawlData !== null && info.crawlData !== undefined) {
+        crawlDataCache.set(char, info.crawlData)
+        setCrawlData(info.crawlData)
+        return
+      }
+
+      if (crawlDataCache.has(char)) {
+        setCrawlData(crawlDataCache.get(char))
+        return
+      }
+
+      setCrawlLoading(true)
+      const crawlRes = await fetch(
+        `/api/chinese/crawl-data?char=${encodeURIComponent(char)}`
+      )
+      if (crawlRes.ok) {
+        const data = (await crawlRes.json()) as { crawlData?: unknown }
+        crawlDataCache.set(char, data.crawlData)
+        setCrawlData(data.crawlData)
+      } else {
+        setCrawlError(true)
+      }
     } catch {
       setSelectedChar({
         char,
@@ -174,8 +259,10 @@ export function ChineseSearch() {
         meaningVi: null,
         hsk: null
       })
+      setCrawlError(true)
     } finally {
       setIsLoadingInfo(false)
+      setCrawlLoading(false)
     }
   }
 
@@ -187,6 +274,8 @@ export function ChineseSearch() {
     else {
       setSuggestions([])
       setSelectedChar(null)
+      setCrawlData(undefined)
+      setCrawlError(false)
     }
   }
 
@@ -195,6 +284,8 @@ export function ChineseSearch() {
     setCurrentStroke([])
     setSuggestions([])
     setSelectedChar(null)
+    setCrawlData(undefined)
+    setCrawlError(false)
     redraw([])
   }
 
@@ -363,6 +454,25 @@ export function ChineseSearch() {
                     value={selectedChar.meaning}
                     className="text-sm text-muted-foreground"
                   />
+                  <div className="border-t border-border pt-3">
+                    <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      {t('thiVien')}
+                    </span>
+                    <div className="mt-1.5 max-h-56 overflow-y-auto pr-1 text-sm text-muted-foreground space-y-1.5">
+                      {crawlLoading && <p>{t('loadingInfo')}</p>}
+                      {crawlError && <p>{t('thiVienError')}</p>}
+                      {!crawlLoading &&
+                        !crawlError &&
+                        thiVienLines.length === 0 && (
+                          <p>{t('thiVienEmpty')}</p>
+                        )}
+                      {thiVienLines.map((line) => (
+                        <p key={line} className="whitespace-pre-wrap">
+                          {line}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
