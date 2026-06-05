@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Eye, FileText, History, Pencil, Save, Send, Trash2, X } from "lucide-react";
+import { BookmarkCheck, Eye, FileText, History, Pencil, Save, Send, Trash2, X } from "lucide-react";
 import { getAllCharacters, type CharacterInfo } from "@/src/data/chinese";
 import { TooltipMode } from "@/src/components/enums";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/Tabs";
@@ -11,6 +11,7 @@ import { Checkbox } from "@/src/components/ui/Checkbox";
 import { CharTooltip } from "../study/CharTooltip";
 import type { UserEdits } from "../study/EditCardModal";
 import { cn } from "@/src/utils/ui";
+import { useLearnedChars } from "@/src/context/chinese";
 
 interface SavedText {
   id: number;
@@ -24,17 +25,29 @@ function isChinese(ch: string) {
   return (code >= 0x4e00 && code <= 0x9fff) || (code >= 0x3400 && code <= 0x4dbf);
 }
 
+function collectChineseChars(...texts: Array<string | undefined>) {
+  const chars = new Set<string>();
+  for (const text of texts) {
+    for (const ch of Array.from(text ?? "")) {
+      if (isChinese(ch)) chars.add(ch);
+    }
+  }
+  return Array.from(chars);
+}
+
 function ChineseTextDisplay({
   text,
   charMap,
   userEdits,
   showPinyin,
+  enableTooltip,
   className,
 }: {
   text: string;
   charMap: Map<string, CharacterInfo>;
   userEdits: Record<string, UserEdits>;
   showPinyin: boolean;
+  enableTooltip: boolean;
   className?: string;
 }) {
   return (
@@ -59,12 +72,27 @@ function ChineseTextDisplay({
                   {pinyin}
                 </span>
               )}
-              <CharTooltip
-                char={ch}
-                info={info}
-                edits={userEdits[ch] ?? {}}
-                mode={TooltipMode.Full}
-              />
+              {enableTooltip ? (
+                <CharTooltip
+                  char={ch}
+                  info={info}
+                  edits={userEdits[ch] ?? {}}
+                  mode={TooltipMode.Full}
+                />
+              ) : (
+                <span>{ch}</span>
+              )}
+            </span>
+          );
+        }
+        if (showPinyin && ch !== "\n") {
+          return (
+            <span
+              key={`${ch}-${i}`}
+              className="inline-flex min-w-2 flex-col items-center align-bottom mx-0.5"
+            >
+              <span className="h-4 text-[0.58em] leading-none text-muted-foreground" />
+              <span>{ch === " " ? "\u00a0" : ch}</span>
             </span>
           );
         }
@@ -89,6 +117,66 @@ function PinyinToggle({
   );
 }
 
+function TooltipToggle({
+  checked,
+  onCheckedChange,
+}: {
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+}) {
+  return (
+    <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer select-none">
+      <Checkbox checked={checked} onCheckedChange={(value) => onCheckedChange(Boolean(value))} />
+      Tooltip
+    </label>
+  );
+}
+
+function MarkRecordLearnedButton({
+  text,
+  learnedChars,
+  onMarkLearned,
+  compact = false,
+}: {
+  text: string;
+  learnedChars: Set<string>;
+  onMarkLearned: (chars: string[]) => void;
+  compact?: boolean;
+}) {
+  const chars = collectChineseChars(text);
+  const newChars = chars.filter((ch) => !learnedChars.has(ch));
+  const disabled = chars.length === 0 || newChars.length === 0;
+  const label =
+    chars.length === 0
+      ? "Không có chữ Hán"
+      : newChars.length > 0
+        ? compact
+          ? "Đánh dấu"
+          : "Đánh dấu văn bản"
+        : compact
+          ? "Đã học"
+          : "Văn bản đã học";
+
+  return (
+    <button
+      onClick={(event) => {
+        event.stopPropagation();
+        onMarkLearned(newChars);
+      }}
+      disabled={disabled}
+      className={cn(
+        "flex items-center gap-2 rounded-lg border border-border text-sm font-medium",
+        compact ? "px-2 py-1" : "px-3 py-2",
+        "bg-background hover:bg-accent transition-colors disabled:opacity-60 disabled:hover:bg-background"
+      )}
+      title={disabled ? "Tất cả chữ trong văn bản này đã được đánh dấu" : "Đánh dấu tất cả chữ trong văn bản này là đã học"}
+    >
+      <BookmarkCheck className={compact ? "h-3.5 w-3.5" : "h-4 w-4"} />
+      {label}
+    </button>
+  );
+}
+
 async function apiGet<T>(path: string): Promise<T> {
   const res = await fetch(path);
   if (!res.ok) throw new Error(`GET ${path} failed`);
@@ -98,6 +186,7 @@ async function apiGet<T>(path: string): Promise<T> {
 export function TextSection() {
   const allChars = useMemo(() => getAllCharacters(), []);
   const charMap = useMemo(() => new Map(allChars.map((c) => [c.char, c])), [allChars]);
+  const { learnedChars, markLearned } = useLearnedChars();
   const [userEdits, setUserEdits] = useState<Record<string, UserEdits>>({});
   const [title, setTitle] = useState("");
   const [input, setInput] = useState("");
@@ -106,6 +195,8 @@ export function TextSection() {
   const [saveOnSubmit, setSaveOnSubmit] = useState(false);
   const [showTextPinyin, setShowTextPinyin] = useState(false);
   const [showHistoryPinyin, setShowHistoryPinyin] = useState(false);
+  const [enableTextTooltip, setEnableTextTooltip] = useState(true);
+  const [enableHistoryTooltip, setEnableHistoryTooltip] = useState(true);
   const [texts, setTexts] = useState<SavedText[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -303,10 +394,20 @@ export function TextSection() {
             {textError && <p className="text-sm text-destructive">{textError}</p>}
           </div>
 
-          <PinyinToggle checked={showTextPinyin} onCheckedChange={setShowTextPinyin} />
+          <div className="flex flex-wrap items-center gap-3">
+            <PinyinToggle checked={showTextPinyin} onCheckedChange={setShowTextPinyin} />
+            <TooltipToggle checked={enableTextTooltip} onCheckedChange={setEnableTextTooltip} />
+          </div>
 
           {currentText ? (
             <div className="rounded-lg border border-border bg-card p-5">
+              <div className="mb-4 flex justify-end">
+                <MarkRecordLearnedButton
+                  text={currentText}
+                  learnedChars={learnedChars}
+                  onMarkLearned={markLearned}
+                />
+              </div>
               {currentTitle && (
                 <div className="mb-4 font-semibold">
                   <ChineseTextDisplay
@@ -314,6 +415,7 @@ export function TextSection() {
                     charMap={charMap}
                     userEdits={userEdits}
                     showPinyin={showTextPinyin}
+                    enableTooltip={enableTextTooltip}
                     className="text-lg"
                   />
                 </div>
@@ -323,6 +425,7 @@ export function TextSection() {
                 charMap={charMap}
                 userEdits={userEdits}
                 showPinyin={showTextPinyin}
+                enableTooltip={enableTextTooltip}
                 className="text-2xl"
               />
             </div>
@@ -336,7 +439,13 @@ export function TextSection() {
 
       <TabsContent value="history">
         <div className="space-y-4">
-          <PinyinToggle checked={showHistoryPinyin} onCheckedChange={setShowHistoryPinyin} />
+          <div className="flex flex-wrap items-center gap-3">
+            <PinyinToggle checked={showHistoryPinyin} onCheckedChange={setShowHistoryPinyin} />
+            <TooltipToggle
+              checked={enableHistoryTooltip}
+              onCheckedChange={setEnableHistoryTooltip}
+            />
+          </div>
           {historyError && <p className="text-sm text-destructive">{historyError}</p>}
 
           {loadingHistory && (
@@ -393,6 +502,12 @@ export function TextSection() {
                       >
                         <Pencil className="h-4 w-4" />
                       </button>
+                      <MarkRecordLearnedButton
+                        text={item.text}
+                        learnedChars={learnedChars}
+                        onMarkLearned={markLearned}
+                        compact
+                      />
                       <button
                         className="rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
                         onClick={() => void handleDelete(item.id)}
@@ -454,6 +569,7 @@ export function TextSection() {
                               charMap={charMap}
                               userEdits={userEdits}
                               showPinyin={showHistoryPinyin}
+                              enableTooltip={enableHistoryTooltip}
                               className="text-lg"
                             />
                           </div>
@@ -470,6 +586,7 @@ export function TextSection() {
                           charMap={charMap}
                           userEdits={userEdits}
                           showPinyin={showHistoryPinyin}
+                          enableTooltip={enableHistoryTooltip}
                           className="text-xl"
                         />
                       </>
