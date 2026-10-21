@@ -4,6 +4,7 @@
         "onLoading": "Đang tải nhạc...",
         "noSong": "Không tìm thấy nhạc nào",
         "description": "Nghe nhạc không?",
-        "playlist": "Danh sách nhạc"
+        "playlist": "Danh sách nhạc",
+        "includeInShuffle": "Thêm vào phát ngẫu nhiên"
     }
 }

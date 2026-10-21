@@ -1,14 +1,19 @@
 import { useTranslations } from "next-intl";
 import { Music } from "@/src/declaration/music";
 import Image from "next/image";
+
 export const Playlist = ({
   playlist,
   currentTrack,
-  setCurrentTrack
+  setCurrentTrack,
+  selectedTrackIds,
+  toggleTrackSelected
 }: {
   playlist: Music[];
   currentTrack: number;
   setCurrentTrack: (index: number) => void;
+  selectedTrackIds: Set<string>;
+  toggleTrackSelected: (id: string) => void;
 }) => {
   const t = useTranslations("Music");
   return (
@@ -25,6 +30,14 @@ export const Playlist = ({
             }`}
             onClick={() => setCurrentTrack(index)}
           >
+            <input
+              type="checkbox"
+              className="shrink-0 h-4 w-4 cursor-pointer accent-primary"
+              checked={selectedTrackIds.has(song.id)}
+              onClick={(e) => e.stopPropagation()}
+              onChange={() => toggleTrackSelected(song.id)}
+              title={t("includeInShuffle")}
+            />
             <div className="relative w-12 h-12 rounded-md overflow-hidden shrink-0">
               <Image
                 src={song.cover || "/audio-lines.svg"}

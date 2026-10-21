@@ -16,6 +16,8 @@ interface MusicContextValue {
   setVolume: (v: number[]) => void;
   isShuffled: boolean;
   setIsShuffled: (v: boolean) => void;
+  selectedTrackIds: Set<string>;
+  toggleTrackSelected: (id: string) => void;
   repeatMode: number;
   setRepeatMode: (v: number) => void;
   isLoading: boolean;
@@ -42,6 +44,7 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState([75]);
   const [isShuffled, setIsShuffled] = useState(false);
+  const [selectedTrackIds, setSelectedTrackIds] = useState<Set<string>>(new Set());
   const [repeatMode, setRepeatMode] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isFloatingVisible, setIsFloatingVisible] = useState(true);
@@ -49,17 +52,45 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  const nextTrack = useCallback(() => {
-    if (isShuffled) {
+  const toggleTrackSelected = useCallback((id: string) => {
+    setSelectedTrackIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }, []);
+
+  const getShuffleIndices = useCallback(() => {
+    const indices = playlist.reduce<number[]>((acc, song, index) => {
+      if (selectedTrackIds.has(song.id)) acc.push(index);
+      return acc;
+    }, []);
+    return indices.length > 0 ? indices : playlist.map((_, index) => index);
+  }, [playlist, selectedTrackIds]);
+
+  const randomIndexFrom = useCallback(
+    (indices: number[]) => {
+      if (indices.length === 0) return 0;
       let randomIndex: number;
       do {
-        randomIndex = Math.floor(Math.random() * playlist.length);
-      } while (randomIndex === currentTrack && playlist.length > 1);
-      setCurrentTrack(randomIndex);
+        randomIndex = indices[Math.floor(Math.random() * indices.length)];
+      } while (randomIndex === currentTrack && indices.length > 1);
+      return randomIndex;
+    },
+    [currentTrack]
+  );
+
+  const nextTrack = useCallback(() => {
+    if (isShuffled) {
+      setCurrentTrack(randomIndexFrom(getShuffleIndices()));
     } else {
       setCurrentTrack((prev) => (prev + 1) % playlist.length);
     }
-  }, [isShuffled, currentTrack, playlist.length]);
+  }, [isShuffled, playlist.length, getShuffleIndices, randomIndexFrom]);
 
   // Audio event listeners
   useEffect(() => {
@@ -134,23 +165,21 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
     }
   }, [currentTrack, playlist]);
 
-  // Random first track when playlist loads
+  // Default to all tracks selected when a new playlist loads, and pick a random first track
   useEffect(() => {
     if (playlist.length > 0) {
+      setSelectedTrackIds(new Set(playlist.map((song) => song.id)));
       const randomIndex = Math.floor(Math.random() * playlist.length);
       setCurrentTrack(randomIndex);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playlist.length]);
 
   const togglePlay = () => setIsPlaying((prev) => !prev);
 
   const prevTrack = () => {
     if (isShuffled) {
-      let randomIndex: number;
-      do {
-        randomIndex = Math.floor(Math.random() * playlist.length);
-      } while (randomIndex === currentTrack && playlist.length > 1);
-      setCurrentTrack(randomIndex);
+      setCurrentTrack(randomIndexFrom(getShuffleIndices()));
     } else {
       setCurrentTrack((prev) => (prev - 1 + playlist.length) % playlist.length);
     }
@@ -185,6 +214,8 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
         setVolume,
         isShuffled,
         setIsShuffled,
+        selectedTrackIds,
+        toggleTrackSelected,
         repeatMode,
         setRepeatMode,
         isLoading,

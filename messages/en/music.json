@@ -4,6 +4,7 @@
         "onLoading": "Loading music...",
         "noSong": "No songs found",
         "description": "Wanna vibe to some music?",
-        "playlist": "Playlist"
+        "playlist": "Playlist",
+        "includeInShuffle": "Include in shuffle"
     }
 }

@@ -31,6 +31,8 @@ export function MusicPlayer() {
     setVolume,
     isShuffled,
     setIsShuffled,
+    selectedTrackIds,
+    toggleTrackSelected,
     repeatMode,
     setRepeatMode,
     isLoading,
@@ -158,6 +160,8 @@ export function MusicPlayer() {
             playlist={playlist}
             currentTrack={currentTrack}
             setCurrentTrack={setCurrentTrack}
+            selectedTrackIds={selectedTrackIds}
+            toggleTrackSelected={toggleTrackSelected}
           />
         </div>
       </CardContent>
