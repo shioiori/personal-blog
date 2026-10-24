@@ -45,7 +45,8 @@ export function Header() {
     { name: t('project'), href: '/projects' },
     { name: t('music'), href: '/music' },
     { name: t('discipline'), href: '/discipline' },
-    { name: t('hantu'), href: '/chinese' }
+    { name: t('hantu'), href: '/chinese' },
+    { name: t('english'), href: '/english' }
   ]
 
   useEffect(() => {

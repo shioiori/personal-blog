@@ -1,6 +1,6 @@
 "use client";
 
-import type { MouseEvent } from "react";
+import type { KeyboardEvent, MouseEvent, PointerEvent } from "react";
 import { useCallback, useState } from "react";
 import { Bookmark, BookmarkCheck, Star, Volume2 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/src/components/ui/Tooltip";
@@ -65,6 +65,7 @@ export function CharTooltip({ char, info, edits, mode }: CharTooltipProps) {
   const [crawlData, setCrawlData] = useState<unknown>(() => edits.crawlData);
   const [crawlLoading, setCrawlLoading] = useState(false);
   const [crawlError, setCrawlError] = useState(false);
+  const [open, setOpen] = useState(false);
   const displayPinyin = edits.pinyin || info.pinyin;
   const displayHanViet = edits.hanViet || info.hanViet;
   const displayMeaning = edits.meaningVi || info.meaningVi || info.meaning;
@@ -100,12 +101,45 @@ export function CharTooltip({ char, info, edits, mode }: CharTooltipProps) {
     }
   }, [crawlData, crawlLoading, info.char]);
 
+  const handleTriggerPointerUp = (event: PointerEvent<HTMLSpanElement>) => {
+    if (event.pointerType !== "touch" && event.pointerType !== "pen") return;
+
+    event.preventDefault();
+    setOpen((current) => {
+      const nextOpen = !current;
+      if (nextOpen) void loadCrawlData();
+      return nextOpen;
+    });
+  };
+
+  const handleTriggerKeyDown = (event: KeyboardEvent<HTMLSpanElement>) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+
+    event.preventDefault();
+    // Always open (never toggle): Radix already opens this tooltip on focus,
+    // so a naive toggle here would immediately close a tooltip that focus
+    // had just opened.
+    setOpen(true);
+    void loadCrawlData();
+  };
+
   return (
     <TooltipProvider delayDuration={200}>
-      <Tooltip onOpenChange={(open) => open && void loadCrawlData()}>
+      <Tooltip
+        open={open}
+        onOpenChange={(nextOpen) => {
+          setOpen(nextOpen);
+          if (nextOpen) void loadCrawlData();
+        }}
+      >
         <TooltipTrigger asChild>
           <span
-            className="cursor-default hover:text-primary transition-colors"
+            tabIndex={0}
+            role="button"
+            aria-label={`Xem nghĩa của ${info.char}`}
+            className="cursor-default touch-manipulation rounded-sm hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 transition-colors"
+            onPointerUp={handleTriggerPointerUp}
+            onKeyDown={handleTriggerKeyDown}
             style={{ fontFamily: "var(--font-noto-serif-sc), serif" }}
           >
             {char}
