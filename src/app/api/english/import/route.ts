@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
       items: ImportWordInput[];
       groupId?: number;
       newGroupName?: string;
+      onDuplicate?: "skip" | "overwrite";
     };
     if (!Array.isArray(body.items) || body.items.length === 0) {
       return NextResponse.json({ error: "items required" }, { status: 400 });
@@ -21,8 +22,8 @@ export async function POST(req: NextRequest) {
       groupId = existing ? existing.id : (await createGroup(body.newGroupName.trim())).id;
     }
 
-    const { created, skipped } = await bulkImportWords(body.items, groupId);
-    return NextResponse.json({ created, skippedWords: skipped });
+    const { created, overwritten, skipped } = await bulkImportWords(body.items, groupId, body.onDuplicate ?? "skip");
+    return NextResponse.json({ created, overwritten, skippedWords: skipped });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     console.error("[POST english/import error]", msg);

@@ -317,31 +317,39 @@ export async function upsertFlashcardGrade(wordId: number, grade: 0 | 1 | 2 | 3)
 
 export async function bulkImportWords(
   items: ImportWordInput[],
-  groupId?: number
-): Promise<{ created: number; skipped: string[] }> {
-  const existingRows = await sql`SELECT LOWER(word) AS w FROM english_words`;
-  const existing = new Set(existingRows.map((r) => r.w as string));
+  groupId?: number,
+  onDuplicate: "skip" | "overwrite" = "skip"
+): Promise<{ created: number; overwritten: number; skipped: string[] }> {
+  const existingRows = await sql`SELECT id, LOWER(word) AS w FROM english_words`;
+  const existingIdByWord = new Map<string, number>(existingRows.map((r) => [r.w as string, r.id as number]));
 
   let created = 0;
+  let overwritten = 0;
   const skipped: string[] = [];
 
   for (const item of items) {
     const key = item.word.trim().toLowerCase();
     if (!key) continue;
-    if (existing.has(key)) {
-      skipped.push(item.word);
+    const existingId = existingIdByWord.get(key);
+
+    if (existingId !== undefined) {
+      if (onDuplicate === "overwrite") {
+        const senses: SenseInput[] = item.senses.length > 0 ? item.senses : [{}];
+        await updateWord(existingId, item.word.trim(), senses);
+        overwritten++;
+      } else {
+        skipped.push(item.word);
+      }
       if (groupId) {
-        const existingIdRows = await sql`SELECT id FROM english_words WHERE LOWER(word) = ${key} LIMIT 1`;
-        if (existingIdRows[0]) {
-          await sql`INSERT INTO english_word_group_members (group_id, word_id) VALUES (${groupId}, ${existingIdRows[0].id as number}) ON CONFLICT DO NOTHING`;
-        }
+        await sql`INSERT INTO english_word_group_members (group_id, word_id) VALUES (${groupId}, ${existingId}) ON CONFLICT DO NOTHING`;
       }
       continue;
     }
-    existing.add(key);
+
     const senses: SenseInput[] = item.senses.length > 0 ? item.senses : [{}];
     const rows = await sql`INSERT INTO english_words (word) VALUES (${item.word.trim()}) RETURNING id`;
     const wordId = rows[0].id as number;
+    existingIdByWord.set(key, wordId);
     await insertSenses(wordId, senses);
     await sql`INSERT INTO english_flashcard (word_id, active) VALUES (${wordId}, TRUE) ON CONFLICT (word_id) DO NOTHING`;
     if (groupId) {
@@ -350,5 +358,5 @@ export async function bulkImportWords(
     created++;
   }
 
-  return { created, skipped };
+  return { created, overwritten, skipped };
 }

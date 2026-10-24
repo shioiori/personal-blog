@@ -30,8 +30,11 @@ function SummaryScreen({ summary, onRestart }: { summary: GradeSummary; onRestar
   );
 }
 
+type ViewMode = "due" | "all";
+
 export function FlashcardTab() {
   const { settings } = useFlashcardSettings();
+  const [mode, setMode] = useState<ViewMode>("due");
   const [phase, setPhase] = useState<Phase>("loading");
   const [queue, setQueue] = useState<FlashcardCard[]>([]);
   const [index, setIndex] = useState(0);
@@ -44,20 +47,32 @@ export function FlashcardTab() {
     setDoneSummary(null);
     setIndex(0);
     try {
-      const params = new URLSearchParams();
-      if (settings.maxReviews > 0) params.set("limit", String(settings.maxReviews));
-      if (settings.order === "random") params.set("order", "random");
-      const res = await fetch(`/api/english/flashcard?${params.toString()}`);
-      const data = (await res.json()) as { cards: FlashcardCard[] };
-      if (data.cards.length === 0) setPhase("empty");
+      let cards: FlashcardCard[];
+      if (mode === "all") {
+        // Browse every word as a flashcard regardless of SRS due date —
+        // separate from the spaced-repetition review queue below.
+        const res = await fetch("/api/english/words");
+        const words = (await res.json()) as { id: number; word: string; senses: FlashcardCard["senses"] }[];
+        cards = words.map((w) => ({ wordId: w.id, word: w.word, senses: w.senses }));
+        if (settings.order === "random") cards = [...cards].sort(() => Math.random() - 0.5);
+        if (settings.maxReviews > 0) cards = cards.slice(0, settings.maxReviews);
+      } else {
+        const params = new URLSearchParams();
+        if (settings.maxReviews > 0) params.set("limit", String(settings.maxReviews));
+        if (settings.order === "random") params.set("order", "random");
+        const res = await fetch(`/api/english/flashcard?${params.toString()}`);
+        const data = (await res.json()) as { cards: FlashcardCard[] };
+        cards = data.cards;
+      }
+      if (cards.length === 0) setPhase("empty");
       else {
-        setQueue(data.cards);
+        setQueue(cards);
         setPhase("front");
       }
     } catch {
       setPhase("empty");
     }
-  }, [settings.maxReviews, settings.order]);
+  }, [settings.maxReviews, settings.order, mode]);
 
   useEffect(() => { void loadSession(); }, [loadSession]);
 
@@ -88,23 +103,72 @@ export function FlashcardTab() {
     persistGrade(card.wordId, g);
   }
 
-  const current = queue[index];
-
-  if (phase === "loading") {
-    return <div className="flex items-center justify-center py-24 text-muted-foreground text-sm">Đang tải...</div>;
+  function goNext() {
+    const next = index + 1;
+    if (next >= queue.length) setPhase("done");
+    else {
+      setIndex(next);
+      setPhase("front");
+    }
   }
 
-  if (phase === "empty") {
+  function goPrev() {
+    if (index === 0) return;
+    setIndex(index - 1);
+    setPhase("front");
+  }
+
+  const current = queue[index];
+
+  const modeToggle = (
+    <div className="flex gap-2 mb-4">
+      <Button size="sm" variant={mode === "due" ? "default" : "outline"} onClick={() => setMode("due")}>
+        Lặp lại ngắt quãng
+      </Button>
+      <Button size="sm" variant={mode === "all" ? "default" : "outline"} onClick={() => setMode("all")}>
+        Xem tất cả
+      </Button>
+    </div>
+  );
+
+  if (phase === "loading") {
     return (
-      <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-        <p className="text-lg font-medium">Không có thẻ đến hạn hôm nay</p>
-        <p className="text-sm">Thêm từ mới hoặc quay lại vào ngày mai.</p>
+      <div>
+        {modeToggle}
+        <div className="flex items-center justify-center py-24 text-muted-foreground text-sm">Đang tải...</div>
       </div>
     );
   }
 
-  if (phase === "done" && doneSummary) {
-    return <SummaryScreen summary={doneSummary} onRestart={loadSession} />;
+  if (phase === "empty") {
+    return (
+      <div>
+        {modeToggle}
+        <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
+          <p className="text-lg font-medium">
+            {mode === "all" ? "Chưa có từ nào" : "Không có thẻ đến hạn hôm nay"}
+          </p>
+          <p className="text-sm">
+            {mode === "all" ? "Thêm từ ở tab Học từ trước." : "Thêm từ mới hoặc quay lại vào ngày mai."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (phase === "done") {
+    if (mode === "all") {
+      return (
+        <div>
+          {modeToggle}
+          <div className="flex flex-col items-center gap-6 py-16">
+            <p className="text-2xl font-semibold">Đã xem hết {queue.length} từ</p>
+            <Button onClick={loadSession} variant="outline">Xem lại từ đầu</Button>
+          </div>
+        </div>
+      );
+    }
+    if (doneSummary) return <SummaryScreen summary={doneSummary} onRestart={loadSession} />;
   }
 
   if (!current) return null;
@@ -114,6 +178,7 @@ export function FlashcardTab() {
 
   return (
     <div className="flex flex-col items-center gap-6 max-w-md mx-auto py-8">
+      {modeToggle}
       <div className="w-full flex items-center justify-between text-sm text-muted-foreground">
         <span>{index + 1} / {queue.length}</span>
         <div className="h-2 flex-1 mx-4 bg-muted rounded-full overflow-hidden">
@@ -162,7 +227,14 @@ export function FlashcardTab() {
         </div>
       </div>
 
-      {(phase === "front" || phase === "back") && (
+      {(phase === "front" || phase === "back") && mode === "all" && (
+        <div className="grid grid-cols-2 gap-2 w-full">
+          <Button onClick={goPrev} variant="outline" disabled={index === 0}>Trước</Button>
+          <Button onClick={goNext}>{index + 1 >= queue.length ? "Hoàn tất" : "Tiếp theo"}</Button>
+        </div>
+      )}
+
+      {(phase === "front" || phase === "back") && mode === "due" && (
         <div className="grid grid-cols-4 gap-2 w-full">
           <Button onClick={() => grade(0)} className="bg-red-500 hover:bg-red-600 text-white text-xs py-3 h-auto">
             <span className="font-semibold">Lại</span>

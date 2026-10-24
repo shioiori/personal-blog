@@ -1,227 +1,163 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ensureEnglishTables, getWord, getWordCrawlData, upsertWordCrawlData } from "@/src/lib/english-db";
 
-// Best-effort live crawl of the Cambridge English-English dictionary entry for a
-// single word, cached per-word in english_words.crawl_data (JSONB). Mirrors the
-// chinese feature's crawl-data pattern (src/app/api/chinese/crawl-data/route.ts):
-// a single on-demand fetch per word, triggered by user action, never bulk/automatic.
-// Cambridge's HTML is unstable/undocumented, so every extraction step is wrapped
-// in try/catch — a partial failure must never crash the whole request.
+// Full English-English dictionary entry for a single word, cached per-word in
+// english_words.crawl_data (JSONB): a single on-demand fetch per word,
+// triggered by user action, never bulk/automatic.
+//
+// NOTE: an earlier version of this route scraped dictionary.cambridge.org's
+// HTML directly, but Cambridge blocks non-browser requests with a 403 almost
+// immediately in practice, making that approach unusable in production. This
+// uses the free, public https://dictionaryapi.dev instead (itself sourced
+// from Wiktionary), which returns structured JSON with no bot-blocking.
 
-const PARSER_VERSION = 1;
+const PARSER_VERSION = 2;
 
-interface CambridgeSenseBlock {
-  partOfSpeech?: string;
-  definitions: { text: string; examples: string[] }[];
-}
-
-interface CambridgePronunciation {
-  region: "uk" | "us";
+interface EntryPronunciation {
+  region?: string;
   ipa?: string;
   audioUrl?: string;
 }
 
-interface CambridgeCrawlData {
-  source: "cambridge";
+interface EntrySenseBlock {
+  partOfSpeech?: string;
+  definitions: { text: string; examples: string[] }[];
+}
+
+interface DictionaryCrawlData {
+  source: "dictionaryapi.dev";
   parserVersion: number;
   fetchedAt: string;
   url: string;
   word: string;
-  pronunciations: CambridgePronunciation[];
-  senses: CambridgeSenseBlock[];
+  pronunciations: EntryPronunciation[];
+  senses: EntrySenseBlock[];
   synonyms: string[];
-  raw?: string;
+  antonyms: string[];
 }
 
-function decodeHtml(text: string) {
-  return text
-    .replace(/&#(\d+);/g, (_, code) => String.fromCodePoint(Number(code)))
-    .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCodePoint(parseInt(code, 16)))
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'");
+interface ApiPhonetic {
+  text?: string;
+  audio?: string;
 }
 
-function stripHtml(html: string) {
-  return decodeHtml(html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ")).trim();
+interface ApiDefinition {
+  definition?: string;
+  example?: string;
+  synonyms?: string[];
+  antonyms?: string[];
 }
 
-function extractBlocks(html: string, className: string): string[] {
-  // Naive balanced-div extractor scoped to elements carrying `className`.
-  const blocks: string[] = [];
-  const re = new RegExp(`<div[^>]*class=["'][^"']*\\b${className}\\b[^"']*["'][^>]*>`, "gi");
-  let match: RegExpExecArray | null;
-  while ((match = re.exec(html))) {
-    const start = match.index;
-    let depth = 0;
-    let i = start;
-    const tagRe = /<div\b[^>]*>|<\/div>/gi;
-    tagRe.lastIndex = start;
-    let end = html.length;
-    let m: RegExpExecArray | null;
-    while ((m = tagRe.exec(html))) {
-      if (m[0].toLowerCase().startsWith("</div")) {
-        depth--;
-      } else {
-        depth++;
-      }
-      if (depth === 0) {
-        end = m.index + m[0].length;
-        break;
-      }
-    }
-    blocks.push(html.slice(start, end));
-    re.lastIndex = end;
-    i = end;
-    void i;
-  }
-  return blocks;
+interface ApiMeaning {
+  partOfSpeech?: string;
+  definitions?: ApiDefinition[];
+  synonyms?: string[];
+  antonyms?: string[];
 }
 
-function parsePronunciations(html: string): CambridgePronunciation[] {
-  const results: CambridgePronunciation[] = [];
-  try {
-    for (const region of ["uk", "us"] as const) {
-      const blockRe = new RegExp(`<span[^>]*class=["'][^"']*\\b${region}dpron-lbl\\b[^"']*["'][\\s\\S]*?<\\/span>\\s*<span[^>]*class=["'][^"']*pron\\b[^"']*["'][^>]*>([\\s\\S]*?)<\\/span>`, "i");
-      const m = html.match(blockRe);
-      let ipa: string | undefined;
-      if (m) ipa = stripHtml(m[1]).replace(/^\/|\/$/g, "");
-      const sourceRe = new RegExp(`class=["'][^"']*\\b${region}dpron[^"']*["'][\\s\\S]{0,500}?<source[^>]+src=["']([^"']+)["']`, "i");
-      const sm = html.match(sourceRe);
-      const audioUrl = sm ? (sm[1].startsWith("http") ? sm[1] : `https://dictionary.cambridge.org${sm[1]}`) : undefined;
-      if (ipa || audioUrl) results.push({ region, ipa, audioUrl });
-    }
-  } catch (e) {
-    console.error("[cambridge crawl] pronunciation parse failed", e);
-  }
-  return results;
+interface ApiEntry {
+  word?: string;
+  phonetic?: string;
+  phonetics?: ApiPhonetic[];
+  meanings?: ApiMeaning[];
 }
 
-function parseSenses(html: string): CambridgeSenseBlock[] {
-  const senses: CambridgeSenseBlock[] = [];
-  try {
-    const entryBlocks = extractBlocks(html, "pr dictionary");
-    const posBlocks = entryBlocks.length > 0 ? entryBlocks : [html];
-
-    for (const block of posBlocks) {
-      let partOfSpeech: string | undefined;
-      try {
-        const posMatch = block.match(/<span[^>]*class=["'][^"']*\bpos\b[^"']*["'][^>]*>([\s\S]*?)<\/span>/i);
-        if (posMatch) partOfSpeech = stripHtml(posMatch[1]);
-      } catch (e) {
-        console.error("[cambridge crawl] pos parse failed", e);
-      }
-
-      const definitions: { text: string; examples: string[] }[] = [];
-      try {
-        const defBlocks = extractBlocks(block, "def-block");
-        const blocksToUse = defBlocks.length > 0 ? defBlocks : extractBlocks(block, "sense-body");
-        for (const defBlock of blocksToUse) {
-          let text = "";
-          try {
-            const defMatch = defBlock.match(/<div[^>]*class=["'][^"']*\bdef\b[^"']*["'][^>]*>([\s\S]*?)<\/div>/i);
-            if (defMatch) text = stripHtml(defMatch[1]).replace(/:\s*$/, "");
-          } catch (e) {
-            console.error("[cambridge crawl] definition text parse failed", e);
-          }
-          if (!text) continue;
-
-          const examples: string[] = [];
-          try {
-            const exMatches = [...defBlock.matchAll(/<span[^>]*class=["'][^"']*\beg\b[^"']*["'][^>]*>([\s\S]*?)<\/span>/gi)];
-            for (const ex of exMatches) {
-              const t = stripHtml(ex[1]);
-              if (t) examples.push(t);
-            }
-          } catch (e) {
-            console.error("[cambridge crawl] examples parse failed", e);
-          }
-
-          definitions.push({ text, examples: examples.slice(0, 5) });
-        }
-      } catch (e) {
-        console.error("[cambridge crawl] def-block parse failed", e);
-      }
-
-      if (definitions.length > 0) {
-        senses.push({ partOfSpeech, definitions: definitions.slice(0, 10) });
-      }
-    }
-  } catch (e) {
-    console.error("[cambridge crawl] senses parse failed", e);
-  }
-  return senses.slice(0, 15);
-}
-
-function parseSynonyms(html: string): string[] {
-  try {
-    const block = html.match(/<div[^>]*class=["'][^"']*\bsynonyms?\b[^"']*["'][^>]*>([\s\S]*?)<\/div>/i);
-    if (!block) return [];
-    const items = [...block[1].matchAll(/<span[^>]*class=["'][^"']*\bsynonym\b[^"']*["'][^>]*>([\s\S]*?)<\/span>/gi)];
-    return [...new Set(items.map((m) => stripHtml(m[1])).filter(Boolean))].slice(0, 20);
-  } catch (e) {
-    console.error("[cambridge crawl] synonyms parse failed", e);
-    return [];
-  }
-}
-
-async function fetchCambridgeEntry(word: string): Promise<CambridgeCrawlData> {
-  const url = `https://dictionary.cambridge.org/dictionary/english/${encodeURIComponent(word.trim().toLowerCase())}`;
-  const res = await fetch(url, {
-    headers: {
-      "User-Agent": "Mozilla/5.0 (compatible; personal-study-tool/1.0; +https://example.com)",
-      Accept: "text/html",
-    },
-    signal: AbortSignal.timeout(8000),
-  });
-
-  if (!res.ok) {
-    throw new Error(`Cambridge request failed: ${res.status}`);
-  }
-
-  const html = await res.text();
-
-  const pronunciations = parsePronunciations(html);
-  const senses = parseSenses(html);
-  const synonyms = parseSynonyms(html);
-
-  const result: CambridgeCrawlData = {
-    source: "cambridge",
+function emptyResult(word: string, apiUrl: string): DictionaryCrawlData {
+  return {
+    source: "dictionaryapi.dev",
     parserVersion: PARSER_VERSION,
     fetchedAt: new Date().toISOString(),
-    url,
+    url: apiUrl,
     word,
-    pronunciations,
-    senses,
-    synonyms,
+    pronunciations: [],
+    senses: [],
+    synonyms: [],
+    antonyms: [],
   };
+}
 
-  if (senses.length === 0 && pronunciations.length === 0) {
-    // Structured parsing found nothing useful — keep a raw text fallback so the
-    // user still gets something, and so it's obvious in the UI that parsing failed
-    // rather than the word simply having no entry.
+async function fetchRaw(apiUrl: string): Promise<ApiEntry[] | null> {
+  const res = await fetch(apiUrl, { signal: AbortSignal.timeout(8000) });
+  if (res.status === 404) return [];
+  if (!res.ok) throw new Error(`dictionaryapi.dev request failed: ${res.status}`);
+  return (await res.json()) as ApiEntry[];
+}
+
+async function fetchDictionaryEntry(word: string): Promise<DictionaryCrawlData> {
+  const trimmed = word.trim().toLowerCase();
+  const apiUrl = `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(trimmed)}`;
+
+  // The free dictionaryapi.dev service has real intermittent reliability
+  // issues (it sometimes returns an empty/malformed body for a word that
+  // does exist, with no distinguishing error). A couple of short-backoff
+  // retries clear this up often enough to be worth it, but a genuine outage
+  // on their end can still surface as "not found" here — that is a
+  // third-party availability issue, not a bug in this app.
+  let entries = await fetchRaw(apiUrl);
+  for (let attempt = 0; (!entries || entries.length === 0) && trimmed && attempt < 2; attempt++) {
+    await new Promise((r) => setTimeout(r, 400 * (attempt + 1)));
     try {
-      const bodyMatch = html.match(/<body[\s\S]*?<\/body>/i);
-      result.raw = bodyMatch ? stripHtml(bodyMatch[0]).slice(0, 3000) : undefined;
+      const retry = await fetchRaw(apiUrl);
+      if (retry && retry.length > 0) entries = retry;
+    } catch {
+      // keep retrying / fall through to the empty result below
+    }
+  }
+  if (!entries || entries.length === 0) return emptyResult(word, apiUrl);
+
+  const pronunciations: EntryPronunciation[] = [];
+  const senses: EntrySenseBlock[] = [];
+  const synonyms = new Set<string>();
+  const antonyms = new Set<string>();
+
+  for (const entry of entries) {
+    try {
+      for (const p of entry.phonetics ?? []) {
+        const ipa = p.text?.replace(/^\/|\/$/g, "");
+        if (ipa || p.audio) pronunciations.push({ ipa, audioUrl: p.audio || undefined });
+      }
     } catch (e) {
-      console.error("[cambridge crawl] raw fallback failed", e);
+      console.error("[dictionary crawl] phonetics parse failed", e);
+    }
+
+    for (const meaning of entry.meanings ?? []) {
+      try {
+        const definitions = (meaning.definitions ?? [])
+          .filter((d) => d.definition)
+          .slice(0, 10)
+          .map((d) => ({ text: d.definition!.trim(), examples: d.example ? [d.example.trim()] : [] }));
+        if (definitions.length > 0) {
+          senses.push({ partOfSpeech: meaning.partOfSpeech, definitions });
+        }
+        for (const s of meaning.synonyms ?? []) synonyms.add(s);
+        for (const a of meaning.antonyms ?? []) antonyms.add(a);
+        for (const d of meaning.definitions ?? []) {
+          for (const s of d.synonyms ?? []) synonyms.add(s);
+          for (const a of d.antonyms ?? []) antonyms.add(a);
+        }
+      } catch (e) {
+        console.error("[dictionary crawl] meaning parse failed", e);
+      }
     }
   }
 
-  return result;
+  return {
+    source: "dictionaryapi.dev",
+    parserVersion: PARSER_VERSION,
+    fetchedAt: new Date().toISOString(),
+    url: `https://www.google.com/search?q=define+${encodeURIComponent(trimmed)}`,
+    word,
+    pronunciations: pronunciations.slice(0, 5),
+    senses: senses.slice(0, 15),
+    synonyms: [...synonyms].slice(0, 20),
+    antonyms: [...antonyms].slice(0, 20),
+  };
 }
 
 function hasUsefulData(data: unknown): boolean {
   if (!data || typeof data !== "object") return false;
-  const d = data as Partial<CambridgeCrawlData>;
-  // Only structured data counts as "useful" (cache-worthy / skip-refetch).
-  // A `raw` fallback means parsing found nothing — it's shown once but should
-  // not stop a future lookup from trying to parse again (e.g. after the site
-  // blocked/served an interstitial instead of the real entry).
-  return d.parserVersion === PARSER_VERSION && ((d.senses?.length ?? 0) > 0 || (d.pronunciations?.length ?? 0) > 0);
+  const d = data as Partial<DictionaryCrawlData>;
+  return d.parserVersion === PARSER_VERSION && (d.senses?.length ?? 0) > 0;
 }
 
 export async function GET(req: NextRequest) {
@@ -254,20 +190,20 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "missing word or wordId" }, { status: 400 });
     }
 
-    const crawlData = await fetchCambridgeEntry(word);
+    const crawlData = await fetchDictionaryEntry(word);
     if (wordId && hasUsefulData(crawlData)) await upsertWordCrawlData(wordId, crawlData);
+
+    if (!hasUsefulData(crawlData)) {
+      return NextResponse.json({ crawlData, error: "Không tìm thấy từ này trong từ điển." });
+    }
 
     return NextResponse.json({ crawlData, cached: false });
   } catch (e) {
     console.error("[GET english/crawl error]", e);
-    // Cambridge commonly blocks non-browser requests (403) or times out — this
-    // is an expected, user-facing failure mode for a best-effort scrape, not a
-    // server bug, so respond 200 with a clear error field the UI can show
-    // instead of surfacing a raw 500.
     const message = e instanceof Error ? e.message : "unknown error";
-    const blocked = message.includes("403") || message.includes("429");
+    const timedOut = message.toLowerCase().includes("abort") || message.toLowerCase().includes("timeout");
     return NextResponse.json(
-      { error: blocked ? "Cambridge đã chặn truy vấn này (403). Thử lại sau." : "Không lấy được dữ liệu từ Cambridge." },
+      { error: timedOut ? "Hết thời gian chờ từ điển. Thử lại sau." : "Không lấy được dữ liệu từ điển." },
       { status: 200 }
     );
   }

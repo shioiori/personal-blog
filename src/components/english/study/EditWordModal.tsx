@@ -30,9 +30,10 @@ const emptySense: SenseDraft = {
 interface CambridgeCrawlData {
   fetchedAt?: string;
   url?: string;
-  pronunciations?: { region: string; ipa?: string; audioUrl?: string }[];
+  pronunciations?: { region?: string; ipa?: string; audioUrl?: string }[];
   senses?: { partOfSpeech?: string; definitions: { text: string; examples: string[] }[] }[];
   synonyms?: string[];
+  antonyms?: string[];
   raw?: string;
 }
 
@@ -47,18 +48,18 @@ function CambridgeInfoSection({ word, crawlData, onRefresh, loading, error }: {
     <div className="rounded-lg border border-border p-3 space-y-2">
       <div className="flex items-center justify-between">
         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-          Thông tin đầy đủ từ Cambridge
+          Thông tin đầy đủ (từ điển Anh-Anh)
         </p>
         <Button size="sm" variant="outline" onClick={onRefresh} disabled={loading || !word.trim()}>
           <RefreshCw className={`w-3.5 h-3.5 mr-1 ${loading ? "animate-spin" : ""}`} />
-          Tải lại từ Cambridge
+          Tải dữ liệu
         </Button>
       </div>
 
       {error && <p className="text-xs text-destructive italic">{error}</p>}
 
       {!crawlData && !loading && !error && (
-        <p className="text-xs text-muted-foreground italic">Chưa có dữ liệu. Nhấn &quot;Tải lại từ Cambridge&quot; để lấy.</p>
+        <p className="text-xs text-muted-foreground italic">Chưa có dữ liệu. Nhấn &quot;Tải dữ liệu&quot; để lấy.</p>
       )}
 
       {crawlData && (
@@ -66,7 +67,7 @@ function CambridgeInfoSection({ word, crawlData, onRefresh, loading, error }: {
           {(crawlData.pronunciations?.length ?? 0) > 0 && (
             <div className="flex gap-3 text-xs text-muted-foreground">
               {crawlData.pronunciations!.map((p, i) => (
-                <span key={i}>{p.region.toUpperCase()} {p.ipa ? `/${p.ipa}/` : ""}</span>
+                <span key={i}>{p.region ? `${p.region.toUpperCase()} ` : ""}{p.ipa ? `/${p.ipa}/` : ""}</span>
               ))}
             </div>
           )}
@@ -95,15 +96,13 @@ function CambridgeInfoSection({ word, crawlData, onRefresh, loading, error }: {
           ) : crawlData.raw ? (
             <p className="text-xs text-muted-foreground whitespace-pre-line line-clamp-6">{crawlData.raw}</p>
           ) : (
-            <p className="text-xs text-muted-foreground italic">Không trích xuất được dữ liệu có cấu trúc.</p>
+            <p className="text-xs text-muted-foreground italic">Không tìm thấy dữ liệu cho từ này.</p>
           )}
           {(crawlData.synonyms?.length ?? 0) > 0 && (
             <p className="text-xs"><span className="text-muted-foreground">Đồng nghĩa: </span>{crawlData.synonyms!.join(", ")}</p>
           )}
-          {crawlData.url && (
-            <a href={crawlData.url} target="_blank" rel="noreferrer" className="text-xs text-primary underline underline-offset-2">
-              Xem trên Cambridge Dictionary
-            </a>
+          {(crawlData.antonyms?.length ?? 0) > 0 && (
+            <p className="text-xs"><span className="text-muted-foreground">Trái nghĩa: </span>{crawlData.antonyms!.join(", ")}</p>
           )}
         </div>
       )}
@@ -119,6 +118,7 @@ export function EditWordModal({ open, word, onClose }: EditWordModalProps) {
   const [crawlData, setCrawlData] = useState<CambridgeCrawlData | null>(null);
   const [crawlLoading, setCrawlLoading] = useState(false);
   const [crawlError, setCrawlError] = useState<string | null>(null);
+  const [autoFilling, setAutoFilling] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -171,9 +171,71 @@ export function EditWordModal({ open, word, onClose }: EditWordModalProps) {
       if (data.crawlData) setCrawlData(data.crawlData);
       else if (data.error) setCrawlError(data.error);
     } catch {
-      setCrawlError("Không lấy được dữ liệu từ Cambridge.");
+      setCrawlError("Không lấy được dữ liệu từ điển.");
     } finally {
       setCrawlLoading(false);
+    }
+  }
+
+  // Fills whatever is still blank across all senses (phonetic, example,
+  // synonyms, antonyms, meaningVi) from the free dictionary lookup — fetching
+  // it first if not already cached/loaded. Never overwrites a field the user
+  // already filled in.
+  async function handleAutoFillAll() {
+    if (!wordText.trim()) return;
+    setAutoFilling(true);
+    try {
+      let dict = crawlData;
+      if (!dict) {
+        const params = new URLSearchParams();
+        if (word) params.set("wordId", String(word.id));
+        else params.set("word", wordText.trim());
+        const res = await fetch(`/api/english/crawl?${params.toString()}`);
+        const data = (await res.json()) as { crawlData?: CambridgeCrawlData; error?: string };
+        if (data.crawlData) {
+          dict = data.crawlData;
+          setCrawlData(data.crawlData);
+        } else if (data.error) {
+          setCrawlError(data.error);
+        }
+      }
+
+      const synonymsText = (dict?.synonyms ?? []).slice(0, 6).join(", ");
+      const antonymsText = (dict?.antonyms ?? []).slice(0, 6).join(", ");
+      const ipa = dict?.pronunciations?.[0]?.ipa;
+
+      const needsTranslation = senses.some((s) => !(s.meaningVi ?? "").trim());
+      let wordTranslation: string | null = null;
+      if (needsTranslation) {
+        try {
+          const tres = await fetch("/api/english/translate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: wordText.trim() }),
+          });
+          const tdata = (await tres.json()) as { translation: string | null };
+          wordTranslation = tdata.translation;
+        } catch {
+          // best-effort, ignore
+        }
+      }
+
+      setSenses((prev) =>
+        prev.map((s) => {
+          const match = dict?.senses?.find((ds) => ds.partOfSpeech?.toLowerCase() === (s.partOfSpeech ?? "").toLowerCase()) ?? dict?.senses?.[0];
+          const def = match?.definitions[0];
+          return {
+            ...s,
+            phonetic: s.phonetic || ipa || "",
+            example: s.example || def?.examples[0] || "",
+            synonyms: s.synonyms || synonymsText,
+            antonyms: s.antonyms || antonymsText,
+            meaningVi: s.meaningVi || wordTranslation || "",
+          };
+        })
+      );
+    } finally {
+      setAutoFilling(false);
     }
   }
 
@@ -255,9 +317,15 @@ export function EditWordModal({ open, word, onClose }: EditWordModalProps) {
                 </div>
               </div>
             ))}
-            <Button variant="outline" size="sm" onClick={addSense}>
-              <Plus className="w-3.5 h-3.5 mr-1" /> Thêm nghĩa
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={addSense}>
+                <Plus className="w-3.5 h-3.5 mr-1" /> Thêm nghĩa
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleAutoFillAll} disabled={autoFilling || !wordText.trim()}>
+                <RefreshCw className={`w-3.5 h-3.5 mr-1 ${autoFilling ? "animate-spin" : ""}`} />
+                {autoFilling ? "Đang điền..." : "Tự động điền còn thiếu"}
+              </Button>
+            </div>
           </div>
 
           <CambridgeInfoSection

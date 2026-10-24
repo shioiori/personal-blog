@@ -222,9 +222,17 @@ export function GroupTab() {
             const isOpen = openGroups.has(group.id);
             return (
               <div key={group.id} className="rounded-lg border border-border overflow-hidden">
-                <button
-                  className="w-full flex items-center gap-2 px-4 py-3 bg-muted/50 hover:bg-muted transition-colors text-left"
+                <div
+                  role="button"
+                  tabIndex={0}
+                  className="w-full flex items-center gap-2 px-4 py-3 bg-muted/50 hover:bg-muted transition-colors text-left cursor-pointer"
                   onClick={() => toggleGroup(group.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      toggleGroup(group.id);
+                    }
+                  }}
                 >
                   {isOpen ? <ChevronDown className="w-4 h-4 shrink-0" /> : <ChevronRight className="w-4 h-4 shrink-0" />}
                   <span className="font-medium text-sm">{group.name}</span>
@@ -249,7 +257,7 @@ export function GroupTab() {
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
-                </button>
+                </div>
                 {isOpen && (
                   <div className="p-3">
                     {group.wordIds.length === 0 ? (
