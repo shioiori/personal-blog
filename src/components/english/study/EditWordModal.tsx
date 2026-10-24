@@ -5,14 +5,19 @@ import { Button } from "@/src/components/ui/Button";
 import { Input } from "@/src/components/ui/Input";
 import { Textarea } from "@/src/components/ui/Textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/src/components/ui/Dialog";
-import { Plus, X, RefreshCw } from "lucide-react";
+import { Plus, X, RefreshCw, Pencil, Trash2 } from "lucide-react";
 import type { EnglishWord, EnglishSense } from "@/src/declaration/english";
 import { useEnglishStudy } from "@/src/context/english";
+import { PronounceButton } from "./PronounceButton";
+import type { CambridgeCrawlData } from "./crawlData";
 
 interface EditWordModalProps {
   open: boolean;
   word: EnglishWord | null; // null = create mode
   onClose: () => void;
+  onDelete?: (id: number) => void;
+  /** Opens straight into the edit form instead of the read-only view (ignored in create mode, which is always the form). */
+  startInEditMode?: boolean;
 }
 
 type SenseDraft = Omit<EnglishSense, "id" | "sortOrder">;
@@ -26,16 +31,6 @@ const emptySense: SenseDraft = {
   synonyms: "",
   antonyms: "",
 };
-
-interface CambridgeCrawlData {
-  fetchedAt?: string;
-  url?: string;
-  pronunciations?: { region?: string; ipa?: string; audioUrl?: string }[];
-  senses?: { partOfSpeech?: string; definitions: { text: string; examples: string[] }[] }[];
-  synonyms?: string[];
-  antonyms?: string[];
-  raw?: string;
-}
 
 function CambridgeInfoSection({ word, crawlData, onRefresh, loading, error }: {
   word: string;
@@ -110,8 +105,9 @@ function CambridgeInfoSection({ word, crawlData, onRefresh, loading, error }: {
   );
 }
 
-export function EditWordModal({ open, word, onClose }: EditWordModalProps) {
+export function EditWordModal({ open, word, onClose, onDelete, startInEditMode }: EditWordModalProps) {
   const { refetchWords } = useEnglishStudy();
+  const [mode, setMode] = useState<"view" | "edit">(word ? "view" : "edit");
   const [wordText, setWordText] = useState("");
   const [senses, setSenses] = useState<SenseDraft[]>([{ ...emptySense }]);
   const [saving, setSaving] = useState(false);
@@ -123,6 +119,7 @@ export function EditWordModal({ open, word, onClose }: EditWordModalProps) {
   useEffect(() => {
     if (!open) return;
     setCrawlError(null);
+    setMode(word ? (startInEditMode ? "edit" : "view") : "edit");
     if (word) {
       setWordText(word.word);
       setSenses(
@@ -144,7 +141,7 @@ export function EditWordModal({ open, word, onClose }: EditWordModalProps) {
       setSenses([{ ...emptySense }]);
       setCrawlData(null);
     }
-  }, [open, word]);
+  }, [open, word, startInEditMode]);
 
   function updateSense(i: number, patch: Partial<SenseDraft>) {
     setSenses((prev) => prev.map((s, idx) => (idx === i ? { ...s, ...patch } : s)));
@@ -168,8 +165,16 @@ export function EditWordModal({ open, word, onClose }: EditWordModalProps) {
       else params.set("word", wordText.trim());
       const res = await fetch(`/api/english/crawl?${params.toString()}`);
       const data = (await res.json()) as { crawlData?: CambridgeCrawlData; error?: string };
-      if (data.crawlData) setCrawlData(data.crawlData);
-      else if (data.error) setCrawlError(data.error);
+      if (data.crawlData) {
+        setCrawlData(data.crawlData);
+        // The backend already persisted this (when editing an existing
+        // word), but the word list in context still holds a stale snapshot
+        // without it — refetch so reopening this word later shows the
+        // cached data immediately instead of "no data yet".
+        if (word) void refetchWords();
+      } else if (data.error) {
+        setCrawlError(data.error);
+      }
     } catch {
       setCrawlError("Không lấy được dữ liệu từ điển.");
     } finally {
@@ -265,68 +270,152 @@ export function EditWordModal({ open, word, onClose }: EditWordModalProps) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
+        await refetchWords();
+        setMode("view");
       } else {
         await fetch("/api/english/words", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
+        await refetchWords();
+        onClose();
       }
-      await refetchWords();
-      onClose();
     } finally {
       setSaving(false);
     }
   }
 
+  function handleCancelEdit() {
+    if (word) {
+      // Revert any unsaved edits and go back to the read-only view rather
+      // than closing the whole dialog.
+      setWordText(word.word);
+      setSenses(
+        word.senses.length > 0
+          ? word.senses.map((s) => ({
+              phonetic: s.phonetic ?? "",
+              partOfSpeech: s.partOfSpeech ?? "",
+              cambridgeMeaning: s.cambridgeMeaning ?? "",
+              meaningVi: s.meaningVi ?? "",
+              example: s.example ?? "",
+              synonyms: s.synonyms ?? "",
+              antonyms: s.antonyms ?? "",
+            }))
+          : [{ ...emptySense }]
+      );
+      setMode("view");
+    } else {
+      onClose();
+    }
+  }
+
+  const audioUrl = crawlData?.pronunciations?.find((p) => p.audioUrl)?.audioUrl;
+
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-2xl flex flex-col max-h-[88vh]">
         <DialogHeader>
-          <DialogTitle>{word ? "Sửa từ" : "Thêm từ mới"}</DialogTitle>
+          <div className="flex items-center justify-between gap-2 pr-6">
+            <DialogTitle className="flex items-center gap-2">
+              {mode === "edit" ? (word ? "Sửa từ" : "Thêm từ mới") : wordText}
+              {mode === "view" && word && <PronounceButton word={wordText} audioUrl={audioUrl} />}
+            </DialogTitle>
+            {mode === "view" && word && (
+              <div className="flex items-center gap-1">
+                <Button variant="outline" size="sm" onClick={() => setMode("edit")}>
+                  <Pencil className="w-3.5 h-3.5 mr-1" /> Sửa
+                </Button>
+                {onDelete && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      onDelete(word.id);
+                      onClose();
+                    }}
+                  >
+                    <Trash2 className="w-3.5 h-3.5 mr-1" /> Xoá
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto space-y-4 py-2 pr-1">
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Từ / cụm từ</label>
-            <Input value={wordText} onChange={(e) => setWordText(e.target.value)} placeholder="vd: comprehensive" autoFocus />
-          </div>
+          {mode === "view" && word ? (
+            <div className="space-y-4">
+              {senses.length === 0 ? (
+                <p className="text-sm text-muted-foreground italic">Chưa có nghĩa nào.</p>
+              ) : (
+                senses.map((s, i) => (
+                  <div key={i} className="rounded-lg border border-border p-3 space-y-1.5">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {s.partOfSpeech && (
+                        <span className="inline-block px-1.5 py-0.5 rounded bg-muted text-[10px] font-medium uppercase text-muted-foreground">
+                          {s.partOfSpeech}
+                        </span>
+                      )}
+                      {s.phonetic && <span className="text-xs text-muted-foreground">/{s.phonetic}/</span>}
+                    </div>
+                    {s.meaningVi && <p className="text-sm font-medium">{s.meaningVi}</p>}
+                    {s.cambridgeMeaning && <p className="text-sm text-muted-foreground italic">{s.cambridgeMeaning}</p>}
+                    {s.example && <p className="text-xs text-muted-foreground">&quot;{s.example}&quot;</p>}
+                    {(s.synonyms || s.antonyms) && (
+                      <p className="text-xs text-muted-foreground">
+                        {s.synonyms && <>Đồng nghĩa: {s.synonyms} </>}
+                        {s.antonyms && <>Trái nghĩa: {s.antonyms}</>}
+                      </p>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          ) : (
+            <>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Từ / cụm từ</label>
+                <Input value={wordText} onChange={(e) => setWordText(e.target.value)} placeholder="vd: comprehensive" autoFocus />
+              </div>
 
-          <div className="space-y-3">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Nghĩa</p>
-            {senses.map((s, i) => (
-              <div key={i} className="rounded-lg border border-border p-3 space-y-2 relative">
-                {senses.length > 1 && (
-                  <button
-                    onClick={() => removeSense(i)}
-                    className="absolute top-2 right-2 text-muted-foreground hover:text-destructive"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                )}
-                <div className="grid grid-cols-2 gap-2">
-                  <Input placeholder="Phiên âm (IPA)" value={s.phonetic ?? ""} onChange={(e) => updateSense(i, { phonetic: e.target.value })} />
-                  <Input placeholder="Loại từ (noun, verb...)" value={s.partOfSpeech ?? ""} onChange={(e) => updateSense(i, { partOfSpeech: e.target.value })} />
-                </div>
-                <Textarea placeholder="Nghĩa Cambridge (tiếng Anh)" value={s.cambridgeMeaning ?? ""} onChange={(e) => updateSense(i, { cambridgeMeaning: e.target.value })} rows={2} />
-                <Textarea placeholder="Nghĩa tiếng Việt" value={s.meaningVi ?? ""} onChange={(e) => updateSense(i, { meaningVi: e.target.value })} rows={2} />
-                <Textarea placeholder="Ví dụ" value={s.example ?? ""} onChange={(e) => updateSense(i, { example: e.target.value })} rows={2} />
-                <div className="grid grid-cols-2 gap-2">
-                  <Input placeholder="Từ đồng nghĩa (phân cách bởi dấu phẩy)" value={s.synonyms ?? ""} onChange={(e) => updateSense(i, { synonyms: e.target.value })} />
-                  <Input placeholder="Từ trái nghĩa (phân cách bởi dấu phẩy)" value={s.antonyms ?? ""} onChange={(e) => updateSense(i, { antonyms: e.target.value })} />
+              <div className="space-y-3">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Nghĩa</p>
+                {senses.map((s, i) => (
+                  <div key={i} className="rounded-lg border border-border p-3 space-y-2 relative">
+                    {senses.length > 1 && (
+                      <button
+                        onClick={() => removeSense(i)}
+                        className="absolute top-2 right-2 text-muted-foreground hover:text-destructive"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input placeholder="Phiên âm (IPA)" value={s.phonetic ?? ""} onChange={(e) => updateSense(i, { phonetic: e.target.value })} />
+                      <Input placeholder="Loại từ (noun, verb...)" value={s.partOfSpeech ?? ""} onChange={(e) => updateSense(i, { partOfSpeech: e.target.value })} />
+                    </div>
+                    <Textarea placeholder="Nghĩa Cambridge (tiếng Anh)" value={s.cambridgeMeaning ?? ""} onChange={(e) => updateSense(i, { cambridgeMeaning: e.target.value })} rows={2} />
+                    <Textarea placeholder="Nghĩa tiếng Việt" value={s.meaningVi ?? ""} onChange={(e) => updateSense(i, { meaningVi: e.target.value })} rows={2} />
+                    <Textarea placeholder="Ví dụ" value={s.example ?? ""} onChange={(e) => updateSense(i, { example: e.target.value })} rows={2} />
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input placeholder="Từ đồng nghĩa (phân cách bởi dấu phẩy)" value={s.synonyms ?? ""} onChange={(e) => updateSense(i, { synonyms: e.target.value })} />
+                      <Input placeholder="Từ trái nghĩa (phân cách bởi dấu phẩy)" value={s.antonyms ?? ""} onChange={(e) => updateSense(i, { antonyms: e.target.value })} />
+                    </div>
+                  </div>
+                ))}
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={addSense}>
+                    <Plus className="w-3.5 h-3.5 mr-1" /> Thêm nghĩa
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleAutoFillAll} disabled={autoFilling || !wordText.trim()}>
+                    <RefreshCw className={`w-3.5 h-3.5 mr-1 ${autoFilling ? "animate-spin" : ""}`} />
+                    {autoFilling ? "Đang điền..." : "Tự động điền còn thiếu"}
+                  </Button>
                 </div>
               </div>
-            ))}
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={addSense}>
-                <Plus className="w-3.5 h-3.5 mr-1" /> Thêm nghĩa
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleAutoFillAll} disabled={autoFilling || !wordText.trim()}>
-                <RefreshCw className={`w-3.5 h-3.5 mr-1 ${autoFilling ? "animate-spin" : ""}`} />
-                {autoFilling ? "Đang điền..." : "Tự động điền còn thiếu"}
-              </Button>
-            </div>
-          </div>
+            </>
+          )}
 
           <CambridgeInfoSection
             word={wordText}
@@ -338,10 +427,16 @@ export function EditWordModal({ open, word, onClose }: EditWordModalProps) {
         </div>
 
         <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>Huỷ</Button>
-          <Button onClick={handleSave} disabled={saving || !wordText.trim()}>
-            {saving ? "Đang lưu..." : "Lưu"}
-          </Button>
+          {mode === "view" ? (
+            <Button variant="ghost" onClick={onClose}>Đóng</Button>
+          ) : (
+            <>
+              <Button variant="ghost" onClick={handleCancelEdit}>Huỷ</Button>
+              <Button onClick={handleSave} disabled={saving || !wordText.trim()}>
+                {saving ? "Đang lưu..." : "Lưu"}
+              </Button>
+            </>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

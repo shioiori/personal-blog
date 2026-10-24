@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useFlashcardSettings } from "./useFlashcardSettings";
 import { useEnglishStudy } from "@/src/context/english";
+import { DueForecastChart } from "./DueForecastChart";
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -73,6 +74,11 @@ export function FlashcardSettingsTab() {
 
   return (
     <div className="max-w-xl mx-auto py-6 px-2 space-y-6">
+      <div>
+        <p className="text-sm font-medium mb-2">Số từ cần ôn 7 ngày tới</p>
+        <DueForecastChart />
+      </div>
+
       <div>
         <p className="text-xs text-muted-foreground mb-4">
           Cài đặt được lưu trên máy này.

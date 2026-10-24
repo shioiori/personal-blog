@@ -289,6 +289,42 @@ export async function getFlashcardsDueToday(opts: { limit?: number; order?: "due
   return cards.map((c) => ({ ...c, senses: sensesByWord.get(c.wordId) ?? [] }));
 }
 
+export interface DueForecastDay {
+  date: string; // YYYY-MM-DD
+  count: number;
+}
+
+// Number of active cards due on each of the next 7 days (today included).
+// "Today" also absorbs any overdue cards (due_date < today), matching what
+// getFlashcardsDueToday would actually serve up if reviewed today.
+//
+// All date math happens in SQL (Postgres CURRENT_DATE / generate_series) and
+// dates are returned as plain "YYYY-MM-DD" text — deliberately avoiding any
+// JS `Date` local-time arithmetic, which previously shifted every day by one
+// in timezones ahead of UTC (e.g. Asia/Saigon, UTC+7): `new Date()` at local
+// midnight, converted with `.toISOString()`, lands on the PREVIOUS day in UTC.
+export async function getDueForecast(): Promise<DueForecastDay[]> {
+  const rows = await sql`
+    WITH days AS (
+      SELECT generate_series(0, 6) AS offset_days
+    )
+    SELECT
+      to_char(CURRENT_DATE + (days.offset_days || ' days')::interval, 'YYYY-MM-DD') AS date,
+      (
+        SELECT COUNT(*)::int
+        FROM english_flashcard f
+        WHERE f.active = TRUE
+          AND (
+            (days.offset_days = 0 AND f.due_date <= CURRENT_DATE)
+            OR (days.offset_days > 0 AND f.due_date = CURRENT_DATE + (days.offset_days || ' days')::interval)
+          )
+      ) AS count
+    FROM days
+    ORDER BY days.offset_days
+  `;
+  return rows.map((r) => ({ date: r.date as string, count: r.count as number }));
+}
+
 export async function upsertFlashcardGrade(wordId: number, grade: 0 | 1 | 2 | 3): Promise<void> {
   const rows = await sql`SELECT interval, ease_factor, repetitions FROM english_flashcard WHERE word_id = ${wordId}`;
   const { interval, easeFactor, repetitions } = calcNextInterval(
@@ -297,15 +333,15 @@ export async function upsertFlashcardGrade(wordId: number, grade: 0 | 1 | 2 | 3)
     (rows[0]?.ease_factor as number) ?? 2.5,
     (rows[0]?.repetitions as number) ?? 0,
   );
-  const dueDate = new Date();
-  dueDate.setDate(dueDate.getDate() + interval);
-  const dueDateStr = dueDate.toISOString().slice(0, 10);
-
+  // Compute the due date in SQL (CURRENT_DATE + N days) rather than with a JS
+  // `Date` — `new Date()` + `.toISOString()` shifts by one day in timezones
+  // ahead of UTC (e.g. Asia/Saigon, UTC+7), silently scheduling cards a day
+  // off depending on what time of day the grade was submitted.
   await sql`
     INSERT INTO english_flashcard (word_id, active, due_date, interval, ease_factor, repetitions, updated_at)
-    VALUES (${wordId}, TRUE, ${dueDateStr}, ${interval}, ${easeFactor}, ${repetitions}, NOW())
+    VALUES (${wordId}, TRUE, CURRENT_DATE + (${interval} || ' days')::interval, ${interval}, ${easeFactor}, ${repetitions}, NOW())
     ON CONFLICT (word_id) DO UPDATE SET
-      due_date = ${dueDateStr},
+      due_date = CURRENT_DATE + (${interval} || ' days')::interval,
       interval = ${interval},
       ease_factor = ${easeFactor},
       repetitions = ${repetitions},

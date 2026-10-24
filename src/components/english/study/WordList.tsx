@@ -22,6 +22,7 @@ export function WordList() {
   const [groupFilter, setGroupFilter] = useState<string>("all");
   const [modalOpen, setModalOpen] = useState(false);
   const [editingWord, setEditingWord] = useState<EnglishWord | null>(null);
+  const [startInEditMode, setStartInEditMode] = useState(false);
 
   const filtered = useMemo(() => {
     return words.filter((w) => {
@@ -68,7 +69,7 @@ export function WordList() {
             ))}
           </SelectContent>
         </Select>
-        <Button size="sm" onClick={() => { setEditingWord(null); setModalOpen(true); }}>
+        <Button size="sm" onClick={() => { setEditingWord(null); setStartInEditMode(true); setModalOpen(true); }}>
           <Plus className="w-3.5 h-3.5 mr-1" /> Thêm từ
         </Button>
       </div>
@@ -78,14 +79,28 @@ export function WordList() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {filtered.map((w) => (
-            <div key={w.id} onClick={() => { setEditingWord(w); setModalOpen(true); }} className="cursor-pointer">
-              <WordCard word={w} onEdit={() => { setEditingWord(w); setModalOpen(true); }} onDelete={() => handleDelete(w.id)} />
+            <div
+              key={w.id}
+              onClick={() => { setEditingWord(w); setStartInEditMode(false); setModalOpen(true); }}
+              className="cursor-pointer"
+            >
+              <WordCard
+                word={w}
+                onEdit={() => { setEditingWord(w); setStartInEditMode(true); setModalOpen(true); }}
+                onDelete={() => handleDelete(w.id)}
+              />
             </div>
           ))}
         </div>
       )}
 
-      <EditWordModal open={modalOpen} word={editingWord} onClose={() => setModalOpen(false)} />
+      <EditWordModal
+        open={modalOpen}
+        word={editingWord}
+        startInEditMode={startInEditMode}
+        onClose={() => setModalOpen(false)}
+        onDelete={handleDelete}
+      />
     </div>
   );
 }

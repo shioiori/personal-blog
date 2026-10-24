@@ -2,6 +2,8 @@
 
 import { Pencil, Trash2 } from "lucide-react";
 import type { EnglishWord } from "@/src/declaration/english";
+import { PronounceButton } from "./PronounceButton";
+import { getCrawlAudioUrl } from "./crawlData";
 
 interface WordCardProps {
   word: EnglishWord;
@@ -14,9 +16,10 @@ export function WordCard({ word, onEdit, onDelete }: WordCardProps) {
   return (
     <div className="rounded-lg border border-border bg-card p-3 flex flex-col gap-1 group">
       <div className="flex items-start justify-between gap-1">
-        <div>
-          <span className="text-base font-semibold">{word.word}</span>
-          {first?.phonetic && <span className="ml-2 text-xs text-muted-foreground">/{first.phonetic}/</span>}
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="text-base font-semibold truncate">{word.word}</span>
+          {first?.phonetic && <span className="text-xs text-muted-foreground shrink-0">/{first.phonetic}/</span>}
+          <PronounceButton word={word.word} audioUrl={getCrawlAudioUrl(word)} />
         </div>
         <div className="hidden group-hover:flex items-center gap-1 shrink-0">
           <button onClick={onEdit} className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground">

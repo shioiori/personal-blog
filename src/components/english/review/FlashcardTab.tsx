@@ -1,9 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Button } from "@/src/components/ui/Button";
+import { Input } from "@/src/components/ui/Input";
+import { Search } from "lucide-react";
 import type { FlashcardCard } from "@/src/declaration/english";
 import { useFlashcardSettings } from "./useFlashcardSettings";
+import { PronounceButton } from "../study/PronounceButton";
 
 type Phase = "loading" | "empty" | "front" | "back" | "done";
 
@@ -36,7 +39,11 @@ export function FlashcardTab() {
   const { settings } = useFlashcardSettings();
   const [mode, setMode] = useState<ViewMode>("due");
   const [phase, setPhase] = useState<Phase>("loading");
-  const [queue, setQueue] = useState<FlashcardCard[]>([]);
+  const [dueQueue, setDueQueue] = useState<FlashcardCard[]>([]);
+  // "all" mode browses every word (no session limit — the limit setting is
+  // specifically for spaced-repetition sessions) and supports searching.
+  const [allWords, setAllWords] = useState<FlashcardCard[]>([]);
+  const [allSearch, setAllSearch] = useState("");
   const [index, setIndex] = useState(0);
   const [summary, setSummary] = useState<GradeSummary>({ again: 0, hard: 0, good: 0, easy: 0 });
   const [doneSummary, setDoneSummary] = useState<GradeSummary | null>(null);
@@ -47,27 +54,21 @@ export function FlashcardTab() {
     setDoneSummary(null);
     setIndex(0);
     try {
-      let cards: FlashcardCard[];
       if (mode === "all") {
-        // Browse every word as a flashcard regardless of SRS due date —
-        // separate from the spaced-repetition review queue below.
         const res = await fetch("/api/english/words");
         const words = (await res.json()) as { id: number; word: string; senses: FlashcardCard["senses"] }[];
-        cards = words.map((w) => ({ wordId: w.id, word: w.word, senses: w.senses }));
+        let cards: FlashcardCard[] = words.map((w) => ({ wordId: w.id, word: w.word, senses: w.senses }));
         if (settings.order === "random") cards = [...cards].sort(() => Math.random() - 0.5);
-        if (settings.maxReviews > 0) cards = cards.slice(0, settings.maxReviews);
+        setAllWords(cards);
+        setPhase(cards.length === 0 ? "empty" : "front");
       } else {
         const params = new URLSearchParams();
         if (settings.maxReviews > 0) params.set("limit", String(settings.maxReviews));
         if (settings.order === "random") params.set("order", "random");
         const res = await fetch(`/api/english/flashcard?${params.toString()}`);
         const data = (await res.json()) as { cards: FlashcardCard[] };
-        cards = data.cards;
-      }
-      if (cards.length === 0) setPhase("empty");
-      else {
-        setQueue(cards);
-        setPhase("front");
+        setDueQueue(data.cards);
+        setPhase(data.cards.length === 0 ? "empty" : "front");
       }
     } catch {
       setPhase("empty");
@@ -75,6 +76,21 @@ export function FlashcardTab() {
   }, [settings.maxReviews, settings.order, mode]);
 
   useEffect(() => { void loadSession(); }, [loadSession]);
+
+  const filteredAllWords = useMemo(() => {
+    const term = allSearch.trim().toLowerCase();
+    return term ? allWords.filter((w) => w.word.toLowerCase().includes(term)) : allWords;
+  }, [allWords, allSearch]);
+
+  // Re-evaluate phase/index whenever the "all" mode search narrows the list.
+  useEffect(() => {
+    if (mode !== "all" || phase === "loading") return;
+    setIndex(0);
+    setPhase(filteredAllWords.length === 0 ? "empty" : "front");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allSearch]);
+
+  const queue = mode === "all" ? filteredAllWords : dueQueue;
 
   function persistGrade(wordId: number, g: 0 | 1 | 2 | 3) {
     void fetch("/api/english/flashcard", {
@@ -121,13 +137,26 @@ export function FlashcardTab() {
   const current = queue[index];
 
   const modeToggle = (
-    <div className="flex gap-2 mb-4">
-      <Button size="sm" variant={mode === "due" ? "default" : "outline"} onClick={() => setMode("due")}>
-        Lặp lại ngắt quãng
-      </Button>
-      <Button size="sm" variant={mode === "all" ? "default" : "outline"} onClick={() => setMode("all")}>
-        Xem tất cả
-      </Button>
+    <div className="w-full max-w-md mx-auto mb-4 space-y-2">
+      <div className="flex gap-2">
+        <Button size="sm" variant={mode === "due" ? "default" : "outline"} onClick={() => setMode("due")}>
+          Lặp lại ngắt quãng
+        </Button>
+        <Button size="sm" variant={mode === "all" ? "default" : "outline"} onClick={() => setMode("all")}>
+          Xem tất cả
+        </Button>
+      </div>
+      {mode === "all" && (
+        <div className="relative">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+          <Input
+            value={allSearch}
+            onChange={(e) => setAllSearch(e.target.value)}
+            placeholder="Tìm từ..."
+            className="pl-8"
+          />
+        </div>
+      )}
     </div>
   );
 
@@ -146,10 +175,18 @@ export function FlashcardTab() {
         {modeToggle}
         <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
           <p className="text-lg font-medium">
-            {mode === "all" ? "Chưa có từ nào" : "Không có thẻ đến hạn hôm nay"}
+            {mode === "all"
+              ? allSearch.trim()
+                ? "Không tìm thấy từ phù hợp"
+                : "Chưa có từ nào"
+              : "Không có thẻ đến hạn hôm nay"}
           </p>
           <p className="text-sm">
-            {mode === "all" ? "Thêm từ ở tab Học từ trước." : "Thêm từ mới hoặc quay lại vào ngày mai."}
+            {mode === "all"
+              ? allSearch.trim()
+                ? "Thử từ khoá khác."
+                : "Thêm từ ở tab Học từ trước."
+              : "Thêm từ mới hoặc quay lại vào ngày mai."}
           </p>
         </div>
       </div>
@@ -197,7 +234,10 @@ export function FlashcardTab() {
           }}
         >
           <div className="absolute inset-0 border rounded-2xl p-8 flex flex-col items-center justify-center gap-4 shadow-sm bg-background" style={{ backfaceVisibility: "hidden" }}>
-            <span className="text-4xl font-semibold text-center">{current.word}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-4xl font-semibold text-center">{current.word}</span>
+              <PronounceButton word={current.word} size="md" />
+            </div>
             {first?.phonetic && <p className="text-base text-muted-foreground">/{first.phonetic}/</p>}
             {first?.partOfSpeech && (
               <span className="inline-block px-2 py-0.5 rounded bg-muted text-xs font-medium uppercase text-muted-foreground">
