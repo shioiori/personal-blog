@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/src/components/ui/Button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/src/components/ui/Dialog";
-import { Sparkles, BookMarked, Repeat } from "lucide-react";
+import { Sparkles, BookMarked, Repeat, Ticket } from "lucide-react";
 import { dupsNeededToEvolve } from "@/src/lib/pokemon-evolutions";
 import type { GachaCollectionEntry, GachaPullResult, PokemonSpecies } from "@/src/declaration/english";
 
@@ -46,6 +46,7 @@ export function GachaTab() {
   const [exchangeOpen, setExchangeOpen] = useState(false);
   const [exchangeResult, setExchangeResult] = useState<{ species: PokemonSpecies; message: string } | null>(null);
   const [exchangeBusy, setExchangeBusy] = useState(false);
+  const [exchangeTicketToast, setExchangeTicketToast] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -90,6 +91,10 @@ export function GachaTab() {
       setChoice({ chainKey: result.chainKey, options: result.options, source: "pull" });
       setMessage(resultMessage(result));
       return;
+    }
+    if (result.type === "maxed") {
+      setExchangeTicketToast(true);
+      setTimeout(() => setExchangeTicketToast(false), 1800);
     }
     setRevealedSpecies(result.species);
     setMessage(resultMessage(result));
@@ -248,7 +253,13 @@ export function GachaTab() {
   }
 
   return (
-    <div className="flex flex-col items-center gap-6 max-w-md mx-auto py-8 px-4">
+    <div className="flex flex-col items-center gap-6 max-w-md mx-auto py-8 px-4 relative">
+      {exchangeTicketToast && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1.5 bg-primary text-primary-foreground text-sm font-medium px-3 py-1.5 rounded-full shadow-lg animate-in fade-in slide-in-from-top-2">
+          <Ticket className="h-4 w-4" />
+          +1 vé đổi!
+        </div>
+      )}
       <div className="text-lg font-medium flex items-center gap-4">
         <span>🎟️ Vé Gacha: <span className="font-semibold">{loading ? "…" : tickets}</span></span>
         <span>🔄 Vé đổi: <span className="font-semibold">{loading ? "…" : exchangeTickets}</span></span>
