@@ -54,7 +54,7 @@ export function BlogList({ posts }: { posts: Post[] }) {
   return (
     <div className="space-y-8">
       <div className="space-y-4">
-        <div className="flex justify-end gap-4">
+        <div className="flex flex-wrap justify-end gap-2 sm:gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
@@ -106,20 +106,20 @@ export function BlogList({ posts }: { posts: Post[] }) {
               className="group hover:shadow-lg transition-shadow duration-300"
             >
               <CardHeader>
-                <div className="flex items-center text-sm text-muted-foreground mb-2">
+                <div className="flex flex-wrap items-center text-sm text-muted-foreground mb-2 gap-x-2">
                   <Calendar className="h-4 w-4 mr-1" />
                   {post.date}
-                  <span className="mx-2">•</span>
+                  <span className="mx-1">•</span>
                   <Clock className="h-4 w-4 mr-1" />
                   {post.readTime}
                 </div>
                 <CardTitle className="group-hover:text-primary transition-colors">
-                  <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+                  <Link href={`/blog/${post.slug}`} className="line-clamp-2">{post.title}</Link>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-muted-foreground">{post.excerpt}</p>
-                <div className="flex items-center justify-between">
+                <p className="text-muted-foreground line-clamp-3">{post.excerpt}</p>
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex flex-wrap gap-2">
                     {post.tags?.map((tag) => (
                       <Badge key={tag} variant="secondary" className="text-xs">

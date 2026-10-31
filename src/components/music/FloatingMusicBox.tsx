@@ -60,7 +60,7 @@ export function FloatingMusicBox() {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 w-72 rounded-2xl bg-background/95 backdrop-blur border border-border shadow-xl overflow-hidden">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 w-[calc(100vw-2rem)] max-w-72 rounded-2xl bg-background/95 backdrop-blur border border-border shadow-xl overflow-hidden">
       <div className="h-1 bg-muted">
         <div
           className="h-full bg-primary transition-all duration-300"

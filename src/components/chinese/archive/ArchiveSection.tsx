@@ -33,10 +33,10 @@ const GroupCharTab = dynamic(() => import("./GroupCharTab").then((m) => m.GroupC
 export function ArchiveSection() {
   return (
     <Tabs defaultValue="compound" className="space-y-6">
-      <TabsList className="w-fit">
-        <TabsTrigger value="compound">Từ theo danh mục</TabsTrigger>
-        <TabsTrigger value="groupchar">Từ cùng hình thái</TabsTrigger>
-        <TabsTrigger value="grammar">Ngữ pháp</TabsTrigger>
+      <TabsList className="w-full overflow-x-auto no-scrollbar flex-nowrap justify-start">
+        <TabsTrigger value="compound" className="shrink-0">Từ theo danh mục</TabsTrigger>
+        <TabsTrigger value="groupchar" className="shrink-0">Từ cùng hình thái</TabsTrigger>
+        <TabsTrigger value="grammar" className="shrink-0">Ngữ pháp</TabsTrigger>
       </TabsList>
 
       <TabsContent value="compound">

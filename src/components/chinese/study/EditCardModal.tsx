@@ -59,7 +59,7 @@ export function EditCardModal({ info, edits, open, onClose, onSave }: EditCardMo
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-2">
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-4 py-2">
           <Field label="Thuộc bộ thủ">
             <input
               value={`${info.radical} (${info.radicalName})`}

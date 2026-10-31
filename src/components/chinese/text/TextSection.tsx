@@ -344,12 +344,12 @@ export function TextSection() {
 
   return (
     <Tabs defaultValue="text" className="space-y-6">
-      <TabsList className="w-fit">
-        <TabsTrigger value="text" className="flex items-center gap-2">
+      <TabsList className="w-full overflow-x-auto no-scrollbar flex-nowrap justify-start">
+        <TabsTrigger value="text" className="flex items-center gap-2 shrink-0">
           <FileText className="h-4 w-4" />
           Văn bản
         </TabsTrigger>
-        <TabsTrigger value="history" className="flex items-center gap-2">
+        <TabsTrigger value="history" className="flex items-center gap-2 shrink-0">
           <History className="h-4 w-4" />
           Lịch sử
         </TabsTrigger>

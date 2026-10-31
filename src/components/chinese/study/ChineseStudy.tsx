@@ -369,7 +369,7 @@ export function ChineseStudy() {
 
       {/* Search for mode "all" */}
       {viewMode === 'all' && (
-        <div className="flex gap-2 items-center">
+        <div className="flex flex-wrap gap-2 items-center">
           <input
             type="text"
             value={allSearch}
@@ -379,7 +379,7 @@ export function ChineseStudy() {
             }
             placeholder="Tìm theo chữ, pinyin, nghĩa..."
             className={cn(
-              'w-72 h-10 px-3 rounded-md border border-border bg-background',
+              'w-full sm:w-72 h-10 px-3 rounded-md border border-border bg-background',
               'text-sm focus:outline-none focus:ring-2 focus:ring-primary/50',
               'placeholder:text-muted-foreground'
             )}

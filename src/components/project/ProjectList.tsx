@@ -87,11 +87,11 @@ export function ProjectList({ projects }: { projects: Project[] }) {
 
                 <CardHeader>
                   <CardTitle className="group-hover:text-primary transition-colors">
-                    <Link href={`/projects/${project.slug}`}>
+                    <Link href={`/projects/${project.slug}`} className="line-clamp-2">
                       {project.title}
                     </Link>
                   </CardTitle>
-                  <div className="flex items-center text-sm text-muted-foreground space-x-4">
+                  <div className="flex flex-wrap items-center text-sm text-muted-foreground gap-x-4 gap-y-1">
                     <div className="flex items-center">
                       <Calendar className="h-4 w-4 mr-1" />
                       {moment(project.startDate).format("DD/MM/YYYY")}
@@ -105,7 +105,7 @@ export function ProjectList({ projects }: { projects: Project[] }) {
                 </CardHeader>
 
                 <CardContent className="space-y-4">
-                  <p className="text-muted-foreground">{project.description}</p>
+                  <p className="text-muted-foreground line-clamp-3">{project.description}</p>
 
                   <div className="flex flex-wrap gap-2">
                     {project.technologies.map((tech) => (
@@ -115,7 +115,7 @@ export function ProjectList({ projects }: { projects: Project[] }) {
                     ))}
                   </div>
 
-                  <div className="flex space-x-2 pt-2">
+                  <div className="flex flex-wrap gap-2 pt-2">
                     <Link href={`/projects/${project.slug}`}>
                       <Button variant="default" size="sm">
                         {t("detail")}

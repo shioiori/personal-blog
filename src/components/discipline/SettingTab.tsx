@@ -416,7 +416,8 @@ export default function SettingTab({
             {/* Income list */}
             <div className="space-y-4">
               {previousData && previousData.length > 0 && (
-                <table className="w-full border-collapse">
+                <div className="w-full overflow-x-auto">
+                <table className="w-full min-w-[480px] border-collapse">
                   <thead>
                     <tr className="border-b border-border">
                       <th className="text-left py-3 px-4 font-semibold text-foreground">{t('incomeNameHeader')}</th>
@@ -429,9 +430,9 @@ export default function SettingTab({
                   <tbody>
                     {previousData?.map((record, index) => (
                       <tr key={index} className="border-b border-border hover:bg-background/50">
-                        <td className="py-3 px-4 text-foreground">{record.name}</td>
-                        <td className="py-3 px-4 text-foreground">{IncomeTypeLabel.get(record.type as IncomeType)}</td>
-                        <td className="py-3 px-4 text-foreground">{record.amount}</td>
+                        <td className="py-3 px-4 text-foreground max-w-[160px] truncate">{record.name}</td>
+                        <td className="py-3 px-4 text-foreground whitespace-nowrap">{IncomeTypeLabel.get(record.type as IncomeType)}</td>
+                        <td className="py-3 px-4 text-foreground whitespace-nowrap">{record.amount}</td>
                         <td className="py-3 px-4 text-center">
                           <Button
                             variant="ghost"
@@ -456,12 +457,13 @@ export default function SettingTab({
                     ))}
                   </tbody>
                 </table>
+                </div>
               )}
 
               <div className="rounded-lg border border-dashed border-border bg-background p-4 space-y-2">
                 {data.map((x, index) => (
-                  <div key={index} className="flex gap-2">
-                    <div className="w-28 shrink-0">
+                  <div key={index} className="flex flex-wrap gap-2">
+                    <div className="w-full sm:w-28 shrink-0">
                       <Select
                         value={x.type?.toString()}
                         onValueChange={(value) => {
@@ -479,7 +481,7 @@ export default function SettingTab({
                       </Select>
                     </div>
 
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-[140px]">
                       <Input
                         placeholder={t('incomePlaceholder')}
                         value={x.name || ''}

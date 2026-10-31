@@ -83,10 +83,10 @@ export function ProjectDetail({ slug }: { slug: string }) {
             </Badge>
           </div>
 
-          <h1 className="text-4xl lg:text-5xl font-bold leading-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight break-words">
             {project.title}
           </h1>
-          <p className="text-xl text-muted-foreground">{project.description}</p>
+          <p className="text-lg sm:text-xl text-muted-foreground">{project.description}</p>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card>
@@ -123,7 +123,7 @@ export function ProjectDetail({ slug }: { slug: string }) {
             </Card>
           </div>
 
-          <div className="flex space-x-4">
+          <div className="flex flex-wrap gap-4">
             {project.githubUrl && (
               <Button variant="outline" asChild>
                 <Link href={project.githubUrl} target="_blank">

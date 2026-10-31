@@ -25,7 +25,7 @@ export function PersonalInfo() {
           <MapPin className="h-4 w-4" />
           <span>{t('location')}</span>
         </div>
-        <div className="flex space-x-4 items-center">
+        <div className="flex flex-wrap gap-4 items-center">
           <Button variant="default" size="lg" onClick={openMail}>
             <Mail className="h-4 w-4 mr-2" />
             {t('contact')}

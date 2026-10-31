@@ -41,11 +41,11 @@ function CambridgeInfoSection({ word, crawlData, onRefresh, loading, error }: {
 }) {
   return (
     <div className="rounded-lg border border-border p-3 space-y-2">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
           Thông tin đầy đủ (từ điển Anh-Anh)
         </p>
-        <Button size="sm" variant="outline" onClick={onRefresh} disabled={loading || !word.trim()}>
+        <Button size="sm" variant="outline" onClick={onRefresh} disabled={loading || !word.trim()} className="self-start sm:self-auto shrink-0">
           <RefreshCw className={`w-3.5 h-3.5 mr-1 ${loading ? "animate-spin" : ""}`} />
           Tải dữ liệu
         </Button>
@@ -314,15 +314,15 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode }
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-2xl flex flex-col max-h-[88vh]">
+      <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-2xl flex flex-col max-h-[88vh]">
         <DialogHeader>
-          <div className="flex items-center justify-between gap-2 pr-6">
-            <DialogTitle className="flex items-center gap-2">
-              {mode === "edit" ? (word ? "Sửa từ" : "Thêm từ mới") : wordText}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pr-6">
+            <DialogTitle className="flex items-center gap-2 min-w-0">
+              <span className="truncate">{mode === "edit" ? (word ? "Sửa từ" : "Thêm từ mới") : wordText}</span>
               {mode === "view" && word && <PronounceButton word={wordText} audioUrl={audioUrl} />}
             </DialogTitle>
             {mode === "view" && word && (
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 shrink-0">
                 <Button variant="outline" size="sm" onClick={() => setMode("edit")}>
                   <Pencil className="w-3.5 h-3.5 mr-1" /> Sửa
                 </Button>
@@ -343,7 +343,7 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode }
           </div>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto space-y-4 py-2 pr-1">
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-4 py-2 pr-1">
           {mode === "view" && word ? (
             <div className="space-y-4">
               {senses.length === 0 ? (
@@ -391,14 +391,14 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode }
                         <X className="w-3.5 h-3.5" />
                       </button>
                     )}
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       <Input placeholder="Phiên âm (IPA)" value={s.phonetic ?? ""} onChange={(e) => updateSense(i, { phonetic: e.target.value })} />
                       <Input placeholder="Loại từ (noun, verb...)" value={s.partOfSpeech ?? ""} onChange={(e) => updateSense(i, { partOfSpeech: e.target.value })} />
                     </div>
                     <Textarea placeholder="Nghĩa Cambridge (tiếng Anh)" value={s.cambridgeMeaning ?? ""} onChange={(e) => updateSense(i, { cambridgeMeaning: e.target.value })} rows={2} />
                     <Textarea placeholder="Nghĩa tiếng Việt" value={s.meaningVi ?? ""} onChange={(e) => updateSense(i, { meaningVi: e.target.value })} rows={2} />
                     <Textarea placeholder="Ví dụ" value={s.example ?? ""} onChange={(e) => updateSense(i, { example: e.target.value })} rows={2} />
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       <Input placeholder="Từ đồng nghĩa (phân cách bởi dấu phẩy)" value={s.synonyms ?? ""} onChange={(e) => updateSense(i, { synonyms: e.target.value })} />
                       <Input placeholder="Từ trái nghĩa (phân cách bởi dấu phẩy)" value={s.antonyms ?? ""} onChange={(e) => updateSense(i, { antonyms: e.target.value })} />
                     </div>

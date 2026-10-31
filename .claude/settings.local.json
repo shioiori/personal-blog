@@ -18,5 +18,7 @@
       "Bash(ls /d/PERSONAL/personal-blog/.env*)",
       "Bash(npm install:*)"
     ]
-  }
+  },
+  "includeCoAuthoredBy": false, 
+  "gitAttribution": false
 }

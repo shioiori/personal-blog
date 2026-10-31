@@ -33,16 +33,16 @@ import {
 
 function SummaryBar({ items }: { items: SummaryItem[] }) {
   return (
-    <div className="flex gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       {items.map((item, i) => (
         <div
           key={i}
-          className={`flex flex-1 items-center gap-3 overflow-hidden rounded-xl ${item.bg} py-4 pl-5 pr-4`}
+          className={`flex items-center gap-3 overflow-hidden rounded-xl ${item.bg} py-4 pl-5 pr-4`}
         >
-          <div className={`rounded-lg p-2 ${item.iconBg}`}>{item.icon}</div>
-          <div>
-            <p className="text-xs text-muted-foreground">{item.label}</p>
-            <p className={`text-lg font-bold ${item.textColor}`}>
+          <div className={`shrink-0 rounded-lg p-2 ${item.iconBg}`}>{item.icon}</div>
+          <div className="min-w-0">
+            <p className="text-xs text-muted-foreground truncate">{item.label}</p>
+            <p className={`text-lg font-bold truncate ${item.textColor}`}>
               {item.sign}
               {formatCurrency(item.amount)}
             </p>
@@ -341,7 +341,8 @@ export default function StatsTab({
                   {t('noTransactions')}
                 </p>
               ) : (
-                <table className="w-full text-sm">
+                <div className="w-full overflow-x-auto">
+                <table className="w-full min-w-[480px] text-sm">
                   <thead>
                     <tr className="border-b border-border text-muted-foreground">
                       <th className="pb-2 text-left font-medium">{t('type')}</th>
@@ -369,14 +370,14 @@ export default function StatsTab({
                               )}
                             </div>
                           </td>
-                          <td className="py-2.5 pr-3 font-medium text-card-foreground">
+                          <td className="py-2.5 pr-3 font-medium text-card-foreground max-w-[160px] truncate">
                             {r.name}
                           </td>
-                          <td className="py-2.5 pr-3 text-muted-foreground">
+                          <td className="py-2.5 pr-3 text-muted-foreground whitespace-nowrap">
                             {formatDate(r.date)}
                           </td>
                           <td
-                            className={`py-2.5 text-right font-semibold ${isIncome ? 'text-success' : 'text-destructive'}`}
+                            className={`py-2.5 text-right font-semibold whitespace-nowrap ${isIncome ? 'text-success' : 'text-destructive'}`}
                           >
                             {isIncome ? '+' : '-'}
                             {formatCurrency(r.amount)}
@@ -386,6 +387,7 @@ export default function StatsTab({
                     })}
                   </tbody>
                 </table>
+                </div>
               )}
             </div>
           </div>
@@ -409,15 +411,15 @@ export default function StatsTab({
             {overdueIncomes.map((r) => (
               <div
                 key={`overdue-${r.id}`}
-                className="flex items-center justify-between rounded-lg border border-destructive/30 bg-background p-3"
+                className="flex items-center justify-between gap-3 rounded-lg border border-destructive/30 bg-background p-3"
               >
-                <div>
-                  <p className="font-medium text-card-foreground">{r.name}</p>
+                <div className="min-w-0">
+                  <p className="font-medium text-card-foreground truncate">{r.name}</p>
                   <p className="text-xs text-muted-foreground">
                     {formatDate(r.date)}
                   </p>
                 </div>
-                <span className="text-sm font-semibold text-destructive">
+                <span className="shrink-0 text-sm font-semibold text-destructive">
                   {formatCurrency(r.amount)}
                 </span>
               </div>
@@ -438,15 +440,15 @@ export default function StatsTab({
             {pendingIncomes.map((r) => (
               <div
                 key={`pending-${r.id}`}
-                className="flex items-center justify-between rounded-lg border border-warning/30 bg-background p-3"
+                className="flex items-center justify-between gap-3 rounded-lg border border-warning/30 bg-background p-3"
               >
-                <div>
-                  <p className="font-medium text-card-foreground">{r.name}</p>
+                <div className="min-w-0">
+                  <p className="font-medium text-card-foreground truncate">{r.name}</p>
                   <p className="text-xs text-muted-foreground">
                     {formatDate(r.date)}
                   </p>
                 </div>
-                <span className="text-sm font-semibold text-warning">
+                <span className="shrink-0 text-sm font-semibold text-warning">
                   {formatCurrency(r.amount)}
                 </span>
               </div>

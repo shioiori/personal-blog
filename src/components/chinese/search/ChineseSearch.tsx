@@ -393,7 +393,7 @@ export function ChineseSearch() {
                 <span className="text-sm">{t('loadingInfo')}</span>
               </div>
             ) : (
-              <div className="flex items-start gap-6">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
                 <div className="flex flex-col items-center gap-2 shrink-0">
                   <span
                     className="text-8xl leading-none select-all"
@@ -435,7 +435,7 @@ export function ChineseSearch() {
                   </button>
                 </div>
 
-                <div className="flex flex-col gap-3 pt-1 min-w-0">
+                <div className="w-full flex flex-col gap-3 pt-1 min-w-0">
                   <InfoRow label={t('pinyin')} value={selectedChar.pinyin} />
                   {selectedChar.hanViet && (
                     <InfoRow

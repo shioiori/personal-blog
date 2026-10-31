@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Search, Sun, Moon, Bird, Menu, X } from 'lucide-react'
+import { Sun, Moon, Bird, Menu, X } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { Button } from '@/src/components/ui/Button'
 import { SearchDialog } from '@/src/components/SearchDialog'
@@ -14,7 +14,11 @@ import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuItem
+  DropdownMenuItem,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal
 } from '@/src/components/ui/DropdownMenu'
 import { useTranslations } from 'next-intl'
 import { LanguageContext } from '../context/language'
@@ -42,11 +46,18 @@ export function Header() {
     { name: t('guide'), href: '/guide' },
     // { name: t('aboutme'), href: '/about' },
     // { name: t('blog'), href: '/blog' },
-    { name: t('project'), href: '/projects' },
+    // { name: t('project'), href: '/projects' },
     { name: t('music'), href: '/music' },
-    { name: t('discipline'), href: '/discipline' },
-    { name: t('hantu'), href: '/chinese' },
+    { name: t('discipline'), href: '/discipline' }
+  ]
+
+  const studyNavigation = [
     { name: t('english'), href: '/english' }
+  ]
+
+  const hantuNavigation = [
+    { name: t('simplified'), href: '/chinese' },
+    { name: t('traditional'), href: '/chinese/traditional' }
   ]
 
   useEffect(() => {
@@ -85,6 +96,32 @@ export function Header() {
                 {item.name}
               </Link>
             ))}
+
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary text-muted-foreground outline-none">
+                {t('study')}
+                <ChevronDown className="h-3.5 w-3.5" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>{t('hantu')}</DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                      {hantuNavigation.map((item) => (
+                        <DropdownMenuItem key={item.name} asChild>
+                          <Link href={item.href}>{item.name}</Link>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
+                {studyNavigation.map((item) => (
+                  <DropdownMenuItem key={item.name} asChild>
+                    <Link href={item.href}>{item.name}</Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </nav>
 
           <div className="flex items-center space-x-2">
@@ -108,16 +145,6 @@ export function Header() {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setSearchOpen(true)}
-              className="h-9 w-9"
-            >
-              <Search className="h-4 w-4" />
-              <span className="sr-only">{t('search')}</span>
-            </Button>
 
             <Button
               variant="ghost"
@@ -176,6 +203,43 @@ export function Header() {
 
             <nav className="flex flex-col p-4 space-y-1">
               {navigation.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors hover:text-primary hover:bg-accent ${
+                    pathname === item.href
+                      ? 'text-primary bg-accent'
+                      : 'text-muted-foreground'
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              ))}
+
+              <div className="px-3 pt-3 pb-1 text-xs font-semibold uppercase text-muted-foreground">
+                {t('study')}
+              </div>
+
+              <div className="px-3 py-2 text-sm font-medium text-muted-foreground">
+                {t('hantu')}
+              </div>
+              {hantuNavigation.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`ml-4 px-3 py-2 rounded-md text-sm font-medium transition-colors hover:text-primary hover:bg-accent ${
+                    pathname === item.href
+                      ? 'text-primary bg-accent'
+                      : 'text-muted-foreground'
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              ))}
+
+              {studyNavigation.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}

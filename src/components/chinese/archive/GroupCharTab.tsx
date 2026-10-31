@@ -174,7 +174,7 @@ function AddCharsDialog({ open, group, onClose, onAdd }: AddCharsDialogProps) {
           <DialogTitle>Thêm từ vào nhóm &quot;{group?.name}&quot;</DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto space-y-3 py-2 pr-1">
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-3 py-2 pr-1">
           {/* Tab switcher */}
           <div className="flex rounded-lg border border-border overflow-hidden w-fit">
             <button

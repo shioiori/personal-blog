@@ -451,8 +451,8 @@ export function CompoundTab() {
     <div className="space-y-4">
       {/* Toolbar row */}
       <div className="flex flex-wrap gap-2 items-center">
-        <div className="flex gap-2 items-center flex-1 min-w-0">
-          <div className="relative">
+        <div className="flex gap-2 items-center flex-1 min-w-[140px]">
+          <div className="relative w-full sm:w-80">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
             <input
               type="text"
@@ -460,7 +460,7 @@ export function CompoundTab() {
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Tìm từ..."
               className={cn(
-                "pl-10 pr-3 h-10 w-80 rounded-md border border-border bg-background text-sm",
+                "pl-10 pr-3 h-10 w-full rounded-md border border-border bg-background text-sm",
                 "focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground"
               )}
             />

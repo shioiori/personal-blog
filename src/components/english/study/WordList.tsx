@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, List, Layers } from "lucide-react";
 import { Button } from "@/src/components/ui/Button";
 import { Input } from "@/src/components/ui/Input";
 import {
@@ -13,11 +13,15 @@ import {
 } from "@/src/components/ui/Select";
 import { WordCard } from "./WordCard";
 import { EditWordModal } from "./EditWordModal";
+import { WordFlashcardView } from "./WordFlashcardView";
 import { useEnglishStudy } from "@/src/context/english";
 import type { EnglishWord } from "@/src/declaration/english";
 
+type ViewMode = "list" | "flashcard";
+
 export function WordList() {
   const { words, groups, loaded, refetchWords } = useEnglishStudy();
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [search, setSearch] = useState("");
   const [groupFilter, setGroupFilter] = useState<string>("all");
   const [modalOpen, setModalOpen] = useState(false);
@@ -72,10 +76,30 @@ export function WordList() {
         <Button size="sm" onClick={() => { setEditingWord(null); setStartInEditMode(true); setModalOpen(true); }}>
           <Plus className="w-3.5 h-3.5 mr-1" /> Thêm từ
         </Button>
+        <div className="flex gap-1 border border-border rounded-md p-0.5">
+          <Button
+            size="sm"
+            variant={viewMode === "list" ? "default" : "ghost"}
+            className="h-7 px-2"
+            onClick={() => setViewMode("list")}
+          >
+            <List className="w-3.5 h-3.5" />
+          </Button>
+          <Button
+            size="sm"
+            variant={viewMode === "flashcard" ? "default" : "ghost"}
+            className="h-7 px-2"
+            onClick={() => setViewMode("flashcard")}
+          >
+            <Layers className="w-3.5 h-3.5" />
+          </Button>
+        </div>
       </div>
 
       {filtered.length === 0 ? (
         <p className="text-center text-muted-foreground py-16">Chưa có từ nào. Nhấn &quot;Thêm từ&quot; để bắt đầu.</p>
+      ) : viewMode === "flashcard" ? (
+        <WordFlashcardView words={filtered} />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {filtered.map((w) => (

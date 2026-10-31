@@ -84,10 +84,18 @@ export default function Calendar({
   }, [settingKey, refreshTrigger, incomeDeclarations])
 
   return (
+    <div className="w-full overflow-x-auto no-scrollbar">
+      <div className="min-w-[640px]">
     <FullCalendar
       ref={calendarRef}
       plugins={[dayGridPlugin, interactionPlugin]}
       initialView="dayGridMonth"
+      headerToolbar={{
+        left: 'prev,next today',
+        center: 'title',
+        right: ''
+      }}
+      height="auto"
       selectable
       editable
       dateClick={(e) => onDateClick(new Date(e.dateStr))}
@@ -169,5 +177,7 @@ export default function Calendar({
       }}
       events={events}
     />
+      </div>
+    </div>
   )
 }

@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { Volume2 } from "lucide-react";
+import { Volume2, Settings } from "lucide-react";
 import { Button } from "@/src/components/ui/Button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/Tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/src/components/ui/Dialog";
 import { useSpeech } from "@/src/hooks/useSpeech";
 import { FlashcardWriteTab } from "./FlashcardWriteTab";
 import { FlashcardSettingsTab } from "./FlashcardSettingsTab";
@@ -51,6 +52,7 @@ export function FlashcardTab({ allChars, userEdits }: FlashcardTabProps) {
   const [summary, setSummary] = useState<GradeSummary>({ again: 0, hard: 0, good: 0, easy: 0 });
   const [doneSummary, setDoneSummary] = useState<GradeSummary | null>(null);
   const [isAdvancing, setIsAdvancing] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const lastGradedRef = useRef<string | null>(null);
 
   const { settings, updateSettings } = useFlashcardSettings();
@@ -297,11 +299,16 @@ export function FlashcardTab({ allChars, userEdits }: FlashcardTabProps) {
 
   return (
     <Tabs defaultValue="flip" className="space-y-4">
-      <TabsList className="w-fit">
-        <TabsTrigger value="flip">Lật thẻ</TabsTrigger>
-        <TabsTrigger value="write">Viết chữ</TabsTrigger>
-        <TabsTrigger value="settings">Cài đặt</TabsTrigger>
-      </TabsList>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <TabsList className="max-w-full overflow-x-auto no-scrollbar flex-nowrap justify-start">
+          <TabsTrigger value="flip" className="shrink-0">Lật thẻ</TabsTrigger>
+          <TabsTrigger value="write" className="shrink-0">Viết chữ</TabsTrigger>
+        </TabsList>
+        <Button size="sm" variant="outline" className="gap-1.5 shrink-0" onClick={() => setSettingsOpen(true)}>
+          <Settings className="h-3.5 w-3.5" />
+          Cài đặt
+        </Button>
+      </div>
 
       <TabsContent value="flip">
         <FlipCardContent />
@@ -314,9 +321,14 @@ export function FlashcardTab({ allChars, userEdits }: FlashcardTabProps) {
         />
       </TabsContent>
 
-      <TabsContent value="settings">
-        <FlashcardSettingsTab settings={settings} onChange={updateSettings} />
-      </TabsContent>
+      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Cài đặt ôn tập</DialogTitle>
+          </DialogHeader>
+          <FlashcardSettingsTab settings={settings} onChange={updateSettings} />
+        </DialogContent>
+      </Dialog>
     </Tabs>
   );
 }

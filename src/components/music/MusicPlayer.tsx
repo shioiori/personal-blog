@@ -55,18 +55,18 @@ export function MusicPlayer() {
   }
 
   return (
-    <Card className="h-[500px] overflow-hidden">
-      <CardContent className="p-0 flex h-full">
-        <div className="flex-1 p-8 flex flex-col justify-center space-y-6 border-r">
-          <div>
-            <div className="flex items-center space-x-2">
-              <h2 className="text-2xl font-bold">{currentSong.title}</h2>
-              <Badge variant="secondary" className="mb-2">
+    <Card className="md:h-[500px] overflow-hidden">
+      <CardContent className="p-0 flex flex-col md:flex-row h-full">
+        <div className="flex-1 p-4 sm:p-8 flex flex-col justify-center space-y-6 border-b md:border-b-0 md:border-r min-w-0">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <h2 className="text-2xl font-bold truncate">{currentSong.title}</h2>
+              <Badge variant="secondary" className="mb-2 shrink-0">
                 {currentSong.genre}
               </Badge>
             </div>
-            <p className="text-lg opacity-90">{currentSong.artist}</p>
-            <p className="opacity-75">{currentSong.album}</p>
+            <p className="text-lg opacity-90 truncate">{currentSong.artist}</p>
+            <p className="opacity-75 truncate">{currentSong.album}</p>
           </div>
 
           <div className="space-y-2">
@@ -155,7 +155,7 @@ export function MusicPlayer() {
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col min-h-0 p-6">
+        <div className="flex-1 flex flex-col min-h-0 h-[360px] md:h-auto p-4 sm:p-6">
           <Playlist
             playlist={playlist}
             currentTrack={currentTrack}

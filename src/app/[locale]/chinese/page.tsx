@@ -19,28 +19,28 @@ export default function Page() {
   return (
     <ChineseProvider>
       <Tabs defaultValue="study" className="space-y-6">
-        <TabsList className="w-fit">
-          <TabsTrigger value="study" className="flex items-center gap-2">
+        <TabsList className="w-full overflow-x-auto no-scrollbar flex-nowrap justify-start">
+          <TabsTrigger value="study" className="flex items-center gap-2 shrink-0">
             <BookOpen className="h-4 w-4" />
             Học chữ
           </TabsTrigger>
-          <TabsTrigger value="review" className="flex items-center gap-2">
+          <TabsTrigger value="review" className="flex items-center gap-2 shrink-0">
             <RotateCcw className="h-4 w-4" />
             Ôn tập
           </TabsTrigger>
-          <TabsTrigger value="texts" className="flex items-center gap-2">
+          <TabsTrigger value="texts" className="flex items-center gap-2 shrink-0">
             <FileText className="h-4 w-4" />
             Văn bản
           </TabsTrigger>
-          <TabsTrigger value="archive" className="flex items-center gap-2">
+          <TabsTrigger value="archive" className="flex items-center gap-2 shrink-0">
             <Archive className="h-4 w-4" />
             Ghi chép
           </TabsTrigger>
-          <TabsTrigger value="draw" className="flex items-center gap-2">
+          <TabsTrigger value="draw" className="flex items-center gap-2 shrink-0">
             <PenLine className="h-4 w-4" />
             Tra bằng nét vẽ
           </TabsTrigger>
-          <TabsTrigger value="import" className="flex items-center gap-2">
+          <TabsTrigger value="import" className="flex items-center gap-2 shrink-0">
             <Upload className="h-4 w-4" />
             Import
           </TabsTrigger>

@@ -7,9 +7,9 @@ import { DueForecastChart } from "./DueForecastChart";
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-center justify-between py-3 border-b last:border-0">
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 py-3 border-b last:border-0">
       <span className="text-sm font-medium">{label}</span>
-      <div className="flex items-center gap-2">{children}</div>
+      <div className="flex items-center gap-2 flex-wrap">{children}</div>
     </div>
   );
 }
@@ -73,7 +73,7 @@ export function FlashcardSettingsTab() {
   const filteredWords = words.filter((w) => !search.trim() || w.word.toLowerCase().includes(search.trim().toLowerCase()));
 
   return (
-    <div className="max-w-xl mx-auto py-6 px-2 space-y-6">
+    <div className="space-y-6">
       <div>
         <p className="text-sm font-medium mb-2">Số từ cần ôn 7 ngày tới</p>
         <DueForecastChart />
@@ -127,14 +127,14 @@ export function FlashcardSettingsTab() {
             <p className="text-sm text-muted-foreground py-6 text-center">Chưa có từ nào.</p>
           ) : (
             filteredWords.map((w) => (
-              <div key={w.id} className="flex items-center justify-between px-3 py-2">
-                <span className="text-sm">{w.word}</span>
+              <div key={w.id} className="flex items-center justify-between gap-2 px-3 py-2">
+                <span className="text-sm truncate min-w-0">{w.word}</span>
                 <button
                   role="switch"
                   aria-checked={w.flashcardActive}
                   disabled={toggling === w.id}
                   onClick={() => toggleActive(w.id, !w.flashcardActive)}
-                  className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors disabled:opacity-50 ${
+                  className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors disabled:opacity-50 shrink-0 ${
                     w.flashcardActive ? "bg-primary" : "bg-muted"
                   }`}
                 >

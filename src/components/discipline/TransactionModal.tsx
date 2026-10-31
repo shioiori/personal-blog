@@ -173,7 +173,7 @@ export default function TransactionModal({
 
   return (
     <Dialog open={showModal} onOpenChange={handleOpenChange}>
-      <DialogContent className="border border-border bg-card">
+      <DialogContent className="border border-border bg-card w-[calc(100%-2rem)] max-w-lg max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-card-foreground">
             {isEdit ? t('editTitle') : t('addTitle')}

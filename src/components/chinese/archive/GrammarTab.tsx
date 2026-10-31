@@ -172,7 +172,7 @@ function PostFormDialog({ open, initial, onClose, onSave }: PostFormDialogProps)
           <DialogTitle>{initial ? "Sửa bài" : "Thêm bài ngữ pháp"}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-3 overflow-y-auto flex-1 pr-1">
+        <div className="space-y-3 overflow-y-auto flex-1 min-h-0 pr-1">
           <div>
             <label className="text-xs font-medium text-muted-foreground mb-1 block">Tiêu đề</label>
             <textarea

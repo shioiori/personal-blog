@@ -33,10 +33,10 @@ export function ReviewSection() {
 
   return (
     <Tabs defaultValue="read" className="space-y-6">
-      <TabsList className="w-fit">
-        <TabsTrigger value="read">Tập đọc</TabsTrigger>
-        <TabsTrigger value="flashcard">Flashcard</TabsTrigger>
-        <TabsTrigger value="history">Lịch sử</TabsTrigger>
+      <TabsList className="w-full overflow-x-auto no-scrollbar flex-nowrap justify-start">
+        <TabsTrigger value="read" className="shrink-0">Tập đọc</TabsTrigger>
+        <TabsTrigger value="flashcard" className="shrink-0">Flashcard</TabsTrigger>
+        <TabsTrigger value="history" className="shrink-0">Lịch sử</TabsTrigger>
       </TabsList>
 
       <TabsContent value="read">

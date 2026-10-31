@@ -46,12 +46,12 @@ export function BlogPost({ slug }: { slug: string }) {
             ))}
           </div>
 
-          <h1 className="text-4xl lg:text-5xl font-bold leading-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight break-words">
             {post.title}
           </h1>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-6 text-muted-foreground">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-muted-foreground">
               <div className="flex items-center">
                 <Calendar className="h-4 w-4 mr-2" />
                 {post.date}

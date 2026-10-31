@@ -257,7 +257,7 @@ export function FlashcardWriteTab({ allChars, userEdits }: FlashcardWriteTabProp
       </div>
 
       {/* Main row: canvas left, info right */}
-      <div className="flex gap-6 items-start">
+      <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start">
         {/* Left: Drawing pad */}
         <div className="flex flex-col gap-3 items-center shrink-0">
           <div className="relative inline-block">
@@ -291,7 +291,7 @@ export function FlashcardWriteTab({ allChars, userEdits }: FlashcardWriteTabProp
         </div>
 
         {/* Right: Info + suggestions/result */}
-        <div className="flex-1 flex flex-col gap-4 min-w-0">
+        <div className="w-full flex-1 flex flex-col gap-4 min-w-0">
           {/* Info */}
           <div className="border rounded-2xl p-5 flex flex-col gap-2 shadow-sm">
             <div className="flex items-start justify-between gap-3">
