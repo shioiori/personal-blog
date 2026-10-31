@@ -46,3 +46,27 @@ export interface ImportWordInput {
   word: string;
   senses: ImportSenseInput[];
 }
+
+export interface PokemonSpecies {
+  id: number;
+  name: string;
+}
+
+export interface GachaChainProgress {
+  stage: number;
+  currentId: number | null;
+  dup: number;
+}
+
+export interface GachaCollectionEntry {
+  chainKey: string;
+  chain: PokemonSpecies[][];
+  progress: GachaChainProgress;
+}
+
+export type GachaPullResult =
+  | { type: "new"; species: PokemonSpecies; chainKey: string }
+  | { type: "dup"; species: PokemonSpecies; chainKey: string; progress: number; needed: number }
+  | { type: "evolve"; species: PokemonSpecies; chainKey: string }
+  | { type: "choose_evolution"; options: PokemonSpecies[]; chainKey: string }
+  | { type: "maxed"; species: PokemonSpecies; chainKey: string };

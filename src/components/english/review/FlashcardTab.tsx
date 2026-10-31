@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/src/components/ui/Button";
-import { Input } from "@/src/components/ui/Input";
-import { Search } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/src/components/ui/Dialog";
+import { Settings, Ticket } from "lucide-react";
 import type { FlashcardCard } from "@/src/declaration/english";
 import { useFlashcardSettings } from "./useFlashcardSettings";
+import { FlashcardSettingsTab } from "./FlashcardSettingsTab";
 import { PronounceButton } from "../study/PronounceButton";
 
 type Phase = "loading" | "empty" | "front" | "back" | "done";
@@ -21,8 +22,8 @@ function SummaryScreen({ summary, onRestart }: { summary: GradeSummary; onRestar
   const total = summary.again + summary.hard + summary.good + summary.easy;
   return (
     <div className="flex flex-col items-center gap-6 py-16">
-      <p className="text-2xl font-semibold">Xong! {total} thẻ đã ôn</p>
-      <div className="flex gap-6 text-sm">
+      <p className="text-2xl font-semibold px-4 text-center">Xong! {total} thẻ đã ôn</p>
+      <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 sm:gap-6 text-sm px-4">
         <span className="text-red-500">Không nhớ: {summary.again}</span>
         <span className="text-orange-500">Khó: {summary.hard}</span>
         <span className="text-green-600">Nhớ: {summary.good}</span>
@@ -33,20 +34,15 @@ function SummaryScreen({ summary, onRestart }: { summary: GradeSummary; onRestar
   );
 }
 
-type ViewMode = "due" | "all";
-
 export function FlashcardTab() {
   const { settings } = useFlashcardSettings();
-  const [mode, setMode] = useState<ViewMode>("due");
   const [phase, setPhase] = useState<Phase>("loading");
   const [dueQueue, setDueQueue] = useState<FlashcardCard[]>([]);
-  // "all" mode browses every word (no session limit — the limit setting is
-  // specifically for spaced-repetition sessions) and supports searching.
-  const [allWords, setAllWords] = useState<FlashcardCard[]>([]);
-  const [allSearch, setAllSearch] = useState("");
   const [index, setIndex] = useState(0);
   const [summary, setSummary] = useState<GradeSummary>({ again: 0, hard: 0, good: 0, easy: 0 });
   const [doneSummary, setDoneSummary] = useState<GradeSummary | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [ticketToast, setTicketToast] = useState(false);
 
   const loadSession = useCallback(async () => {
     setPhase("loading");
@@ -54,51 +50,37 @@ export function FlashcardTab() {
     setDoneSummary(null);
     setIndex(0);
     try {
-      if (mode === "all") {
-        const res = await fetch("/api/english/words");
-        const words = (await res.json()) as { id: number; word: string; senses: FlashcardCard["senses"] }[];
-        let cards: FlashcardCard[] = words.map((w) => ({ wordId: w.id, word: w.word, senses: w.senses }));
-        if (settings.order === "random") cards = [...cards].sort(() => Math.random() - 0.5);
-        setAllWords(cards);
-        setPhase(cards.length === 0 ? "empty" : "front");
-      } else {
-        const params = new URLSearchParams();
-        if (settings.maxReviews > 0) params.set("limit", String(settings.maxReviews));
-        if (settings.order === "random") params.set("order", "random");
-        const res = await fetch(`/api/english/flashcard?${params.toString()}`);
-        const data = (await res.json()) as { cards: FlashcardCard[] };
-        setDueQueue(data.cards);
-        setPhase(data.cards.length === 0 ? "empty" : "front");
-      }
+      const params = new URLSearchParams();
+      if (settings.maxReviews > 0) params.set("limit", String(settings.maxReviews));
+      if (settings.order === "random") params.set("order", "random");
+      const res = await fetch(`/api/english/flashcard?${params.toString()}`);
+      const data = (await res.json()) as { cards: FlashcardCard[] };
+      setDueQueue(data.cards);
+      setPhase(data.cards.length === 0 ? "empty" : "front");
     } catch {
       setPhase("empty");
     }
-  }, [settings.maxReviews, settings.order, mode]);
+  }, [settings.maxReviews, settings.order]);
 
   useEffect(() => { void loadSession(); }, [loadSession]);
 
-  const filteredAllWords = useMemo(() => {
-    const term = allSearch.trim().toLowerCase();
-    return term ? allWords.filter((w) => w.word.toLowerCase().includes(term)) : allWords;
-  }, [allWords, allSearch]);
-
-  // Re-evaluate phase/index whenever the "all" mode search narrows the list.
-  useEffect(() => {
-    if (mode !== "all" || phase === "loading") return;
-    setIndex(0);
-    setPhase(filteredAllWords.length === 0 ? "empty" : "front");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allSearch]);
-
-  const queue = mode === "all" ? filteredAllWords : dueQueue;
+  const queue = dueQueue;
 
   function persistGrade(wordId: number, g: 0 | 1 | 2 | 3) {
-    void fetch("/api/english/flashcard", {
+    fetch("/api/english/flashcard", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ wordId, grade: g }),
       keepalive: true,
-    }).catch(() => {});
+    })
+      .then((res) => res.json())
+      .then((data: { ticketAwarded?: boolean }) => {
+        if (data.ticketAwarded) {
+          setTicketToast(true);
+          setTimeout(() => setTicketToast(false), 1800);
+        }
+      })
+      .catch(() => {});
   }
 
   function grade(g: 0 | 1 | 2 | 3) {
@@ -119,44 +101,24 @@ export function FlashcardTab() {
     persistGrade(card.wordId, g);
   }
 
-  function goNext() {
-    const next = index + 1;
-    if (next >= queue.length) setPhase("done");
-    else {
-      setIndex(next);
-      setPhase("front");
-    }
-  }
-
-  function goPrev() {
-    if (index === 0) return;
-    setIndex(index - 1);
-    setPhase("front");
-  }
-
   const current = queue[index];
 
   const modeToggle = (
-    <div className="w-full max-w-md mx-auto mb-4 space-y-2">
-      <div className="flex gap-2">
-        <Button size="sm" variant={mode === "due" ? "default" : "outline"} onClick={() => setMode("due")}>
-          Lặp lại ngắt quãng
-        </Button>
-        <Button size="sm" variant={mode === "all" ? "default" : "outline"} onClick={() => setMode("all")}>
-          Xem tất cả
+    <div className="w-full max-w-md mx-auto mb-4 space-y-2 px-4 sm:px-0">
+      <div className="flex flex-wrap gap-2">
+        <Button size="sm" variant="outline" className="ml-auto gap-1.5" onClick={() => setSettingsOpen(true)}>
+          <Settings className="h-3.5 w-3.5" />
+          Cài đặt
         </Button>
       </div>
-      {mode === "all" && (
-        <div className="relative">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-          <Input
-            value={allSearch}
-            onChange={(e) => setAllSearch(e.target.value)}
-            placeholder="Tìm từ..."
-            className="pl-8"
-          />
-        </div>
-      )}
+      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Cài đặt ôn tập</DialogTitle>
+          </DialogHeader>
+          <FlashcardSettingsTab />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 
@@ -174,37 +136,14 @@ export function FlashcardTab() {
       <div>
         {modeToggle}
         <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-          <p className="text-lg font-medium">
-            {mode === "all"
-              ? allSearch.trim()
-                ? "Không tìm thấy từ phù hợp"
-                : "Chưa có từ nào"
-              : "Không có thẻ đến hạn hôm nay"}
-          </p>
-          <p className="text-sm">
-            {mode === "all"
-              ? allSearch.trim()
-                ? "Thử từ khoá khác."
-                : "Thêm từ ở tab Học từ trước."
-              : "Thêm từ mới hoặc quay lại vào ngày mai."}
-          </p>
+          <p className="text-lg font-medium">Không có thẻ đến hạn hôm nay</p>
+          <p className="text-sm">Thêm từ mới hoặc quay lại vào ngày mai.</p>
         </div>
       </div>
     );
   }
 
   if (phase === "done") {
-    if (mode === "all") {
-      return (
-        <div>
-          {modeToggle}
-          <div className="flex flex-col items-center gap-6 py-16">
-            <p className="text-2xl font-semibold">Đã xem hết {queue.length} từ</p>
-            <Button onClick={loadSession} variant="outline">Xem lại từ đầu</Button>
-          </div>
-        </div>
-      );
-    }
     if (doneSummary) return <SummaryScreen summary={doneSummary} onRestart={loadSession} />;
   }
 
@@ -214,7 +153,13 @@ export function FlashcardTab() {
   const flipCard = () => setPhase(phase === "front" ? "back" : "front");
 
   return (
-    <div className="flex flex-col items-center gap-6 max-w-md mx-auto py-8">
+    <div className="flex flex-col items-center gap-6 max-w-md mx-auto py-8 px-4 relative">
+      {ticketToast && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1.5 bg-primary text-primary-foreground text-sm font-medium px-3 py-1.5 rounded-full shadow-lg animate-in fade-in slide-in-from-top-2">
+          <Ticket className="h-4 w-4" />
+          +1 vé Gacha!
+        </div>
+      )}
       {modeToggle}
       <div className="w-full flex items-center justify-between text-sm text-muted-foreground">
         <span>{index + 1} / {queue.length}</span>
@@ -267,14 +212,7 @@ export function FlashcardTab() {
         </div>
       </div>
 
-      {(phase === "front" || phase === "back") && mode === "all" && (
-        <div className="grid grid-cols-2 gap-2 w-full">
-          <Button onClick={goPrev} variant="outline" disabled={index === 0}>Trước</Button>
-          <Button onClick={goNext}>{index + 1 >= queue.length ? "Hoàn tất" : "Tiếp theo"}</Button>
-        </div>
-      )}
-
-      {(phase === "front" || phase === "back") && mode === "due" && (
+      {(phase === "front" || phase === "back") && (
         <div className="grid grid-cols-4 gap-2 w-full">
           <Button onClick={() => grade(0)} className="bg-red-500 hover:bg-red-600 text-white text-xs py-3 h-auto">
             <span className="font-semibold">Lại</span>
