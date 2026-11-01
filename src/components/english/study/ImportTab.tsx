@@ -150,10 +150,10 @@ export function ImportTab() {
     );
   }
 
-  // Fills whatever is still blank (phonetic, example, synonyms, antonyms, and
-  // meaningVi as a fallback) per sense using the free dictionary lookup,
-  // matching by part of speech when the entry has more than one. Never
-  // overwrites a field the user already has.
+  // Fills whatever is still blank (part of speech, phonetic, example,
+  // synonyms, antonyms) per sense using the free dictionary lookup, matching
+  // by part of speech when the entry has more than one. Never overwrites a
+  // field the user already has.
   async function handleAutoFillAll() {
     setAutoFilling(true);
     try {
@@ -185,6 +185,7 @@ export function ImportTab() {
                       const def = match?.definitions[0];
                       return {
                         ...s,
+                        partOfSpeech: s.partOfSpeech || match?.partOfSpeech || "",
                         phonetic: s.phonetic || ipa || "",
                         example: s.example || def?.examples[0] || "",
                         synonyms: s.synonyms || synonymsText,
