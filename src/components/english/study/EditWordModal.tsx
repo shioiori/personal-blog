@@ -472,7 +472,7 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-2xl flex flex-col max-h-[88vh]">
+      <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-2xl flex flex-col max-h-[88dvh]">
         <DialogHeader>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pr-6">
             <DialogTitle className="flex items-center gap-2 min-w-0">

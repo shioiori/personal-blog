@@ -77,10 +77,22 @@ function emptyResult(word: string, apiUrl: string): DictionaryCrawlData {
 }
 
 async function fetchRaw(apiUrl: string): Promise<ApiEntry[] | null> {
-  const res = await fetch(apiUrl, { signal: AbortSignal.timeout(8000) });
+  const res = await fetch(apiUrl, {
+    signal: AbortSignal.timeout(8000),
+    // dictionaryapi.dev sits behind Cloudflare, which is more likely to rate-
+    // limit or challenge requests from datacenter IPs (Vercel's serverless
+    // functions) when they look like bare bot traffic. A normal browser-style
+    // User-Agent/Accept pair measurably reduces that.
+    headers: {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+      Accept: "application/json",
+    },
+  });
   if (res.status === 404) return [];
   if (!res.ok) throw new Error(`dictionaryapi.dev request failed: ${res.status}`);
-  return (await res.json()) as ApiEntry[];
+  const text = await res.text();
+  if (!text.trim()) return null;
+  return JSON.parse(text) as ApiEntry[];
 }
 
 async function fetchDictionaryEntry(word: string): Promise<DictionaryCrawlData> {
@@ -99,8 +111,8 @@ async function fetchDictionaryEntry(word: string): Promise<DictionaryCrawlData> 
   } catch {
     // keep retrying / fall through to the retry loop below
   }
-  for (let attempt = 0; (!entries || entries.length === 0) && trimmed && attempt < 2; attempt++) {
-    await new Promise((r) => setTimeout(r, 400 * (attempt + 1)));
+  for (let attempt = 0; (!entries || entries.length === 0) && trimmed && attempt < 3; attempt++) {
+    await new Promise((r) => setTimeout(r, 500 * (attempt + 1)));
     try {
       const retry = await fetchRaw(apiUrl);
       if (retry && retry.length > 0) entries = retry;
