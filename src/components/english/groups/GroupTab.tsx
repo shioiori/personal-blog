@@ -97,7 +97,7 @@ function AddWordsDialog({ open, group, allWords, onClose, onAdd }: AddWordsDialo
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-lg flex flex-col max-h-[80vh]">
+      <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-lg flex flex-col max-h-[80dvh]">
         <DialogHeader>
           <DialogTitle>Thêm từ vào nhóm &quot;{group?.name}&quot;</DialogTitle>
         </DialogHeader>

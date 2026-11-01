@@ -329,7 +329,7 @@ export function GachaTab() {
       </div>
 
       <Dialog open={exchangeOpen} onOpenChange={(open) => { setExchangeOpen(open); if (!open) { setChoice(null); setExchangeResult(null); } }}>
-        <DialogContent className="max-w-sm max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-sm max-h-[80dvh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Đổi mảnh Pokémon</DialogTitle>
           </DialogHeader>

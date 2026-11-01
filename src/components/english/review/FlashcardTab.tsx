@@ -112,7 +112,7 @@ export function FlashcardTab() {
         </Button>
       </div>
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
-        <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-xl max-h-[85dvh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Cài đặt ôn tập</DialogTitle>
           </DialogHeader>
