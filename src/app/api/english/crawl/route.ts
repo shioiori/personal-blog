@@ -76,6 +76,42 @@ function emptyResult(word: string, apiUrl: string): DictionaryCrawlData {
   };
 }
 
+// dictionaryapi.dev sits behind Cloudflare, which appears to flag Vercel's
+// serverless IPs outright regardless of User-Agent/retries (confirmed broken
+// in production after two earlier attempts at headers/backoff) — it mostly
+// comes back with zero phonetics even when the rest of the entry succeeds.
+// As a fallback for just the phonetic, look the word up in the open IPA
+// dataset served from raw.githubusercontent.com, a host that isn't behind
+// that same bot-protection. The ~3MB word->IPA file is cached in module
+// scope so it's only downloaded once per warm serverless instance.
+let ipaDictPromise: Promise<Map<string, string>> | null = null;
+
+async function getIpaDict(): Promise<Map<string, string>> {
+  if (!ipaDictPromise) {
+    ipaDictPromise = (async () => {
+      const map = new Map<string, string>();
+      try {
+        const res = await fetch("https://raw.githubusercontent.com/open-dict-data/ipa-dict/master/data/en_US.txt", {
+          signal: AbortSignal.timeout(8000),
+        });
+        if (!res.ok) return map;
+        const text = await res.text();
+        for (const line of text.split("\n")) {
+          const tab = line.indexOf("\t");
+          if (tab === -1) continue;
+          const word = line.slice(0, tab).trim().toLowerCase();
+          const first = line.slice(tab + 1).split(",")[0]?.trim().replace(/^\/|\/$/g, "");
+          if (word && first && !map.has(word)) map.set(word, first);
+        }
+      } catch (e) {
+        console.error("[dictionary crawl] ipa-dict fetch failed", e);
+      }
+      return map;
+    })();
+  }
+  return ipaDictPromise;
+}
+
 async function fetchRaw(apiUrl: string): Promise<ApiEntry[] | null> {
   const res = await fetch(apiUrl, {
     signal: AbortSignal.timeout(8000),
@@ -120,7 +156,12 @@ async function fetchDictionaryEntry(word: string): Promise<DictionaryCrawlData> 
       // keep retrying / fall through to the empty result below
     }
   }
-  if (!entries || entries.length === 0) return emptyResult(word, apiUrl);
+  if (!entries || entries.length === 0) {
+    const result = emptyResult(word, apiUrl);
+    const fallbackIpa = (await getIpaDict()).get(trimmed);
+    if (fallbackIpa) result.pronunciations.push({ ipa: fallbackIpa });
+    return result;
+  }
 
   const pronunciations: EntryPronunciation[] = [];
   const senses: EntrySenseBlock[] = [];
@@ -156,6 +197,11 @@ async function fetchDictionaryEntry(word: string): Promise<DictionaryCrawlData> 
         console.error("[dictionary crawl] meaning parse failed", e);
       }
     }
+  }
+
+  if (pronunciations.length === 0) {
+    const fallbackIpa = (await getIpaDict()).get(trimmed);
+    if (fallbackIpa) pronunciations.push({ ipa: fallbackIpa });
   }
 
   return {

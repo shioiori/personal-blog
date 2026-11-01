@@ -166,11 +166,12 @@ export function ImportTab() {
               const res = await fetch(`/api/english/crawl?word=${encodeURIComponent(entry.word)}`);
               const data = (await res.json()) as { crawlData?: DictionaryCrawlData };
               const dict = data.crawlData;
-              if (!dict || !dict.senses || dict.senses.length === 0) return;
+              const ipa = dict?.pronunciations?.find((p) => p.ipa)?.ipa;
+              if (!dict || (!ipa && (!dict.senses || dict.senses.length === 0))) return;
 
               const synonymsText = (dict.synonyms ?? []).slice(0, 6).join(", ");
               const antonymsText = (dict.antonyms ?? []).slice(0, 6).join(", ");
-              const ipa = dict.pronunciations?.find((p) => p.ipa)?.ipa;
+              const senses = dict.senses ?? [];
 
               setEntries((prev) =>
                 prev.map((e) => {
@@ -179,8 +180,8 @@ export function ImportTab() {
                     ...e,
                     senses: e.senses.map((s) => {
                       const match =
-                        dict.senses!.find((ds) => ds.partOfSpeech?.toLowerCase() === s.partOfSpeech.toLowerCase()) ??
-                        dict.senses![0];
+                        senses.find((ds) => ds.partOfSpeech?.toLowerCase() === s.partOfSpeech.toLowerCase()) ??
+                        senses[0];
                       const def = match?.definitions[0];
                       return {
                         ...s,
