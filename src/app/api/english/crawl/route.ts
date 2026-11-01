@@ -93,7 +93,12 @@ async function fetchDictionaryEntry(word: string): Promise<DictionaryCrawlData> 
   // retries clear this up often enough to be worth it, but a genuine outage
   // on their end can still surface as "not found" here — that is a
   // third-party availability issue, not a bug in this app.
-  let entries = await fetchRaw(apiUrl);
+  let entries: ApiEntry[] | null = null;
+  try {
+    entries = await fetchRaw(apiUrl);
+  } catch {
+    // keep retrying / fall through to the retry loop below
+  }
   for (let attempt = 0; (!entries || entries.length === 0) && trimmed && attempt < 2; attempt++) {
     await new Promise((r) => setTimeout(r, 400 * (attempt + 1)));
     try {

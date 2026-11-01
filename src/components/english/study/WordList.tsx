@@ -124,6 +124,13 @@ export function WordList() {
         startInEditMode={startInEditMode}
         onClose={() => setModalOpen(false)}
         onDelete={handleDelete}
+        onOpenWord={(id) => {
+          const target = words.find((w) => w.id === id);
+          if (target) {
+            setEditingWord(target);
+            setStartInEditMode(false);
+          }
+        }}
       />
     </div>
   );

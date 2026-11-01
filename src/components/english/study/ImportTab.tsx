@@ -170,7 +170,7 @@ export function ImportTab() {
 
               const synonymsText = (dict.synonyms ?? []).slice(0, 6).join(", ");
               const antonymsText = (dict.antonyms ?? []).slice(0, 6).join(", ");
-              const ipa = dict.pronunciations?.[0]?.ipa;
+              const ipa = dict.pronunciations?.find((p) => p.ipa)?.ipa;
 
               setEntries((prev) =>
                 prev.map((e) => {

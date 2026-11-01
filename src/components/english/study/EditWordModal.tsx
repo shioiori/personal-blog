@@ -18,6 +18,115 @@ interface EditWordModalProps {
   onDelete?: (id: number) => void;
   /** Opens straight into the edit form instead of the read-only view (ignored in create mode, which is always the form). */
   startInEditMode?: boolean;
+  /** Called when the user clicks a related-word chip; parent should swap in that word and keep the modal open. */
+  onOpenWord?: (id: number) => void;
+}
+
+function parseRelatedWords(text: string): string[] {
+  return text
+    .split(",")
+    .map((w) => w.trim())
+    .filter(Boolean);
+}
+
+// Suggests other words in the library that likely share a root with `wordText`
+// (e.g. "obesity" ~ "obese"), purely by comparing a leading substring — no
+// external lookup. Heuristic, not an auto-add: the user still picks which
+// suggestions to keep.
+function suggestRelatedWords(wordText: string, allWords: EnglishWord[], excludeId?: number, already?: Set<string>): string[] {
+  const target = wordText.trim().toLowerCase();
+  if (target.length < 4) return [];
+  const results: string[] = [];
+  for (const w of allWords) {
+    if (w.id === excludeId) continue;
+    const candidate = w.word.trim().toLowerCase();
+    if (!candidate || candidate === target) continue;
+    if (already?.has(candidate)) continue;
+    const shorter = Math.min(candidate.length, target.length);
+    let commonPrefix = 0;
+    while (commonPrefix < shorter && candidate[commonPrefix] === target[commonPrefix]) commonPrefix++;
+    if (commonPrefix >= 4 && commonPrefix >= shorter * 0.7) {
+      results.push(w.word);
+    }
+  }
+  return results.slice(0, 5);
+}
+
+const POS_ABBREV: Record<string, string> = {
+  noun: "n",
+  verb: "v",
+  adjective: "adj",
+  adverb: "adv",
+  preposition: "prep",
+  pronoun: "pron",
+  conjunction: "conj",
+  interjection: "interj",
+  phrase: "phr",
+  idiom: "idiom",
+  "phrasal verb": "phr.v",
+  collocation: "coll",
+};
+
+function abbreviatePos(pos?: string): string {
+  if (!pos) return "";
+  const key = pos.trim().toLowerCase();
+  return POS_ABBREV[key] ?? key;
+}
+
+function toSenseInput(s: EnglishSense) {
+  return {
+    phonetic: s.phonetic || null,
+    partOfSpeech: s.partOfSpeech || null,
+    cambridgeMeaning: s.cambridgeMeaning || null,
+    meaningVi: s.meaningVi || null,
+    example: s.example || null,
+    synonyms: s.synonyms || null,
+    antonyms: s.antonyms || null,
+  };
+}
+
+// Keeps related-word links symmetric: when word A gains/loses B as a related
+// word, B's own relatedWords list is updated to match. Only touches the other
+// word's relatedWords field — its senses are sent back unchanged so this never
+// wipes out its own data.
+async function syncRelatedWords(
+  currentWordId: number | undefined,
+  currentWordText: string,
+  oldRelatedTexts: string[],
+  newRelatedTexts: string[],
+  allWords: EnglishWord[]
+) {
+  const was = new Set(oldRelatedTexts.map((t) => t.toLowerCase()));
+  const now = new Set(newRelatedTexts.map((t) => t.toLowerCase()));
+
+  for (const w of allWords) {
+    if (w.id === currentWordId) continue;
+    const key = w.word.trim().toLowerCase();
+    const wasLinked = was.has(key);
+    const isLinked = now.has(key);
+    if (wasLinked === isLinked) continue;
+
+    const currentList = parseRelatedWords(w.relatedWords ?? "");
+    const hasCurrent = currentList.some((x) => x.toLowerCase() === currentWordText.toLowerCase());
+    let updatedList = currentList;
+    if (isLinked && !hasCurrent) {
+      updatedList = [...currentList, currentWordText];
+    } else if (!isLinked && hasCurrent) {
+      updatedList = currentList.filter((x) => x.toLowerCase() !== currentWordText.toLowerCase());
+    } else {
+      continue;
+    }
+
+    await fetch(`/api/english/words/${w.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        word: w.word,
+        senses: w.senses.map(toSenseInput),
+        relatedWords: updatedList.join(", ") || null,
+      }),
+    });
+  }
 }
 
 type SenseDraft = Omit<EnglishSense, "id" | "sortOrder">;
@@ -105,11 +214,12 @@ function CambridgeInfoSection({ word, crawlData, onRefresh, loading, error }: {
   );
 }
 
-export function EditWordModal({ open, word, onClose, onDelete, startInEditMode }: EditWordModalProps) {
-  const { refetchWords } = useEnglishStudy();
+export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, onOpenWord }: EditWordModalProps) {
+  const { refetchWords, words: allWords } = useEnglishStudy();
   const [mode, setMode] = useState<"view" | "edit">(word ? "view" : "edit");
   const [wordText, setWordText] = useState("");
   const [senses, setSenses] = useState<SenseDraft[]>([{ ...emptySense }]);
+  const [relatedWordsText, setRelatedWordsText] = useState("");
   const [saving, setSaving] = useState(false);
   const [crawlData, setCrawlData] = useState<CambridgeCrawlData | null>(null);
   const [crawlLoading, setCrawlLoading] = useState(false);
@@ -136,10 +246,12 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode }
           : [{ ...emptySense }]
       );
       setCrawlData((word.crawlData as CambridgeCrawlData | undefined) ?? null);
+      setRelatedWordsText(word.relatedWords ?? "");
     } else {
       setWordText("");
       setSenses([{ ...emptySense }]);
       setCrawlData(null);
+      setRelatedWordsText("");
     }
   }, [open, word, startInEditMode]);
 
@@ -182,6 +294,42 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode }
     }
   }
 
+  // Fires when the user finishes typing the word (on blur): fills in just the
+  // phonetic and part-of-speech for the first sense from the dictionary
+  // lookup, so basic info shows up without needing "Tự động điền còn thiếu".
+  // Never overwrites fields already filled in, and does nothing once both are set.
+  async function handleAutoFillBasics() {
+    if (!wordText.trim() || senses.length === 0) return;
+    const needsPhonetic = !(senses[0].phonetic ?? "").trim();
+    const needsPos = !(senses[0].partOfSpeech ?? "").trim();
+    if (!needsPhonetic && !needsPos) return;
+    try {
+      let dict = crawlData;
+      if (!dict) {
+        const params = new URLSearchParams();
+        if (word) params.set("wordId", String(word.id));
+        else params.set("word", wordText.trim());
+        const res = await fetch(`/api/english/crawl?${params.toString()}`);
+        const data = (await res.json()) as { crawlData?: CambridgeCrawlData; error?: string };
+        if (data.crawlData) {
+          dict = data.crawlData;
+          setCrawlData(data.crawlData);
+        }
+      }
+      const ipa = dict?.pronunciations?.find((p) => p.ipa)?.ipa;
+      const partOfSpeech = dict?.senses?.[0]?.partOfSpeech;
+      setSenses((prev) =>
+        prev.map((s, i) =>
+          i === 0
+            ? { ...s, phonetic: s.phonetic || ipa || "", partOfSpeech: s.partOfSpeech || partOfSpeech || "" }
+            : s
+        )
+      );
+    } catch {
+      // best-effort, ignore
+    }
+  }
+
   // Fills whatever is still blank across all senses (phonetic, example,
   // synonyms, antonyms, meaningVi) from the free dictionary lookup — fetching
   // it first if not already cached/loaded. Never overwrites a field the user
@@ -207,7 +355,7 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode }
 
       const synonymsText = (dict?.synonyms ?? []).slice(0, 6).join(", ");
       const antonymsText = (dict?.antonyms ?? []).slice(0, 6).join(", ");
-      const ipa = dict?.pronunciations?.[0]?.ipa;
+      const ipa = dict?.pronunciations?.find((p) => p.ipa)?.ipa;
 
       const needsTranslation = senses.some((s) => !(s.meaningVi ?? "").trim());
       let wordTranslation: string | null = null;
@@ -248,6 +396,7 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode }
     if (!wordText.trim()) return;
     setSaving(true);
     try {
+      const newRelatedTexts = parseRelatedWords(relatedWordsText);
       const payload = {
         word: wordText.trim(),
         senses: senses
@@ -261,8 +410,12 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode }
             synonyms: s.synonyms || null,
             antonyms: s.antonyms || null,
           })),
+        relatedWords: newRelatedTexts.join(", ") || null,
         ...(word ? {} : { crawlData: crawlData ?? undefined }),
       };
+
+      let savedId: number;
+      const oldRelatedTexts = word ? parseRelatedWords(word.relatedWords ?? "") : [];
 
       if (word) {
         await fetch(`/api/english/words/${word.id}`, {
@@ -270,17 +423,21 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode }
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
-        await refetchWords();
-        setMode("view");
+        savedId = word.id;
       } else {
-        await fetch("/api/english/words", {
+        const res = await fetch("/api/english/words", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
-        await refetchWords();
-        onClose();
+        const created = (await res.json()) as { id: number };
+        savedId = created.id;
       }
+
+      await syncRelatedWords(savedId, wordText.trim(), oldRelatedTexts, newRelatedTexts, allWords);
+      await refetchWords();
+      if (word) setMode("view");
+      else onClose();
     } finally {
       setSaving(false);
     }
@@ -304,6 +461,7 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode }
             }))
           : [{ ...emptySense }]
       );
+      setRelatedWordsText(word.relatedWords ?? "");
       setMode("view");
     } else {
       onClose();
@@ -371,12 +529,41 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode }
                   </div>
                 ))
               )}
+              {parseRelatedWords(relatedWordsText).length > 0 && (
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-xs text-muted-foreground">Từ liên quan:</span>
+                  {parseRelatedWords(relatedWordsText).map((rw) => {
+                    const match = allWords.find((w) => w.word.toLowerCase() === rw.toLowerCase());
+                    const pos = abbreviatePos(match?.senses[0]?.partOfSpeech);
+                    return match ? (
+                      <button
+                        key={rw}
+                        onClick={() => onOpenWord?.(match.id)}
+                        className="px-2 py-0.5 rounded-full bg-muted text-xs hover:bg-accent hover:text-accent-foreground transition-colors"
+                      >
+                        {rw}
+                        {pos && <span className="text-muted-foreground"> ({pos})</span>}
+                      </button>
+                    ) : (
+                      <span key={rw} className="px-2 py-0.5 rounded-full bg-muted/50 text-xs text-muted-foreground italic">
+                        {rw}
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           ) : (
             <>
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Từ / cụm từ</label>
-                <Input value={wordText} onChange={(e) => setWordText(e.target.value)} placeholder="vd: comprehensive" autoFocus />
+                <Input
+                  value={wordText}
+                  onChange={(e) => setWordText(e.target.value)}
+                  onBlur={handleAutoFillBasics}
+                  placeholder="vd: comprehensive"
+                  autoFocus
+                />
               </div>
 
               <div className="space-y-3">
@@ -413,6 +600,37 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode }
                     {autoFilling ? "Đang điền..." : "Tự động điền còn thiếu"}
                   </Button>
                 </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Từ liên quan (phân cách bởi dấu phẩy)</label>
+                <Input
+                  value={relatedWordsText}
+                  onChange={(e) => setRelatedWordsText(e.target.value)}
+                  placeholder="vd: obese, overweight"
+                />
+                {(() => {
+                  const already = new Set(parseRelatedWords(relatedWordsText).map((w) => w.toLowerCase()));
+                  const suggestions = suggestRelatedWords(wordText, allWords, word?.id, already);
+                  if (suggestions.length === 0) return null;
+                  return (
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="text-xs text-muted-foreground">Gợi ý:</span>
+                      {suggestions.map((s) => (
+                        <button
+                          key={s}
+                          onClick={() => {
+                            const current = parseRelatedWords(relatedWordsText);
+                            setRelatedWordsText([...current, s].join(", "));
+                          }}
+                          className="px-2 py-0.5 rounded-full border border-dashed border-border text-xs hover:bg-accent hover:text-accent-foreground transition-colors"
+                        >
+                          <Plus className="w-2.5 h-2.5 inline mr-0.5" />{s}
+                        </button>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
             </>
           )}

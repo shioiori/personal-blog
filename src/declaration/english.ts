@@ -18,6 +18,8 @@ export interface EnglishWord {
   groupIds: number[];
   flashcardActive: boolean;
   crawlData?: unknown;
+  /** Comma-separated related words (e.g. "obese, obesity"), resolved by text to other words in the list. */
+  relatedWords?: string;
 }
 
 export interface EnglishGroup {
