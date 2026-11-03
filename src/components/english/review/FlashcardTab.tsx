@@ -1,13 +1,17 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/src/components/ui/Button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/src/components/ui/Dialog";
 import { Settings, Ticket } from "lucide-react";
 import type { FlashcardCard } from "@/src/declaration/english";
 import { useFlashcardSettings } from "./useFlashcardSettings";
 import { FlashcardSettingsTab } from "./FlashcardSettingsTab";
-import { PronounceButton } from "../study/PronounceButton";
+import { PronounceButton, usePronounce } from "../study/PronounceButton";
+import { RelatedWordChips, WordSenseList } from "../study/WordSenseDetail";
+import { getCrawlAudioUrl } from "../study/crawlData";
+import { useEnglishStudy } from "@/src/context/english";
 
 type Phase = "loading" | "empty" | "front" | "back" | "done";
 
@@ -19,22 +23,24 @@ interface GradeSummary {
 }
 
 function SummaryScreen({ summary, onRestart }: { summary: GradeSummary; onRestart: () => void }) {
+  const t = useTranslations("English");
   const total = summary.again + summary.hard + summary.good + summary.easy;
   return (
     <div className="flex flex-col items-center gap-6 py-16">
-      <p className="text-2xl font-semibold px-4 text-center">Xong! {total} thẻ đã ôn</p>
+      <p className="text-2xl font-semibold px-4 text-center">{t("Review.done", { count: total })}</p>
       <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 sm:gap-6 text-sm px-4">
-        <span className="text-red-500">Không nhớ: {summary.again}</span>
-        <span className="text-orange-500">Khó: {summary.hard}</span>
-        <span className="text-green-600">Nhớ: {summary.good}</span>
-        <span className="text-blue-500">Dễ: {summary.easy}</span>
+        <span className="text-red-500">{t("Review.summaryAgain", { count: summary.again })}</span>
+        <span className="text-orange-500">{t("Review.summaryHard", { count: summary.hard })}</span>
+        <span className="text-green-600">{t("Review.summaryGood", { count: summary.good })}</span>
+        <span className="text-blue-500">{t("Review.summaryEasy", { count: summary.easy })}</span>
       </div>
-      <Button onClick={onRestart} variant="outline">Ôn lại từ đầu</Button>
+      <Button onClick={onRestart} variant="outline">{t("Review.restart")}</Button>
     </div>
   );
 }
 
 export function FlashcardTab() {
+  const t = useTranslations("English");
   const { settings, updateSettings, loaded: settingsLoaded } = useFlashcardSettings();
   const [phase, setPhase] = useState<Phase>("loading");
   const [dueQueue, setDueQueue] = useState<FlashcardCard[]>([]);
@@ -43,6 +49,8 @@ export function FlashcardTab() {
   const [doneSummary, setDoneSummary] = useState<GradeSummary | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [ticketToast, setTicketToast] = useState(false);
+  const { words } = useEnglishStudy();
+  const { pronounce } = usePronounce();
 
   const loadSession = useCallback(async () => {
     setPhase("loading");
@@ -101,20 +109,40 @@ export function FlashcardTab() {
     persistGrade(card.wordId, g);
   }
 
+  useEffect(() => {
+    if ((phase !== "front" && phase !== "back") || settingsOpen) return;
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (e.target instanceof HTMLElement && e.target.closest("input, textarea, select, [contenteditable]")) return;
+      if (/^[1-4]$/.test(e.key)) grade((Number(e.key) - 1) as 0 | 1 | 2 | 3);
+      else if (e.key === "ArrowLeft" || e.key === "ArrowRight" || e.key === "Enter") setPhase((p) => (p === "front" ? "back" : "front"));
+      else return;
+      e.preventDefault();
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  });
+
   const current = queue[index];
+  const currentWord = current ? words.find((w) => w.id === current.wordId) : undefined;
+  const audioUrl = currentWord ? getCrawlAudioUrl(currentWord) : undefined;
+
+  useEffect(() => {
+    if (settings.autoPronounce && phase === "front" && current) pronounce(current.word, audioUrl);
+  }, [index, dueQueue]);
 
   const modeToggle = (
-    <div className="w-full max-w-md mx-auto mb-4 space-y-2 px-4 sm:px-0">
+    <div className="w-full max-w-2xl mx-auto mb-4 space-y-2 px-4 sm:px-0">
       <div className="flex flex-wrap gap-2">
         <Button size="sm" variant="outline" className="ml-auto gap-1.5" onClick={() => setSettingsOpen(true)}>
           <Settings className="h-3.5 w-3.5" />
-          Cài đặt
+          {t("Review.settings")}
         </Button>
       </div>
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
         <DialogContent className="max-w-xl max-h-[85dvh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Cài đặt ôn tập</DialogTitle>
+            <DialogTitle>{t("Review.settingsTitle")}</DialogTitle>
           </DialogHeader>
           <FlashcardSettingsTab settings={settings} onChange={updateSettings} />
         </DialogContent>
@@ -126,7 +154,7 @@ export function FlashcardTab() {
     return (
       <div>
         {modeToggle}
-        <div className="flex items-center justify-center py-24 text-muted-foreground text-sm">Đang tải...</div>
+        <div className="flex items-center justify-center py-24 text-muted-foreground text-sm">{t("Common.loading")}</div>
       </div>
     );
   }
@@ -136,8 +164,8 @@ export function FlashcardTab() {
       <div>
         {modeToggle}
         <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
-          <p className="text-lg font-medium">Không có thẻ đến hạn hôm nay</p>
-          <p className="text-sm">Thêm từ mới hoặc quay lại vào ngày mai.</p>
+          <p className="text-lg font-medium">{t("Review.noDue")}</p>
+          <p className="text-sm">{t("Review.noDueHint")}</p>
         </div>
       </div>
     );
@@ -153,11 +181,11 @@ export function FlashcardTab() {
   const flipCard = () => setPhase(phase === "front" ? "back" : "front");
 
   return (
-    <div className="flex flex-col items-center gap-6 max-w-md mx-auto py-8 px-4 relative">
+    <div className="flex flex-col items-center gap-6 max-w-2xl mx-auto py-8 px-4 relative">
       {ticketToast && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1.5 bg-primary text-primary-foreground text-sm font-medium px-3 py-1.5 rounded-full shadow-lg animate-in fade-in slide-in-from-top-2">
           <Ticket className="h-4 w-4" />
-          +1 vé Gacha!
+          {t("Review.plusTicket")}
         </div>
       )}
       {modeToggle}
@@ -168,20 +196,20 @@ export function FlashcardTab() {
         </div>
       </div>
 
-      <div className="w-full cursor-pointer select-none" style={{ perspective: "1000px", minHeight: "16rem" }} onClick={flipCard}>
+      <div className="w-full cursor-pointer select-none" style={{ perspective: "1000px", height: "clamp(20rem, 60dvh, 36rem)" }} onClick={flipCard}>
         <div
           style={{
             transformStyle: "preserve-3d",
             transition: "transform 0.5s ease",
             transform: phase === "back" ? "rotateY(180deg)" : "rotateY(0deg)",
             position: "relative",
-            minHeight: "16rem",
+            height: "100%",
           }}
         >
           <div className="absolute inset-0 border rounded-2xl p-8 flex flex-col items-center justify-center gap-4 shadow-sm bg-background" style={{ backfaceVisibility: "hidden" }}>
             <div className="flex items-center gap-2">
-              <span className="text-4xl font-semibold text-center">{current.word}</span>
-              <PronounceButton word={current.word} size="md" />
+              <span className="text-4xl sm:text-5xl font-semibold text-center">{current.word}</span>
+              <PronounceButton word={current.word} audioUrl={audioUrl} size="md" />
             </div>
             {first?.phonetic && <p className="text-base text-muted-foreground">/{first.phonetic}/</p>}
             {first?.partOfSpeech && (
@@ -189,25 +217,16 @@ export function FlashcardTab() {
                 {first.partOfSpeech}
               </span>
             )}
-            <p className="text-xs text-muted-foreground mt-auto">Nhấn để lật thẻ</p>
+            <p className="text-xs text-muted-foreground mt-auto">{t("Common.tapToFlip")}</p>
           </div>
 
-          <div className="absolute inset-0 border rounded-2xl p-8 flex flex-col items-center gap-3 shadow-sm bg-background overflow-y-auto" style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
-            <span className="text-2xl font-semibold text-center">{current.word}</span>
-            {current.senses.map((s, i) => (
-              <div key={i} className="w-full text-center text-sm space-y-1 border-t border-border/50 pt-2 first:border-0 first:pt-0">
-                {s.partOfSpeech && <span className="text-xs text-muted-foreground uppercase font-medium">{s.partOfSpeech}</span>}
-                {s.meaningVi && <p className="font-medium">{s.meaningVi}</p>}
-                {s.cambridgeMeaning && <p className="text-muted-foreground italic">{s.cambridgeMeaning}</p>}
-                {s.example && <p className="text-xs text-muted-foreground">&quot;{s.example}&quot;</p>}
-                {(s.synonyms || s.antonyms) && (
-                  <p className="text-xs text-muted-foreground">
-                    {s.synonyms && <>Đồng nghĩa: {s.synonyms} </>}
-                    {s.antonyms && <>Trái nghĩa: {s.antonyms}</>}
-                  </p>
-                )}
-              </div>
-            ))}
+          <div className="absolute inset-0 border rounded-2xl p-4 sm:p-6 flex flex-col gap-3 shadow-sm bg-background overflow-y-auto" style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
+            <div className="flex items-center gap-2">
+              <span className="text-2xl font-semibold">{current.word}</span>
+              <PronounceButton word={current.word} audioUrl={audioUrl} size="md" />
+            </div>
+            <WordSenseList senses={current.senses} />
+            <RelatedWordChips relatedWords={currentWord?.relatedWords ?? ""} allWords={words} />
           </div>
         </div>
       </div>
@@ -215,16 +234,16 @@ export function FlashcardTab() {
       {(phase === "front" || phase === "back") && (
         <div className="grid grid-cols-4 gap-2 w-full">
           <Button onClick={() => grade(0)} className="bg-red-500 hover:bg-red-600 text-white text-xs py-3 h-auto">
-            <span className="font-semibold">Lại</span>
+            <span className="font-semibold">{t("Review.again")}</span>
           </Button>
           <Button onClick={() => grade(1)} className="bg-orange-500 hover:bg-orange-600 text-white text-xs py-3 h-auto">
-            <span className="font-semibold">Khó</span>
+            <span className="font-semibold">{t("Review.hard")}</span>
           </Button>
           <Button onClick={() => grade(2)} className="bg-green-600 hover:bg-green-700 text-white text-xs py-3 h-auto">
-            <span className="font-semibold">Tốt</span>
+            <span className="font-semibold">{t("Review.good")}</span>
           </Button>
           <Button onClick={() => grade(3)} className="bg-blue-500 hover:bg-blue-600 text-white text-xs py-3 h-auto">
-            <span className="font-semibold">Dễ</span>
+            <span className="font-semibold">{t("Review.easy")}</span>
           </Button>
         </div>
       )}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/src/components/ui/Button";
 import { Input } from "@/src/components/ui/Input";
 import { Textarea } from "@/src/components/ui/Textarea";
@@ -11,6 +12,7 @@ import { useEnglishStudy } from "@/src/context/english";
 import { PronounceButton } from "./PronounceButton";
 import type { CambridgeCrawlData } from "./crawlData";
 import { compressImage, imageUrl, uploadImage, type PendingImage } from "./imageUpload";
+import { ImageThumb, RelatedWordChips, WordSenseList, parseRelatedWords } from "./WordSenseDetail";
 
 interface EditWordModalProps {
   open: boolean;
@@ -21,13 +23,6 @@ interface EditWordModalProps {
   startInEditMode?: boolean;
   /** Called when the user clicks a related-word chip; parent should swap in that word and keep the modal open. */
   onOpenWord?: (id: number) => void;
-}
-
-function parseRelatedWords(text: string): string[] {
-  return text
-    .split(",")
-    .map((w) => w.trim())
-    .filter(Boolean);
 }
 
 // Suggests other words in the library that likely share a root with `wordText`
@@ -51,27 +46,6 @@ function suggestRelatedWords(wordText: string, allWords: EnglishWord[], excludeI
     }
   }
   return results.slice(0, 5);
-}
-
-const POS_ABBREV: Record<string, string> = {
-  noun: "n",
-  verb: "v",
-  adjective: "adj",
-  adverb: "adv",
-  preposition: "prep",
-  pronoun: "pron",
-  conjunction: "conj",
-  interjection: "interj",
-  phrase: "phr",
-  idiom: "idiom",
-  "phrasal verb": "phr.v",
-  collocation: "coll",
-};
-
-function abbreviatePos(pos?: string): string {
-  if (!pos) return "";
-  const key = pos.trim().toLowerCase();
-  return POS_ABBREV[key] ?? key;
 }
 
 function toSenseInput(s: EnglishSense) {
@@ -166,25 +140,8 @@ function hasContent(s: SenseDraft): boolean {
   return [s.phonetic, s.partOfSpeech, s.cambridgeMeaning, s.meaningVi, s.example, s.synonyms, s.antonyms, s.note].some((v) => v?.trim());
 }
 
-function ImageThumb({ src, onRemove }: { src: string; onRemove?: () => void }) {
-  return (
-    <div className="relative w-20 h-20 shrink-0">
-      <a href={src} target="_blank" rel="noreferrer">
-        <img src={src} alt="" className="w-full h-full object-cover rounded-md border border-border" />
-      </a>
-      {onRemove && (
-        <button
-          onClick={onRemove}
-          className="absolute -top-1.5 -right-1.5 rounded-full bg-background border border-border p-0.5 text-muted-foreground hover:text-destructive"
-        >
-          <X className="w-3 h-3" />
-        </button>
-      )}
-    </div>
-  );
-}
-
 export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, onOpenWord }: EditWordModalProps) {
+  const t = useTranslations("English");
   const { refetchWords, words: allWords } = useEnglishStudy();
   const [mode, setMode] = useState<"view" | "edit">(word ? "view" : "edit");
   const [wordText, setWordText] = useState("");
@@ -216,8 +173,26 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
     setSenses((prev) => prev.map((s, idx) => (idx === i ? { ...s, ...patch } : s)));
   }
 
-  function addSense() {
-    setSenses((prev) => [...prev, { ...emptySense }]);
+  async function loadDict(): Promise<CambridgeCrawlData | null> {
+    if (crawlData) return crawlData;
+    if (!wordText.trim()) return null;
+    const params = new URLSearchParams();
+    if (word) params.set("wordId", String(word.id));
+    else params.set("word", wordText.trim());
+    const res = await fetch(`/api/english/crawl?${params.toString()}`);
+    const data = (await res.json()) as { crawlData?: CambridgeCrawlData; error?: string };
+    if (data.crawlData) setCrawlData(data.crawlData);
+    return data.crawlData ?? null;
+  }
+
+  async function addSense() {
+    const known = senses.find((s) => s.phonetic?.trim())?.phonetic ?? "";
+    setSenses((prev) => [...prev, { ...emptySense, phonetic: known }]);
+    if (known) return;
+    try {
+      const ipa = (await loadDict())?.pronunciations?.find((p) => p.ipa)?.ipa;
+      if (ipa) setSenses((prev) => prev.map((s) => (s.phonetic ? s : { ...s, phonetic: ipa })));
+    } catch {}
   }
 
   function removeSense(i: number) {
@@ -250,18 +225,7 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
     const needsPos = !(senses[0].partOfSpeech ?? "").trim();
     if (!needsPhonetic && !needsPos) return;
     try {
-      let dict = crawlData;
-      if (!dict) {
-        const params = new URLSearchParams();
-        if (word) params.set("wordId", String(word.id));
-        else params.set("word", wordText.trim());
-        const res = await fetch(`/api/english/crawl?${params.toString()}`);
-        const data = (await res.json()) as { crawlData?: CambridgeCrawlData; error?: string };
-        if (data.crawlData) {
-          dict = data.crawlData;
-          setCrawlData(data.crawlData);
-        }
-      }
+      const dict = await loadDict();
       const ipa = dict?.pronunciations?.find((p) => p.ipa)?.ipa;
       const partOfSpeech = dict?.senses?.[0]?.partOfSpeech;
       setSenses((prev) =>
@@ -284,18 +248,7 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
     if (!wordText.trim()) return;
     setAutoFilling(true);
     try {
-      let dict = crawlData;
-      if (!dict) {
-        const params = new URLSearchParams();
-        if (word) params.set("wordId", String(word.id));
-        else params.set("word", wordText.trim());
-        const res = await fetch(`/api/english/crawl?${params.toString()}`);
-        const data = (await res.json()) as { crawlData?: CambridgeCrawlData; error?: string };
-        if (data.crawlData) {
-          dict = data.crawlData;
-          setCrawlData(data.crawlData);
-        }
-      }
+      const dict = await loadDict();
 
       const synonymsText = (dict?.synonyms ?? []).slice(0, 6).join(", ");
       const antonymsText = (dict?.antonyms ?? []).slice(0, 6).join(", ");
@@ -352,7 +305,7 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
           }))
         );
       } catch {
-        setSaveError("Không upload được ảnh. Thử lại sau.");
+        setSaveError(t("EditWord.uploadError"));
         return;
       }
       const payload = {
@@ -416,13 +369,13 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
         <DialogHeader>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pr-6">
             <DialogTitle className="flex items-center gap-2 min-w-0">
-              <span className="truncate">{mode === "edit" ? (word ? "Sửa từ" : "Thêm từ mới") : wordText}</span>
+              <span className="truncate">{mode === "edit" ? (word ? t("EditWord.editTitle") : t("EditWord.addTitle")) : wordText}</span>
               {mode === "view" && word && <PronounceButton word={wordText} audioUrl={audioUrl} />}
             </DialogTitle>
             {mode === "view" && word && (
               <div className="flex items-center gap-1 shrink-0">
                 <Button variant="outline" size="sm" onClick={() => setMode("edit")}>
-                  <Pencil className="w-3.5 h-3.5 mr-1" /> Sửa
+                  <Pencil className="w-3.5 h-3.5 mr-1" /> {t("EditWord.edit")}
                 </Button>
                 {onDelete && (
                   <Button
@@ -433,7 +386,7 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
                       onClose();
                     }}
                   >
-                    <Trash2 className="w-3.5 h-3.5 mr-1" /> Xoá
+                    <Trash2 className="w-3.5 h-3.5 mr-1" /> {t("EditWord.delete")}
                   </Button>
                 )}
               </div>
@@ -444,65 +397,13 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
         <div className="flex-1 min-h-0 overflow-y-auto space-y-4 py-2 pr-1">
           {mode === "view" && word ? (
             <div className="space-y-4">
-              {senses.length === 0 ? (
-                <p className="text-sm text-muted-foreground italic">Chưa có nghĩa nào.</p>
-              ) : (
-                senses.map((s, i) => (
-                  <div key={i} className="rounded-lg border border-border p-3 space-y-1.5">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      {s.partOfSpeech && (
-                        <span className="inline-block px-1.5 py-0.5 rounded bg-muted text-[10px] font-medium uppercase text-muted-foreground">
-                          {s.partOfSpeech}
-                        </span>
-                      )}
-                      {s.phonetic && <span className="text-xs text-muted-foreground">/{s.phonetic}/</span>}
-                    </div>
-                    {s.meaningVi && <p className="text-sm font-medium">{s.meaningVi}</p>}
-                    {s.cambridgeMeaning && <p className="text-sm text-muted-foreground italic">{s.cambridgeMeaning}</p>}
-                    {s.example && <p className="text-xs text-muted-foreground">&quot;{s.example}&quot;</p>}
-                    {(s.synonyms || s.antonyms) && (
-                      <p className="text-xs text-muted-foreground">
-                        {s.synonyms && <>Đồng nghĩa: {s.synonyms} </>}
-                        {s.antonyms && <>Trái nghĩa: {s.antonyms}</>}
-                      </p>
-                    )}
-                    {s.note && <p className="text-xs whitespace-pre-line border-t border-border pt-1.5">{s.note}</p>}
-                    {(s.images?.length ?? 0) > 0 && (
-                      <div className="flex flex-wrap gap-2 pt-1">
-                        {s.images!.map((key) => <ImageThumb key={key} src={imageUrl(key)} />)}
-                      </div>
-                    )}
-                  </div>
-                ))
-              )}
-              {parseRelatedWords(relatedWordsText).length > 0 && (
-                <div className="flex flex-wrap items-center gap-1.5">
-                  <span className="text-xs text-muted-foreground">Từ liên quan:</span>
-                  {parseRelatedWords(relatedWordsText).map((rw) => {
-                    const match = allWords.find((w) => w.word.toLowerCase() === rw.toLowerCase());
-                    const pos = abbreviatePos(match?.senses[0]?.partOfSpeech);
-                    return match ? (
-                      <button
-                        key={rw}
-                        onClick={() => onOpenWord?.(match.id)}
-                        className="px-2 py-0.5 rounded-full bg-muted text-xs hover:bg-accent hover:text-accent-foreground transition-colors"
-                      >
-                        {rw}
-                        {pos && <span className="text-muted-foreground"> ({pos})</span>}
-                      </button>
-                    ) : (
-                      <span key={rw} className="px-2 py-0.5 rounded-full bg-muted/50 text-xs text-muted-foreground italic">
-                        {rw}
-                      </span>
-                    );
-                  })}
-                </div>
-              )}
+              <WordSenseList senses={senses} />
+              <RelatedWordChips relatedWords={relatedWordsText} allWords={allWords} onOpenWord={onOpenWord ?? (() => {})} />
             </div>
           ) : (
             <>
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Từ / cụm từ</label>
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t("EditWord.word")}</label>
                 <Input
                   value={wordText}
                   onChange={(e) => setWordText(e.target.value)}
@@ -513,7 +414,7 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
               </div>
 
               <div className="space-y-3">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Nghĩa</p>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t("EditWord.senses")}</p>
                 {senses.map((s, i) => (
                   <div key={i} className="rounded-lg border border-border p-3 space-y-2 relative">
                     {senses.length > 1 && (
@@ -525,17 +426,17 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
                       </button>
                     )}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      <Input placeholder="Phiên âm (IPA)" value={s.phonetic ?? ""} onChange={(e) => updateSense(i, { phonetic: e.target.value })} />
-                      <Input placeholder="Loại từ (noun, verb...)" value={s.partOfSpeech ?? ""} onChange={(e) => updateSense(i, { partOfSpeech: e.target.value })} />
+                      <Input placeholder={t("EditWord.phonetic")} value={s.phonetic ?? ""} onChange={(e) => updateSense(i, { phonetic: e.target.value })} />
+                      <Input placeholder={t("EditWord.partOfSpeech")} value={s.partOfSpeech ?? ""} onChange={(e) => updateSense(i, { partOfSpeech: e.target.value })} />
                     </div>
-                    <Textarea placeholder="Nghĩa Cambridge (tiếng Anh)" value={s.cambridgeMeaning ?? ""} onChange={(e) => updateSense(i, { cambridgeMeaning: e.target.value })} rows={2} />
-                    <Textarea placeholder="Nghĩa tiếng Việt" value={s.meaningVi ?? ""} onChange={(e) => updateSense(i, { meaningVi: e.target.value })} rows={2} />
-                    <Textarea placeholder="Ví dụ" value={s.example ?? ""} onChange={(e) => updateSense(i, { example: e.target.value })} rows={2} />
+                    <Textarea placeholder={t("EditWord.cambridgeMeaning")} value={s.cambridgeMeaning ?? ""} onChange={(e) => updateSense(i, { cambridgeMeaning: e.target.value })} rows={2} />
+                    <Textarea placeholder={t("EditWord.meaningVi")} value={s.meaningVi ?? ""} onChange={(e) => updateSense(i, { meaningVi: e.target.value })} rows={2} />
+                    <Textarea placeholder={t("EditWord.example")} value={s.example ?? ""} onChange={(e) => updateSense(i, { example: e.target.value })} rows={2} />
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      <Input placeholder="Từ đồng nghĩa (phân cách bởi dấu phẩy)" value={s.synonyms ?? ""} onChange={(e) => updateSense(i, { synonyms: e.target.value })} />
-                      <Input placeholder="Từ trái nghĩa (phân cách bởi dấu phẩy)" value={s.antonyms ?? ""} onChange={(e) => updateSense(i, { antonyms: e.target.value })} />
+                      <Input placeholder={t("EditWord.synonyms")} value={s.synonyms ?? ""} onChange={(e) => updateSense(i, { synonyms: e.target.value })} />
+                      <Input placeholder={t("EditWord.antonyms")} value={s.antonyms ?? ""} onChange={(e) => updateSense(i, { antonyms: e.target.value })} />
                     </div>
-                    <Textarea placeholder="Ghi chú" value={s.note ?? ""} onChange={(e) => updateSense(i, { note: e.target.value })} rows={2} />
+                    <Textarea placeholder={t("EditWord.note")} value={s.note ?? ""} onChange={(e) => updateSense(i, { note: e.target.value })} rows={2} />
                     <div className="flex flex-wrap gap-2">
                       {(s.images ?? []).map((key) => (
                         <ImageThumb key={key} src={imageUrl(key)} onRemove={() => updateSense(i, { images: s.images?.filter((k) => k !== key) })} />
@@ -545,7 +446,7 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
                       ))}
                       <label className="w-20 h-20 shrink-0 rounded-md border border-dashed border-border flex flex-col items-center justify-center gap-1 text-xs text-muted-foreground cursor-pointer hover:bg-accent hover:text-accent-foreground transition-colors">
                         <ImagePlus className="w-4 h-4" />
-                        Thêm ảnh
+                        {t("EditWord.addImage")}
                         <input
                           type="file"
                           accept="image/*"
@@ -562,17 +463,17 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
                 ))}
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm" onClick={addSense}>
-                    <Plus className="w-3.5 h-3.5 mr-1" /> Thêm nghĩa
+                    <Plus className="w-3.5 h-3.5 mr-1" /> {t("EditWord.addSense")}
                   </Button>
                   <Button variant="outline" size="sm" onClick={handleAutoFillAll} disabled={autoFilling || !wordText.trim()}>
                     <RefreshCw className={`w-3.5 h-3.5 mr-1 ${autoFilling ? "animate-spin" : ""}`} />
-                    {autoFilling ? "Đang điền..." : "Tự động điền còn thiếu"}
+                    {autoFilling ? t("EditWord.autoFilling") : t("Common.autoFill")}
                   </Button>
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Từ liên quan (phân cách bởi dấu phẩy)</label>
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t("EditWord.relatedWords")}</label>
                 <Input
                   value={relatedWordsText}
                   onChange={(e) => setRelatedWordsText(e.target.value)}
@@ -584,7 +485,7 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
                   if (suggestions.length === 0) return null;
                   return (
                     <div className="flex flex-wrap items-center gap-1.5">
-                      <span className="text-xs text-muted-foreground">Gợi ý:</span>
+                      <span className="text-xs text-muted-foreground">{t("EditWord.suggestions")}</span>
                       {suggestions.map((s) => (
                         <button
                           key={s}
@@ -607,13 +508,13 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
 
         <DialogFooter>
           {mode === "view" ? (
-            <Button variant="ghost" onClick={onClose}>Đóng</Button>
+            <Button variant="ghost" onClick={onClose}>{t("Common.close")}</Button>
           ) : (
             <>
               {saveError && <p className="text-xs text-destructive self-center mr-auto">{saveError}</p>}
-              <Button variant="ghost" onClick={handleCancelEdit}>Huỷ</Button>
+              <Button variant="ghost" onClick={handleCancelEdit}>{t("Common.cancel")}</Button>
               <Button onClick={handleSave} disabled={saving || !wordText.trim()}>
-                {saving ? "Đang lưu..." : "Lưu"}
+                {saving ? t("Common.saving") : t("Common.save")}
               </Button>
             </>
           )}

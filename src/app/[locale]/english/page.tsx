@@ -13,8 +13,10 @@ import {
 } from '@/src/components/ui/Tabs'
 import { BookOpen, RotateCcw, FolderOpen, Upload, Sparkles } from 'lucide-react'
 import { EnglishProvider } from '@/src/context/english'
+import { useTranslations } from 'next-intl'
 
 export default function Page() {
+  const t = useTranslations('English.Tabs')
   return (
     <EnglishProvider>
       <Tabs defaultValue="study" className="space-y-6">
@@ -22,23 +24,23 @@ export default function Page() {
           <TabsList className="w-max sm:w-fit">
             <TabsTrigger value="study" className="flex items-center gap-2 whitespace-nowrap">
               <BookOpen className="h-4 w-4" />
-              Học từ
+              {t('study')}
             </TabsTrigger>
             <TabsTrigger value="groups" className="flex items-center gap-2 whitespace-nowrap">
               <FolderOpen className="h-4 w-4" />
-              Nhóm từ
+              {t('groups')}
             </TabsTrigger>
             <TabsTrigger value="review" className="flex items-center gap-2 whitespace-nowrap">
               <RotateCcw className="h-4 w-4" />
-              Ôn tập
+              {t('review')}
             </TabsTrigger>
             <TabsTrigger value="import" className="flex items-center gap-2 whitespace-nowrap">
               <Upload className="h-4 w-4" />
-              Import
+              {t('import')}
             </TabsTrigger>
             <TabsTrigger value="gacha" className="flex items-center gap-2 whitespace-nowrap">
               <Sparkles className="h-4 w-4" />
-              Gacha
+              {t('gacha')}
             </TabsTrigger>
           </TabsList>
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/src/components/ui/Button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/src/components/ui/Dialog";
 import { Sparkles, BookMarked, Repeat, Ticket } from "lucide-react";
@@ -16,22 +17,23 @@ const EXCHANGE_COST = 5;
 
 type View = "gacha" | "dex";
 
-function resultMessage(result: GachaPullResult): string {
+function resultMessage(result: GachaPullResult, t: ReturnType<typeof useTranslations>): string {
   switch (result.type) {
     case "new":
-      return `Mới! Bạn đã bắt được ${result.species.name}!`;
+      return t("Gacha.newCatch", { name: result.species.name });
     case "dup":
-      return `Trùng ${result.species.name}! Tiến độ tiến hóa: ${result.progress}/${result.needed}.`;
+      return t("Gacha.duplicate", { name: result.species.name, progress: result.progress, needed: result.needed });
     case "evolve":
-      return `Tiến hóa thành công! Chào mừng ${result.species.name}!`;
+      return t("Gacha.evolved", { name: result.species.name });
     case "maxed":
-      return `Trùng ${result.species.name} (đã tiến hóa tối đa).`;
+      return t("Gacha.duplicateMax", { name: result.species.name });
     case "choose_evolution":
-      return "Pokémon của bạn có thể tiến hóa theo nhiều hướng. Hãy chọn một:";
+      return t("Gacha.chooseBranch");
   }
 }
 
 export function GachaTab() {
+  const t = useTranslations("English");
   const [view, setView] = useState<View>("gacha");
   const [tickets, setTickets] = useState<number | null>(null);
   const [exchangeTickets, setExchangeTickets] = useState<number | null>(null);
@@ -69,12 +71,12 @@ export function GachaTab() {
     setChoice(null);
     setRevealedSpecies(null);
     setPullId((id) => id + 1);
-    setMessage("Đang mở Poké Ball...");
+    setMessage(t("Gacha.opening"));
 
     try {
       const res = await fetch("/api/english/gacha/pull", { method: "POST" });
       if (!res.ok) {
-        setMessage("Không còn vé để quay.");
+        setMessage(t("Gacha.noTickets"));
         return;
       }
       const data = (await res.json()) as { result: GachaPullResult };
@@ -89,7 +91,7 @@ export function GachaTab() {
   function reveal(result: GachaPullResult) {
     if (result.type === "choose_evolution") {
       setChoice({ chainKey: result.chainKey, options: result.options, source: "pull" });
-      setMessage(resultMessage(result));
+      setMessage(resultMessage(result, t));
       return;
     }
     if (result.type === "maxed") {
@@ -97,7 +99,7 @@ export function GachaTab() {
       setTimeout(() => setExchangeTicketToast(false), 1800);
     }
     setRevealedSpecies(result.species);
-    setMessage(resultMessage(result));
+    setMessage(resultMessage(result, t));
   }
 
   async function chooseEvolution(chainKey: string, speciesId: number) {
@@ -110,7 +112,7 @@ export function GachaTab() {
     if (!res.ok) return;
     const data = (await res.json()) as { species: PokemonSpecies };
     setChoice(null);
-    const evolveMessage = `Tiến hóa thành công! Chào mừng ${data.species.name}!`;
+    const evolveMessage = t("Gacha.evolved", { name: data.species.name });
     if (source === "exchange") {
       setExchangeResult({ species: data.species, message: evolveMessage });
     } else {
@@ -135,7 +137,7 @@ export function GachaTab() {
       if (data.result.type === "choose_evolution") {
         setChoice({ chainKey: data.result.chainKey, options: data.result.options, source: "exchange" });
       } else {
-        setExchangeResult({ species: data.result.species, message: resultMessage(data.result) });
+        setExchangeResult({ species: data.result.species, message: resultMessage(data.result, t) });
       }
       void load();
     } finally {
@@ -149,9 +151,9 @@ export function GachaTab() {
     return (
       <div className="max-w-4xl mx-auto py-6 px-4 space-y-4">
         <Button variant="outline" size="sm" onClick={() => setView("gacha")}>
-          ← Quay lại Gacha
+          {t("Gacha.back")}
         </Button>
-        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
           {collection.map((entry) => {
             const { progress } = entry;
             const discovered = progress.stage > 0 && progress.currentId !== null;
@@ -168,16 +170,16 @@ export function GachaTab() {
               >
                 {discovered && progress.currentId ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={POKE_SPRITE_URL(progress.currentId)} alt={name} width={64} height={64} style={{ imageRendering: "pixelated" }} />
+                  <img src={POKE_SPRITE_URL(progress.currentId)} alt={name} width={128} height={128} style={{ imageRendering: "pixelated" }} />
                 ) : (
-                  <div className="w-16 h-16 flex items-center justify-center text-lg font-bold text-muted-foreground">?</div>
+                  <div className="w-32 h-32 flex items-center justify-center text-3xl font-bold text-muted-foreground">?</div>
                 )}
                 <span className="text-xs font-medium truncate w-full">{name}</span>
                 {needed !== null && (
                   <span className="text-[10px] text-muted-foreground">{progress.dup}/{needed}</span>
                 )}
                 {progress.stage > 0 && progress.stage >= entry.chain.length && (
-                  <span className="text-[10px] text-muted-foreground">Tối đa</span>
+                  <span className="text-[10px] text-muted-foreground">{t("Gacha.max")}</span>
                 )}
               </button>
             );
@@ -185,7 +187,7 @@ export function GachaTab() {
         </div>
 
         <Dialog open={detailEntry !== null} onOpenChange={(open) => !open && setDetailChainKey(null)}>
-          <DialogContent className="max-w-sm">
+          <DialogContent className="max-w-md">
             {detailEntry && (() => {
               const { progress, chain } = detailEntry;
               const discovered = progress.stage > 0 && progress.currentId !== null;
@@ -201,21 +203,21 @@ export function GachaTab() {
                   <div className="flex flex-col items-center gap-3">
                     {discovered && progress.currentId ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={POKE_SPRITE_URL(progress.currentId)} alt={name} width={96} height={96} style={{ imageRendering: "pixelated" }} />
+                      <img src={POKE_SPRITE_URL(progress.currentId)} alt={name} width={192} height={192} style={{ imageRendering: "pixelated" }} />
                     ) : (
-                      <div className="w-24 h-24 flex items-center justify-center text-3xl font-bold text-muted-foreground">?</div>
+                      <div className="w-48 h-48 flex items-center justify-center text-5xl font-bold text-muted-foreground">?</div>
                     )}
 
                     <p className="text-sm text-muted-foreground">
                       {needed !== null
-                        ? `Số mảnh đang có: ${progress.dup}/${needed}`
+                        ? t("Gacha.shards", { count: progress.dup, needed })
                         : discovered
-                        ? "Đã tiến hóa tối đa"
-                        : "Chưa bắt được"}
+                        ? t("Gacha.fullyEvolved")
+                        : t("Gacha.notCaught")}
                     </p>
 
                     <div className="w-full">
-                      <p className="text-xs font-medium text-muted-foreground mb-2 text-center">Quá trình tiến hóa</p>
+                      <p className="text-xs font-medium text-muted-foreground mb-2 text-center">{t("Gacha.evolutionChain")}</p>
                       <div className="flex items-center justify-center gap-2 flex-wrap">
                         {chain.map((stageOptions, stageIdx) => {
                           const stageNumber = stageIdx + 1;
@@ -229,9 +231,9 @@ export function GachaTab() {
                               <div className="flex flex-col items-center gap-1">
                                 {unlocked && species ? (
                                   // eslint-disable-next-line @next/next/no-img-element
-                                  <img src={POKE_SPRITE_URL(species.id)} alt={species.name} width={48} height={48} style={{ imageRendering: "pixelated" }} />
+                                  <img src={POKE_SPRITE_URL(species.id)} alt={species.name} width={96} height={96} style={{ imageRendering: "pixelated" }} />
                                 ) : (
-                                  <div className="w-12 h-12 flex items-center justify-center text-xl font-bold text-muted-foreground">?</div>
+                                  <div className="w-24 h-24 flex items-center justify-center text-3xl font-bold text-muted-foreground">?</div>
                                 )}
                                 <span className="text-[10px] text-muted-foreground">
                                   {unlocked && species ? species.name : "???"}
@@ -257,15 +259,15 @@ export function GachaTab() {
       {exchangeTicketToast && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1.5 bg-primary text-primary-foreground text-sm font-medium px-3 py-1.5 rounded-full shadow-lg animate-in fade-in slide-in-from-top-2">
           <Ticket className="h-4 w-4" />
-          +1 vé đổi!
+          {t("Gacha.plusExchange")}
         </div>
       )}
       <div className="text-lg font-medium flex items-center gap-4">
-        <span>🎟️ Vé Gacha: <span className="font-semibold">{loading ? "…" : tickets}</span></span>
-        <span>🔄 Vé đổi: <span className="font-semibold">{loading ? "…" : exchangeTickets}</span></span>
+        <span>{t("Gacha.tickets")} <span className="font-semibold">{loading ? "…" : tickets}</span></span>
+        <span>{t("Gacha.exchangeTickets")} <span className="font-semibold">{loading ? "…" : exchangeTickets}</span></span>
       </div>
       <p className="text-xs text-muted-foreground text-center -mt-4">
-        Ôn thẻ đạt mức &quot;Tốt&quot; hoặc &quot;Dễ&quot; lần đầu để nhận vé. Quay trúng Pokémon đã tiến hóa tối đa sẽ nhận 1 vé đổi — {EXCHANGE_COST} vé đổi lấy 1 mảnh Pokémon tùy chọn.
+        {t("Gacha.info", { cost: EXCHANGE_COST })}
       </p>
 
       <div className="w-full min-h-[200px] rounded-2xl flex flex-col items-center justify-center gap-3 p-6 bg-background">
@@ -303,7 +305,7 @@ export function GachaTab() {
               />
             )}
             <p className="text-sm text-center text-muted-foreground">
-              {message ?? 'Nhấn "Quay Gacha" để dùng 1 vé.'}
+              {message ?? t("Gacha.idle")}
             </p>
           </>
         )}
@@ -312,7 +314,7 @@ export function GachaTab() {
       <div className="flex gap-3 flex-wrap justify-center">
         <Button onClick={() => void doPull()} disabled={pulling || !tickets || tickets <= 0}>
           <Sparkles className="h-4 w-4" />
-          Quay Gacha (1 vé)
+          {t("Gacha.spin")}
         </Button>
         <Button variant="outline" onClick={() => setView("dex")}>
           <BookMarked className="h-4 w-4" />
@@ -324,22 +326,22 @@ export function GachaTab() {
           disabled={!exchangeTickets || exchangeTickets < EXCHANGE_COST}
         >
           <Repeat className="h-4 w-4" />
-          Đổi mảnh ({EXCHANGE_COST} vé đổi)
+          {t("Gacha.exchange", { cost: EXCHANGE_COST })}
         </Button>
       </div>
 
       <Dialog open={exchangeOpen} onOpenChange={(open) => { setExchangeOpen(open); if (!open) { setChoice(null); setExchangeResult(null); } }}>
         <DialogContent className="max-w-sm max-h-[80dvh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Đổi mảnh Pokémon</DialogTitle>
+            <DialogTitle>{t("Gacha.exchangeTitle")}</DialogTitle>
           </DialogHeader>
           <p className="text-xs text-muted-foreground -mt-2">
-            Vé đổi hiện có: <span className="font-semibold">{exchangeTickets}</span>. Mỗi lần đổi tốn {EXCHANGE_COST} vé.
+            {t.rich("Gacha.exchangeBalance", { count: exchangeTickets ?? 0, cost: EXCHANGE_COST, b: (chunks) => <span className="font-semibold">{chunks}</span> })}
           </p>
 
           {choice && choice.source === "exchange" ? (
             <div className="flex flex-col items-center gap-3">
-              <p className="text-sm text-center">Pokémon của bạn có thể tiến hóa theo nhiều hướng. Hãy chọn một:</p>
+              <p className="text-sm text-center">{t("Gacha.chooseBranch")}</p>
               <div className="flex gap-4 justify-center flex-wrap">
                 {choice.options.map((opt) => (
                   <button
@@ -360,7 +362,7 @@ export function GachaTab() {
               <img src={POKE_SPRITE_URL(exchangeResult.species.id)} alt={exchangeResult.species.name} width={96} height={96} style={{ imageRendering: "pixelated" }} />
               <p className="text-sm text-center">{exchangeResult.message}</p>
               <Button size="sm" variant="outline" onClick={() => setExchangeResult(null)}>
-                Đổi tiếp
+                {t("Gacha.exchangeAgain")}
               </Button>
             </div>
           ) : (
@@ -387,7 +389,7 @@ export function GachaTab() {
                 })}
               {collection.every((entry) => !(entry.progress.stage > 0 && entry.progress.stage < entry.chain.length)) && (
                 <p className="col-span-4 text-sm text-center text-muted-foreground py-4">
-                  Chưa có Pokémon nào có thể tích thêm mảnh.
+                  {t("Gacha.noExchangeTargets")}
                 </p>
               )}
             </div>

@@ -5,9 +5,10 @@ import { useState, useCallback, useEffect } from "react";
 export interface FlashcardSettings {
   maxReviews: number; // 0 = unlimited
   order: "due" | "random";
+  autoPronounce: boolean;
 }
 
-const DEFAULT_SETTINGS: FlashcardSettings = { maxReviews: 20, order: "due" };
+const DEFAULT_SETTINGS: FlashcardSettings = { maxReviews: 20, order: "due", autoPronounce: false };
 const STORAGE_KEY = "english-flashcard-settings";
 const API_URL = "/api/english/flashcard/settings";
 

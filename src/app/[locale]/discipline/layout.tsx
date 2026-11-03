@@ -1,5 +1,5 @@
-import { RequireAuth } from '@/src/components/auth/RequireAuth'
+import { notFound } from 'next/navigation'
 
-export default function Layout({ children }: { children: React.ReactNode }) {
-  return <RequireAuth>{children}</RequireAuth>
+export default function Layout() {
+  notFound()
 }

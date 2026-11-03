@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/src/components/ui/Button";
 import { Input } from "@/src/components/ui/Input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/src/components/ui/Dialog";
@@ -17,6 +18,7 @@ interface CreateGroupDialogProps {
 }
 
 function CreateGroupDialog({ open, initial, onClose, onSave }: CreateGroupDialogProps) {
+  const t = useTranslations("English");
   const [name, setName] = useState(initial ?? "");
 
   useEffect(() => {
@@ -34,21 +36,21 @@ function CreateGroupDialog({ open, initial, onClose, onSave }: CreateGroupDialog
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-xs">
         <DialogHeader>
-          <DialogTitle>{initial ? "Đổi tên nhóm" : "Tạo nhóm mới"}</DialogTitle>
+          <DialogTitle>{initial ? t("Groups.rename") : t("Groups.create")}</DialogTitle>
         </DialogHeader>
         <div className="py-2 space-y-1.5">
-          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Tên nhóm</label>
+          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t("Groups.name")}</label>
           <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSave()}
-            placeholder="vd: Từ vựng IELTS"
+            placeholder={t("Groups.namePlaceholder")}
             autoFocus
           />
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>Huỷ</Button>
-          <Button onClick={handleSave} disabled={!name.trim()}>{initial ? "Lưu" : "Tạo"}</Button>
+          <Button variant="ghost" onClick={onClose}>{t("Common.cancel")}</Button>
+          <Button onClick={handleSave} disabled={!name.trim()}>{initial ? t("Common.save") : t("Groups.createShort")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -64,6 +66,7 @@ interface AddWordsDialogProps {
 }
 
 function AddWordsDialog({ open, group, allWords, onClose, onAdd }: AddWordsDialogProps) {
+  const t = useTranslations("English");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Set<number>>(new Set());
 
@@ -99,13 +102,13 @@ function AddWordsDialog({ open, group, allWords, onClose, onAdd }: AddWordsDialo
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-lg flex flex-col max-h-[80dvh]">
         <DialogHeader>
-          <DialogTitle>Thêm từ vào nhóm &quot;{group?.name}&quot;</DialogTitle>
+          <DialogTitle>{t("Groups.addWordsTitle", { name: group?.name ?? "" })}</DialogTitle>
         </DialogHeader>
         <div className="flex-1 min-h-0 overflow-y-auto space-y-3 py-2 pr-1">
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Tìm từ..." />
+          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("Common.searchWord")} />
           <div className="space-y-1 max-h-72 overflow-y-auto">
             {candidates.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-4 text-center">Không có từ phù hợp.</p>
+              <p className="text-sm text-muted-foreground py-4 text-center">{t("Groups.noMatch")}</p>
             ) : (
               candidates.map((w) => (
                 <label
@@ -126,9 +129,9 @@ function AddWordsDialog({ open, group, allWords, onClose, onAdd }: AddWordsDialo
           </div>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>Huỷ</Button>
+          <Button variant="ghost" onClick={onClose}>{t("Common.cancel")}</Button>
           <Button onClick={handleAdd} disabled={selected.size === 0}>
-            Thêm {selected.size > 0 ? `(${selected.size})` : ""}
+            {selected.size > 0 ? t("Groups.addCount", { count: selected.size }) : t("Groups.add")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -137,6 +140,7 @@ function AddWordsDialog({ open, group, allWords, onClose, onAdd }: AddWordsDialo
 }
 
 export function GroupTab() {
+  const t = useTranslations("English");
   const { words, groups, loaded, refetchGroups, refetchWords } = useEnglishStudy();
   const [openGroups, setOpenGroups] = useState<Set<number>>(new Set());
   const [createOpen, setCreateOpen] = useState(false);
@@ -201,7 +205,7 @@ export function GroupTab() {
     return (
       <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
         <div className="w-6 h-6 border-2 border-border border-t-foreground rounded-full animate-spin" />
-        <p className="text-sm">Đang tải dữ liệu...</p>
+        <p className="text-sm">{t("Common.loadingData")}</p>
       </div>
     );
   }
@@ -210,12 +214,12 @@ export function GroupTab() {
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <Button size="sm" onClick={() => setCreateOpen(true)}>
-          <Plus className="w-3.5 h-3.5 mr-1" /> Tạo nhóm
+          <Plus className="w-3.5 h-3.5 mr-1" /> {t("Groups.createButton")}
         </Button>
       </div>
 
       {groups.length === 0 ? (
-        <p className="text-center text-muted-foreground py-16">Chưa có nhóm nào. Nhấn &quot;Tạo nhóm&quot; để bắt đầu.</p>
+        <p className="text-center text-muted-foreground py-16">{t("Groups.empty")}</p>
       ) : (
         <div className="space-y-2">
           {groups.map((group) => {
@@ -240,10 +244,10 @@ export function GroupTab() {
                   <div className="ml-auto flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
                     <button
                       className="p-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors text-xs flex items-center gap-1"
-                      title="Thêm từ"
+                      title={t("Common.addWord")}
                       onClick={() => { setActiveGroup(group); setAddOpen(true); }}
                     >
-                      <Plus className="w-3.5 h-3.5 shrink-0" /> <span className="hidden sm:inline">Thêm từ</span>
+                      <Plus className="w-3.5 h-3.5 shrink-0" /> <span className="hidden sm:inline">{t("Common.addWord")}</span>
                     </button>
                     <button
                       className="p-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
@@ -262,7 +266,7 @@ export function GroupTab() {
                 {isOpen && (
                   <div className="p-3">
                     {group.wordIds.length === 0 ? (
-                      <p className="text-sm text-muted-foreground py-4 text-center">Chưa có từ nào. Nhấn &quot;Thêm từ&quot; để thêm.</p>
+                      <p className="text-sm text-muted-foreground py-4 text-center">{t("Groups.emptyWords")}</p>
                     ) : (
                       <div className="flex flex-wrap gap-2">
                         {group.wordIds.map((wid) => {

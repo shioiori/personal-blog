@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { Plus, Search, List, Layers } from "lucide-react";
 import { Button } from "@/src/components/ui/Button";
 import { Input } from "@/src/components/ui/Input";
@@ -20,6 +21,7 @@ import type { EnglishWord } from "@/src/declaration/english";
 type ViewMode = "list" | "flashcard";
 
 export function WordList() {
+  const t = useTranslations("English");
   const { words, groups, loaded, refetchWords } = useEnglishStudy();
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [search, setSearch] = useState("");
@@ -45,7 +47,7 @@ export function WordList() {
     return (
       <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
         <div className="w-6 h-6 border-2 border-border border-t-foreground rounded-full animate-spin" />
-        <p className="text-sm">Đang tải dữ liệu...</p>
+        <p className="text-sm">{t("Common.loadingData")}</p>
       </div>
     );
   }
@@ -58,23 +60,23 @@ export function WordList() {
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Tìm từ..."
+            placeholder={t("Common.searchWord")}
             className="pl-8"
           />
         </div>
         <Select value={groupFilter} onValueChange={setGroupFilter}>
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Tất cả nhóm" />
+            <SelectValue placeholder={t("Words.allGroups")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Tất cả nhóm</SelectItem>
+            <SelectItem value="all">{t("Words.allGroups")}</SelectItem>
             {groups.map((g) => (
               <SelectItem key={g.id} value={String(g.id)}>{g.name}</SelectItem>
             ))}
           </SelectContent>
         </Select>
         <Button size="sm" onClick={() => { setEditingWord(null); setStartInEditMode(true); setModalOpen(true); }}>
-          <Plus className="w-3.5 h-3.5 mr-1" /> Thêm từ
+          <Plus className="w-3.5 h-3.5 mr-1" /> {t("Common.addWord")}
         </Button>
         <div className="flex gap-1 border border-border rounded-md p-0.5">
           <Button
@@ -97,7 +99,7 @@ export function WordList() {
       </div>
 
       {filtered.length === 0 ? (
-        <p className="text-center text-muted-foreground py-16">Chưa có từ nào. Nhấn &quot;Thêm từ&quot; để bắt đầu.</p>
+        <p className="text-center text-muted-foreground py-16">{t("Words.emptyHint")}</p>
       ) : viewMode === "flashcard" ? (
         <WordFlashcardView words={filtered} />
       ) : (

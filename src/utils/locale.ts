@@ -10,6 +10,7 @@ export async function getMessages(locale: string) {
     ...(await import(`../../messages/${locale}/home.json`)).default,
     ...(await import(`../../messages/${locale}/project.json`)).default,
     ...(await import(`../../messages/${locale}/discipline.json`)).default,
-    ...(await import(`../../messages/${locale}/chinese.json`)).default
+    ...(await import(`../../messages/${locale}/chinese.json`)).default,
+    ...(await import(`../../messages/${locale}/english.json`)).default
   }
 }

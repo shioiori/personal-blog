@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/src/components/ui/Chart";
 
@@ -9,19 +10,8 @@ interface ForecastDay {
   count: number;
 }
 
-const WEEKDAYS = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
-
-function labelFor(dateStr: string, index: number): string {
-  if (index === 0) return "Hôm nay";
-  const d = new Date(dateStr + "T00:00:00");
-  return WEEKDAYS[d.getDay()];
-}
-
-const chartConfig = {
-  count: { label: "Số từ cần ôn", color: "hsl(var(--primary))" },
-} satisfies ChartConfig;
-
 export function DueForecastChart() {
+  const t = useTranslations("English");
   const [days, setDays] = useState<ForecastDay[] | null>(null);
 
   useEffect(() => {
@@ -40,20 +30,24 @@ export function DueForecastChart() {
   }, []);
 
   if (days === null) {
-    return <div className="h-40 flex items-center justify-center text-sm text-muted-foreground">Đang tải biểu đồ...</div>;
+    return <div className="h-40 flex items-center justify-center text-sm text-muted-foreground">{t("Chart.loading")}</div>;
   }
 
   const total = days.reduce((sum, d) => sum + d.count, 0);
   if (total === 0) {
     return (
       <div className="h-40 flex items-center justify-center text-sm text-muted-foreground">
-        Không có từ nào cần ôn tập trong 7 ngày tới.
+        {t("Chart.empty")}
       </div>
     );
   }
 
+  const weekdays = t.raw("Chart.weekdays") as string[];
+  const chartConfig = {
+    count: { label: t("Chart.dueCount"), color: "hsl(var(--primary))" },
+  } satisfies ChartConfig;
   const chartData = days.map((d, i) => ({
-    label: labelFor(d.date, i),
+    label: i === 0 ? t("Chart.today") : weekdays[new Date(d.date + "T00:00:00").getDay()],
     count: d.count,
   }));
 

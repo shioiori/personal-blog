@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { useTranslations } from "next-intl";
 import * as XLSX from "xlsx";
 import { Upload, X, Check, Sparkles } from "lucide-react";
 import { Button } from "@/src/components/ui/Button";
@@ -69,6 +70,7 @@ function parseWorkbook(buf: ArrayBuffer): PreviewEntry[] {
 }
 
 export function ImportTab() {
+  const t = useTranslations("English");
   const { groups, refetchAll } = useEnglishStudy();
   const [stage, setStage] = useState<Stage>("idle");
   const [entries, setEntries] = useState<PreviewEntry[]>([]);
@@ -263,16 +265,16 @@ export function ImportTab() {
           <Check className="w-6 h-6 text-green-500" />
         </div>
         <p className="text-sm text-muted-foreground">
-          Đã thêm <span className="font-medium text-foreground">{doneStats.created}</span> từ mới.
+          {t.rich("Import.added", { count: doneStats.created, b: (chunks) => <span className="font-medium text-foreground">{chunks}</span> })}
           {doneStats.overwritten > 0 && (
-            <> Đã ghi đè {doneStats.overwritten} từ đã có.</>
+            <> {t("Import.overwritten", { count: doneStats.overwritten })}</>
           )}
           {doneStats.skipped.length > 0 && (
-            <> Bỏ qua {doneStats.skipped.length} từ đã có: {doneStats.skipped.slice(0, 10).join(", ")}{doneStats.skipped.length > 10 ? "..." : ""}</>
+            <> {t("Import.skipped", { count: doneStats.skipped.length, list: doneStats.skipped.slice(0, 10).join(", ") + (doneStats.skipped.length > 10 ? "..." : "") })}</>
           )}
         </p>
         <button onClick={handleCancel} className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors">
-          Import thêm
+          {t("Import.importMore")}
         </button>
       </div>
     );
@@ -283,8 +285,8 @@ export function ImportTab() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Tìm thấy <span className="font-medium text-foreground">{entries.length}</span> từ
-            {translating && <span className="ml-2 text-xs italic">(đang dịch tự động...)</span>}
+            {t.rich("Import.found", { count: entries.length, b: (chunks) => <span className="font-medium text-foreground">{chunks}</span> })}
+            {translating && <span className="ml-2 text-xs italic">{t("Import.translating")}</span>}
           </p>
           <button onClick={handleCancel} className="text-muted-foreground hover:text-foreground transition-colors">
             <X className="w-4 h-4" />
@@ -297,51 +299,51 @@ export function ImportTab() {
             onChange={(e) => setGroupChoice(e.target.value)}
             className="rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
           >
-            <option value="">Không vào nhóm</option>
+            <option value="">{t("Import.noGroup")}</option>
             {groups.map((g) => (
               <option key={g.id} value={String(g.id)}>{g.name}</option>
             ))}
-            <option value="__new__">+ Tạo nhóm mới...</option>
+            <option value="__new__">{t("Import.newGroup")}</option>
           </select>
           {groupChoice === "__new__" && (
             <Input
               value={newGroupName}
               onChange={(e) => setNewGroupName(e.target.value)}
-              placeholder="Tên nhóm mới"
+              placeholder={t("Import.newGroupName")}
               className="w-56"
             />
           )}
 
           <Button size="sm" variant="outline" onClick={handleAutoFillAll} disabled={autoFilling}>
             <Sparkles className={`w-3.5 h-3.5 mr-1 ${autoFilling ? "animate-pulse" : ""}`} />
-            {autoFilling ? "Đang tự động điền..." : "Tự động điền còn thiếu"}
+            {autoFilling ? t("Import.autoFilling") : t("Common.autoFill")}
           </Button>
 
           <div className="flex items-center gap-1 text-sm">
-            <span className="text-muted-foreground">Nếu từ đã tồn tại:</span>
+            <span className="text-muted-foreground">{t("Import.ifExists")}</span>
             <select
               value={onDuplicate}
               onChange={(e) => setOnDuplicate(e.target.value as "skip" | "overwrite")}
               className="rounded-md border border-input bg-background px-2 py-1.5 text-sm outline-none focus:ring-2 focus:ring-ring"
             >
-              <option value="skip">Bỏ qua</option>
-              <option value="overwrite">Ghi đè nghĩa</option>
+              <option value="skip">{t("Import.skip")}</option>
+              <option value="overwrite">{t("Import.overwrite")}</option>
             </select>
           </div>
         </div>
         <p className="text-xs text-muted-foreground/70">
-          &quot;Tự động điền còn thiếu&quot; lấy phiên âm, ví dụ, từ đồng/trái nghĩa từ từ điển công khai cho các ô còn trống (không ghi đè nếu đã có sẵn).
+          {t("Import.autoFillHint")}
         </p>
 
         <div className="max-h-96 overflow-y-auto rounded-lg border border-border">
           <table className="w-full text-sm">
             <thead className="bg-muted/50 sticky top-0">
               <tr>
-                <th className="text-left px-3 py-2 font-medium">Từ</th>
-                <th className="text-left px-3 py-2 font-medium">Loại từ</th>
-                <th className="text-left px-3 py-2 font-medium">Nghĩa Cambridge</th>
-                <th className="text-left px-3 py-2 font-medium">Nghĩa tiếng Việt</th>
-                <th className="text-left px-3 py-2 font-medium">Tự động điền</th>
+                <th className="text-left px-3 py-2 font-medium">{t("Import.colWord")}</th>
+                <th className="text-left px-3 py-2 font-medium">{t("Import.colPartOfSpeech")}</th>
+                <th className="text-left px-3 py-2 font-medium">{t("Import.colCambridge")}</th>
+                <th className="text-left px-3 py-2 font-medium">{t("Import.colMeaningVi")}</th>
+                <th className="text-left px-3 py-2 font-medium">{t("Import.colAutoFill")}</th>
               </tr>
             </thead>
             <tbody>
@@ -350,8 +352,8 @@ export function ImportTab() {
                   const extra = [
                     s.phonetic && `/${s.phonetic}/`,
                     s.example && `"${s.example}"`,
-                    s.synonyms && `Đồng nghĩa: ${s.synonyms}`,
-                    s.antonyms && `Trái nghĩa: ${s.antonyms}`,
+                    s.synonyms && t("Common.synonyms", { value: s.synonyms }),
+                    s.antonyms && t("Common.antonyms", { value: s.antonyms }),
                   ].filter(Boolean);
                   return (
                     <tr key={`${wi}-${si}`} className="border-t border-border">
@@ -380,9 +382,9 @@ export function ImportTab() {
 
         <div className="flex gap-3">
           <Button onClick={handleConfirm} disabled={saving || entries.length === 0}>
-            {saving ? "Đang lưu..." : "OK – Xác nhận import"}
+            {saving ? t("Common.saving") : t("Import.confirm")}
           </Button>
-          <Button variant="outline" onClick={handleCancel} disabled={saving}>Hủy</Button>
+          <Button variant="outline" onClick={handleCancel} disabled={saving}>{t("Common.cancel")}</Button>
         </div>
       </div>
     );
@@ -391,8 +393,7 @@ export function ImportTab() {
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Tải lên file <code className="text-xs bg-muted px-1 py-0.5 rounded">.xlsx</code> xuất từ Cambridge Dictionary.
-        Các dòng cùng từ sẽ được gộp thành nhiều nghĩa của một từ.
+        {t.rich("Import.uploadHint", { code: (chunks) => <code className="text-xs bg-muted px-1 py-0.5 rounded">{chunks}</code> })}
       </p>
 
       <div
@@ -406,9 +407,7 @@ export function ImportTab() {
       >
         <Upload className="w-8 h-8 text-muted-foreground" />
         <p className="text-sm text-muted-foreground">
-          {stage === "parsing" ? "Đang đọc file..." : (
-            <>Kéo thả file vào đây hoặc <span className="text-primary underline underline-offset-2">chọn file</span></>
-          )}
+          {stage === "parsing" ? t("Import.parsing") : t.rich("Import.dropzone", { link: (chunks) => <span className="text-primary underline underline-offset-2">{chunks}</span> })}
         </p>
         <p className="text-xs text-muted-foreground/60">.xlsx</p>
       </div>

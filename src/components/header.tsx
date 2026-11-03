@@ -47,12 +47,12 @@ export function Header() {
 
   const navigation = [
     { name: t('home'), href: '/' },
-    { name: t('guide'), href: '/guide' },
+    // { name: t('guide'), href: '/guide' },
     // { name: t('aboutme'), href: '/about' },
     // { name: t('blog'), href: '/blog' },
     // { name: t('project'), href: '/projects' },
-    { name: t('music'), href: '/music' },
-    { name: t('discipline'), href: '/discipline' }
+    { name: t('music'), href: '/music' }
+    // { name: t('discipline'), href: '/discipline' }
   ]
 
   const studyNavigation = [

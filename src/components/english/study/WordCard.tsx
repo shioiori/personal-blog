@@ -1,6 +1,7 @@
 "use client";
 
 import { Pencil, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { EnglishWord } from "@/src/declaration/english";
 import { PronounceButton } from "./PronounceButton";
 import { getCrawlAudioUrl } from "./crawlData";
@@ -12,6 +13,7 @@ interface WordCardProps {
 }
 
 export function WordCard({ word, onEdit, onDelete }: WordCardProps) {
+  const t = useTranslations("English");
   const first = word.senses[0];
   return (
     <div className="rounded-lg border border-border bg-card p-3 flex flex-col gap-1 group">
@@ -50,7 +52,7 @@ export function WordCard({ word, onEdit, onDelete }: WordCardProps) {
         <div className="text-xs text-foreground/70 line-clamp-2">{first.cambridgeMeaning}</div>
       )}
       {word.senses.length > 1 && (
-        <span className="text-[10px] text-muted-foreground/70">+{word.senses.length - 1} nghĩa khác</span>
+        <span className="text-[10px] text-muted-foreground/70">{t("Words.moreSenses", { count: word.senses.length - 1 })}</span>
       )}
     </div>
   );
