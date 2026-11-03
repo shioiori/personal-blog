@@ -35,7 +35,7 @@ function SummaryScreen({ summary, onRestart }: { summary: GradeSummary; onRestar
 }
 
 export function FlashcardTab() {
-  const { settings } = useFlashcardSettings();
+  const { settings, updateSettings, loaded: settingsLoaded } = useFlashcardSettings();
   const [phase, setPhase] = useState<Phase>("loading");
   const [dueQueue, setDueQueue] = useState<FlashcardCard[]>([]);
   const [index, setIndex] = useState(0);
@@ -62,7 +62,7 @@ export function FlashcardTab() {
     }
   }, [settings.maxReviews, settings.order]);
 
-  useEffect(() => { void loadSession(); }, [loadSession]);
+  useEffect(() => { if (settingsLoaded) void loadSession(); }, [loadSession, settingsLoaded]);
 
   const queue = dueQueue;
 
@@ -116,7 +116,7 @@ export function FlashcardTab() {
           <DialogHeader>
             <DialogTitle>Cài đặt ôn tập</DialogTitle>
           </DialogHeader>
-          <FlashcardSettingsTab />
+          <FlashcardSettingsTab settings={settings} onChange={updateSettings} />
         </DialogContent>
       </Dialog>
     </div>

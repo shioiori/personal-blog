@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ensureEnglishTables, getWord, getWordCrawlData, upsertWordCrawlData } from "@/src/lib/english-db";
+import { getUserId, unauthorized } from "@/src/lib/auth";
 
 // Full English-English dictionary entry for a single word, cached per-word in
 // english_words.crawl_data (JSONB): a single on-demand fetch per word,
@@ -112,6 +113,26 @@ async function getIpaDict(): Promise<Map<string, string>> {
   return ipaDictPromise;
 }
 
+const DATAMUSE_POS: Record<string, string> = { n: "noun", v: "verb", adj: "adjective", adv: "adverb" };
+
+async function fetchFallbackSenses(word: string): Promise<EntrySenseBlock[]> {
+  try {
+    const res = await fetch(`https://api.datamuse.com/words?sp=${encodeURIComponent(word)}&md=p&max=1`, {
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!res.ok) return [];
+    const data = (await res.json()) as { word?: string; tags?: string[] }[];
+    const hit = data.find((d) => d.word?.toLowerCase() === word);
+    return (hit?.tags ?? [])
+      .map((t) => DATAMUSE_POS[t])
+      .filter(Boolean)
+      .map((partOfSpeech) => ({ partOfSpeech, definitions: [] }));
+  } catch (e) {
+    console.error("[dictionary crawl] datamuse fetch failed", e);
+    return [];
+  }
+}
+
 async function fetchRaw(apiUrl: string): Promise<ApiEntry[] | null> {
   const res = await fetch(apiUrl, {
     signal: AbortSignal.timeout(8000),
@@ -160,6 +181,7 @@ async function fetchDictionaryEntry(word: string): Promise<DictionaryCrawlData> 
     const result = emptyResult(word, apiUrl);
     const fallbackIpa = (await getIpaDict()).get(trimmed);
     if (fallbackIpa) result.pronunciations.push({ ipa: fallbackIpa });
+    result.senses = await fetchFallbackSenses(trimmed);
     return result;
   }
 
@@ -203,6 +225,7 @@ async function fetchDictionaryEntry(word: string): Promise<DictionaryCrawlData> 
     const fallbackIpa = (await getIpaDict()).get(trimmed);
     if (fallbackIpa) pronunciations.push({ ipa: fallbackIpa });
   }
+  if (senses.length === 0) senses.push(...(await fetchFallbackSenses(trimmed)));
 
   return {
     source: "dictionaryapi.dev",
@@ -220,10 +243,12 @@ async function fetchDictionaryEntry(word: string): Promise<DictionaryCrawlData> 
 function hasUsefulData(data: unknown): boolean {
   if (!data || typeof data !== "object") return false;
   const d = data as Partial<DictionaryCrawlData>;
-  return d.parserVersion === PARSER_VERSION && (d.senses?.length ?? 0) > 0;
+  return d.parserVersion === PARSER_VERSION && (d.senses ?? []).some((s) => s.definitions.length > 0);
 }
 
 export async function GET(req: NextRequest) {
+  const userId = await getUserId();
+  if (!userId) return unauthorized();
   try {
     await ensureEnglishTables();
     const wordIdParam = req.nextUrl.searchParams.get("wordId");
@@ -238,11 +263,11 @@ export async function GET(req: NextRequest) {
       if (Number.isNaN(wordId)) {
         return NextResponse.json({ error: "invalid wordId" }, { status: 400 });
       }
-      const rec = await getWord(wordId);
+      const rec = await getWord(userId, wordId);
       if (!rec) return NextResponse.json({ error: "word not found" }, { status: 404 });
       word = rec.word;
       if (!force) {
-        const cached = await getWordCrawlData(wordId);
+        const cached = await getWordCrawlData(userId, wordId);
         if (hasUsefulData(cached)) {
           return NextResponse.json({ crawlData: cached, cached: true });
         }
@@ -254,7 +279,7 @@ export async function GET(req: NextRequest) {
     }
 
     const crawlData = await fetchDictionaryEntry(word);
-    if (wordId && hasUsefulData(crawlData)) await upsertWordCrawlData(wordId, crawlData);
+    if (wordId && hasUsefulData(crawlData)) await upsertWordCrawlData(userId, wordId, crawlData);
 
     if (!hasUsefulData(crawlData)) {
       return NextResponse.json({ crawlData, error: "Không tìm thấy từ này trong từ điển." });

@@ -141,79 +141,6 @@ const emptySense: SenseDraft = {
   antonyms: "",
 };
 
-function CambridgeInfoSection({ word, crawlData, onRefresh, loading, error }: {
-  word: string;
-  crawlData: CambridgeCrawlData | null;
-  onRefresh: () => void;
-  loading: boolean;
-  error: string | null;
-}) {
-  return (
-    <div className="rounded-lg border border-border p-3 space-y-2">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-          Thông tin đầy đủ (từ điển Anh-Anh)
-        </p>
-        <Button size="sm" variant="outline" onClick={onRefresh} disabled={loading || !word.trim()} className="self-start sm:self-auto shrink-0">
-          <RefreshCw className={`w-3.5 h-3.5 mr-1 ${loading ? "animate-spin" : ""}`} />
-          Tải dữ liệu
-        </Button>
-      </div>
-
-      {error && <p className="text-xs text-destructive italic">{error}</p>}
-
-      {!crawlData && !loading && !error && (
-        <p className="text-xs text-muted-foreground italic">Chưa có dữ liệu. Nhấn &quot;Tải dữ liệu&quot; để lấy.</p>
-      )}
-
-      {crawlData && (
-        <div className="space-y-2 max-h-64 overflow-y-auto text-sm">
-          {(crawlData.pronunciations?.length ?? 0) > 0 && (
-            <div className="flex gap-3 text-xs text-muted-foreground">
-              {crawlData.pronunciations!.map((p, i) => (
-                <span key={i}>{p.region ? `${p.region.toUpperCase()} ` : ""}{p.ipa ? `/${p.ipa}/` : ""}</span>
-              ))}
-            </div>
-          )}
-          {(crawlData.senses?.length ?? 0) > 0 ? (
-            crawlData.senses!.map((s, i) => (
-              <div key={i} className="space-y-1">
-                {s.partOfSpeech && (
-                  <span className="inline-block px-1.5 py-0.5 rounded bg-muted text-[10px] font-medium uppercase text-muted-foreground">
-                    {s.partOfSpeech}
-                  </span>
-                )}
-                <ul className="list-disc pl-4 space-y-1">
-                  {s.definitions.map((d, j) => (
-                    <li key={j}>
-                      <span>{d.text}</span>
-                      {d.examples.length > 0 && (
-                        <ul className="pl-3 text-xs text-muted-foreground italic">
-                          {d.examples.map((ex, k) => <li key={k}>&quot;{ex}&quot;</li>)}
-                        </ul>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))
-          ) : crawlData.raw ? (
-            <p className="text-xs text-muted-foreground whitespace-pre-line line-clamp-6">{crawlData.raw}</p>
-          ) : (
-            <p className="text-xs text-muted-foreground italic">Không tìm thấy dữ liệu cho từ này.</p>
-          )}
-          {(crawlData.synonyms?.length ?? 0) > 0 && (
-            <p className="text-xs"><span className="text-muted-foreground">Đồng nghĩa: </span>{crawlData.synonyms!.join(", ")}</p>
-          )}
-          {(crawlData.antonyms?.length ?? 0) > 0 && (
-            <p className="text-xs"><span className="text-muted-foreground">Trái nghĩa: </span>{crawlData.antonyms!.join(", ")}</p>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
 export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, onOpenWord }: EditWordModalProps) {
   const { refetchWords, words: allWords } = useEnglishStudy();
   const [mode, setMode] = useState<"view" | "edit">(word ? "view" : "edit");
@@ -222,13 +149,10 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
   const [relatedWordsText, setRelatedWordsText] = useState("");
   const [saving, setSaving] = useState(false);
   const [crawlData, setCrawlData] = useState<CambridgeCrawlData | null>(null);
-  const [crawlLoading, setCrawlLoading] = useState(false);
-  const [crawlError, setCrawlError] = useState<string | null>(null);
   const [autoFilling, setAutoFilling] = useState(false);
 
   useEffect(() => {
     if (!open) return;
-    setCrawlError(null);
     setMode(word ? (startInEditMode ? "edit" : "view") : "edit");
     if (word) {
       setWordText(word.word);
@@ -265,33 +189,6 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
 
   function removeSense(i: number) {
     setSenses((prev) => (prev.length > 1 ? prev.filter((_, idx) => idx !== i) : prev));
-  }
-
-  async function handleRefreshCambridge() {
-    if (!wordText.trim()) return;
-    setCrawlLoading(true);
-    setCrawlError(null);
-    try {
-      const params = new URLSearchParams({ force: "1" });
-      if (word) params.set("wordId", String(word.id));
-      else params.set("word", wordText.trim());
-      const res = await fetch(`/api/english/crawl?${params.toString()}`);
-      const data = (await res.json()) as { crawlData?: CambridgeCrawlData; error?: string };
-      if (data.crawlData) {
-        setCrawlData(data.crawlData);
-        // The backend already persisted this (when editing an existing
-        // word), but the word list in context still holds a stale snapshot
-        // without it — refetch so reopening this word later shows the
-        // cached data immediately instead of "no data yet".
-        if (word) void refetchWords();
-      } else if (data.error) {
-        setCrawlError(data.error);
-      }
-    } catch {
-      setCrawlError("Không lấy được dữ liệu từ điển.");
-    } finally {
-      setCrawlLoading(false);
-    }
   }
 
   // Fires when the user finishes typing the word (on blur): fills in just the
@@ -348,8 +245,6 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
         if (data.crawlData) {
           dict = data.crawlData;
           setCrawlData(data.crawlData);
-        } else if (data.error) {
-          setCrawlError(data.error);
         }
       }
 
@@ -379,6 +274,7 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
           const def = match?.definitions[0];
           return {
             ...s,
+            partOfSpeech: s.partOfSpeech || match?.partOfSpeech || "",
             phonetic: s.phonetic || ipa || "",
             example: s.example || def?.examples[0] || "",
             synonyms: s.synonyms || synonymsText,
@@ -634,14 +530,6 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
               </div>
             </>
           )}
-
-          <CambridgeInfoSection
-            word={wordText}
-            crawlData={crawlData}
-            onRefresh={handleRefreshCambridge}
-            loading={crawlLoading}
-            error={crawlError}
-          />
         </div>
 
         <DialogFooter>

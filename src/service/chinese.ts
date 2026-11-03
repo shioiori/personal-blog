@@ -30,11 +30,11 @@ export type ReviewResult =
 // Top N recent chars to highlight in prompt
 const RECENT_CHARS_LIMIT = 30;
 
-export async function generateReviewText(prioritizeRecent = false): Promise<ReviewResult> {
+export async function generateReviewText(userId: number, prioritizeRecent = false): Promise<ReviewResult> {
   await ensureTables();
   await ensureCompoundTables();
 
-  const [statesWithDate, compoundWords] = await Promise.all([getCardStatesWithDate(), getCompoundWords()]);
+  const [statesWithDate, compoundWords] = await Promise.all([getCardStatesWithDate(userId), getCompoundWords(userId)]);
 
   const learnedRows = statesWithDate.filter((r) => r.hidden);
 

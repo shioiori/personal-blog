@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getUserId, unauthorized } from "@/src/lib/auth";
 import {
   ensureTables,
   getCardCrawlData,
@@ -232,6 +233,8 @@ async function fetchThiVienData(char: string, existing?: unknown): Promise<ThiVi
 }
 
 export async function GET(req: NextRequest) {
+  const userId = await getUserId();
+  if (!userId) return unauthorized();
   try {
     const char = req.nextUrl.searchParams.get("char")?.trim();
     if (!char) {
@@ -240,13 +243,13 @@ export async function GET(req: NextRequest) {
 
     await ensureTables();
 
-    const cached = await getCardCrawlData(char);
+    const cached = await getCardCrawlData(userId, char);
     if (cached && hasDictionaryData(cached)) {
       return NextResponse.json({ crawlData: cached, cached: true });
     }
 
     const crawlData = await fetchThiVienData(char, cached);
-    await upsertCardCrawlData(char, crawlData);
+    await upsertCardCrawlData(userId, char, crawlData);
 
     return NextResponse.json({ crawlData, cached: false });
   } catch (e) {

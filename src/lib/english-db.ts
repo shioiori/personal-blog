@@ -7,6 +7,7 @@ export async function ensureEnglishTables() {
   await sql`
     CREATE TABLE IF NOT EXISTS english_words (
       id         SERIAL PRIMARY KEY,
+      user_id    INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       word       TEXT NOT NULL,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
@@ -34,8 +35,10 @@ export async function ensureEnglishTables() {
   await sql`
     CREATE TABLE IF NOT EXISTS english_word_groups (
       id         SERIAL PRIMARY KEY,
-      name       TEXT NOT NULL UNIQUE,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      user_id    INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      name       TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      CONSTRAINT english_word_groups_user_name_key UNIQUE (user_id, name)
     )
   `;
   await sql`
@@ -55,6 +58,30 @@ export async function ensureEnglishTables() {
       repetitions INT NOT NULL DEFAULT 0,
       updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
+  `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS english_settings (
+      user_id    INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      key        TEXT NOT NULL,
+      value      JSONB NOT NULL,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (user_id, key)
+    )
+  `;
+}
+
+// ── Settings ─────────────────────────────────────────────────────────────────
+
+export async function getEnglishSetting(userId: number, key: string): Promise<unknown> {
+  const rows = await sql`SELECT value FROM english_settings WHERE user_id = ${userId} AND key = ${key}`;
+  return rows[0]?.value ?? null;
+}
+
+export async function upsertEnglishSetting(userId: number, key: string, value: unknown) {
+  await sql`
+    INSERT INTO english_settings (user_id, key, value, updated_at)
+    VALUES (${userId}, ${key}, ${JSON.stringify(value)}::jsonb, NOW())
+    ON CONFLICT (user_id, key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()
   `;
 }
 
@@ -110,8 +137,8 @@ async function insertSenses(wordId: number, senses: SenseInput[]): Promise<void>
   }
 }
 
-export async function createWord(word: string, senses: SenseInput[], crawlData?: unknown, relatedWords?: string | null): Promise<EnglishWord> {
-  const rows = await sql`INSERT INTO english_words (word, related_words) VALUES (${word}, ${relatedWords ?? null}) RETURNING id, word, created_at`;
+export async function createWord(userId: number, word: string, senses: SenseInput[], crawlData?: unknown, relatedWords?: string | null): Promise<EnglishWord> {
+  const rows = await sql`INSERT INTO english_words (user_id, word, related_words) VALUES (${userId}, ${word}, ${relatedWords ?? null}) RETURNING id, word, created_at`;
   const id = rows[0].id as number;
   if (senses.length > 0) await insertSenses(id, senses);
   else await insertSenses(id, [{}]);
@@ -119,38 +146,40 @@ export async function createWord(word: string, senses: SenseInput[], crawlData?:
     INSERT INTO english_flashcard (word_id, active) VALUES (${id}, TRUE)
     ON CONFLICT (word_id) DO NOTHING
   `;
-  if (crawlData) await upsertWordCrawlData(id, crawlData);
-  const created = await getWord(id);
+  if (crawlData) await upsertWordCrawlData(userId, id, crawlData);
+  const created = await getWord(userId, id);
   if (!created) throw new Error("failed to load created word");
   return created;
 }
 
-export async function updateWord(id: number, word: string, senses: SenseInput[], relatedWords?: string | null): Promise<void> {
-  await sql`UPDATE english_words SET word = ${word}, related_words = ${relatedWords ?? null} WHERE id = ${id}`;
+export async function updateWord(userId: number, id: number, word: string, senses: SenseInput[], relatedWords?: string | null): Promise<boolean> {
+  const rows = await sql`UPDATE english_words SET word = ${word}, related_words = ${relatedWords ?? null} WHERE id = ${id} AND user_id = ${userId} RETURNING id`;
+  if (!rows[0]) return false;
   await sql`DELETE FROM english_senses WHERE word_id = ${id}`;
   if (senses.length > 0) await insertSenses(id, senses);
   else await insertSenses(id, [{}]);
+  return true;
 }
 
-export async function deleteWord(id: number): Promise<void> {
-  await sql`DELETE FROM english_words WHERE id = ${id}`;
+export async function deleteWord(userId: number, id: number): Promise<void> {
+  await sql`DELETE FROM english_words WHERE id = ${id} AND user_id = ${userId}`;
 }
 
 // ── Cambridge crawl-data cache (mirrors chinese's crawl_data pattern) ───────────
 
-export async function getWordCrawlData(id: number): Promise<unknown | null> {
-  const rows = await sql`SELECT crawl_data FROM english_words WHERE id = ${id}`;
+export async function getWordCrawlData(userId: number, id: number): Promise<unknown | null> {
+  const rows = await sql`SELECT crawl_data FROM english_words WHERE id = ${id} AND user_id = ${userId}`;
   return (rows[0]?.crawl_data as unknown | null) ?? null;
 }
 
-export async function upsertWordCrawlData(id: number, crawlData: unknown): Promise<void> {
+export async function upsertWordCrawlData(userId: number, id: number, crawlData: unknown): Promise<void> {
   await sql`
-    UPDATE english_words SET crawl_data = ${JSON.stringify(crawlData)}::jsonb WHERE id = ${id}
+    UPDATE english_words SET crawl_data = ${JSON.stringify(crawlData)}::jsonb WHERE id = ${id} AND user_id = ${userId}
   `;
 }
 
-export async function getWord(id: number): Promise<EnglishWord | null> {
-  const wordRows = await sql`SELECT id, word, created_at, crawl_data, related_words FROM english_words WHERE id = ${id}`;
+export async function getWord(userId: number, id: number): Promise<EnglishWord | null> {
+  const wordRows = await sql`SELECT id, word, created_at, crawl_data, related_words FROM english_words WHERE id = ${id} AND user_id = ${userId}`;
   if (!wordRows[0]) return null;
   const senseRows = await sql`SELECT * FROM english_senses WHERE word_id = ${id} ORDER BY sort_order ASC, id ASC`;
   const groupRows = await sql`SELECT group_id FROM english_word_group_members WHERE word_id = ${id}`;
@@ -167,24 +196,24 @@ export async function getWord(id: number): Promise<EnglishWord | null> {
   };
 }
 
-export async function listWords(opts: { groupId?: number; search?: string } = {}): Promise<EnglishWord[]> {
+export async function listWords(userId: number, opts: { groupId?: number; search?: string } = {}): Promise<EnglishWord[]> {
   let wordRows;
   if (opts.groupId) {
     wordRows = await sql`
       SELECT w.id, w.word, w.created_at, w.crawl_data, w.related_words FROM english_words w
       JOIN english_word_group_members m ON m.word_id = w.id
-      WHERE m.group_id = ${opts.groupId}
+      WHERE m.group_id = ${opts.groupId} AND w.user_id = ${userId}
       ORDER BY w.word ASC
     `;
   } else if (opts.search) {
     const pattern = `%${opts.search}%`;
     wordRows = await sql`
       SELECT id, word, created_at, crawl_data, related_words FROM english_words
-      WHERE word ILIKE ${pattern}
+      WHERE user_id = ${userId} AND word ILIKE ${pattern}
       ORDER BY word ASC
     `;
   } else {
-    wordRows = await sql`SELECT id, word, created_at, crawl_data, related_words FROM english_words ORDER BY word ASC`;
+    wordRows = await sql`SELECT id, word, created_at, crawl_data, related_words FROM english_words WHERE user_id = ${userId} ORDER BY word ASC`;
   }
 
   if (wordRows.length === 0) return [];
@@ -226,56 +255,66 @@ export async function listWords(opts: { groupId?: number; search?: string } = {}
 
 // ── Groups ───────────────────────────────────────────────────────────────────
 
-export async function listGroups(): Promise<EnglishGroup[]> {
+export async function listGroups(userId: number): Promise<EnglishGroup[]> {
   const rows = await sql`
     SELECT g.id, g.name,
            COALESCE(array_agg(m.word_id) FILTER (WHERE m.word_id IS NOT NULL), '{}') AS word_ids
     FROM english_word_groups g
     LEFT JOIN english_word_group_members m ON g.id = m.group_id
+    WHERE g.user_id = ${userId}
     GROUP BY g.id, g.name
     ORDER BY g.name
   `;
   return rows.map((r) => ({ id: r.id as number, name: r.name as string, wordIds: (r.word_ids as number[]) ?? [] }));
 }
 
-export async function createGroup(name: string): Promise<EnglishGroup> {
-  const rows = await sql`INSERT INTO english_word_groups (name) VALUES (${name}) RETURNING id, name`;
+export async function createGroup(userId: number, name: string): Promise<EnglishGroup> {
+  const rows = await sql`INSERT INTO english_word_groups (user_id, name) VALUES (${userId}, ${name}) RETURNING id, name`;
   return { id: rows[0].id as number, name: rows[0].name as string, wordIds: [] };
 }
 
-export async function renameGroup(id: number, name: string): Promise<void> {
-  await sql`UPDATE english_word_groups SET name = ${name} WHERE id = ${id}`;
+export async function renameGroup(userId: number, id: number, name: string): Promise<void> {
+  await sql`UPDATE english_word_groups SET name = ${name} WHERE id = ${id} AND user_id = ${userId}`;
 }
 
-export async function deleteGroup(id: number): Promise<void> {
-  await sql`DELETE FROM english_word_groups WHERE id = ${id}`;
+export async function deleteGroup(userId: number, id: number): Promise<void> {
+  await sql`DELETE FROM english_word_groups WHERE id = ${id} AND user_id = ${userId}`;
 }
 
-export async function addWordsToGroup(groupId: number, wordIds: number[]): Promise<void> {
-  for (const wordId of wordIds) {
-    await sql`INSERT INTO english_word_group_members (group_id, word_id) VALUES (${groupId}, ${wordId}) ON CONFLICT DO NOTHING`;
-  }
+export async function addWordsToGroup(userId: number, groupId: number, wordIds: number[]): Promise<void> {
+  await sql`
+    INSERT INTO english_word_group_members (group_id, word_id)
+    SELECT g.id, w.id FROM english_word_groups g
+    JOIN english_words w ON w.user_id = g.user_id
+    WHERE g.id = ${groupId} AND g.user_id = ${userId} AND w.id = ANY(${wordIds})
+    ON CONFLICT DO NOTHING
+  `;
 }
 
-export async function removeWordFromGroup(groupId: number, wordId: number): Promise<void> {
-  await sql`DELETE FROM english_word_group_members WHERE group_id = ${groupId} AND word_id = ${wordId}`;
+export async function removeWordFromGroup(userId: number, groupId: number, wordId: number): Promise<void> {
+  await sql`
+    DELETE FROM english_word_group_members
+    WHERE group_id = ${groupId} AND word_id = ${wordId}
+      AND group_id IN (SELECT id FROM english_word_groups WHERE user_id = ${userId})
+  `;
 }
 
 // ── Flashcard / SRS ──────────────────────────────────────────────────────────
 
-export async function setFlashcardActive(wordId: number, active: boolean): Promise<void> {
+export async function setFlashcardActive(userId: number, wordId: number, active: boolean): Promise<void> {
   await sql`
-    INSERT INTO english_flashcard (word_id, active) VALUES (${wordId}, ${active})
+    INSERT INTO english_flashcard (word_id, active)
+    SELECT id, ${active} FROM english_words WHERE id = ${wordId} AND user_id = ${userId}
     ON CONFLICT (word_id) DO UPDATE SET active = ${active}, updated_at = NOW()
   `;
 }
 
-export async function getFlashcardsDueToday(opts: { limit?: number; order?: "due" | "random" } = {}): Promise<FlashcardCard[]> {
+export async function getFlashcardsDueToday(userId: number, opts: { limit?: number; order?: "due" | "random" } = {}): Promise<FlashcardCard[]> {
   const rows = await sql`
     SELECT w.id, w.word
     FROM english_flashcard f
     JOIN english_words w ON w.id = f.word_id
-    WHERE f.active = TRUE AND f.due_date <= CURRENT_DATE
+    WHERE w.user_id = ${userId} AND f.active = TRUE AND f.due_date <= CURRENT_DATE
     ORDER BY f.due_date ASC
   `;
   let cards = rows.map((r) => ({ wordId: r.id as number, word: r.word as string }));
@@ -308,7 +347,7 @@ export interface DueForecastDay {
 // JS `Date` local-time arithmetic, which previously shifted every day by one
 // in timezones ahead of UTC (e.g. Asia/Saigon, UTC+7): `new Date()` at local
 // midnight, converted with `.toISOString()`, lands on the PREVIOUS day in UTC.
-export async function getDueForecast(): Promise<DueForecastDay[]> {
+export async function getDueForecast(userId: number): Promise<DueForecastDay[]> {
   const rows = await sql`
     WITH days AS (
       SELECT generate_series(0, 6) AS offset_days
@@ -318,7 +357,8 @@ export async function getDueForecast(): Promise<DueForecastDay[]> {
       (
         SELECT COUNT(*)::int
         FROM english_flashcard f
-        WHERE f.active = TRUE
+        JOIN english_words w ON w.id = f.word_id
+        WHERE w.user_id = ${userId} AND f.active = TRUE
           AND (
             (days.offset_days = 0 AND f.due_date <= CURRENT_DATE)
             OR (days.offset_days > 0 AND f.due_date = CURRENT_DATE + (days.offset_days || ' days')::interval)
@@ -330,7 +370,9 @@ export async function getDueForecast(): Promise<DueForecastDay[]> {
   return rows.map((r) => ({ date: r.date as string, count: r.count as number }));
 }
 
-export async function upsertFlashcardGrade(wordId: number, grade: 0 | 1 | 2 | 3): Promise<void> {
+export async function upsertFlashcardGrade(userId: number, wordId: number, grade: 0 | 1 | 2 | 3): Promise<boolean> {
+  const owned = await sql`SELECT 1 FROM english_words WHERE id = ${wordId} AND user_id = ${userId}`;
+  if (!owned[0]) return false;
   const rows = await sql`SELECT interval, ease_factor, repetitions FROM english_flashcard WHERE word_id = ${wordId}`;
   const { interval, easeFactor, repetitions } = calcNextInterval(
     grade,
@@ -352,16 +394,22 @@ export async function upsertFlashcardGrade(wordId: number, grade: 0 | 1 | 2 | 3)
       repetitions = ${repetitions},
       updated_at = NOW()
   `;
+  return true;
 }
 
 // ── Bulk import ──────────────────────────────────────────────────────────────
 
 export async function bulkImportWords(
+  userId: number,
   items: ImportWordInput[],
   groupId?: number,
   onDuplicate: "skip" | "overwrite" = "skip"
 ): Promise<{ created: number; overwritten: number; skipped: string[] }> {
-  const existingRows = await sql`SELECT id, LOWER(word) AS w FROM english_words`;
+  if (groupId) {
+    const owned = await sql`SELECT 1 FROM english_word_groups WHERE id = ${groupId} AND user_id = ${userId}`;
+    if (!owned[0]) throw new Error("group not found");
+  }
+  const existingRows = await sql`SELECT id, LOWER(word) AS w FROM english_words WHERE user_id = ${userId}`;
   const existingIdByWord = new Map<string, number>(existingRows.map((r) => [r.w as string, r.id as number]));
 
   let created = 0;
@@ -376,7 +424,7 @@ export async function bulkImportWords(
     if (existingId !== undefined) {
       if (onDuplicate === "overwrite") {
         const senses: SenseInput[] = item.senses.length > 0 ? item.senses : [{}];
-        await updateWord(existingId, item.word.trim(), senses);
+        await updateWord(userId, existingId, item.word.trim(), senses);
         overwritten++;
       } else {
         skipped.push(item.word);
@@ -388,7 +436,7 @@ export async function bulkImportWords(
     }
 
     const senses: SenseInput[] = item.senses.length > 0 ? item.senses : [{}];
-    const rows = await sql`INSERT INTO english_words (word) VALUES (${item.word.trim()}) RETURNING id`;
+    const rows = await sql`INSERT INTO english_words (user_id, word) VALUES (${userId}, ${item.word.trim()}) RETURNING id`;
     const wordId = rows[0].id as number;
     existingIdByWord.set(key, wordId);
     await insertSenses(wordId, senses);

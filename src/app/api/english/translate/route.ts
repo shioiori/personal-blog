@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getUserId, unauthorized } from "@/src/lib/auth";
 
 // Best-effort, optional auto-translation. Must never throw — on any failure
 // it returns { translation: null }.
@@ -38,6 +39,7 @@ async function translateWithMyMemory(text: string): Promise<string | null> {
 }
 
 export async function POST(req: NextRequest) {
+  if (!(await getUserId())) return unauthorized();
   try {
     const { text } = (await req.json()) as { text: string };
     const trimmed = text?.trim();

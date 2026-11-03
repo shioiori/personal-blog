@@ -2,6 +2,7 @@
 import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "./language";
 import { MusicProvider } from "./music";
+import { AuthProvider } from "./auth";
 import { Language } from "../components/enums";
 
 export function Providers({
@@ -19,7 +20,9 @@ export function Providers({
       disableTransitionOnChange={true}
     >
       <LanguageProvider locale={locale}>
-        <MusicProvider>{children}</MusicProvider>
+        <AuthProvider>
+          <MusicProvider>{children}</MusicProvider>
+        </AuthProvider>
       </LanguageProvider>
     </ThemeProvider>
   );

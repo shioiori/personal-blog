@@ -19,7 +19,19 @@
         "english": "Tiếng Anh",
         "guide": "Hướng dẫn",
         "search": "Tìm kiếm",
-        "toggleTheme": "Chuyển đổi giao diện"
+        "toggleTheme": "Chuyển đổi giao diện",
+        "login": "Đăng nhập",
+        "logout": "Đăng xuất"
+    },
+    "Auth": {
+        "title": "Đăng nhập",
+        "email": "Email",
+        "password": "Mật khẩu",
+        "submit": "Đăng nhập",
+        "submitting": "Đang đăng nhập...",
+        "invalidCredentials": "Email hoặc mật khẩu không đúng",
+        "error": "Đăng nhập thất bại, vui lòng thử lại",
+        "required": "Vui lòng đăng nhập để sử dụng tính năng này"
     },
     "Search": {
         "title": "Tìm kiếm",

@@ -6,17 +6,23 @@ import {
   updateCompoundWord,
   deleteCompoundWord,
 } from "@/src/lib/chinese-db";
+import { getUserId, unauthorized } from "@/src/lib/auth";
 
 export async function GET() {
+  const userId = await getUserId();
+  if (!userId) return unauthorized();
   await ensureCompoundTables();
-  const data = await getCompoundWords();
+  const data = await getCompoundWords(userId);
   return NextResponse.json(data);
 }
 
 export async function POST(req: NextRequest) {
+  const userId = await getUserId();
+  if (!userId) return unauthorized();
   await ensureCompoundTables();
   const { word, meaning, pinyin, hanViet, note, categoryIds } = await req.json();
   const created = await createCompoundWord(
+    userId,
     word as string,
     meaning as string,
     pinyin as string,
@@ -28,8 +34,11 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
+  const userId = await getUserId();
+  if (!userId) return unauthorized();
   const { id, word, meaning, pinyin, hanViet, note, categoryIds } = await req.json();
   await updateCompoundWord(
+    userId,
     id as number,
     word as string,
     meaning as string,
@@ -42,7 +51,9 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const userId = await getUserId();
+  if (!userId) return unauthorized();
   const { id } = await req.json();
-  await deleteCompoundWord(id as number);
+  await deleteCompoundWord(userId, id as number);
   return NextResponse.json({ ok: true });
 }

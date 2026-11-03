@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useFlashcardSettings } from "./useFlashcardSettings";
+import type { FlashcardSettings } from "./useFlashcardSettings";
 import { useEnglishStudy } from "@/src/context/english";
 import { DueForecastChart } from "./DueForecastChart";
 
@@ -48,8 +48,13 @@ const MAX_REVIEW_OPTIONS = [
   { value: 0, label: "Không giới hạn" },
 ];
 
-export function FlashcardSettingsTab() {
-  const { settings, updateSettings } = useFlashcardSettings();
+export function FlashcardSettingsTab({
+  settings,
+  onChange: updateSettings,
+}: {
+  settings: FlashcardSettings;
+  onChange: (patch: Partial<FlashcardSettings>) => void;
+}) {
   const { words, refetchWords } = useEnglishStudy();
   const [toggling, setToggling] = useState<number | null>(null);
   const [search, setSearch] = useState("");

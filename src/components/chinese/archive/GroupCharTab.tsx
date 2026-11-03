@@ -8,8 +8,6 @@ import { Button } from "@/src/components/ui/Button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/src/components/ui/Dialog";
 import { cn } from "@/src/utils/ui";
 import { ChevronDown, ChevronRight, Plus, Pencil, Trash2, X } from "lucide-react";
-import { useEditAuth } from "../study/useEditAuth";
-import { KeyPromptModal } from "../study/KeyPromptModal";
 import { useLearnedChars } from "@/src/context/chinese";
 
 // ── API helpers ───────────────────────────────────────────────────────────────
@@ -325,21 +323,7 @@ export function GroupCharTab() {
   const [addOpen, setAddOpen] = useState(false);
   const [activeGroup, setActiveGroup] = useState<CharGroup | null>(null);
 
-  const { auth, requestEdit, submitKey, dismiss } = useEditAuth();
   const { markLearned } = useLearnedChars();
-  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
-
-  useEffect(() => {
-    if (auth.status === "verified" && pendingAction) {
-      pendingAction();
-      setPendingAction(null);
-    }
-  }, [auth.status, pendingAction]);
-
-  function withAuth(action: () => void) {
-    if (requestEdit()) action();
-    else setPendingAction(() => action);
-  }
 
   useEffect(() => {
     Promise.all([
@@ -413,7 +397,7 @@ export function GroupCharTab() {
     <div className="space-y-4">
       {/* Toolbar */}
       <div className="flex items-center gap-2">
-        <Button size="sm" onClick={() => withAuth(() => setCreateOpen(true))}>
+        <Button size="sm" onClick={() => setCreateOpen(true)}>
           <Plus className="w-3.5 h-3.5 mr-1" /> Tạo nhóm
         </Button>
       </div>
@@ -437,19 +421,19 @@ export function GroupCharTab() {
                   <div className="ml-auto flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                     <button
                       className="p-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors text-xs flex items-center gap-1"
-                      onClick={() => withAuth(() => { setActiveGroup(group); setAddOpen(true); })}
+                      onClick={() => { setActiveGroup(group); setAddOpen(true); }}
                     >
                       <Plus className="w-3.5 h-3.5" /> Thêm từ
                     </button>
                     <button
                       className="p-1.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
-                      onClick={() => withAuth(() => setEditingGroup(group))}
+                      onClick={() => setEditingGroup(group)}
                     >
                       <Pencil className="w-3.5 h-3.5" />
                     </button>
                     <button
                       className="p-1.5 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
-                      onClick={() => withAuth(() => handleDeleteGroup(group.id))}
+                      onClick={() => handleDeleteGroup(group.id)}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -466,7 +450,7 @@ export function GroupCharTab() {
                             key={ch}
                             char={ch}
                             userEdits={userEdits}
-                            onRemove={() => withAuth(() => handleRemoveChar(group.id, ch))}
+                            onRemove={() => handleRemoveChar(group.id, ch)}
                           />
                         ))}
                       </div>
@@ -496,7 +480,6 @@ export function GroupCharTab() {
         onClose={() => setAddOpen(false)}
         onAdd={handleAddChars}
       />
-      {auth.status === "prompting" && <KeyPromptModal onSubmit={submitKey} onDismiss={dismiss} />}
     </div>
   );
 }

@@ -5,20 +5,24 @@ import type { CompoundCategory, CompoundWord } from "@/src/declaration/chinese";
 export async function ensureTables() {
   await sql`
     CREATE TABLE IF NOT EXISTS chinese_card_state (
-      char       TEXT NOT NULL PRIMARY KEY,
+      user_id    INT  NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      char       TEXT NOT NULL,
       hidden     BOOLEAN NOT NULL DEFAULT FALSE,
-      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (user_id, char)
     )
   `;
   await sql`
     CREATE TABLE IF NOT EXISTS chinese_card_edits (
-      char        TEXT NOT NULL PRIMARY KEY,
+      user_id     INT  NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      char        TEXT NOT NULL,
       pinyin      TEXT,
       han_viet    TEXT,
       meaning_vi  TEXT,
       note        TEXT,
       crawl_data  JSONB,
-      updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (user_id, char)
     )
   `;
   await sql`
@@ -54,8 +58,8 @@ export async function incrementDailyLimit(): Promise<void> {
 
 // ── Card state (hidden/visible) ──────────────────────────────────────────────
 
-export async function getCardStates(): Promise<Record<string, boolean>> {
-  const rows = await sql`SELECT char, hidden FROM chinese_card_state`;
+export async function getCardStates(userId: number): Promise<Record<string, boolean>> {
+  const rows = await sql`SELECT char, hidden FROM chinese_card_state WHERE user_id = ${userId}`;
   return Object.fromEntries(rows.map((r) => [r.char, r.hidden]));
 }
 
@@ -65,8 +69,8 @@ export interface CardStateWithDate {
   updatedAt: Date;
 }
 
-export async function getCardStatesWithDate(): Promise<CardStateWithDate[]> {
-  const rows = await sql`SELECT char, hidden, updated_at FROM chinese_card_state`;
+export async function getCardStatesWithDate(userId: number): Promise<CardStateWithDate[]> {
+  const rows = await sql`SELECT char, hidden, updated_at FROM chinese_card_state WHERE user_id = ${userId}`;
   return rows.map((r) => ({
     char: r.char as string,
     hidden: r.hidden as boolean,
@@ -74,20 +78,20 @@ export async function getCardStatesWithDate(): Promise<CardStateWithDate[]> {
   }));
 }
 
-export async function upsertCardState(char: string, hidden: boolean) {
+export async function upsertCardState(userId: number, char: string, hidden: boolean) {
   await sql`
-    INSERT INTO chinese_card_state (char, hidden, updated_at)
-    VALUES (${char}, ${hidden}, NOW())
-    ON CONFLICT (char)
+    INSERT INTO chinese_card_state (user_id, char, hidden, updated_at)
+    VALUES (${userId}, ${char}, ${hidden}, NOW())
+    ON CONFLICT (user_id, char)
     DO UPDATE SET hidden = EXCLUDED.hidden, updated_at = NOW()
   `;
 }
 
 // ── Card edits (user annotations) ────────────────────────────────────────────
 
-export async function getCardEdits(): Promise<Record<string, UserEdits>> {
+export async function getCardEdits(userId: number): Promise<Record<string, UserEdits>> {
   const rows = await sql`
-    SELECT char, pinyin, han_viet, meaning_vi, note FROM chinese_card_edits
+    SELECT char, pinyin, han_viet, meaning_vi, note FROM chinese_card_edits WHERE user_id = ${userId}
   `;
   return Object.fromEntries(
     rows.map((r) => [
@@ -102,18 +106,18 @@ export async function getCardEdits(): Promise<Record<string, UserEdits>> {
   );
 }
 
-export async function getCardCrawlData(char: string): Promise<unknown | null> {
+export async function getCardCrawlData(userId: number, char: string): Promise<unknown | null> {
   const rows = await sql`
-    SELECT crawl_data FROM chinese_card_edits WHERE char = ${char}
+    SELECT crawl_data FROM chinese_card_edits WHERE user_id = ${userId} AND char = ${char}
   `;
   return (rows[0]?.crawl_data as unknown | null) ?? null;
 }
 
-export async function upsertCardCrawlData(char: string, crawlData: unknown): Promise<void> {
+export async function upsertCardCrawlData(userId: number, char: string, crawlData: unknown): Promise<void> {
   await sql`
-    INSERT INTO chinese_card_edits (char, crawl_data, updated_at)
-    VALUES (${char}, ${JSON.stringify(crawlData)}::jsonb, NOW())
-    ON CONFLICT (char)
+    INSERT INTO chinese_card_edits (user_id, char, crawl_data, updated_at)
+    VALUES (${userId}, ${char}, ${JSON.stringify(crawlData)}::jsonb, NOW())
+    ON CONFLICT (user_id, char)
     DO UPDATE SET crawl_data = EXCLUDED.crawl_data, updated_at = NOW()
   `;
 }
@@ -124,13 +128,16 @@ export async function ensureCompoundTables() {
   await sql`
     CREATE TABLE IF NOT EXISTS compound_categories (
       id         SERIAL PRIMARY KEY,
-      name       TEXT NOT NULL UNIQUE,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      user_id    INT  NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      name       TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      CONSTRAINT compound_categories_user_name_key UNIQUE (user_id, name)
     )
   `;
   await sql`
     CREATE TABLE IF NOT EXISTS compound_words (
       id         SERIAL PRIMARY KEY,
+      user_id    INT  NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       word       TEXT NOT NULL,
       meaning    TEXT NOT NULL DEFAULT '',
       pinyin     TEXT NOT NULL DEFAULT '',
@@ -151,32 +158,33 @@ export async function ensureCompoundTables() {
   `;
 }
 
-export async function getCompoundCategories(): Promise<CompoundCategory[]> {
-  const rows = await sql`SELECT id, name FROM compound_categories ORDER BY name`;
+export async function getCompoundCategories(userId: number): Promise<CompoundCategory[]> {
+  const rows = await sql`SELECT id, name FROM compound_categories WHERE user_id = ${userId} ORDER BY name`;
   return rows.map((r) => ({ id: r.id as number, name: r.name as string }));
 }
 
-export async function createCompoundCategory(name: string): Promise<CompoundCategory> {
+export async function createCompoundCategory(userId: number, name: string): Promise<CompoundCategory> {
   const rows = await sql`
-    INSERT INTO compound_categories (name) VALUES (${name}) RETURNING id, name
+    INSERT INTO compound_categories (user_id, name) VALUES (${userId}, ${name}) RETURNING id, name
   `;
   return { id: rows[0].id as number, name: rows[0].name as string };
 }
 
-export async function updateCompoundCategory(id: number, name: string): Promise<void> {
-  await sql`UPDATE compound_categories SET name = ${name} WHERE id = ${id}`;
+export async function updateCompoundCategory(userId: number, id: number, name: string): Promise<void> {
+  await sql`UPDATE compound_categories SET name = ${name} WHERE id = ${id} AND user_id = ${userId}`;
 }
 
-export async function deleteCompoundCategory(id: number): Promise<void> {
-  await sql`DELETE FROM compound_categories WHERE id = ${id}`;
+export async function deleteCompoundCategory(userId: number, id: number): Promise<void> {
+  await sql`DELETE FROM compound_categories WHERE id = ${id} AND user_id = ${userId}`;
 }
 
-export async function getCompoundWords(): Promise<CompoundWord[]> {
+export async function getCompoundWords(userId: number): Promise<CompoundWord[]> {
   const rows = await sql`
     SELECT w.id, w.word, w.meaning, w.pinyin, w.han_viet, w.note,
            COALESCE(array_agg(wc.category_id) FILTER (WHERE wc.category_id IS NOT NULL), '{}') AS category_ids
     FROM compound_words w
     LEFT JOIN compound_word_categories wc ON w.id = wc.word_id
+    WHERE w.user_id = ${userId}
     GROUP BY w.id
     ORDER BY w.id
   `;
@@ -191,38 +199,43 @@ export async function getCompoundWords(): Promise<CompoundWord[]> {
   }));
 }
 
+async function linkCompoundWordCategories(userId: number, wordId: number, categoryIds: number[]): Promise<void> {
+  if (categoryIds.length === 0) return;
+  await sql`
+    INSERT INTO compound_word_categories (word_id, category_id)
+    SELECT ${wordId}, id FROM compound_categories WHERE user_id = ${userId} AND id = ANY(${categoryIds})
+    ON CONFLICT DO NOTHING
+  `;
+}
+
 export async function createCompoundWord(
-  word: string, meaning: string, pinyin: string, hanViet: string, note: string, categoryIds: number[]
+  userId: number, word: string, meaning: string, pinyin: string, hanViet: string, note: string, categoryIds: number[]
 ): Promise<CompoundWord> {
   const rows = await sql`
-    INSERT INTO compound_words (word, meaning, pinyin, han_viet, note)
-    VALUES (${word}, ${meaning}, ${pinyin}, ${hanViet}, ${note})
+    INSERT INTO compound_words (user_id, word, meaning, pinyin, han_viet, note)
+    VALUES (${userId}, ${word}, ${meaning}, ${pinyin}, ${hanViet}, ${note})
     RETURNING id, word, meaning, pinyin, han_viet, note
   `;
   const id = rows[0].id as number;
-  if (categoryIds.length > 0) {
-    for (const cid of categoryIds) {
-      await sql`INSERT INTO compound_word_categories (word_id, category_id) VALUES (${id}, ${cid}) ON CONFLICT DO NOTHING`;
-    }
-  }
+  await linkCompoundWordCategories(userId, id, categoryIds);
   return { id, word: rows[0].word as string, meaning: rows[0].meaning as string, pinyin: rows[0].pinyin as string, hanViet: rows[0].han_viet as string, note: (rows[0].note as string) ?? "", categoryIds };
 }
 
 export async function updateCompoundWord(
-  id: number, word: string, meaning: string, pinyin: string, hanViet: string, note: string, categoryIds: number[]
+  userId: number, id: number, word: string, meaning: string, pinyin: string, hanViet: string, note: string, categoryIds: number[]
 ): Promise<void> {
-  await sql`
+  const rows = await sql`
     UPDATE compound_words SET word = ${word}, meaning = ${meaning}, pinyin = ${pinyin}, han_viet = ${hanViet}, note = ${note}
-    WHERE id = ${id}
+    WHERE id = ${id} AND user_id = ${userId}
+    RETURNING id
   `;
+  if (!rows[0]) return;
   await sql`DELETE FROM compound_word_categories WHERE word_id = ${id}`;
-  for (const cid of categoryIds) {
-    await sql`INSERT INTO compound_word_categories (word_id, category_id) VALUES (${id}, ${cid}) ON CONFLICT DO NOTHING`;
-  }
+  await linkCompoundWordCategories(userId, id, categoryIds);
 }
 
-export async function deleteCompoundWord(id: number): Promise<void> {
-  await sql`DELETE FROM compound_words WHERE id = ${id}`;
+export async function deleteCompoundWord(userId: number, id: number): Promise<void> {
+  await sql`DELETE FROM compound_words WHERE id = ${id} AND user_id = ${userId}`;
 }
 
 // ── Char groups (Gom từ) ──────────────────────────────────────────────────────
@@ -231,8 +244,10 @@ export async function ensureCharGroupTables() {
   await sql`
     CREATE TABLE IF NOT EXISTS char_groups (
       id         SERIAL PRIMARY KEY,
-      name       TEXT NOT NULL UNIQUE,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      user_id    INT  NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      name       TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      CONSTRAINT char_groups_user_name_key UNIQUE (user_id, name)
     )
   `;
   await sql`
@@ -250,35 +265,49 @@ export interface CharGroup {
   chars: string[];
 }
 
-export async function getCharGroups(): Promise<CharGroup[]> {
+export async function getCharGroups(userId: number): Promise<CharGroup[]> {
   const rows = await sql`
     SELECT g.id, g.name,
            COALESCE(array_agg(m.char ORDER BY m.char) FILTER (WHERE m.char IS NOT NULL), '{}') AS chars
     FROM char_groups g
     LEFT JOIN char_group_members m ON g.id = m.group_id
+    WHERE g.user_id = ${userId}
     GROUP BY g.id, g.name
     ORDER BY g.name
   `;
   return rows.map((r) => ({ id: r.id as number, name: r.name as string, chars: r.chars as string[] }));
 }
 
-export async function createCharGroup(name: string): Promise<CharGroup> {
-  const rows = await sql`INSERT INTO char_groups (name) VALUES (${name}) RETURNING id, name`;
+export async function createCharGroup(userId: number, name: string): Promise<CharGroup> {
+  const rows = await sql`INSERT INTO char_groups (user_id, name) VALUES (${userId}, ${name}) RETURNING id, name`;
   return { id: rows[0].id as number, name: rows[0].name as string, chars: [] };
 }
 
-export async function deleteCharGroup(id: number): Promise<void> {
-  await sql`DELETE FROM char_groups WHERE id = ${id}`;
+export async function renameCharGroup(userId: number, id: number, name: string): Promise<void> {
+  await sql`UPDATE char_groups SET name = ${name} WHERE id = ${id} AND user_id = ${userId}`;
 }
 
-export async function addCharsToGroup(groupId: number, chars: string[]): Promise<void> {
-  for (const char of chars) {
-    await sql`INSERT INTO char_group_members (group_id, char) VALUES (${groupId}, ${char}) ON CONFLICT DO NOTHING`;
-  }
+export async function deleteCharGroup(userId: number, id: number): Promise<void> {
+  await sql`DELETE FROM char_groups WHERE id = ${id} AND user_id = ${userId}`;
 }
 
-export async function removeCharFromGroup(groupId: number, char: string): Promise<void> {
-  await sql`DELETE FROM char_group_members WHERE group_id = ${groupId} AND char = ${char}`;
+export async function addCharsToGroup(userId: number, groupId: number, chars: string[]): Promise<boolean> {
+  const owned = await sql`SELECT 1 FROM char_groups WHERE id = ${groupId} AND user_id = ${userId}`;
+  if (!owned[0]) return false;
+  await sql`
+    INSERT INTO char_group_members (group_id, char)
+    SELECT ${groupId}, unnest(${chars}::text[])
+    ON CONFLICT DO NOTHING
+  `;
+  return true;
+}
+
+export async function removeCharFromGroup(userId: number, groupId: number, char: string): Promise<void> {
+  await sql`
+    DELETE FROM char_group_members
+    WHERE group_id = ${groupId} AND char = ${char}
+      AND group_id IN (SELECT id FROM char_groups WHERE user_id = ${userId})
+  `;
 }
 
 // ── Review history ───────────────────────────────────────────────────────────
@@ -287,6 +316,7 @@ export async function ensureReviewHistoryTable() {
   await sql`
     CREATE TABLE IF NOT EXISTS chinese_review_history (
       id            SERIAL PRIMARY KEY,
+      user_id       INT  NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       text          TEXT NOT NULL,
       learned_count INT  NOT NULL DEFAULT 0,
       created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -301,10 +331,10 @@ export interface ReviewHistoryItem {
   createdAt: string;
 }
 
-export async function saveReviewHistory(text: string, learnedCount: number): Promise<ReviewHistoryItem> {
+export async function saveReviewHistory(userId: number, text: string, learnedCount: number): Promise<ReviewHistoryItem> {
   const rows = await sql`
-    INSERT INTO chinese_review_history (text, learned_count)
-    VALUES (${text}, ${learnedCount})
+    INSERT INTO chinese_review_history (user_id, text, learned_count)
+    VALUES (${userId}, ${text}, ${learnedCount})
     RETURNING id, text, learned_count, created_at
   `;
   return {
@@ -315,10 +345,11 @@ export async function saveReviewHistory(text: string, learnedCount: number): Pro
   };
 }
 
-export async function getReviewHistory(limit = 20): Promise<ReviewHistoryItem[]> {
+export async function getReviewHistory(userId: number, limit = 20): Promise<ReviewHistoryItem[]> {
   const rows = await sql`
     SELECT id, text, learned_count, created_at
     FROM chinese_review_history
+    WHERE user_id = ${userId}
     ORDER BY created_at DESC
     LIMIT ${limit}
   `;
@@ -330,14 +361,15 @@ export async function getReviewHistory(limit = 20): Promise<ReviewHistoryItem[]>
   }));
 }
 
-export async function deleteReviewHistory(id: number): Promise<void> {
-  await sql`DELETE FROM chinese_review_history WHERE id = ${id}`;
+export async function deleteReviewHistory(userId: number, id: number): Promise<void> {
+  await sql`DELETE FROM chinese_review_history WHERE id = ${id} AND user_id = ${userId}`;
 }
 
 export async function ensureUserTextTable() {
   await sql`
     CREATE TABLE IF NOT EXISTS chinese_user_texts (
       id         SERIAL PRIMARY KEY,
+      user_id    INT  NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       title      TEXT,
       text       TEXT NOT NULL,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -355,10 +387,10 @@ export interface ChineseUserTextItem {
   createdAt: string;
 }
 
-export async function saveChineseUserText(text: string, title?: string): Promise<ChineseUserTextItem> {
+export async function saveChineseUserText(userId: number, text: string, title?: string): Promise<ChineseUserTextItem> {
   const rows = await sql`
-    INSERT INTO chinese_user_texts (title, text)
-    VALUES (${title ?? null}, ${text})
+    INSERT INTO chinese_user_texts (user_id, title, text)
+    VALUES (${userId}, ${title ?? null}, ${text})
     RETURNING id, title, text, created_at
   `;
   return {
@@ -369,10 +401,11 @@ export async function saveChineseUserText(text: string, title?: string): Promise
   };
 }
 
-export async function getChineseUserTexts(limit = 50): Promise<ChineseUserTextItem[]> {
+export async function getChineseUserTexts(userId: number, limit = 50): Promise<ChineseUserTextItem[]> {
   const rows = await sql`
     SELECT id, title, text, created_at
     FROM chinese_user_texts
+    WHERE user_id = ${userId}
     ORDER BY created_at DESC
     LIMIT ${limit}
   `;
@@ -385,6 +418,7 @@ export async function getChineseUserTexts(limit = 50): Promise<ChineseUserTextIt
 }
 
 export async function updateChineseUserText(
+  userId: number,
   id: number,
   text: string,
   title?: string
@@ -392,7 +426,7 @@ export async function updateChineseUserText(
   const rows = await sql`
     UPDATE chinese_user_texts
     SET title = ${title ?? null}, text = ${text}
-    WHERE id = ${id}
+    WHERE id = ${id} AND user_id = ${userId}
     RETURNING id, title, text, created_at
   `;
   if (!rows[0]) return null;
@@ -404,8 +438,8 @@ export async function updateChineseUserText(
   };
 }
 
-export async function deleteChineseUserText(id: number): Promise<void> {
-  await sql`DELETE FROM chinese_user_texts WHERE id = ${id}`;
+export async function deleteChineseUserText(userId: number, id: number): Promise<void> {
+  await sql`DELETE FROM chinese_user_texts WHERE id = ${id} AND user_id = ${userId}`;
 }
 
 // ── Grammar posts ─────────────────────────────────────────────────────────────
@@ -414,6 +448,7 @@ export async function ensureGrammarTables() {
   await sql`
     CREATE TABLE IF NOT EXISTS grammar_posts (
       id         SERIAL PRIMARY KEY,
+      user_id    INT  NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       title      TEXT NOT NULL,
       content    TEXT NOT NULL DEFAULT '',
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -430,8 +465,8 @@ export interface GrammarPost {
   updatedAt: string;
 }
 
-export async function getGrammarPosts(): Promise<GrammarPost[]> {
-  const rows = await sql`SELECT id, title, content, created_at, updated_at FROM grammar_posts ORDER BY id DESC`;
+export async function getGrammarPosts(userId: number): Promise<GrammarPost[]> {
+  const rows = await sql`SELECT id, title, content, created_at, updated_at FROM grammar_posts WHERE user_id = ${userId} ORDER BY id DESC`;
   return rows.map((r) => ({
     id: r.id as number,
     title: r.title as string,
@@ -441,9 +476,9 @@ export async function getGrammarPosts(): Promise<GrammarPost[]> {
   }));
 }
 
-export async function createGrammarPost(title: string, content: string): Promise<GrammarPost> {
+export async function createGrammarPost(userId: number, title: string, content: string): Promise<GrammarPost> {
   const rows = await sql`
-    INSERT INTO grammar_posts (title, content) VALUES (${title}, ${content})
+    INSERT INTO grammar_posts (user_id, title, content) VALUES (${userId}, ${title}, ${content})
     RETURNING id, title, content, created_at, updated_at
   `;
   return {
@@ -455,15 +490,15 @@ export async function createGrammarPost(title: string, content: string): Promise
   };
 }
 
-export async function updateGrammarPost(id: number, title: string, content: string): Promise<void> {
+export async function updateGrammarPost(userId: number, id: number, title: string, content: string): Promise<void> {
   await sql`
     UPDATE grammar_posts SET title = ${title}, content = ${content}, updated_at = NOW()
-    WHERE id = ${id}
+    WHERE id = ${id} AND user_id = ${userId}
   `;
 }
 
-export async function deleteGrammarPost(id: number): Promise<void> {
-  await sql`DELETE FROM grammar_posts WHERE id = ${id}`;
+export async function deleteGrammarPost(userId: number, id: number): Promise<void> {
+  await sql`DELETE FROM grammar_posts WHERE id = ${id} AND user_id = ${userId}`;
 }
 
 // ── Flashcard SRS (SM-2) ──────────────────────────────────────────────────────
@@ -473,22 +508,26 @@ export type FlashcardMode = "flip" | "write";
 export async function ensureFlashcardTables() {
   await sql`
     CREATE TABLE IF NOT EXISTS chinese_flashcard_flip (
-      char          TEXT NOT NULL PRIMARY KEY,
+      user_id       INT  NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      char          TEXT NOT NULL,
       due_date      DATE NOT NULL DEFAULT CURRENT_DATE,
       interval      INT  NOT NULL DEFAULT 1,
       ease_factor   REAL NOT NULL DEFAULT 2.5,
       repetitions   INT  NOT NULL DEFAULT 0,
-      updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (user_id, char)
     )
   `;
   await sql`
     CREATE TABLE IF NOT EXISTS chinese_flashcard_write (
-      char          TEXT NOT NULL PRIMARY KEY,
+      user_id       INT  NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      char          TEXT NOT NULL,
       due_date      DATE NOT NULL DEFAULT CURRENT_DATE,
       interval      INT  NOT NULL DEFAULT 1,
       ease_factor   REAL NOT NULL DEFAULT 2.5,
       repetitions   INT  NOT NULL DEFAULT 0,
-      updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (user_id, char)
     )
   `;
 }
@@ -506,29 +545,29 @@ function flashcardTable(mode: FlashcardMode) {
 }
 
 
-export async function seedFlashcardsForLearnedChars(mode: FlashcardMode): Promise<void> {
+export async function seedFlashcardsForLearnedChars(userId: number, mode: FlashcardMode): Promise<void> {
   if (mode === "flip") {
-    await sql`INSERT INTO chinese_flashcard_flip (char) SELECT char FROM chinese_card_state WHERE hidden = TRUE ON CONFLICT (char) DO NOTHING`;
+    await sql`INSERT INTO chinese_flashcard_flip (user_id, char) SELECT user_id, char FROM chinese_card_state WHERE user_id = ${userId} AND hidden = TRUE ON CONFLICT (user_id, char) DO NOTHING`;
   } else {
-    await sql`INSERT INTO chinese_flashcard_write (char) SELECT char FROM chinese_card_state WHERE hidden = TRUE ON CONFLICT (char) DO NOTHING`;
+    await sql`INSERT INTO chinese_flashcard_write (user_id, char) SELECT user_id, char FROM chinese_card_state WHERE user_id = ${userId} AND hidden = TRUE ON CONFLICT (user_id, char) DO NOTHING`;
   }
 }
 
-export async function getFlashcardsDueToday(mode: FlashcardMode): Promise<string[]> {
-  await seedFlashcardsForLearnedChars(mode);
+export async function getFlashcardsDueToday(userId: number, mode: FlashcardMode): Promise<string[]> {
+  await seedFlashcardsForLearnedChars(userId, mode);
   let rows;
   if (mode === "flip") {
     rows = await sql`
       SELECT f.char FROM chinese_flashcard_flip f
-      JOIN chinese_card_state s ON s.char = f.char
-      WHERE s.hidden = TRUE AND f.due_date <= CURRENT_DATE
+      JOIN chinese_card_state s ON s.user_id = f.user_id AND s.char = f.char
+      WHERE f.user_id = ${userId} AND s.hidden = TRUE AND f.due_date <= CURRENT_DATE
       ORDER BY f.due_date ASC
     `;
   } else {
     rows = await sql`
       SELECT f.char FROM chinese_flashcard_write f
-      JOIN chinese_card_state s ON s.char = f.char
-      WHERE s.hidden = TRUE AND f.due_date <= CURRENT_DATE
+      JOIN chinese_card_state s ON s.user_id = f.user_id AND s.char = f.char
+      WHERE f.user_id = ${userId} AND s.hidden = TRUE AND f.due_date <= CURRENT_DATE
       ORDER BY f.due_date ASC
     `;
   }
@@ -553,12 +592,12 @@ function calcNextInterval(grade: 0 | 1 | 2 | 3, interval: number, easeFactor: nu
   return { interval: next, easeFactor: Math.min(2.5, easeFactor + 0.15), repetitions: repetitions + 1 };
 }
 
-export async function upsertFlashcard(char: string, grade: 0 | 1 | 2 | 3, mode: FlashcardMode): Promise<void> {
+export async function upsertFlashcard(userId: number, char: string, grade: 0 | 1 | 2 | 3, mode: FlashcardMode): Promise<void> {
   let rows;
   if (mode === "flip") {
-    rows = await sql`SELECT interval, ease_factor, repetitions FROM chinese_flashcard_flip WHERE char = ${char}`;
+    rows = await sql`SELECT interval, ease_factor, repetitions FROM chinese_flashcard_flip WHERE user_id = ${userId} AND char = ${char}`;
   } else {
-    rows = await sql`SELECT interval, ease_factor, repetitions FROM chinese_flashcard_write WHERE char = ${char}`;
+    rows = await sql`SELECT interval, ease_factor, repetitions FROM chinese_flashcard_write WHERE user_id = ${userId} AND char = ${char}`;
   }
 
   const { interval, easeFactor, repetitions } = calcNextInterval(
@@ -574,9 +613,9 @@ export async function upsertFlashcard(char: string, grade: 0 | 1 | 2 | 3, mode: 
 
   if (mode === "flip") {
     await sql`
-      INSERT INTO chinese_flashcard_flip (char, due_date, interval, ease_factor, repetitions, updated_at)
-      VALUES (${char}, ${dueDateStr}, ${interval}, ${easeFactor}, ${repetitions}, NOW())
-      ON CONFLICT (char) DO UPDATE SET
+      INSERT INTO chinese_flashcard_flip (user_id, char, due_date, interval, ease_factor, repetitions, updated_at)
+      VALUES (${userId}, ${char}, ${dueDateStr}, ${interval}, ${easeFactor}, ${repetitions}, NOW())
+      ON CONFLICT (user_id, char) DO UPDATE SET
         due_date = ${dueDateStr},
         interval = ${interval},
         ease_factor = ${easeFactor},
@@ -585,9 +624,9 @@ export async function upsertFlashcard(char: string, grade: 0 | 1 | 2 | 3, mode: 
     `;
   } else {
     await sql`
-      INSERT INTO chinese_flashcard_write (char, due_date, interval, ease_factor, repetitions, updated_at)
-      VALUES (${char}, ${dueDateStr}, ${interval}, ${easeFactor}, ${repetitions}, NOW())
-      ON CONFLICT (char) DO UPDATE SET
+      INSERT INTO chinese_flashcard_write (user_id, char, due_date, interval, ease_factor, repetitions, updated_at)
+      VALUES (${userId}, ${char}, ${dueDateStr}, ${interval}, ${easeFactor}, ${repetitions}, NOW())
+      ON CONFLICT (user_id, char) DO UPDATE SET
         due_date = ${dueDateStr},
         interval = ${interval},
         ease_factor = ${easeFactor},
@@ -597,16 +636,16 @@ export async function upsertFlashcard(char: string, grade: 0 | 1 | 2 | 3, mode: 
   }
 }
 
-export async function upsertCardEdits(char: string, edits: UserEdits) {
+export async function upsertCardEdits(userId: number, char: string, edits: UserEdits) {
   await sql`
-    INSERT INTO chinese_card_edits (char, pinyin, han_viet, meaning_vi, note, updated_at)
+    INSERT INTO chinese_card_edits (user_id, char, pinyin, han_viet, meaning_vi, note, updated_at)
     VALUES (
-      ${char},
+      ${userId}, ${char},
       ${edits.pinyin ?? null}, ${edits.hanViet ?? null},
       ${edits.meaningVi ?? null}, ${edits.note ?? null},
       NOW()
     )
-    ON CONFLICT (char)
+    ON CONFLICT (user_id, char)
     DO UPDATE SET
       pinyin     = EXCLUDED.pinyin,
       han_viet   = EXCLUDED.han_viet,

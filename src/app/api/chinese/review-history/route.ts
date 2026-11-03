@@ -5,11 +5,14 @@ import {
   saveReviewHistory,
   deleteReviewHistory,
 } from "@/src/lib/chinese-db";
+import { getUserId, unauthorized } from "@/src/lib/auth";
 
 export async function GET() {
+  const userId = await getUserId();
+  if (!userId) return unauthorized();
   try {
     await ensureReviewHistoryTable();
-    const history = await getReviewHistory(20);
+    const history = await getReviewHistory(userId, 20);
     return NextResponse.json({ history });
   } catch (e) {
     console.error(e);
@@ -18,11 +21,13 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const userId = await getUserId();
+  if (!userId) return unauthorized();
   try {
     await ensureReviewHistoryTable();
     const { text, learnedCount } = await req.json() as { text: string; learnedCount: number };
     if (!text) return NextResponse.json({ error: "missing_text" }, { status: 400 });
-    const item = await saveReviewHistory(text, learnedCount ?? 0);
+    const item = await saveReviewHistory(userId, text, learnedCount ?? 0);
     return NextResponse.json({ item });
   } catch (e) {
     console.error(e);
@@ -31,9 +36,11 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const userId = await getUserId();
+  if (!userId) return unauthorized();
   try {
     const { id } = await req.json() as { id: number };
-    await deleteReviewHistory(id);
+    await deleteReviewHistory(userId, id);
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error(e);

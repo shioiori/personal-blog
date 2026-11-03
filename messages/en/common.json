@@ -19,7 +19,19 @@
         "english": "English",
         "guide": "Guide",
         "search": "Search",
-        "toggleTheme": "Toggle theme"
+        "toggleTheme": "Toggle theme",
+        "login": "Log in",
+        "logout": "Log out"
+    },
+    "Auth": {
+        "title": "Log in",
+        "email": "Email",
+        "password": "Password",
+        "submit": "Log in",
+        "submitting": "Logging in...",
+        "invalidCredentials": "Incorrect email or password",
+        "error": "Login failed, please try again",
+        "required": "Please log in to use this feature"
     },
     "Search": {
         "title": "Search",

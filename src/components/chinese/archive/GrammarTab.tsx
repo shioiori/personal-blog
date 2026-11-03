@@ -9,8 +9,6 @@ import { Button } from "@/src/components/ui/Button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/src/components/ui/Dialog";
 import { cn } from "@/src/utils/ui";
 import { ChevronDown, ChevronRight, Plus, Pencil, Trash2, Bold, Italic, UnderlineIcon, List, ListOrdered, AlignLeft, AlignCenter, AlignRight, Heading2, Heading3, Minus } from "lucide-react";
-import { useEditAuth } from "../study/useEditAuth";
-import { KeyPromptModal } from "../study/KeyPromptModal";
 import type { GrammarPost } from "@/src/lib/chinese-db";
 
 // ── API helpers ───────────────────────────────────────────────────────────────
@@ -255,8 +253,6 @@ export function GrammarTab() {
   const [loading, setLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<GrammarPost | null>(null);
-  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
-  const { auth, requestEdit, submitKey, dismiss } = useEditAuth();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -270,43 +266,20 @@ export function GrammarTab() {
 
   useEffect(() => { load(); }, [load]);
 
-  // When auth becomes verified, run any pending action
-  useEffect(() => {
-    if (auth.status === "verified" && pendingAction) {
-      pendingAction();
-      setPendingAction(null);
-    }
-  }, [auth.status, pendingAction]);
-
-  function withAuth(action: () => void) {
-    if (auth.status === "verified") {
-      action();
-    } else {
-      setPendingAction(() => action);
-      requestEdit();
-    }
-  }
-
   function handleAdd() {
-    withAuth(() => {
-      setEditing(null);
-      setFormOpen(true);
-    });
+    setEditing(null);
+    setFormOpen(true);
   }
 
   function handleEdit(post: GrammarPost) {
-    withAuth(() => {
-      setEditing(post);
-      setFormOpen(true);
-    });
+    setEditing(post);
+    setFormOpen(true);
   }
 
-  function handleDelete(id: number) {
-    withAuth(async () => {
-      if (!confirm("Xóa bài này?")) return;
-      await apiMutate("DELETE", { id });
-      setPosts((prev) => prev.filter((p) => p.id !== id));
-    });
+  async function handleDelete(id: number) {
+    if (!confirm("Xóa bài này?")) return;
+    await apiMutate("DELETE", { id });
+    setPosts((prev) => prev.filter((p) => p.id !== id));
   }
 
   async function handleSave(title: string, content: string) {
@@ -355,9 +328,6 @@ export function GrammarTab() {
         onSave={handleSave}
       />
 
-      {auth.status === "prompting" && (
-        <KeyPromptModal onSubmit={submitKey} onDismiss={dismiss} />
-      )}
     </div>
   );
 }

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getUserId, unauthorized } from "@/src/lib/auth";
 
 export async function POST(req: NextRequest) {
+  if (!(await getUserId())) return unauthorized();
   try {
     const { ink, width, height } = await req.json();
 

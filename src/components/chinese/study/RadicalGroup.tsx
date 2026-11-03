@@ -25,8 +25,6 @@ interface RadicalGroupProps {
   onNavigate: (char: string) => void;
   onSave: (char: string, edits: UserEdits) => void;
   userEdits: Record<string, UserEdits>;
-  onEditRequest: () => boolean;
-  editLocked: boolean;
 }
 
 function RadicalGroupInner({
@@ -41,8 +39,6 @@ function RadicalGroupInner({
   onNavigate,
   onSave,
   userEdits,
-  onEditRequest,
-  editLocked,
 }: RadicalGroupProps) {
   return (
     <Collapsible open={isOpen} onOpenChange={() => onToggle(radical)}>
@@ -80,8 +76,6 @@ function RadicalGroupInner({
               onToggleHide={onToggleHide}
               onNavigate={onNavigate}
               onSave={onSave}
-              onEditRequest={onEditRequest}
-              editLocked={editLocked}
             />
           ))}
         </div>
@@ -93,14 +87,12 @@ function RadicalGroupInner({
 export const RadicalGroup = memo(RadicalGroupInner, (prev, next) => {
   if (prev.radical !== next.radical) return false;
   if (prev.isOpen !== next.isOpen) return false;
-  if (prev.editLocked !== next.editLocked) return false;
   if (prev.characters !== next.characters) return false;
   if (prev.userEdits !== next.userEdits) return false;
   if (prev.onToggle !== next.onToggle) return false;
   if (prev.onToggleHide !== next.onToggleHide) return false;
   if (prev.onNavigate !== next.onNavigate) return false;
   if (prev.onSave !== next.onSave) return false;
-  if (prev.onEditRequest !== next.onEditRequest) return false;
   if (prev.showKnownOnly !== next.showKnownOnly) return false;
   // Only re-render if hidden status of chars in this group actually changed
   const chars = next.characters.map((c) => c.char);

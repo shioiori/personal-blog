@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ensureTables, getCardStates, upsertCardState } from "@/src/lib/chinese-db";
+import { getUserId, unauthorized } from "@/src/lib/auth";
 
 export async function GET() {
+  const userId = await getUserId();
+  if (!userId) return unauthorized();
   try {
     await ensureTables();
-    const states = await getCardStates();
+    const states = await getCardStates(userId);
     return NextResponse.json(states);
   } catch (e) {
     console.error(e);
@@ -13,13 +16,15 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const userId = await getUserId();
+  if (!userId) return unauthorized();
   try {
     await ensureTables();
     const { char, hidden } = await req.json() as { char: string; hidden: boolean };
     if (!char || typeof hidden !== "boolean") {
       return NextResponse.json({ error: "invalid" }, { status: 400 });
     }
-    await upsertCardState(char, hidden);
+    await upsertCardState(userId, char, hidden);
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error(e);

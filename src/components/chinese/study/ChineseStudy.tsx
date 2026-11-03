@@ -10,8 +10,6 @@ import {
 import { RadicalGroup } from './RadicalGroup'
 import { CharacterCard } from './CharacterCard'
 import type { UserEdits } from './EditCardModal'
-import { useEditAuth } from './useEditAuth'
-import { KeyPromptModal } from './KeyPromptModal'
 import {
   Select,
   SelectContent,
@@ -90,27 +88,6 @@ export function ChineseStudy() {
   const [showKnownCardsOnly, setShowKnownCardsOnly] = useState(false)
   const [userEdits, setUserEdits] = useState<Record<string, UserEdits>>({})
   const [loaded, setLoaded] = useState(false)
-  const { auth, requestEdit, submitKey, dismiss } = useEditAuth()
-  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null)
-
-  useEffect(() => {
-    if (auth.status === 'verified' && pendingAction) {
-      pendingAction()
-      setPendingAction(null)
-    }
-  }, [auth.status, pendingAction])
-
-  const withAuth = useCallback(
-    (action: () => void) => {
-      if (requestEdit()) {
-        action()
-      } else {
-        setPendingAction(() => action)
-      }
-    },
-    [requestEdit]
-  )
-
   // Load user edits from Neon on mount
   useEffect(() => {
     apiGet<Record<string, UserEdits>>('/api/chinese/edits')
@@ -196,24 +173,15 @@ export function ChineseStudy() {
     }
   }, [viewMode, visibleGroups, selectedRadical])
 
-  const handleToggleHide = useCallback(
-    (char: string) => {
-      withAuth(() => toggleHiddenCard(char))
-    },
-    [withAuth, toggleHiddenCard]
-  )
-
   const handleSave = useCallback(
     (char: string, edits: UserEdits) => {
-      withAuth(() => {
-        setUserEdits((prev) => {
-          const merged = { ...(prev[char] ?? {}), ...edits }
-          void apiPost('/api/chinese/edits', { char, edits: merged })
-          return { ...prev, [char]: merged }
-        })
+      setUserEdits((prev) => {
+        const merged = { ...(prev[char] ?? {}), ...edits }
+        void apiPost('/api/chinese/edits', { char, edits: merged })
+        return { ...prev, [char]: merged }
       })
     },
-    [withAuth]
+    []
   )
 
   const handleToggleGroup = useCallback((radical: string) => {
@@ -476,12 +444,10 @@ export function ChineseStudy() {
                 onToggle={handleToggleGroup}
                 hiddenCards={hiddenCards}
                 showKnownOnly={showKnownCardsOnly}
-                onToggleHide={handleToggleHide}
+                onToggleHide={toggleHiddenCard}
                 onNavigate={handleNavigate}
                 onSave={handleSave}
                 userEdits={userEdits}
-                onEditRequest={requestEdit}
-                editLocked={auth.status === 'locked'}
               />
             ))}
           </div>
@@ -496,11 +462,9 @@ export function ChineseStudy() {
                 info={c}
                 edits={userEdits[c.char] ?? {}}
                 hidden={hiddenCards.has(c.char)}
-                onToggleHide={handleToggleHide}
+                onToggleHide={toggleHiddenCard}
                 onNavigate={handleNavigate}
                 onSave={handleSave}
-                onEditRequest={requestEdit}
-                editLocked={auth.status === 'locked'}
               />
             ))}
           </div>
@@ -527,11 +491,6 @@ export function ChineseStudy() {
       <p className="text-xs text-muted-foreground/60 text-center pt-4">
         Data: CC-CEDICT (CC BY-SA 3.0) · HSK vocabulary list
       </p>
-
-      {/* Key prompt modal */}
-      {auth.status === 'prompting' && (
-        <KeyPromptModal onSubmit={submitKey} onDismiss={dismiss} />
-      )}
     </div>
   )
 }

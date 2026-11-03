@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Sun, Moon, Bird, Menu, X } from 'lucide-react'
+import { Sun, Moon, Bird, Menu, X, LogIn, LogOut, CircleUser } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { Button } from '@/src/components/ui/Button'
 import { SearchDialog } from '@/src/components/SearchDialog'
@@ -15,6 +15,8 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
@@ -22,6 +24,7 @@ import {
 } from '@/src/components/ui/DropdownMenu'
 import { useTranslations } from 'next-intl'
 import { LanguageContext } from '../context/language'
+import { useAuth } from '../context/auth'
 
 export function Header() {
   const t = useTranslations('Header')
@@ -31,6 +34,7 @@ export function Header() {
   const [language, setLanguage] = useState<Language>()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const languageContext = useContext(LanguageContext)
+  const { user, loading: authLoading, openLogin, logout } = useAuth()
 
   const handleLanguageChange = (lang: Language) => {
     setLanguage(lang)
@@ -161,6 +165,30 @@ export function Header() {
               </div>
               <span className="sr-only">{t('toggleTheme')}</span>
             </Button>
+
+            {!authLoading && (user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-9 w-9">
+                    <CircleUser className="h-5 w-5" />
+                    <span className="sr-only">{user.email}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel className="font-normal text-muted-foreground">{user.email}</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={logout}>
+                    <LogOut className="h-4 w-4" />
+                    {t('logout')}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button variant="ghost" onClick={openLogin} className="h-9 px-3">
+                <LogIn className="h-4 w-4" />
+                <span className="hidden sm:inline">{t('login')}</span>
+              </Button>
+            ))}
 
             <Button
               variant="ghost"

@@ -16,12 +16,9 @@ interface CharacterCardProps {
   onToggleHide: (char: string) => void;
   onSave: (char: string, edits: UserEdits) => void;
   onNavigate?: (char: string) => void;
-  // returns true = already verified (open modal now), false = prompting key
-  onEditRequest: () => boolean;
-  editLocked: boolean;
 }
 
-export const CharacterCard = memo(function CharacterCard({ info, edits, hidden, onToggleHide, onSave, onNavigate, onEditRequest, editLocked }: CharacterCardProps) {
+export const CharacterCard = memo(function CharacterCard({ info, edits, hidden, onToggleHide, onSave, onNavigate }: CharacterCardProps) {
   const [editOpen, setEditOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const { speak, speaking } = useSpeech();
@@ -79,10 +76,9 @@ export const CharacterCard = memo(function CharacterCard({ info, edits, hidden, 
           onClick={(e) => e.stopPropagation()}
         >
           <button
-            onClick={() => { if (onEditRequest()) setEditOpen(true); }}
-            disabled={editLocked}
-            className="text-muted-foreground/50 hover:text-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-            title={editLocked ? "Chỉnh sửa bị khoá" : "Chỉnh sửa"}
+            onClick={() => setEditOpen(true)}
+            className="text-muted-foreground/50 hover:text-primary transition-colors"
+            title="Chỉnh sửa"
           >
             <Pencil className="h-3.5 w-3.5" />
           </button>

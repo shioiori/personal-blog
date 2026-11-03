@@ -1,14 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ensureEnglishTables, getFlashcardsDueToday, upsertFlashcardGrade } from "@/src/lib/english-db";
 import { ensureGachaTables, recordFlashcardProgress, resetFlashcardProgress } from "@/src/lib/english-gacha-db";
+import { getUserId, unauthorized } from "@/src/lib/auth";
 
 export async function GET(req: NextRequest) {
+  const userId = await getUserId();
+  if (!userId) return unauthorized();
   try {
     await ensureEnglishTables();
     const limitParam = req.nextUrl.searchParams.get("limit");
     const limit = limitParam ? parseInt(limitParam, 10) : 0;
     const order = (req.nextUrl.searchParams.get("order") ?? "due") as "due" | "random";
-    const cards = await getFlashcardsDueToday({ limit, order });
+    const cards = await getFlashcardsDueToday(userId, { limit, order });
     return NextResponse.json({ cards, total: cards.length });
   } catch (e) {
     console.error(e);
@@ -17,22 +20,26 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const userId = await getUserId();
+  if (!userId) return unauthorized();
   try {
     await ensureEnglishTables();
     const { wordId, grade } = (await req.json()) as { wordId: number; grade: 0 | 1 | 2 | 3 };
     if (!wordId || ![0, 1, 2, 3].includes(grade)) {
       return NextResponse.json({ error: "invalid" }, { status: 400 });
     }
-    await upsertFlashcardGrade(wordId, grade);
+    if (!(await upsertFlashcardGrade(userId, wordId, grade))) {
+      return NextResponse.json({ error: "not found" }, { status: 404 });
+    }
 
     let ticketAwarded = false;
     await ensureGachaTables();
     if (grade === 2 || grade === 3) {
-      ticketAwarded = await recordFlashcardProgress(wordId, grade === 3 ? 2 : 1);
+      ticketAwarded = await recordFlashcardProgress(userId, wordId, grade === 3 ? 2 : 1);
     } else {
       // Again or Hard: clear the remembered rank so relearning it back to
       // Good/Easy earns a ticket again.
-      await resetFlashcardProgress(wordId);
+      await resetFlashcardProgress(userId, wordId);
     }
 
     return NextResponse.json({ ok: true, ticketAwarded });

@@ -13,8 +13,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/src/
 import { CharTooltip } from "../study/CharTooltip";
 import { TooltipMode } from "@/src/components/enums";
 import type { UserEdits } from "@/src/declaration/chinese";
-import { useEditAuth } from "../study/useEditAuth";
-import { KeyPromptModal } from "../study/KeyPromptModal";
 
 const CAT_COLORS = [
   "#3b82f6", "#22c55e", "#f59e0b", "#ec4899", "#8b5cf6",
@@ -309,24 +307,6 @@ export function CompoundTab() {
   const [catFormOpen, setCatFormOpen] = useState(false);
   const [editingCat, setEditingCat] = useState<CompoundCategory | undefined>();
 
-  const { auth, requestEdit, submitKey, dismiss } = useEditAuth();
-  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
-
-  useEffect(() => {
-    if (auth.status === "verified" && pendingAction) {
-      pendingAction();
-      setPendingAction(null);
-    }
-  }, [auth.status, pendingAction]);
-
-  function withAuth(action: () => void) {
-    if (requestEdit()) {
-      action();
-    } else {
-      setPendingAction(() => action);
-    }
-  }
-
   // Load data
   useEffect(() => {
     Promise.all([
@@ -466,10 +446,10 @@ export function CompoundTab() {
             />
           </div>
         </div>
-        <Button size="sm" variant="outline" onClick={() => withAuth(() => { setEditingCat(undefined); setCatFormOpen(true); })}>
+        <Button size="sm" variant="outline" onClick={() => { setEditingCat(undefined); setCatFormOpen(true); }}>
           <Plus className="w-3.5 h-3.5 mr-1" /> Category
         </Button>
-        <Button size="sm" onClick={() => withAuth(() => { setEditingWord(undefined); setWordFormOpen(true); })}>
+        <Button size="sm" onClick={() => { setEditingWord(undefined); setWordFormOpen(true); }}>
           <Plus className="w-3.5 h-3.5 mr-1" /> Từ ghép
         </Button>
       </div>
@@ -492,13 +472,13 @@ export function CompoundTab() {
               {cat.name}
               <span
                 className="opacity-60 hover:opacity-100"
-                onClick={(e) => { e.stopPropagation(); withAuth(() => { setEditingCat(cat); setCatFormOpen(true); }); }}
+                onClick={(e) => { e.stopPropagation(); setEditingCat(cat); setCatFormOpen(true); }}
               >
                 <Pencil className="w-2.5 h-2.5" />
               </span>
               <span
                 className="opacity-60 hover:opacity-100 hover:text-destructive"
-                onClick={(e) => { e.stopPropagation(); withAuth(() => handleDeleteCat(cat.id)); }}
+                onClick={(e) => { e.stopPropagation(); handleDeleteCat(cat.id); }}
               >
                 <Trash2 className="w-2.5 h-2.5" />
               </span>
@@ -566,8 +546,8 @@ export function CompoundTab() {
                         hideMeaning={hideMeaning}
                         hideHanViet={hideHanViet}
                         hideNote={hideNote}
-                        onEdit={() => withAuth(() => { setEditingWord(w); setWordFormOpen(true); })}
-                        onDelete={() => withAuth(() => handleDeleteWord(w.id))}
+                        onEdit={() => { setEditingWord(w); setWordFormOpen(true); }}
+                        onDelete={() => handleDeleteWord(w.id)}
                       />
                     ))}
                   </div>
@@ -592,9 +572,6 @@ export function CompoundTab() {
         onClose={() => setCatFormOpen(false)}
         onSave={handleSaveCat}
       />
-      {auth.status === "prompting" && (
-        <KeyPromptModal onSubmit={submitKey} onDismiss={dismiss} />
-      )}
     </div>
   );
 }
