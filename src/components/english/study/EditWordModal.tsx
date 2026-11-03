@@ -5,11 +5,12 @@ import { Button } from "@/src/components/ui/Button";
 import { Input } from "@/src/components/ui/Input";
 import { Textarea } from "@/src/components/ui/Textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/src/components/ui/Dialog";
-import { Plus, X, RefreshCw, Pencil, Trash2 } from "lucide-react";
+import { Plus, X, RefreshCw, Pencil, Trash2, ImagePlus } from "lucide-react";
 import type { EnglishWord, EnglishSense } from "@/src/declaration/english";
 import { useEnglishStudy } from "@/src/context/english";
 import { PronounceButton } from "./PronounceButton";
 import type { CambridgeCrawlData } from "./crawlData";
+import { compressImage, imageUrl, uploadImage, type PendingImage } from "./imageUpload";
 
 interface EditWordModalProps {
   open: boolean;
@@ -82,6 +83,8 @@ function toSenseInput(s: EnglishSense) {
     example: s.example || null,
     synonyms: s.synonyms || null,
     antonyms: s.antonyms || null,
+    note: s.note || null,
+    images: s.images ?? [],
   };
 }
 
@@ -129,7 +132,7 @@ async function syncRelatedWords(
   }
 }
 
-type SenseDraft = Omit<EnglishSense, "id" | "sortOrder">;
+type SenseDraft = Omit<EnglishSense, "id" | "sortOrder"> & { pendingImages?: PendingImage[] };
 
 const emptySense: SenseDraft = {
   phonetic: "",
@@ -139,7 +142,47 @@ const emptySense: SenseDraft = {
   example: "",
   synonyms: "",
   antonyms: "",
+  note: "",
+  images: [],
 };
+
+function toSenseDrafts(senses: EnglishSense[]): SenseDraft[] {
+  if (senses.length === 0) return [{ ...emptySense }];
+  return senses.map((s) => ({
+    phonetic: s.phonetic ?? "",
+    partOfSpeech: s.partOfSpeech ?? "",
+    cambridgeMeaning: s.cambridgeMeaning ?? "",
+    meaningVi: s.meaningVi ?? "",
+    example: s.example ?? "",
+    synonyms: s.synonyms ?? "",
+    antonyms: s.antonyms ?? "",
+    note: s.note ?? "",
+    images: s.images ?? [],
+  }));
+}
+
+function hasContent(s: SenseDraft): boolean {
+  if ((s.images?.length ?? 0) > 0 || (s.pendingImages?.length ?? 0) > 0) return true;
+  return [s.phonetic, s.partOfSpeech, s.cambridgeMeaning, s.meaningVi, s.example, s.synonyms, s.antonyms, s.note].some((v) => v?.trim());
+}
+
+function ImageThumb({ src, onRemove }: { src: string; onRemove?: () => void }) {
+  return (
+    <div className="relative w-20 h-20 shrink-0">
+      <a href={src} target="_blank" rel="noreferrer">
+        <img src={src} alt="" className="w-full h-full object-cover rounded-md border border-border" />
+      </a>
+      {onRemove && (
+        <button
+          onClick={onRemove}
+          className="absolute -top-1.5 -right-1.5 rounded-full bg-background border border-border p-0.5 text-muted-foreground hover:text-destructive"
+        >
+          <X className="w-3 h-3" />
+        </button>
+      )}
+    </div>
+  );
+}
 
 export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, onOpenWord }: EditWordModalProps) {
   const { refetchWords, words: allWords } = useEnglishStudy();
@@ -150,25 +193,15 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
   const [saving, setSaving] = useState(false);
   const [crawlData, setCrawlData] = useState<CambridgeCrawlData | null>(null);
   const [autoFilling, setAutoFilling] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
+    setSaveError(null);
     setMode(word ? (startInEditMode ? "edit" : "view") : "edit");
     if (word) {
       setWordText(word.word);
-      setSenses(
-        word.senses.length > 0
-          ? word.senses.map((s) => ({
-              phonetic: s.phonetic ?? "",
-              partOfSpeech: s.partOfSpeech ?? "",
-              cambridgeMeaning: s.cambridgeMeaning ?? "",
-              meaningVi: s.meaningVi ?? "",
-              example: s.example ?? "",
-              synonyms: s.synonyms ?? "",
-              antonyms: s.antonyms ?? "",
-            }))
-          : [{ ...emptySense }]
-      );
+      setSenses(toSenseDrafts(word.senses));
       setCrawlData((word.crawlData as CambridgeCrawlData | undefined) ?? null);
       setRelatedWordsText(word.relatedWords ?? "");
     } else {
@@ -189,6 +222,22 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
 
   function removeSense(i: number) {
     setSenses((prev) => (prev.length > 1 ? prev.filter((_, idx) => idx !== i) : prev));
+  }
+
+  async function handleAddImages(i: number, files: FileList | null) {
+    if (!files || files.length === 0) return;
+    const added = await Promise.all(
+      Array.from(files).map(async (f) => {
+        const blob = await compressImage(f);
+        return { blob, previewUrl: URL.createObjectURL(blob) };
+      })
+    );
+    setSenses((prev) => prev.map((s, idx) => (idx === i ? { ...s, pendingImages: [...(s.pendingImages ?? []), ...added] } : s)));
+  }
+
+  function removePendingImage(i: number, img: PendingImage) {
+    URL.revokeObjectURL(img.previewUrl);
+    setSenses((prev) => prev.map((s, idx) => (idx === i ? { ...s, pendingImages: s.pendingImages?.filter((p) => p !== img) } : s)));
   }
 
   // Fires when the user finishes typing the word (on blur): fills in just the
@@ -291,21 +340,24 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
   async function handleSave() {
     if (!wordText.trim()) return;
     setSaving(true);
+    setSaveError(null);
     try {
       const newRelatedTexts = parseRelatedWords(relatedWordsText);
+      let uploadedSenses: SenseDraft[];
+      try {
+        uploadedSenses = await Promise.all(
+          senses.filter(hasContent).map(async (s) => ({
+            ...s,
+            images: [...(s.images ?? []), ...(await Promise.all((s.pendingImages ?? []).map((p) => uploadImage(p.blob))))],
+          }))
+        );
+      } catch {
+        setSaveError("Không upload được ảnh. Thử lại sau.");
+        return;
+      }
       const payload = {
         word: wordText.trim(),
-        senses: senses
-          .filter((s) => Object.values(s).some((v) => v && v.trim()))
-          .map((s) => ({
-            phonetic: s.phonetic || null,
-            partOfSpeech: s.partOfSpeech || null,
-            cambridgeMeaning: s.cambridgeMeaning || null,
-            meaningVi: s.meaningVi || null,
-            example: s.example || null,
-            synonyms: s.synonyms || null,
-            antonyms: s.antonyms || null,
-          })),
+        senses: uploadedSenses.map(toSenseInput),
         relatedWords: newRelatedTexts.join(", ") || null,
         ...(word ? {} : { crawlData: crawlData ?? undefined }),
       };
@@ -330,6 +382,8 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
         savedId = created.id;
       }
 
+      senses.forEach((s) => s.pendingImages?.forEach((p) => URL.revokeObjectURL(p.previewUrl)));
+      setSenses(uploadedSenses.length > 0 ? uploadedSenses.map(({ pendingImages: _, ...s }) => s) : [{ ...emptySense }]);
       await syncRelatedWords(savedId, wordText.trim(), oldRelatedTexts, newRelatedTexts, allWords);
       await refetchWords();
       if (word) setMode("view");
@@ -340,24 +394,14 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
   }
 
   function handleCancelEdit() {
+    senses.forEach((s) => s.pendingImages?.forEach((p) => URL.revokeObjectURL(p.previewUrl)));
     if (word) {
       // Revert any unsaved edits and go back to the read-only view rather
       // than closing the whole dialog.
       setWordText(word.word);
-      setSenses(
-        word.senses.length > 0
-          ? word.senses.map((s) => ({
-              phonetic: s.phonetic ?? "",
-              partOfSpeech: s.partOfSpeech ?? "",
-              cambridgeMeaning: s.cambridgeMeaning ?? "",
-              meaningVi: s.meaningVi ?? "",
-              example: s.example ?? "",
-              synonyms: s.synonyms ?? "",
-              antonyms: s.antonyms ?? "",
-            }))
-          : [{ ...emptySense }]
-      );
+      setSenses(toSenseDrafts(word.senses));
       setRelatedWordsText(word.relatedWords ?? "");
+      setSaveError(null);
       setMode("view");
     } else {
       onClose();
@@ -422,6 +466,12 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
                         {s.antonyms && <>Trái nghĩa: {s.antonyms}</>}
                       </p>
                     )}
+                    {s.note && <p className="text-xs whitespace-pre-line border-t border-border pt-1.5">{s.note}</p>}
+                    {(s.images?.length ?? 0) > 0 && (
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        {s.images!.map((key) => <ImageThumb key={key} src={imageUrl(key)} />)}
+                      </div>
+                    )}
                   </div>
                 ))
               )}
@@ -485,6 +535,29 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
                       <Input placeholder="Từ đồng nghĩa (phân cách bởi dấu phẩy)" value={s.synonyms ?? ""} onChange={(e) => updateSense(i, { synonyms: e.target.value })} />
                       <Input placeholder="Từ trái nghĩa (phân cách bởi dấu phẩy)" value={s.antonyms ?? ""} onChange={(e) => updateSense(i, { antonyms: e.target.value })} />
                     </div>
+                    <Textarea placeholder="Ghi chú" value={s.note ?? ""} onChange={(e) => updateSense(i, { note: e.target.value })} rows={2} />
+                    <div className="flex flex-wrap gap-2">
+                      {(s.images ?? []).map((key) => (
+                        <ImageThumb key={key} src={imageUrl(key)} onRemove={() => updateSense(i, { images: s.images?.filter((k) => k !== key) })} />
+                      ))}
+                      {(s.pendingImages ?? []).map((p) => (
+                        <ImageThumb key={p.previewUrl} src={p.previewUrl} onRemove={() => removePendingImage(i, p)} />
+                      ))}
+                      <label className="w-20 h-20 shrink-0 rounded-md border border-dashed border-border flex flex-col items-center justify-center gap-1 text-xs text-muted-foreground cursor-pointer hover:bg-accent hover:text-accent-foreground transition-colors">
+                        <ImagePlus className="w-4 h-4" />
+                        Thêm ảnh
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          className="hidden"
+                          onChange={(e) => {
+                            void handleAddImages(i, e.target.files);
+                            e.target.value = "";
+                          }}
+                        />
+                      </label>
+                    </div>
                   </div>
                 ))}
                 <div className="flex gap-2">
@@ -537,6 +610,7 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
             <Button variant="ghost" onClick={onClose}>Đóng</Button>
           ) : (
             <>
+              {saveError && <p className="text-xs text-destructive self-center mr-auto">{saveError}</p>}
               <Button variant="ghost" onClick={handleCancelEdit}>Huỷ</Button>
               <Button onClick={handleSave} disabled={saving || !wordText.trim()}>
                 {saving ? "Đang lưu..." : "Lưu"}

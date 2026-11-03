@@ -7,6 +7,8 @@ export interface EnglishSense {
   example?: string;
   synonyms?: string;
   antonyms?: string;
+  note?: string;
+  images?: string[];
   sortOrder?: number;
 }
 
@@ -42,6 +44,7 @@ export interface ImportSenseInput {
   example?: string;
   synonyms?: string;
   antonyms?: string;
+  note?: string;
 }
 
 export interface ImportWordInput {

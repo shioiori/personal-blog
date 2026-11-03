@@ -1,4 +1,5 @@
 import { sql } from "./db";
+import { deleteImages } from "./english-images";
 import type { EnglishWord, EnglishSense, EnglishGroup, FlashcardCard, ImportWordInput } from "@/src/declaration/english";
 
 // ── Schema ────────────────────────────────────────────────────────────────────
@@ -31,6 +32,12 @@ export async function ensureEnglishTables() {
       antonyms          TEXT,
       sort_order        INT NOT NULL DEFAULT 0
     )
+  `;
+  await sql`
+    ALTER TABLE english_senses ADD COLUMN IF NOT EXISTS note TEXT
+  `;
+  await sql`
+    ALTER TABLE english_senses ADD COLUMN IF NOT EXISTS images TEXT[] NOT NULL DEFAULT '{}'
   `;
   await sql`
     CREATE TABLE IF NOT EXISTS english_word_groups (
@@ -111,6 +118,8 @@ export interface SenseInput {
   example?: string | null;
   synonyms?: string | null;
   antonyms?: string | null;
+  note?: string | null;
+  images?: string[] | null;
 }
 
 function mapSenseRow(r: Record<string, unknown>): EnglishSense {
@@ -123,6 +132,8 @@ function mapSenseRow(r: Record<string, unknown>): EnglishSense {
     example: (r.example as string | null) ?? undefined,
     synonyms: (r.synonyms as string | null) ?? undefined,
     antonyms: (r.antonyms as string | null) ?? undefined,
+    note: (r.note as string | null) ?? undefined,
+    images: (r.images as string[] | null) ?? [],
     sortOrder: (r.sort_order as number) ?? 0,
   };
 }
@@ -131,8 +142,8 @@ async function insertSenses(wordId: number, senses: SenseInput[]): Promise<void>
   for (let i = 0; i < senses.length; i++) {
     const s = senses[i];
     await sql`
-      INSERT INTO english_senses (word_id, phonetic, part_of_speech, cambridge_meaning, meaning_vi, example, synonyms, antonyms, sort_order)
-      VALUES (${wordId}, ${s.phonetic ?? null}, ${s.partOfSpeech ?? null}, ${s.cambridgeMeaning ?? null}, ${s.meaningVi ?? null}, ${s.example ?? null}, ${s.synonyms ?? null}, ${s.antonyms ?? null}, ${i})
+      INSERT INTO english_senses (word_id, phonetic, part_of_speech, cambridge_meaning, meaning_vi, example, synonyms, antonyms, note, images, sort_order)
+      VALUES (${wordId}, ${s.phonetic ?? null}, ${s.partOfSpeech ?? null}, ${s.cambridgeMeaning ?? null}, ${s.meaningVi ?? null}, ${s.example ?? null}, ${s.synonyms ?? null}, ${s.antonyms ?? null}, ${s.note ?? null}, ${s.images ?? []}, ${i})
     `;
   }
 }
@@ -155,14 +166,26 @@ export async function createWord(userId: number, word: string, senses: SenseInpu
 export async function updateWord(userId: number, id: number, word: string, senses: SenseInput[], relatedWords?: string | null): Promise<boolean> {
   const rows = await sql`UPDATE english_words SET word = ${word}, related_words = ${relatedWords ?? null} WHERE id = ${id} AND user_id = ${userId} RETURNING id`;
   if (!rows[0]) return false;
+  const oldImages = await getSenseImages(id);
   await sql`DELETE FROM english_senses WHERE word_id = ${id}`;
   if (senses.length > 0) await insertSenses(id, senses);
   else await insertSenses(id, [{}]);
+  const kept = new Set(senses.flatMap((s) => s.images ?? []));
+  await deleteImages(userId, oldImages.filter((k) => !kept.has(k)));
   return true;
 }
 
 export async function deleteWord(userId: number, id: number): Promise<void> {
+  const rows = await sql`SELECT id FROM english_words WHERE id = ${id} AND user_id = ${userId}`;
+  if (!rows[0]) return;
+  const images = await getSenseImages(id);
   await sql`DELETE FROM english_words WHERE id = ${id} AND user_id = ${userId}`;
+  await deleteImages(userId, images);
+}
+
+async function getSenseImages(wordId: number): Promise<string[]> {
+  const rows = await sql`SELECT images FROM english_senses WHERE word_id = ${wordId}`;
+  return rows.flatMap((r) => (r.images as string[] | null) ?? []);
 }
 
 // ── Cambridge crawl-data cache (mirrors chinese's crawl_data pattern) ───────────
