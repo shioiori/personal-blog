@@ -33,6 +33,16 @@ function abbreviatePos(pos?: string): string {
   return POS_ABBREV[key] ?? key;
 }
 
+export function AltSpelling({ value, className = "" }: { value?: string; className?: string }) {
+  const t = useTranslations("English");
+  if (!value?.trim()) return null;
+  return (
+    <span className={`font-normal text-muted-foreground shrink-0 ${className}`}>
+      ({t("Common.also")} <b className="font-semibold text-foreground">{value.trim()}</b>)
+    </span>
+  );
+}
+
 export function ImageThumb({ src, onRemove }: { src: string; onRemove?: () => void }) {
   return (
     <div className="relative w-[calc((100%-1rem)/3)] shrink-0">

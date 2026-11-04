@@ -12,7 +12,7 @@ import { useEnglishStudy } from "@/src/context/english";
 import { PronounceButton } from "./PronounceButton";
 import type { CambridgeCrawlData } from "./crawlData";
 import { compressImage, imageUrl, uploadImage, type PendingImage } from "./imageUpload";
-import { ImageThumb, RelatedWordChips, WordSenseList, parseRelatedWords } from "./WordSenseDetail";
+import { AltSpelling, ImageThumb, RelatedWordChips, WordSenseList, parseRelatedWords } from "./WordSenseDetail";
 
 interface EditWordModalProps {
   open: boolean;
@@ -147,6 +147,7 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
   const [wordText, setWordText] = useState("");
   const [senses, setSenses] = useState<SenseDraft[]>([{ ...emptySense }]);
   const [relatedWordsText, setRelatedWordsText] = useState("");
+  const [altSpelling, setAltSpelling] = useState("");
   const [saving, setSaving] = useState(false);
   const [crawlData, setCrawlData] = useState<CambridgeCrawlData | null>(null);
   const [autoFilling, setAutoFilling] = useState(false);
@@ -161,11 +162,13 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
       setSenses(toSenseDrafts(word.senses));
       setCrawlData((word.crawlData as CambridgeCrawlData | undefined) ?? null);
       setRelatedWordsText(word.relatedWords ?? "");
+      setAltSpelling(word.altSpelling ?? "");
     } else {
       setWordText("");
       setSenses([{ ...emptySense }]);
       setCrawlData(null);
       setRelatedWordsText("");
+      setAltSpelling("");
     }
   }, [open, word, startInEditMode]);
 
@@ -318,6 +321,7 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
         word: wordText.trim(),
         senses: uploadedSenses.map(toSenseInput),
         relatedWords: newRelatedTexts.join(", ") || null,
+        altSpelling: altSpelling.trim() || null,
         ...(word ? {} : { crawlData: crawlData ?? undefined }),
       };
 
@@ -360,6 +364,7 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
       setWordText(word.word);
       setSenses(toSenseDrafts(word.senses));
       setRelatedWordsText(word.relatedWords ?? "");
+      setAltSpelling(word.altSpelling ?? "");
       setSaveError(null);
       setMode("view");
     } else {
@@ -376,6 +381,7 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pr-6">
             <DialogTitle className="flex items-center gap-2 min-w-0">
               <span className="truncate">{mode === "edit" ? (word ? t("EditWord.editTitle") : t("EditWord.addTitle")) : wordText}</span>
+              {mode === "view" && <AltSpelling value={altSpelling} className="text-base" />}
               {mode === "view" && word && <PronounceButton word={wordText} audioUrl={audioUrl} />}
             </DialogTitle>
             {mode === "view" && word && (
@@ -417,6 +423,10 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
                   placeholder="vd: comprehensive"
                   autoFocus
                 />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t("EditWord.altSpelling")}</label>
+                <Input value={altSpelling} onChange={(e) => setAltSpelling(e.target.value)} placeholder="vd: mold" />
               </div>
 
               <div className="space-y-3">
@@ -528,19 +538,15 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
           )}
         </div>
 
-        <DialogFooter>
-          {mode === "view" ? (
-            <Button variant="ghost" onClick={onClose}>{t("Common.close")}</Button>
-          ) : (
-            <>
-              {saveError && <p className="text-xs text-destructive self-center mr-auto">{saveError}</p>}
-              <Button variant="ghost" onClick={handleCancelEdit}>{t("Common.cancel")}</Button>
-              <Button onClick={handleSave} disabled={saving || !wordText.trim()}>
-                {saving ? t("Common.saving") : t("Common.save")}
-              </Button>
-            </>
-          )}
-        </DialogFooter>
+        {mode !== "view" && (
+          <DialogFooter>
+            {saveError && <p className="text-xs text-destructive self-center mr-auto">{saveError}</p>}
+            <Button variant="ghost" onClick={handleCancelEdit}>{t("Common.cancel")}</Button>
+            <Button onClick={handleSave} disabled={saving || !wordText.trim()}>
+              {saving ? t("Common.saving") : t("Common.save")}
+            </Button>
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   );

@@ -21,7 +21,8 @@
             "antonyms": "Antonyms: {value}",
             "relatedWords": "Related words:",
             "autoFill": "Auto-fill missing",
-            "noWordsYet": "No words yet."
+            "noWordsYet": "No words yet.",
+            "also": "also"
         },
         "Words": {
             "allGroups": "All groups",
@@ -39,6 +40,7 @@
             "edit": "Edit",
             "delete": "Delete",
             "word": "Word / phrase",
+            "altSpelling": "Alternative spelling",
             "senses": "Senses",
             "phonetic": "Phonetic (IPA)",
             "partOfSpeech": "Part of speech (noun, verb...)",

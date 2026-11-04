@@ -21,7 +21,8 @@
             "antonyms": "Trái nghĩa: {value}",
             "relatedWords": "Từ liên quan:",
             "autoFill": "Tự động điền còn thiếu",
-            "noWordsYet": "Chưa có từ nào."
+            "noWordsYet": "Chưa có từ nào.",
+            "also": "also"
         },
         "Words": {
             "allGroups": "Tất cả nhóm",
@@ -39,6 +40,7 @@
             "edit": "Sửa",
             "delete": "Xoá",
             "word": "Từ / cụm từ",
+            "altSpelling": "Cách viết khác",
             "senses": "Nghĩa",
             "phonetic": "Phiên âm (IPA)",
             "partOfSpeech": "Loại từ (noun, verb...)",

@@ -33,7 +33,8 @@ export function WordList() {
   const filtered = useMemo(() => {
     return words.filter((w) => {
       if (groupFilter !== "all" && !w.groupIds.includes(parseInt(groupFilter, 10))) return false;
-      if (search.trim() && !w.word.toLowerCase().includes(search.trim().toLowerCase())) return false;
+      const q = search.trim().toLowerCase();
+      if (q && ![w.word, w.altSpelling ?? ""].some((v) => v.toLowerCase().includes(q))) return false;
       return true;
     });
   }, [words, search, groupFilter]);

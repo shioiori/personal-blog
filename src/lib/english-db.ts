@@ -20,6 +20,9 @@ export async function ensureEnglishTables() {
     ALTER TABLE english_words ADD COLUMN IF NOT EXISTS related_words TEXT
   `;
   await sql`
+    ALTER TABLE english_words ADD COLUMN IF NOT EXISTS alt_spelling TEXT
+  `;
+  await sql`
     CREATE TABLE IF NOT EXISTS english_senses (
       id                SERIAL PRIMARY KEY,
       word_id           INT NOT NULL REFERENCES english_words(id) ON DELETE CASCADE,
@@ -148,8 +151,8 @@ async function insertSenses(wordId: number, senses: SenseInput[]): Promise<void>
   }
 }
 
-export async function createWord(userId: number, word: string, senses: SenseInput[], crawlData?: unknown, relatedWords?: string | null): Promise<EnglishWord> {
-  const rows = await sql`INSERT INTO english_words (user_id, word, related_words) VALUES (${userId}, ${word}, ${relatedWords ?? null}) RETURNING id, word, created_at`;
+export async function createWord(userId: number, word: string, senses: SenseInput[], crawlData?: unknown, relatedWords?: string | null, altSpelling?: string | null): Promise<EnglishWord> {
+  const rows = await sql`INSERT INTO english_words (user_id, word, related_words, alt_spelling) VALUES (${userId}, ${word}, ${relatedWords ?? null}, ${altSpelling ?? null}) RETURNING id, word, created_at`;
   const id = rows[0].id as number;
   if (senses.length > 0) await insertSenses(id, senses);
   else await insertSenses(id, [{}]);
@@ -163,8 +166,8 @@ export async function createWord(userId: number, word: string, senses: SenseInpu
   return created;
 }
 
-export async function updateWord(userId: number, id: number, word: string, senses: SenseInput[], relatedWords?: string | null): Promise<boolean> {
-  const rows = await sql`UPDATE english_words SET word = ${word}, related_words = ${relatedWords ?? null} WHERE id = ${id} AND user_id = ${userId} RETURNING id`;
+export async function updateWord(userId: number, id: number, word: string, senses: SenseInput[], relatedWords?: string | null, altSpelling?: string | null): Promise<boolean> {
+  const rows = await sql`UPDATE english_words SET word = ${word}, related_words = ${relatedWords ?? null}, alt_spelling = ${altSpelling ?? null} WHERE id = ${id} AND user_id = ${userId} RETURNING id`;
   if (!rows[0]) return false;
   const oldImages = await getSenseImages(id);
   await sql`DELETE FROM english_senses WHERE word_id = ${id}`;
@@ -202,7 +205,7 @@ export async function upsertWordCrawlData(userId: number, id: number, crawlData:
 }
 
 export async function getWord(userId: number, id: number): Promise<EnglishWord | null> {
-  const wordRows = await sql`SELECT id, word, created_at, crawl_data, related_words FROM english_words WHERE id = ${id} AND user_id = ${userId}`;
+  const wordRows = await sql`SELECT id, word, created_at, crawl_data, related_words, alt_spelling FROM english_words WHERE id = ${id} AND user_id = ${userId}`;
   if (!wordRows[0]) return null;
   const senseRows = await sql`SELECT * FROM english_senses WHERE word_id = ${id} ORDER BY sort_order ASC, id ASC`;
   const groupRows = await sql`SELECT group_id FROM english_word_group_members WHERE word_id = ${id}`;
@@ -216,6 +219,7 @@ export async function getWord(userId: number, id: number): Promise<EnglishWord |
     flashcardActive: (fcRows[0]?.active as boolean) ?? true,
     crawlData: (wordRows[0].crawl_data as unknown | null) ?? undefined,
     relatedWords: (wordRows[0].related_words as string | null) ?? undefined,
+    altSpelling: (wordRows[0].alt_spelling as string | null) ?? undefined,
   };
 }
 
@@ -223,7 +227,7 @@ export async function listWords(userId: number, opts: { groupId?: number; search
   let wordRows;
   if (opts.groupId) {
     wordRows = await sql`
-      SELECT w.id, w.word, w.created_at, w.crawl_data, w.related_words FROM english_words w
+      SELECT w.id, w.word, w.created_at, w.crawl_data, w.related_words, w.alt_spelling FROM english_words w
       JOIN english_word_group_members m ON m.word_id = w.id
       WHERE m.group_id = ${opts.groupId} AND w.user_id = ${userId}
       ORDER BY w.word ASC
@@ -231,12 +235,12 @@ export async function listWords(userId: number, opts: { groupId?: number; search
   } else if (opts.search) {
     const pattern = `%${opts.search}%`;
     wordRows = await sql`
-      SELECT id, word, created_at, crawl_data, related_words FROM english_words
-      WHERE user_id = ${userId} AND word ILIKE ${pattern}
+      SELECT id, word, created_at, crawl_data, related_words, alt_spelling FROM english_words
+      WHERE user_id = ${userId} AND (word ILIKE ${pattern} OR alt_spelling ILIKE ${pattern})
       ORDER BY word ASC
     `;
   } else {
-    wordRows = await sql`SELECT id, word, created_at, crawl_data, related_words FROM english_words WHERE user_id = ${userId} ORDER BY word ASC`;
+    wordRows = await sql`SELECT id, word, created_at, crawl_data, related_words, alt_spelling FROM english_words WHERE user_id = ${userId} ORDER BY word ASC`;
   }
 
   if (wordRows.length === 0) return [];
@@ -272,6 +276,7 @@ export async function listWords(userId: number, opts: { groupId?: number; search
       flashcardActive: activeByWord.get(id) ?? true,
       crawlData: (r.crawl_data as unknown | null) ?? undefined,
       relatedWords: (r.related_words as string | null) ?? undefined,
+      altSpelling: (r.alt_spelling as string | null) ?? undefined,
     };
   });
 }

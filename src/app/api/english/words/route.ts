@@ -23,11 +23,11 @@ export async function POST(req: NextRequest) {
   if (!userId) return unauthorized();
   try {
     await ensureEnglishTables();
-    const body = (await req.json()) as { word: string; senses?: SenseInput[]; crawlData?: unknown; relatedWords?: string | null };
+    const body = (await req.json()) as { word: string; senses?: SenseInput[]; crawlData?: unknown; relatedWords?: string | null; altSpelling?: string | null };
     if (!body.word?.trim()) {
       return NextResponse.json({ error: "word is required" }, { status: 400 });
     }
-    const created = await createWord(userId, body.word.trim(), body.senses ?? [], body.crawlData, body.relatedWords);
+    const created = await createWord(userId, body.word.trim(), body.senses ?? [], body.crawlData, body.relatedWords, body.altSpelling);
     return NextResponse.json(created);
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

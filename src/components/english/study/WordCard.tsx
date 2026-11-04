@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import type { EnglishWord } from "@/src/declaration/english";
 import { PronounceButton } from "./PronounceButton";
 import { getCrawlAudioUrl } from "./crawlData";
+import { AltSpelling } from "./WordSenseDetail";
 
 interface WordCardProps {
   word: EnglishWord;
@@ -16,10 +17,11 @@ export function WordCard({ word, onEdit, onDelete }: WordCardProps) {
   const t = useTranslations("English");
   const first = word.senses[0];
   return (
-    <div className="rounded-lg border border-border bg-card p-3 flex flex-col gap-1 group">
+    <div className="h-full rounded-lg border border-border bg-card p-3 flex flex-col gap-1 group">
       <div className="flex items-start justify-between gap-1">
         <div className="flex items-center gap-1.5 min-w-0">
           <span className="text-base font-semibold truncate">{word.word}</span>
+          <AltSpelling value={word.altSpelling} className="text-xs" />
           {first?.phonetic && <span className="text-xs text-muted-foreground shrink-0">/{first.phonetic}/</span>}
           <PronounceButton word={word.word} audioUrl={getCrawlAudioUrl(word)} />
         </div>
