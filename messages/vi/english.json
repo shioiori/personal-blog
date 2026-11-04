@@ -49,6 +49,8 @@
             "antonyms": "Từ trái nghĩa (phân cách bởi dấu phẩy)",
             "note": "Ghi chú",
             "addImage": "Thêm ảnh",
+            "imageLinkPlaceholder": "Dán link ảnh (https://...)",
+            "addImageLink": "Thêm",
             "addSense": "Thêm nghĩa",
             "autoFilling": "Đang điền...",
             "relatedWords": "Từ liên quan (phân cách bởi dấu phẩy)",

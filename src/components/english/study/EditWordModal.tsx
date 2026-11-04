@@ -106,7 +106,7 @@ async function syncRelatedWords(
   }
 }
 
-type SenseDraft = Omit<EnglishSense, "id" | "sortOrder"> & { pendingImages?: PendingImage[] };
+type SenseDraft = Omit<EnglishSense, "id" | "sortOrder"> & { pendingImages?: PendingImage[]; imageLinkDraft?: string };
 
 const emptySense: SenseDraft = {
   phonetic: "",
@@ -215,6 +215,12 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
     setSenses((prev) => prev.map((s, idx) => (idx === i ? { ...s, pendingImages: s.pendingImages?.filter((p) => p !== img) } : s)));
   }
 
+  function addImageLink(i: number) {
+    const url = senses[i].imageLinkDraft?.trim();
+    if (!url || !/^https?:\/\//i.test(url)) return;
+    setSenses((prev) => prev.map((s, idx) => (idx === i ? { ...s, imageLinkDraft: "", pendingImages: [...(s.pendingImages ?? []), { url, previewUrl: url }] } : s)));
+  }
+
   // Fires when the user finishes typing the word (on blur): fills in just the
   // phonetic and part-of-speech for the first sense from the dictionary
   // lookup, so basic info shows up without needing "Tự động điền còn thiếu".
@@ -301,7 +307,7 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
         uploadedSenses = await Promise.all(
           senses.filter(hasContent).map(async (s) => ({
             ...s,
-            images: [...(s.images ?? []), ...(await Promise.all((s.pendingImages ?? []).map((p) => uploadImage(p.blob))))],
+            images: [...(s.images ?? []), ...(await Promise.all((s.pendingImages ?? []).map((p) => uploadImage(p))))],
           }))
         );
       } catch {
@@ -336,7 +342,7 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
       }
 
       senses.forEach((s) => s.pendingImages?.forEach((p) => URL.revokeObjectURL(p.previewUrl)));
-      setSenses(uploadedSenses.length > 0 ? uploadedSenses.map(({ pendingImages: _, ...s }) => s) : [{ ...emptySense }]);
+      setSenses(uploadedSenses.length > 0 ? uploadedSenses.map(({ pendingImages: _, imageLinkDraft: __, ...s }) => s) : [{ ...emptySense }]);
       await syncRelatedWords(savedId, wordText.trim(), oldRelatedTexts, newRelatedTexts, allWords);
       await refetchWords();
       if (word) setMode("view");
@@ -458,6 +464,22 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
                           }}
                         />
                       </label>
+                    </div>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder={t("EditWord.imageLinkPlaceholder")}
+                        value={s.imageLinkDraft ?? ""}
+                        onChange={(e) => updateSense(i, { imageLinkDraft: e.target.value })}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            addImageLink(i);
+                          }
+                        }}
+                      />
+                      <Button type="button" variant="outline" size="sm" onClick={() => addImageLink(i)} disabled={!s.imageLinkDraft?.trim()}>
+                        {t("EditWord.addImageLink")}
+                      </Button>
                     </div>
                   </div>
                 ))}

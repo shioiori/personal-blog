@@ -1,7 +1,4 @@
-export interface PendingImage {
-  blob: Blob;
-  previewUrl: string;
-}
+export type PendingImage = { previewUrl: string } & ({ blob: Blob } | { url: string });
 
 export function imageUrl(key: string): string {
   return `/api/english/images/${key}`;
@@ -23,9 +20,10 @@ export async function compressImage(file: File, maxSize = 1200, quality = 0.85):
   }
 }
 
-export async function uploadImage(blob: Blob): Promise<string> {
+export async function uploadImage(p: PendingImage): Promise<string> {
   const form = new FormData();
-  form.append("file", blob);
+  if ("blob" in p) form.append("file", p.blob);
+  else form.append("url", p.url);
   const res = await fetch("/api/english/images", { method: "POST", body: form });
   const data = (await res.json()) as { key?: string; error?: string };
   if (!res.ok || !data.key) throw new Error(data.error ?? "upload failed");

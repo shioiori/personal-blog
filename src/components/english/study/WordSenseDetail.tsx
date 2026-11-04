@@ -35,9 +35,9 @@ function abbreviatePos(pos?: string): string {
 
 export function ImageThumb({ src, onRemove }: { src: string; onRemove?: () => void }) {
   return (
-    <div className="relative w-20 h-20 shrink-0">
+    <div className="relative w-[calc((100%-1rem)/3)] shrink-0">
       <a href={src} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>
-        <img src={src} alt="" className="w-full h-full object-cover rounded-md border border-border" />
+        <img src={src} alt="" className="w-full h-auto rounded-md border border-border" />
       </a>
       {onRemove && (
         <button

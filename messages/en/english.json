@@ -49,6 +49,8 @@
             "antonyms": "Antonyms (comma-separated)",
             "note": "Note",
             "addImage": "Add image",
+            "imageLinkPlaceholder": "Paste image link (https://...)",
+            "addImageLink": "Add",
             "addSense": "Add sense",
             "autoFilling": "Filling...",
             "relatedWords": "Related words (comma-separated)",
