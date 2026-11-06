@@ -8,9 +8,9 @@ import { Settings, Ticket } from "lucide-react";
 import type { FlashcardCard } from "@/src/declaration/english";
 import { useFlashcardSettings } from "./useFlashcardSettings";
 import { FlashcardSettingsTab } from "./FlashcardSettingsTab";
-import { PronounceButton, usePronounce } from "../study/PronounceButton";
-import { RelatedWordChips, WordSenseList } from "../study/WordSenseDetail";
+import { usePronounce } from "../study/PronounceButton";
 import { getCrawlAudioUrl } from "../study/crawlData";
+import { FlashcardCard as FlashcardCardView, FlashcardProgress } from "../shared/FlashcardCard";
 import { useEnglishStudy } from "@/src/context/english";
 
 type Phase = "loading" | "empty" | "front" | "back" | "done";
@@ -177,7 +177,6 @@ export function FlashcardTab() {
 
   if (!current) return null;
 
-  const first = current.senses[0];
   const flipCard = () => setPhase(phase === "front" ? "back" : "front");
 
   return (
@@ -189,47 +188,17 @@ export function FlashcardTab() {
         </div>
       )}
       {modeToggle}
-      <div className="w-full flex items-center justify-between text-sm text-muted-foreground">
-        <span>{index + 1} / {queue.length}</span>
-        <div className="h-2 flex-1 mx-4 bg-muted rounded-full overflow-hidden">
-          <div className="h-full bg-primary transition-all" style={{ width: `${(index / queue.length) * 100}%` }} />
-        </div>
-      </div>
+      <FlashcardProgress index={index} total={queue.length} />
 
-      <div className="w-full cursor-pointer select-none" style={{ perspective: "1000px", height: "clamp(20rem, 60dvh, 36rem)" }} onClick={flipCard}>
-        <div
-          style={{
-            transformStyle: "preserve-3d",
-            transition: "transform 0.5s ease",
-            transform: phase === "back" ? "rotateY(180deg)" : "rotateY(0deg)",
-            position: "relative",
-            height: "100%",
-          }}
-        >
-          <div className="absolute inset-0 border rounded-2xl p-8 flex flex-col items-center justify-center gap-4 shadow-sm bg-background" style={{ backfaceVisibility: "hidden" }}>
-            <div className="flex items-center gap-2">
-              <span className="text-4xl sm:text-5xl font-semibold text-center">{current.word}</span>
-              <PronounceButton word={current.word} audioUrl={audioUrl} size="md" />
-            </div>
-            {first?.phonetic && <p className="text-base text-muted-foreground">/{first.phonetic}/</p>}
-            {first?.partOfSpeech && (
-              <span className="inline-block px-2 py-0.5 rounded bg-muted text-xs font-medium uppercase text-muted-foreground">
-                {first.partOfSpeech}
-              </span>
-            )}
-            <p className="text-xs text-muted-foreground mt-auto">{t("Common.tapToFlip")}</p>
-          </div>
-
-          <div className="absolute inset-0 border rounded-2xl p-4 sm:p-6 flex flex-col gap-3 shadow-sm bg-background overflow-y-auto" style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-semibold">{current.word}</span>
-              <PronounceButton word={current.word} audioUrl={audioUrl} size="md" />
-            </div>
-            <WordSenseList senses={current.senses} />
-            <RelatedWordChips relatedWords={currentWord?.relatedWords ?? ""} allWords={words} />
-          </div>
-        </div>
-      </div>
+      <FlashcardCardView
+        word={current.word}
+        senses={current.senses}
+        flipped={phase === "back"}
+        onFlip={flipCard}
+        audioUrl={audioUrl}
+        relatedWords={currentWord?.relatedWords}
+        allWords={words}
+      />
 
       {(phase === "front" || phase === "back") && (
         <div className="grid grid-cols-4 gap-2 w-full">
