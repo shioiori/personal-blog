@@ -214,6 +214,16 @@ async function getOrCreateGroupByUrl(userId: number, sourceUrl: string): Promise
   return rows[0].id as number;
 }
 
+// Adds an already-existing word to the group for `sourceUrl`'s hostname,
+// creating that group if needed. Used when the browser extension adds a
+// word that's already in the DB from a different page: if the hostname is
+// one the word is already grouped under, membership insert is a no-op
+// (ON CONFLICT DO NOTHING); a new hostname gets its own group.
+export async function linkWordToSourceGroup(userId: number, wordId: number, sourceUrl: string): Promise<void> {
+  const groupId = await getOrCreateGroupByUrl(userId, sourceUrl);
+  await addWordsToGroup(userId, groupId, [wordId]);
+}
+
 export async function updateWord(userId: number, id: number, word: string, senses: SenseInput[], relatedWords?: string | null, altSpelling?: string | null): Promise<boolean> {
   const rows = await sql`UPDATE english_words SET word = ${word}, related_words = ${relatedWords ?? null}, alt_spelling = ${altSpelling ?? null} WHERE id = ${id} AND user_id = ${userId} RETURNING id`;
   if (!rows[0]) return false;
@@ -254,10 +264,11 @@ export async function upsertWordCrawlData(userId: number, id: number, crawlData:
 
 // Case-insensitive lookup by exact word or alt spelling, used to warn the
 // user before spending AI tokens re-defining a word they already have.
-export async function findWordByText(userId: number, text: string): Promise<{ id: number; word: string } | null> {
+export async function findWordByText(userId: number, text: string, candidates?: string[]): Promise<{ id: number; word: string } | null> {
+  const terms = (candidates && candidates.length > 0 ? candidates : [text]).map((t) => t.toLowerCase());
   const rows = await sql`
     SELECT id, word FROM english_words
-    WHERE user_id = ${userId} AND (LOWER(word) = LOWER(${text}) OR LOWER(alt_spelling) = LOWER(${text}))
+    WHERE user_id = ${userId} AND (LOWER(word) = ANY(${terms}) OR LOWER(alt_spelling) = ANY(${terms}))
     LIMIT 1
   `;
   return rows[0] ? { id: rows[0].id as number, word: rows[0].word as string } : null;
