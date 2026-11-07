@@ -38,7 +38,7 @@ Không tìm được từ/cụm từ này trong các từ điển tự động (
 BƯỚC 1 — KIỂM TRA TỒN TẠI (bắt buộc làm trước, nghiêm ngặt):
 Từ/cụm từ này có THẬT SỰ TỒN TẠI trong tiếng Anh không (không phải lỗi chính tả, không phải chuỗi ký tự ngẫu nhiên, không phải tiếng khác)? Nếu có BẤT KỲ nghi ngờ nào, trả về NGAY {"senses": []} và DỪNG LẠI. TUYỆT ĐỐI KHÔNG được bịa ra một định nghĩa nghe có vẻ hợp lý cho một từ không tồn tại hoặc bạn không chắc chắn — thà trả về rỗng còn hơn bịa đặt.
 
-BƯỚC 2 — nếu chắc chắn tồn tại, liệt kê tối đa 4 nghĩa THƯỜNG DÙNG NHẤT (bỏ nghĩa hiếm/cổ), mỗi nghĩa là MỘT OBJECT với ĐẦY ĐỦ, CHÍNH XÁC các trường sau (dùng "" cho trường không áp dụng được, KHÔNG được bỏ trường):
+BƯỚC 2 — nếu chắc chắn tồn tại, liệt kê TẤT CẢ các nghĩa thường dùng (không giới hạn số lượng), bỏ nghĩa hiếm/cổ/rất ít khi được dùng. Mỗi nghĩa là MỘT OBJECT với ĐẦY ĐỦ, CHÍNH XÁC các trường sau (dùng "" cho trường không áp dụng được, KHÔNG được bỏ trường):
 - "partOfSpeech": loại từ, chữ thường tiếng Anh (noun, verb, adjective, adverb, idiom, phrasal verb...).
 - "cambridgeMeaning": định nghĩa tiếng Anh ngắn gọn, CHÍNH XÁC VỀ MẶT NGỮ NGHĨA, viết đúng kiểu một cuốn từ điển Anh-Anh (không phải giải thích dài dòng).
 - "meaningVi": nghĩa tiếng Việt NGẮN GỌN kiểu từ điển Anh-Việt thật, KHÔNG dịch nguyên câu định nghĩa tiếng Anh, KHÔNG bịa từ không có trong tiếng Việt.
@@ -95,8 +95,7 @@ export async function POST(req: NextRequest) {
           note: AI_NOTE,
         };
       })
-      .filter((s): s is NonNullable<typeof s> => s !== null)
-      .slice(0, 4);
+      .filter((s): s is NonNullable<typeof s> => s !== null);
 
     return NextResponse.json({ senses });
   } catch (e) {
