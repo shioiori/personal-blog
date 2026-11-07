@@ -54,6 +54,16 @@ export const ensureEnglishTables = once(async function ensureEnglishTables() {
       CONSTRAINT english_word_groups_user_name_key UNIQUE (user_id, name)
     )
   `;
+  // Tracks the hostname a group was auto-created for, independent of its
+  // (user-editable) display name, so renaming an auto-created group doesn't
+  // make the next source_url sync recreate a duplicate under the old name.
+  await sql`
+    ALTER TABLE english_word_groups ADD COLUMN IF NOT EXISTS source_hostname TEXT
+  `;
+  await sql`
+    CREATE UNIQUE INDEX IF NOT EXISTS english_word_groups_user_hostname_key
+      ON english_word_groups (user_id, source_hostname) WHERE source_hostname IS NOT NULL
+  `;
   await sql`
     CREATE TABLE IF NOT EXISTS english_word_group_members (
       group_id INT NOT NULL REFERENCES english_word_groups(id) ON DELETE CASCADE,
@@ -173,20 +183,35 @@ export async function createWord(userId: number, word: string, senses: SenseInpu
   return created;
 }
 
+function hostnameOf(sourceUrl: string): string {
+  try {
+    return new URL(sourceUrl).hostname || sourceUrl;
+  } catch {
+    return sourceUrl;
+  }
+}
+
 // Groups words added from the same web page together, named after that
 // page's hostname (e.g. "en.wikipedia.org"), so words captured via the
-// extension land in one shared category instead of a group per URL.
+// extension land in one shared category instead of a group per URL. Matched
+// by the group's source_hostname (not its display name) so renaming the
+// group never makes a later sync recreate a duplicate under the old name.
 async function getOrCreateGroupByUrl(userId: number, sourceUrl: string): Promise<number> {
-  let name: string;
-  try {
-    name = new URL(sourceUrl).hostname || sourceUrl;
-  } catch {
-    name = sourceUrl;
-  }
-  const existing = await sql`SELECT id FROM english_word_groups WHERE user_id = ${userId} AND name = ${name}`;
+  const hostname = hostnameOf(sourceUrl);
+  const existing = await sql`SELECT id FROM english_word_groups WHERE user_id = ${userId} AND source_hostname = ${hostname}`;
   if (existing[0]) return existing[0].id as number;
-  const created = await createGroup(userId, name);
-  return created.id;
+
+  // Adopt a group that was already named exactly like this hostname before
+  // source_hostname tracking existed, instead of creating a duplicate.
+  const byName = await sql`SELECT id FROM english_word_groups WHERE user_id = ${userId} AND name = ${hostname} AND source_hostname IS NULL`;
+  if (byName[0]) {
+    const id = byName[0].id as number;
+    await sql`UPDATE english_word_groups SET source_hostname = ${hostname} WHERE id = ${id}`;
+    return id;
+  }
+
+  const rows = await sql`INSERT INTO english_word_groups (user_id, name, source_hostname) VALUES (${userId}, ${hostname}, ${hostname}) RETURNING id`;
+  return rows[0].id as number;
 }
 
 export async function updateWord(userId: number, id: number, word: string, senses: SenseInput[], relatedWords?: string | null, altSpelling?: string | null): Promise<boolean> {
@@ -326,22 +351,15 @@ async function syncGroupsFromSourceUrls(userId: number): Promise<void> {
   const rows = await sql`SELECT id, source_url FROM english_words WHERE user_id = ${userId} AND source_url IS NOT NULL`;
   if (rows.length === 0) return;
 
-  const wordIdsByName = new Map<string, number[]>();
+  const wordIdsByHostname = new Map<string, number[]>();
   for (const r of rows) {
-    const sourceUrl = r.source_url as string;
-    let name: string;
-    try {
-      name = new URL(sourceUrl).hostname || sourceUrl;
-    } catch {
-      name = sourceUrl;
-    }
-    if (!wordIdsByName.has(name)) wordIdsByName.set(name, []);
-    wordIdsByName.get(name)!.push(r.id as number);
+    const hostname = hostnameOf(r.source_url as string);
+    if (!wordIdsByHostname.has(hostname)) wordIdsByHostname.set(hostname, []);
+    wordIdsByHostname.get(hostname)!.push(r.id as number);
   }
 
-  for (const [name, wordIds] of wordIdsByName) {
-    const existing = await sql`SELECT id FROM english_word_groups WHERE user_id = ${userId} AND name = ${name}`;
-    const groupId = existing[0] ? (existing[0].id as number) : (await createGroup(userId, name)).id;
+  for (const [hostname, wordIds] of wordIdsByHostname) {
+    const groupId = await getOrCreateGroupByUrl(userId, hostname);
     await addWordsToGroup(userId, groupId, wordIds);
   }
 }
