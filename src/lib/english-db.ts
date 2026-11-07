@@ -319,7 +319,35 @@ export async function listWords(userId: number, opts: { groupId?: number; search
 
 // ── Groups ───────────────────────────────────────────────────────────────────
 
+// Ensures every word with a source_url belongs to a group named after that
+// URL's hostname — even when source_url was set outside createWord (e.g. a
+// direct DB edit), so group membership never drifts out of sync with it.
+async function syncGroupsFromSourceUrls(userId: number): Promise<void> {
+  const rows = await sql`SELECT id, source_url FROM english_words WHERE user_id = ${userId} AND source_url IS NOT NULL`;
+  if (rows.length === 0) return;
+
+  const wordIdsByName = new Map<string, number[]>();
+  for (const r of rows) {
+    const sourceUrl = r.source_url as string;
+    let name: string;
+    try {
+      name = new URL(sourceUrl).hostname || sourceUrl;
+    } catch {
+      name = sourceUrl;
+    }
+    if (!wordIdsByName.has(name)) wordIdsByName.set(name, []);
+    wordIdsByName.get(name)!.push(r.id as number);
+  }
+
+  for (const [name, wordIds] of wordIdsByName) {
+    const existing = await sql`SELECT id FROM english_word_groups WHERE user_id = ${userId} AND name = ${name}`;
+    const groupId = existing[0] ? (existing[0].id as number) : (await createGroup(userId, name)).id;
+    await addWordsToGroup(userId, groupId, wordIds);
+  }
+}
+
 export async function listGroups(userId: number): Promise<EnglishGroup[]> {
+  await syncGroupsFromSourceUrls(userId);
   const rows = await sql`
     SELECT g.id, g.name,
            COALESCE(array_agg(m.word_id) FILTER (WHERE m.word_id IS NOT NULL), '{}') AS word_ids
