@@ -16,7 +16,9 @@ import { sql, once } from "./db";
 // request first. The cache expires at the start of the next calendar day
 // (Postgres server date), matching Groq's daily quota reset.
 
-const GEMINI_MODEL = "gemini-2.5-flash";
+// gemini-2.5-flash was retired for new users (404 "no longer available to
+// new users") — this project's Gemini API key was created after that cutoff.
+const GEMINI_MODEL = "gemini-3.5-flash-lite";
 
 const ensureAiStateTable = once(async function ensureAiStateTable() {
   await sql`
