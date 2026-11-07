@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import Groq from "groq-sdk";
 import { getUserId, unauthorized } from "@/src/lib/auth";
+import { aiComplete } from "@/src/lib/ai-complete";
 
 // Vietnamese gloss generation for word-add autofill. No longer judges
 // "common" vs "rare" (that reasoning step, plus a cap on how many senses to
@@ -93,32 +93,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ senses: [] });
   }
 
-  if (!process.env.GROQ_API_KEY) {
+  if (!process.env.GROQ_API_KEY && !process.env.GEMINI_API_KEY) {
     return NextResponse.json({ senses: [], error: "GROQ_API_KEY not configured" });
   }
 
   try {
-    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-    const completion = await groq.chat.completions.create({
-      model: MODEL,
+    const { raw } = await aiComplete({
+      groqModel: MODEL,
       // "low" reasoning_effort was reliably producing invented, non-words in
       // the Vietnamese gloss for this model (e.g. "điên rối", "cảm hận" —
       // reproduced 2/3 runs on "disruption" at low, 0/3 at high).
-      max_tokens: 2048,
+      maxTokens: 2048,
       temperature: 0.3,
-      reasoning_effort: "high",
-      response_format: { type: "json_object" },
-      messages: [
-        {
-          role: "system",
-          content:
-            "Bạn là một biên tập viên từ điển Anh-Việt, chuyên chọn lọc nghĩa thường dùng, phát hiện nghĩa trùng ý dù diễn đạt khác nhau, và viết nghĩa tiếng Việt ngắn gọn, tự nhiên. Luôn trả lời bằng JSON hợp lệ.",
-        },
-        { role: "user", content: buildPrompt(word, items, existingSenses) },
-      ],
+      reasoningEffort: "high",
+      systemPrompt:
+        "Bạn là một biên tập viên từ điển Anh-Việt, chuyên chọn lọc nghĩa thường dùng, phát hiện nghĩa trùng ý dù diễn đạt khác nhau, và viết nghĩa tiếng Việt ngắn gọn, tự nhiên. Luôn trả lời bằng JSON hợp lệ.",
+      userPrompt: buildPrompt(word, items, existingSenses),
     });
-
-    const raw = completion.choices[0]?.message?.content ?? "{}";
     const parsed = JSON.parse(raw) as { senses?: unknown };
     const rawSenses = Array.isArray(parsed.senses) ? parsed.senses : [];
 

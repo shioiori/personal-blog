@@ -409,7 +409,7 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
         <div className="flex-1 min-h-0 overflow-y-auto space-y-4 py-2 pr-1">
           {mode === "view" && word ? (
             <div className="space-y-4">
-              <WordSenseList senses={senses} />
+              <WordSenseList senses={senses} allWords={allWords} onOpenWord={onOpenWord} />
               <RelatedWordChips relatedWords={relatedWordsText} allWords={allWords} onOpenWord={onOpenWord ?? (() => {})} />
             </div>
           ) : (

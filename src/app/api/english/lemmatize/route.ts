@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import Groq from "groq-sdk";
 import { getUserId, unauthorized } from "@/src/lib/auth";
+import { aiComplete } from "@/src/lib/ai-complete";
 
 // Validates + normalizes a selected text before the extension's quick-add
 // crawls/saves it. Rejects (valid: false) anything that isn't a legitimate
@@ -50,37 +50,28 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ valid: false, normalized: "", reason: "Không có từ nào được chọn." });
   }
 
-  if (!process.env.GROQ_API_KEY) {
+  if (!process.env.GROQ_API_KEY && !process.env.GEMINI_API_KEY) {
     // Can't validate without the model — fail closed: better to block a
     // legitimate add than to let something through unchecked.
     return NextResponse.json({ valid: false, normalized: text, reason: "Không kiểm tra được (thiếu cấu hình).", error: "GROQ_API_KEY not configured" });
   }
 
   try {
-    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-    const completion = await groq.chat.completions.create({
-      model: MODEL,
+    const { raw } = await aiComplete({
+      groqModel: MODEL,
       // "low" reasoning_effort measurably degrades this model's
       // Vietnamese/word-form output quality — see gloss/route.ts. "medium"
       // keeps that same accuracy here (tested across a dozen cases) while
       // leaving enough token budget at 1024 for this longer 3-criteria
       // validation prompt; "high" burned through 1024-2048 tokens on
       // reasoning alone for multi-word inputs, truncating the JSON output.
-      max_tokens: 1024,
+      maxTokens: 1024,
       temperature: 0,
-      reasoning_effort: "medium",
-      response_format: { type: "json_object" },
-      messages: [
-        {
-          role: "system",
-          content:
-            "Bạn là bộ lọc kiểm tra text người dùng chọn để thêm vào từ điển cá nhân, và chuẩn hoá từ về dạng từ điển gốc. Luôn trả lời JSON hợp lệ, chính xác theo yêu cầu.",
-        },
-        { role: "user", content: PROMPT(text) },
-      ],
+      reasoningEffort: "medium",
+      systemPrompt:
+        "Bạn là bộ lọc kiểm tra text người dùng chọn để thêm vào từ điển cá nhân, và chuẩn hoá từ về dạng từ điển gốc. Luôn trả lời JSON hợp lệ, chính xác theo yêu cầu.",
+      userPrompt: PROMPT(text),
     });
-
-    const raw = completion.choices[0]?.message?.content ?? "{}";
     const parsed = JSON.parse(raw) as { valid?: unknown; normalized?: unknown; reason?: unknown };
     const valid = parsed.valid === true;
     const reason = String(parsed.reason ?? "").trim();

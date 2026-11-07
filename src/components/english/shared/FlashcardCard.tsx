@@ -63,7 +63,7 @@ export function FlashcardCard({
             <span className="text-2xl font-semibold">{word}</span>
             <PronounceButton word={word} audioUrl={audioUrl} size="md" />
           </div>
-          <WordSenseList senses={senses} />
+          <WordSenseList senses={senses} allWords={allWords} onOpenWord={onOpenWord} />
           {allWords && (
             <RelatedWordChips relatedWords={relatedWords ?? ""} allWords={allWords} onOpenWord={onOpenWord} />
           )}

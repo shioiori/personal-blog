@@ -352,8 +352,8 @@ export function ImportTab() {
                   const extra = [
                     s.phonetic && `/${s.phonetic}/`,
                     s.example && `"${s.example}"`,
-                    s.synonyms && t("Common.synonyms", { value: s.synonyms }),
-                    s.antonyms && t("Common.antonyms", { value: s.antonyms }),
+                    s.synonyms && `${t("Common.synonyms")} ${s.synonyms}`,
+                    s.antonyms && `${t("Common.antonyms")} ${s.antonyms}`,
                   ].filter(Boolean);
                   return (
                     <tr key={`${wi}-${si}`} className="border-t border-border">

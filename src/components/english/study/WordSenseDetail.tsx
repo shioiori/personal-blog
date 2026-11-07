@@ -61,7 +61,66 @@ export function ImageThumb({ src, onRemove }: { src: string; onRemove?: () => vo
   );
 }
 
-export function WordSenseList({ senses }: { senses: EnglishSense[] }) {
+function WordChipRow({
+  label,
+  text,
+  allWords,
+  onOpenWord,
+  tone,
+}: {
+  label: string;
+  text: string;
+  allWords?: EnglishWord[];
+  onOpenWord?: (id: number) => void;
+  tone?: "synonym" | "antonym";
+}) {
+  const list = parseRelatedWords(text);
+  if (list.length === 0) return null;
+  const toneClass =
+    tone === "synonym"
+      ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+      : tone === "antonym"
+      ? "bg-red-500/10 text-red-700 dark:text-red-400"
+      : "bg-muted";
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      <span className="text-xs text-muted-foreground">{label}</span>
+      {list.map((w) => {
+        const match = allWords?.find((aw) => aw.word.toLowerCase() === w.toLowerCase());
+        const pos = abbreviatePos(match?.senses[0]?.partOfSpeech);
+        const content = (
+          <>
+            {w}
+            {pos && <span className="opacity-70"> ({pos})</span>}
+          </>
+        );
+        return match && onOpenWord ? (
+          <button
+            key={w}
+            onClick={() => onOpenWord(match.id)}
+            className={`px-2 py-0.5 rounded-full text-xs transition-opacity hover:opacity-80 ${toneClass}`}
+          >
+            {content}
+          </button>
+        ) : (
+          <span key={w} className={`px-2 py-0.5 rounded-full text-xs ${toneClass}`}>
+            {content}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
+export function WordSenseList({
+  senses,
+  allWords,
+  onOpenWord,
+}: {
+  senses: EnglishSense[];
+  allWords?: EnglishWord[];
+  onOpenWord?: (id: number) => void;
+}) {
   const t = useTranslations("English");
   if (senses.length === 0) return <p className="text-sm text-muted-foreground italic">{t("Words.noSenses")}</p>;
   return (
@@ -79,11 +138,11 @@ export function WordSenseList({ senses }: { senses: EnglishSense[] }) {
           {s.meaningVi && <p className="text-sm font-medium">{s.meaningVi}</p>}
           {s.cambridgeMeaning && <p className="text-sm text-muted-foreground italic">{s.cambridgeMeaning}</p>}
           {s.example && <p className="text-xs text-muted-foreground">&quot;{s.example}&quot;</p>}
-          {(s.synonyms || s.antonyms) && (
-            <p className="text-xs text-muted-foreground">
-              {s.synonyms && <>{t("Common.synonyms", { value: s.synonyms })} </>}
-              {s.antonyms && <>{t("Common.antonyms", { value: s.antonyms })}</>}
-            </p>
+          {s.synonyms && (
+            <WordChipRow label={t("Common.synonyms")} text={s.synonyms} allWords={allWords} onOpenWord={onOpenWord} tone="synonym" />
+          )}
+          {s.antonyms && (
+            <WordChipRow label={t("Common.antonyms")} text={s.antonyms} allWords={allWords} onOpenWord={onOpenWord} tone="antonym" />
           )}
           {s.note && <p className="text-xs whitespace-pre-line border-t border-border pt-1.5">{s.note}</p>}
           {(s.images?.length ?? 0) > 0 && (

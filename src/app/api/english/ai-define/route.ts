@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import Groq from "groq-sdk";
 import { getUserId, unauthorized } from "@/src/lib/auth";
+import { aiComplete } from "@/src/lib/ai-complete";
 
 // Last-resort fallback for word-add: used only when BOTH dictionaryapi.dev
 // and the Wiktionary fallback (see /api/english/crawl) returned nothing —
@@ -59,29 +59,20 @@ export async function POST(req: NextRequest) {
   const word = body.word?.trim();
   if (!word) return NextResponse.json({ senses: [] });
 
-  if (!process.env.GROQ_API_KEY) {
+  if (!process.env.GROQ_API_KEY && !process.env.GEMINI_API_KEY) {
     return NextResponse.json({ senses: [], error: "GROQ_API_KEY not configured" });
   }
 
   try {
-    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-    const completion = await groq.chat.completions.create({
-      model: MODEL,
-      max_tokens: 2048,
+    const { raw } = await aiComplete({
+      groqModel: MODEL,
+      maxTokens: 2048,
       temperature: 0.3,
-      reasoning_effort: "medium",
-      response_format: { type: "json_object" },
-      messages: [
-        {
-          role: "system",
-          content:
-            "Bạn là một biên tập viên từ điển Anh-Việt thận trọng: chỉ đưa ra định nghĩa khi chắc chắn từ/cụm từ đó thực sự tồn tại, không bao giờ bịa đặt. Luôn trả lời bằng JSON hợp lệ.",
-        },
-        { role: "user", content: PROMPT(word) },
-      ],
+      reasoningEffort: "medium",
+      systemPrompt:
+        "Bạn là một biên tập viên từ điển Anh-Việt thận trọng: chỉ đưa ra định nghĩa khi chắc chắn từ/cụm từ đó thực sự tồn tại, không bao giờ bịa đặt. Luôn trả lời bằng JSON hợp lệ.",
+      userPrompt: PROMPT(word),
     });
-
-    const raw = completion.choices[0]?.message?.content ?? "{}";
     const parsed = JSON.parse(raw) as { senses?: unknown };
     const rawSenses = Array.isArray(parsed.senses) ? parsed.senses : [];
 
