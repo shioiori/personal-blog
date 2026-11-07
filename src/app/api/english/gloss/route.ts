@@ -23,6 +23,7 @@ import { getUserId, unauthorized } from "@/src/lib/auth";
 interface GlossRequestItem {
   partOfSpeech?: string | null;
   definition: string;
+  example?: string | null;
 }
 
 interface ExistingSenseInput {
@@ -39,7 +40,12 @@ const MODEL = "openai/gpt-oss-120b";
 const MAX_SENSES = 8;
 
 function buildPrompt(word: string, items: GlossRequestItem[], existingSenses: ExistingSenseInput[]): string {
-  const lines = items.map((it, i) => `${i} | (${it.partOfSpeech || "?"}) ${it.definition}`).join("\n");
+  const lines = items
+    .map((it, i) => {
+      const exPart = it.example?.trim() ? ` [ví dụ có sẵn: ${it.example.trim()}]` : " [KHÔNG CÓ ví dụ]";
+      return `${i} | (${it.partOfSpeech || "?"}) ${it.definition}${exPart}`;
+    })
+    .join("\n");
 
   const existingSection =
     existingSenses.length > 0
@@ -60,12 +66,14 @@ function buildPrompt(word: string, items: GlossRequestItem[], existingSenses: Ex
 
   return `Từ tiếng Anh: "${word}"
 ${existingSection}
-Dưới đây là TOÀN BỘ các định nghĩa tiếng Anh thu thập được cho từ này (có thể trùng lặp hoặc gồm cả nghĩa rất hiếm/cổ), mỗi dòng có dạng "index | (loại từ) định nghĩa":
+Dưới đây là TOÀN BỘ các định nghĩa tiếng Anh thu thập được cho từ này (có thể trùng lặp hoặc gồm cả nghĩa rất hiếm/cổ), mỗi dòng có dạng "index | (loại từ) định nghĩa [ví dụ có sẵn hoặc không]":
 ${lines}
 
 ${task}
 
-Trả về CHỈ một JSON object dạng {"senses": [{"index": <số index gốc ở trên>, "meaningVi": "..."}, ...]}. Không thêm giải thích gì khác.`;
+Ngoài ra, với MỖI nghĩa được chọn ở trên: nếu dòng đó có "[ví dụ có sẵn: ...]", GIỮ NGUYÊN câu ví dụ đó vào trường "example". Nếu dòng đó ghi "[KHÔNG CÓ ví dụ]", hãy TỰ VIẾT một câu ví dụ tiếng Anh NGẮN GỌN, tự nhiên, minh hoạ đúng nghĩa đó, điền vào "example".
+
+Trả về CHỈ một JSON object dạng {"senses": [{"index": <số index gốc ở trên>, "meaningVi": "...", "example": "..."}, ...]}. Không thêm giải thích gì khác.`;
 }
 
 export async function POST(req: NextRequest) {
@@ -121,9 +129,14 @@ export async function POST(req: NextRequest) {
         const index = Number((s as { index?: unknown }).index);
         const meaningVi = String((s as { meaningVi?: unknown }).meaningVi ?? "").trim();
         if (!Number.isInteger(index) || index < 0 || index >= items.length || !meaningVi) return null;
-        return { index, meaningVi };
+        const modelExample = String((s as { example?: unknown }).example ?? "").trim();
+        // Prefer the example actually present in the source data over the
+        // model's own — only use the model's (possibly generated) one when
+        // the source had none.
+        const example = items[index].example?.trim() || modelExample;
+        return { index, meaningVi, example };
       })
-      .filter((s): s is { index: number; meaningVi: string } => s !== null)
+      .filter((s): s is { index: number; meaningVi: string; example: string } => s !== null)
       .slice(0, MAX_SENSES);
 
     return NextResponse.json({ senses });
