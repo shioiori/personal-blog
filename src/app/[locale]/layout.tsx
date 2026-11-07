@@ -2,6 +2,7 @@ import { Inter, Noto_Serif_SC } from "next/font/google";
 import { Header } from "../../components/header";
 import { Providers } from "@/src/context/providers";
 import { FloatingMusicBox } from "@/src/components/music/FloatingMusicBox";
+import { Toaster } from "@/src/components/ui/Sonner";
 import { Language } from "@/src/components/enums";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -32,6 +33,7 @@ export default async function RootLayout({
             </div>
           </div>
           <FloatingMusicBox />
+          <Toaster />
         </Providers>
       </body>
     </html>

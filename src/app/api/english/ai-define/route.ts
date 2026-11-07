@@ -23,11 +23,14 @@ interface AiSense {
   cambridgeMeaning?: string;
   meaningVi?: string;
   example?: string;
-  phonetic?: string;
   synonyms?: string;
   antonyms?: string;
 }
 
+// Phonetic is never requested here — it always comes from the real
+// dictionary lookup (dictionaryapi.dev, via `knownIpa` in english-autofill.ts),
+// never invented by the model, so it's dropped from both prompt and schema
+// to save tokens.
 const PROMPT = (word: string) => `Từ/cụm từ tiếng Anh: "${word}"
 
 Không tìm được từ/cụm từ này trong các từ điển tự động (dictionaryapi.dev, Wiktionary). Bạn phải tự xác định TOÀN BỘ thông tin dưới đây hoàn toàn từ kiến thức của bạn — không có dữ liệu từ điển nào để tham khảo thêm.
@@ -38,13 +41,12 @@ Từ/cụm từ này có THẬT SỰ TỒN TẠI trong tiếng Anh không (khôn
 BƯỚC 2 — nếu chắc chắn tồn tại, liệt kê tối đa 4 nghĩa THƯỜNG DÙNG NHẤT (bỏ nghĩa hiếm/cổ), mỗi nghĩa là MỘT OBJECT với ĐẦY ĐỦ, CHÍNH XÁC các trường sau (dùng "" cho trường không áp dụng được, KHÔNG được bỏ trường):
 - "partOfSpeech": loại từ, chữ thường tiếng Anh (noun, verb, adjective, adverb, idiom, phrasal verb...).
 - "cambridgeMeaning": định nghĩa tiếng Anh ngắn gọn, CHÍNH XÁC VỀ MẶT NGỮ NGHĨA, viết đúng kiểu một cuốn từ điển Anh-Anh (không phải giải thích dài dòng).
-- "meaningVi": nghĩa tiếng Việt NGẮN GỌN kiểu từ điển Anh-Việt thật (tối đa 5 từ), KHÔNG dịch nguyên câu định nghĩa tiếng Anh, KHÔNG bịa từ không có trong tiếng Việt.
+- "meaningVi": nghĩa tiếng Việt NGẮN GỌN kiểu từ điển Anh-Việt thật, KHÔNG dịch nguyên câu định nghĩa tiếng Anh, KHÔNG bịa từ không có trong tiếng Việt.
 - "example": một câu ví dụ tiếng Anh ngắn, tự nhiên, đúng ngữ pháp, minh hoạ ĐÚNG nghĩa đang xét.
-- "phonetic": phiên âm IPA chuẩn của TỪ GỐC (chỉ áp dụng khi "${word}" là MỘT TỪ đơn). QUAN TRỌNG: nếu điền, phiên âm này PHẢI GIỐNG HỆT NHAU ở tất cả các nghĩa, vì cùng một từ chỉ có một cách phát âm bất kể nghĩa nào. Để "" nếu là cụm nhiều từ hoặc bạn không chắc chắn về phiên âm chính xác.
 - "synonyms": các từ đồng nghĩa phổ biến, thật sự tồn tại, phân cách bởi dấu phẩy. Để "" nếu không có từ nào thật sự đồng nghĩa — KHÔNG bịa.
 - "antonyms": tương tự "synonyms" nhưng là từ trái nghĩa.
 
-Trả về CHỈ một JSON object đúng định dạng: {"senses": [{"partOfSpeech": "...", "cambridgeMeaning": "...", "meaningVi": "...", "example": "...", "phonetic": "...", "synonyms": "...", "antonyms": "..."}, ...]}. Không thêm bất kỳ chữ giải thích nào ngoài JSON.`;
+Trả về CHỈ một JSON object đúng định dạng: {"senses": [{"partOfSpeech": "...", "cambridgeMeaning": "...", "meaningVi": "...", "example": "...", "synonyms": "...", "antonyms": "..."}, ...]}. Không thêm bất kỳ chữ giải thích nào ngoài JSON.`;
 
 export async function POST(req: NextRequest) {
   if (!(await getUserId())) return unauthorized();
@@ -88,7 +90,6 @@ export async function POST(req: NextRequest) {
           cambridgeMeaning,
           meaningVi,
           example: String(item.example ?? "").trim(),
-          phonetic: String(item.phonetic ?? "").trim(),
           synonyms: String(item.synonyms ?? "").trim(),
           antonyms: String(item.antonyms ?? "").trim(),
           note: AI_NOTE,

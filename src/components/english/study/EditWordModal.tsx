@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { Button } from "@/src/components/ui/Button";
 import { Input } from "@/src/components/ui/Input";
 import { Textarea } from "@/src/components/ui/Textarea";
@@ -13,7 +14,7 @@ import { PronounceButton } from "./PronounceButton";
 import type { CambridgeCrawlData } from "./crawlData";
 import { compressImage, imageUrl, uploadImage, type PendingImage } from "./imageUpload";
 import { AltSpelling, ImageThumb, RelatedWordChips, WordSenseList, parseRelatedWords } from "./WordSenseDetail";
-import { buildSensesFromDictionary, findMissingSenses, validateAndNormalizeWord } from "@/src/lib/english-autofill";
+import { buildSensesFromDictionary, checkDuplicateWord, findMissingSenses, validateAndNormalizeWord } from "@/src/lib/english-autofill";
 
 interface EditWordModalProps {
   open: boolean;
@@ -267,12 +268,37 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
     setAutoFilling(true);
     setAutoFillError(null);
     try {
+      // Cheap, non-AI check first — skip the whole AI pipeline (lemmatize +
+      // gloss/ai-define) entirely on an exact repeat add.
+      if (!word) {
+        const dup = await checkDuplicateWord(raw);
+        if (dup.exists) {
+          const message = t("EditWord.duplicateWord", { word: dup.word ?? raw });
+          toast.error(message);
+          setAutoFillError(message);
+          return;
+        }
+      }
+
       const check = await validateAndNormalizeWord(raw);
       if (!check.valid) {
         setAutoFillError(check.reason);
         return;
       }
       if (check.normalized !== raw) setWordText(check.normalized);
+
+      // Normalization can reveal a duplicate the raw-text check missed (e.g.
+      // "went up" -> "go up" already exists) — check again before the
+      // heavier gloss/ai-define calls.
+      if (!word && check.normalized.toLowerCase() !== raw.toLowerCase()) {
+        const dup = await checkDuplicateWord(check.normalized);
+        if (dup.exists) {
+          const message = t("EditWord.duplicateWord", { word: dup.word ?? check.normalized });
+          toast.error(message);
+          setAutoFillError(message);
+          return;
+        }
+      }
 
       if (word) {
         const missing = await findMissingSenses(

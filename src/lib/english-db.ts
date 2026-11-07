@@ -204,6 +204,17 @@ export async function upsertWordCrawlData(userId: number, id: number, crawlData:
   `;
 }
 
+// Case-insensitive lookup by exact word or alt spelling, used to warn the
+// user before spending AI tokens re-defining a word they already have.
+export async function findWordByText(userId: number, text: string): Promise<{ id: number; word: string } | null> {
+  const rows = await sql`
+    SELECT id, word FROM english_words
+    WHERE user_id = ${userId} AND (LOWER(word) = LOWER(${text}) OR LOWER(alt_spelling) = LOWER(${text}))
+    LIMIT 1
+  `;
+  return rows[0] ? { id: rows[0].id as number, word: rows[0].word as string } : null;
+}
+
 export async function getWord(userId: number, id: number): Promise<EnglishWord | null> {
   const wordRows = await sql`SELECT id, word, created_at, crawl_data, related_words, alt_spelling FROM english_words WHERE id = ${id} AND user_id = ${userId}`;
   if (!wordRows[0]) return null;

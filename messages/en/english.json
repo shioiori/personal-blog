@@ -57,7 +57,8 @@
             "autoFilling": "Filling...",
             "relatedWords": "Related words (comma-separated)",
             "suggestions": "Suggestions:",
-            "uploadError": "Couldn't upload the image. Please try again later."
+            "uploadError": "Couldn't upload the image. Please try again later.",
+            "duplicateWord": "\"{word}\" is already in your dictionary."
         },
         "Groups": {
             "rename": "Rename group",

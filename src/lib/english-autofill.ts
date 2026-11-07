@@ -71,6 +71,22 @@ export async function validateAndNormalizeWord(
   }
 }
 
+export interface DuplicateCheckResult {
+  exists: boolean;
+  id?: number;
+  word?: string;
+}
+
+// Cheap, non-AI check — call before validateAndNormalizeWord/buildSensesFromDictionary
+// so an exact (or near-exact) repeat add never spends any AI tokens.
+export async function checkDuplicateWord(wordText: string): Promise<DuplicateCheckResult> {
+  try {
+    return await apiFetch<DuplicateCheckResult>(`/api/english/words/exists?word=${encodeURIComponent(wordText)}`);
+  } catch {
+    return { exists: false };
+  }
+}
+
 interface FlatDef {
   partOfSpeech: string;
   text: string;
@@ -152,9 +168,10 @@ function buildSenseRows(picks: GlossPick[], flatDefs: FlatDef[], ipa: string, sy
 const AI_DEFINE_NOTE = "Định nghĩa do AI tạo (không tìm thấy trong từ điển) — nên kiểm tra lại.";
 
 // Last resort when NEITHER dictionaryapi.dev nor the Wiktionary fallback has
-// anything — e.g. an uncommon phrasal verb like "creep into". `knownIpa` is
-// the REAL phonetic already fetched (if any), trusted over the model's own
-// guess. Throws if the model isn't confident this is even a real word/phrase.
+// anything — e.g. an uncommon phrasal verb like "creep into". The model is
+// never asked for phonetic — `knownIpa` (the real dictionary pronunciation,
+// if any was found) is the only source; left blank otherwise. Throws if the
+// model isn't confident this is even a real word/phrase.
 async function aiDefineFallback(wordText: string, knownIpa: string): Promise<AutofillSense[]> {
   const res = await apiFetch<{ senses?: Partial<AutofillSense>[] }>("/api/english/ai-define", {
     method: "POST",
@@ -165,7 +182,7 @@ async function aiDefineFallback(wordText: string, knownIpa: string): Promise<Aut
   if (senses.length === 0) {
     throw new Error(`Không tìm thấy định nghĩa nào cho "${wordText}", kể cả từ AI. Thử lại sau hoặc thêm thủ công.`);
   }
-  return senses.map((s) => ({ ...emptySense(), ...s, phonetic: knownIpa || s.phonetic || "", note: s.note || AI_DEFINE_NOTE }));
+  return senses.map((s) => ({ ...emptySense(), ...s, phonetic: knownIpa, note: s.note || AI_DEFINE_NOTE }));
 }
 
 // Crawls the dictionary, sends every deduped definition to /api/english/gloss

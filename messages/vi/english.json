@@ -57,7 +57,8 @@
             "autoFilling": "Đang điền...",
             "relatedWords": "Từ liên quan (phân cách bởi dấu phẩy)",
             "suggestions": "Gợi ý:",
-            "uploadError": "Không upload được ảnh. Thử lại sau."
+            "uploadError": "Không upload được ảnh. Thử lại sau.",
+            "duplicateWord": "\"{word}\" đã có trong từ điển."
         },
         "Groups": {
             "rename": "Đổi tên nhóm",
