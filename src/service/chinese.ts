@@ -88,8 +88,19 @@ export async function generateReviewText(userId: number, prioritizeRecent = fals
     }
 
     const completion = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: "openai/gpt-oss-20b",
       max_tokens: 2048,
+      // gpt-oss is a reasoning model: its hidden chain-of-thought counts
+      // against max_tokens, and on a long constrained passage it can burn
+      // the whole budget before emitting any content, leaving text empty.
+      // Low effort keeps that reasoning short so content actually comes out.
+      reasoning_effort: "low",
+      // With a small vocabulary of allowed characters and a long required
+      // length, this 20B model tends to fall into a degenerate loop
+      // (repeating the same short phrase hundreds of times). Penalizing
+      // repeated tokens keeps it varying the text instead.
+      frequency_penalty: 0.6,
+      presence_penalty: 0.4,
       messages,
     });
 
@@ -101,8 +112,9 @@ export async function generateReviewText(userId: number, prioritizeRecent = fals
   // Grammar check pass
   if (lastViolations.length === 0 && text) {
     const grammarCheck = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: "openai/gpt-oss-20b",
       max_tokens: 2048,
+      reasoning_effort: "low",
       messages: [
         {
           role: "system",

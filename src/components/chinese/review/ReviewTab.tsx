@@ -81,7 +81,9 @@ export function ReviewTab({ allChars, userEdits, hiddenCards }: ReviewTabProps) 
         limit?: number;
       };
 
-      if (data.error === ReviewStatus.RateLimited) {
+      if (data.error === ReviewStatus.Disabled) {
+        setState({ status: ReviewStatus.Disabled });
+      } else if (data.error === ReviewStatus.RateLimited) {
         setState({ status: ReviewStatus.RateLimited, used: data.used ?? 100, limit: data.limit ?? 100 });
       } else if (data.error === ReviewStatus.NoWords) {
         setState({ status: ReviewStatus.NoWords });
@@ -199,6 +201,13 @@ export function ReviewTab({ allChars, userEdits, hiddenCards }: ReviewTabProps) 
           <div className="text-center py-16 space-y-2">
             <p className="text-lg font-medium text-destructive">Có lỗi xảy ra.</p>
             <p className="text-sm text-muted-foreground">Vui lòng thử lại.</p>
+          </div>
+        )}
+
+        {state.status === ReviewStatus.Disabled && (
+          <div className="text-center py-16 space-y-2">
+            <p className="text-lg font-medium text-foreground">Tính năng đang phát triển.</p>
+            <p className="text-sm text-muted-foreground">Tạm thời chưa dùng được, quay lại sau nhé!</p>
           </div>
         )}
 

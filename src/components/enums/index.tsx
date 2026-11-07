@@ -27,6 +27,7 @@ export enum ReviewStatus {
   Ready = "ready",
   RateLimited = "rate_limited",
   Error = "error",
+  Disabled = "disabled",
 }
 
 export enum TooltipMode {

@@ -11,9 +11,18 @@ import {
 
 const DAILY_LIMIT = 100;
 
+// Temporarily disabled: the Groq model backing this (openai/gpt-oss-20b,
+// after Groq retired the Llama models this previously used) produces
+// degenerate repeating output on the long constrained passages this feature
+// needs. Locked behind this flag until the prompt/model is tuned properly.
+const REVIEW_GENERATION_DISABLED = true;
+
 export async function GET(request: Request) {
   const userId = await getUserId();
   if (!userId) return unauthorized();
+  if (REVIEW_GENERATION_DISABLED) {
+    return NextResponse.json({ error: "disabled" });
+  }
   try {
     await ensureTables();
     await ensureReviewHistoryTable();

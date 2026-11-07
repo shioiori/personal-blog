@@ -31,7 +31,8 @@ export type ReviewState =
   | { status: ReviewStatus.TooFew; learnedCount: number; minWords: number }
   | { status: ReviewStatus.Ready; text: string; learnedCount: number }
   | { status: ReviewStatus.RateLimited; used: number; limit: number }
-  | { status: ReviewStatus.Error };
+  | { status: ReviewStatus.Error }
+  | { status: ReviewStatus.Disabled };
 
 export interface ReviewTabProps {
   allChars: CharacterInfo[];
