@@ -13,6 +13,7 @@ import { PronounceButton } from "./PronounceButton";
 import type { CambridgeCrawlData } from "./crawlData";
 import { compressImage, imageUrl, uploadImage, type PendingImage } from "./imageUpload";
 import { AltSpelling, ImageThumb, RelatedWordChips, WordSenseList, parseRelatedWords } from "./WordSenseDetail";
+import { buildSensesFromDictionary, findMissingSenses, validateAndNormalizeWord } from "@/src/lib/english-autofill";
 
 interface EditWordModalProps {
   open: boolean;
@@ -151,11 +152,13 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
   const [saving, setSaving] = useState(false);
   const [crawlData, setCrawlData] = useState<CambridgeCrawlData | null>(null);
   const [autoFilling, setAutoFilling] = useState(false);
+  const [autoFillError, setAutoFillError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
     setSaveError(null);
+    setAutoFillError(null);
     setMode(word ? (startInEditMode ? "edit" : "view") : "edit");
     if (word) {
       setWordText(word.word);
@@ -249,51 +252,48 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
     }
   }
 
-  // Fills whatever is still blank across all senses (phonetic, example,
-  // synonyms, antonyms, meaningVi) from the free dictionary lookup — fetching
-  // it first if not already cached/loaded. Never overwrites a field the user
-  // already filled in.
+  // Same pipeline as the browser extension's quick-add: validates/normalizes
+  // the word, crawls the dictionary, lets Groq pick common senses and write
+  // a short Vietnamese gloss (not a literal translation), and falls back to
+  // a fully AI-generated definition when the dictionary has nothing at all.
+  // - New word (no existing rows with content yet): replaces the empty
+  //   placeholder row(s) with the full set of senses found.
+  // - Existing word: only APPENDS senses that are semantically missing from
+  //   what's already saved (never re-adds a rephrased duplicate); does not
+  //   backfill blanks in already-present rows.
   async function handleAutoFillAll() {
-    if (!wordText.trim()) return;
+    const raw = wordText.trim();
+    if (!raw) return;
     setAutoFilling(true);
+    setAutoFillError(null);
     try {
-      const dict = await loadDict();
-
-      const synonymsText = (dict?.synonyms ?? []).slice(0, 6).join(", ");
-      const antonymsText = (dict?.antonyms ?? []).slice(0, 6).join(", ");
-      const ipa = dict?.pronunciations?.find((p) => p.ipa)?.ipa;
-
-      const needsTranslation = senses.some((s) => !(s.meaningVi ?? "").trim());
-      let wordTranslation: string | null = null;
-      if (needsTranslation) {
-        try {
-          const tres = await fetch("/api/english/translate", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text: wordText.trim() }),
-          });
-          const tdata = (await tres.json()) as { translation: string | null };
-          wordTranslation = tdata.translation;
-        } catch {
-          // best-effort, ignore
-        }
+      const check = await validateAndNormalizeWord(raw);
+      if (!check.valid) {
+        setAutoFillError(check.reason);
+        return;
       }
+      if (check.normalized !== raw) setWordText(check.normalized);
 
-      setSenses((prev) =>
-        prev.map((s) => {
-          const match = dict?.senses?.find((ds) => ds.partOfSpeech?.toLowerCase() === (s.partOfSpeech ?? "").toLowerCase()) ?? dict?.senses?.[0];
-          const def = match?.definitions[0];
-          return {
-            ...s,
-            partOfSpeech: s.partOfSpeech || match?.partOfSpeech || "",
-            phonetic: s.phonetic || ipa || "",
-            example: s.example || def?.examples[0] || "",
-            synonyms: s.synonyms || synonymsText,
-            antonyms: s.antonyms || antonymsText,
-            meaningVi: s.meaningVi || wordTranslation || "",
-          };
-        })
-      );
+      if (word) {
+        const missing = await findMissingSenses(
+          check.normalized,
+          senses.filter(hasContent).map((s) => ({ partOfSpeech: s.partOfSpeech, cambridgeMeaning: s.cambridgeMeaning, meaningVi: s.meaningVi }))
+        );
+        if (missing.length === 0) {
+          setAutoFillError("Không có nghĩa nào còn thiếu so với từ điển.");
+          return;
+        }
+        setSenses((prev) => [...prev.filter(hasContent), ...missing.map((m) => ({ ...m, images: [] }))]);
+      } else {
+        const built = await buildSensesFromDictionary(check.normalized);
+        const builtDrafts = built.map((m) => ({ ...m, images: [] }));
+        setSenses((prev) => {
+          const wasUntouched = prev.length === 1 && !hasContent(prev[0]);
+          return wasUntouched ? builtDrafts : [...prev, ...builtDrafts];
+        });
+      }
+    } catch (err) {
+      setAutoFillError(err instanceof Error ? err.message : String(err));
     } finally {
       setAutoFilling(false);
     }
@@ -502,6 +502,7 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
                     {autoFilling ? t("EditWord.autoFilling") : t("Common.autoFill")}
                   </Button>
                 </div>
+                {autoFillError && <p className="text-xs text-destructive">{autoFillError}</p>}
               </div>
 
               <div className="space-y-1.5">
