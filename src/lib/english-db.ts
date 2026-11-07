@@ -57,12 +57,24 @@ export const ensureEnglishTables = once(async function ensureEnglishTables() {
   // Tracks the hostname a group was auto-created for, independent of its
   // (user-editable) display name, so renaming an auto-created group doesn't
   // make the next source_url sync recreate a duplicate under the old name.
+  // Superseded by source_url below (groups are now per-page, not per-domain)
+  // but kept so pre-existing hostname-based groups aren't orphaned.
   await sql`
     ALTER TABLE english_word_groups ADD COLUMN IF NOT EXISTS source_hostname TEXT
   `;
   await sql`
     CREATE UNIQUE INDEX IF NOT EXISTS english_word_groups_user_hostname_key
       ON english_word_groups (user_id, source_hostname) WHERE source_hostname IS NOT NULL
+  `;
+  // The exact page a group was auto-created for (hash fragment stripped).
+  // Matched instead of source_hostname so words from different pages on the
+  // same site land in separate groups.
+  await sql`
+    ALTER TABLE english_word_groups ADD COLUMN IF NOT EXISTS source_url TEXT
+  `;
+  await sql`
+    CREATE UNIQUE INDEX IF NOT EXISTS english_word_groups_user_source_url_key
+      ON english_word_groups (user_id, source_url) WHERE source_url IS NOT NULL
   `;
   await sql`
     CREATE TABLE IF NOT EXISTS english_word_group_members (
@@ -183,42 +195,37 @@ export async function createWord(userId: number, word: string, senses: SenseInpu
   return created;
 }
 
-function hostnameOf(sourceUrl: string): string {
+// Strips the hash fragment (scroll anchors etc. don't make it a different
+// page); falls back to the raw string if it isn't a parseable URL.
+function normalizeSourceUrl(sourceUrl: string): string {
   try {
-    return new URL(sourceUrl).hostname || sourceUrl;
+    const u = new URL(sourceUrl);
+    u.hash = "";
+    return u.toString();
   } catch {
-    return sourceUrl;
+    return sourceUrl.trim();
   }
 }
 
-// Groups words added from the same web page together, named after that
-// page's hostname (e.g. "en.wikipedia.org"), so words captured via the
-// extension land in one shared category instead of a group per URL. Matched
-// by the group's source_hostname (not its display name) so renaming the
-// group never makes a later sync recreate a duplicate under the old name.
+// Groups words added from the same page together, named after that page's
+// URL, so re-adding from the same page reuses the group instead of creating
+// a duplicate. Matched by the group's source_url (not its display name) so
+// renaming the group never makes a later sync recreate a duplicate under the
+// old name. Different pages on the same site each get their own group.
 async function getOrCreateGroupByUrl(userId: number, sourceUrl: string): Promise<number> {
-  const hostname = hostnameOf(sourceUrl);
-  const existing = await sql`SELECT id FROM english_word_groups WHERE user_id = ${userId} AND source_hostname = ${hostname}`;
+  const url = normalizeSourceUrl(sourceUrl);
+  const existing = await sql`SELECT id FROM english_word_groups WHERE user_id = ${userId} AND source_url = ${url}`;
   if (existing[0]) return existing[0].id as number;
 
-  // Adopt a group that was already named exactly like this hostname before
-  // source_hostname tracking existed, instead of creating a duplicate.
-  const byName = await sql`SELECT id FROM english_word_groups WHERE user_id = ${userId} AND name = ${hostname} AND source_hostname IS NULL`;
-  if (byName[0]) {
-    const id = byName[0].id as number;
-    await sql`UPDATE english_word_groups SET source_hostname = ${hostname} WHERE id = ${id}`;
-    return id;
-  }
-
-  const rows = await sql`INSERT INTO english_word_groups (user_id, name, source_hostname) VALUES (${userId}, ${hostname}, ${hostname}) RETURNING id`;
+  const rows = await sql`INSERT INTO english_word_groups (user_id, name, source_url) VALUES (${userId}, ${url}, ${url}) RETURNING id`;
   return rows[0].id as number;
 }
 
-// Adds an already-existing word to the group for `sourceUrl`'s hostname,
+// Adds an already-existing word to the group for `sourceUrl`'s page,
 // creating that group if needed. Used when the browser extension adds a
-// word that's already in the DB from a different page: if the hostname is
-// one the word is already grouped under, membership insert is a no-op
-// (ON CONFLICT DO NOTHING); a new hostname gets its own group.
+// word that's already in the DB from a different page: if the page is one
+// the word is already grouped under, membership insert is a no-op
+// (ON CONFLICT DO NOTHING); a new page gets its own group.
 export async function linkWordToSourceGroup(userId: number, wordId: number, sourceUrl: string): Promise<void> {
   const groupId = await getOrCreateGroupByUrl(userId, sourceUrl);
   await addWordsToGroup(userId, groupId, [wordId]);
@@ -355,22 +362,22 @@ export async function listWords(userId: number, opts: { groupId?: number; search
 
 // ── Groups ───────────────────────────────────────────────────────────────────
 
-// Ensures every word with a source_url belongs to a group named after that
-// URL's hostname — even when source_url was set outside createWord (e.g. a
-// direct DB edit), so group membership never drifts out of sync with it.
+// Ensures every word with a source_url belongs to a group for that exact
+// page — even when source_url was set outside createWord (e.g. a direct DB
+// edit), so group membership never drifts out of sync with it.
 async function syncGroupsFromSourceUrls(userId: number): Promise<void> {
   const rows = await sql`SELECT id, source_url FROM english_words WHERE user_id = ${userId} AND source_url IS NOT NULL`;
   if (rows.length === 0) return;
 
-  const wordIdsByHostname = new Map<string, number[]>();
+  const wordIdsByUrl = new Map<string, number[]>();
   for (const r of rows) {
-    const hostname = hostnameOf(r.source_url as string);
-    if (!wordIdsByHostname.has(hostname)) wordIdsByHostname.set(hostname, []);
-    wordIdsByHostname.get(hostname)!.push(r.id as number);
+    const url = normalizeSourceUrl(r.source_url as string);
+    if (!wordIdsByUrl.has(url)) wordIdsByUrl.set(url, []);
+    wordIdsByUrl.get(url)!.push(r.id as number);
   }
 
-  for (const [hostname, wordIds] of wordIdsByHostname) {
-    const groupId = await getOrCreateGroupByUrl(userId, hostname);
+  for (const [url, wordIds] of wordIdsByUrl) {
+    const groupId = await getOrCreateGroupByUrl(userId, url);
     await addWordsToGroup(userId, groupId, wordIds);
   }
 }
