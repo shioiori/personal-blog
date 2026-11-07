@@ -37,7 +37,7 @@ interface ExistingSenseInput {
 // 0/6 across two different words in the same test. Cost difference is
 // negligible at this usage volume.
 const MODEL = "openai/gpt-oss-120b";
-const MAX_SENSES = 8;
+const MAX_SENSES = 5;
 
 function buildPrompt(word: string, items: GlossRequestItem[], existingSenses: ExistingSenseInput[]): string {
   const lines = items
@@ -54,15 +54,19 @@ function buildPrompt(word: string, items: GlossRequestItem[], existingSenses: Ex
           .join("\n")}\n`
       : "";
 
+  const phraseExclusion = `LOẠI BỎ những định nghĩa CHỈ áp dụng khi từ "${word}" kết hợp với một giới từ/trạng từ khác để tạo thành một CỤM ĐỘNG TỪ (phrasal verb) KHÁC có nghĩa riêng biệt (ví dụ: nếu từ đang xét là "bend", bỏ định nghĩa thực chất là của "bend down", "bend over", "bend to" — những cụm đó nên được thêm như một mục riêng, không gộp vào nghĩa của "${word}" đứng một mình).`;
+
   const task = existingSenses.length > 0
     ? `Nhiệm vụ:
 1. So sánh từng định nghĩa bên dưới với các nghĩa ĐÃ CÓ ở trên. Nếu một định nghĩa chỉ diễn đạt lại (rephrase) cùng một ý với nghĩa đã có — dù câu chữ tiếng Anh khác nhau — thì KHÔNG chọn nó.
-2. Chỉ chọn những định nghĩa thể hiện một Ý NGHĨA THỰC SỰ CÒN THIẾU, và trong số đó chỉ giữ lại nghĩa THƯỜNG DÙNG (common), bỏ nghĩa hiếm/cổ/chuyên ngành hẹp và nghĩa trùng lặp lẫn nhau. Tối đa ${MAX_SENSES} nghĩa mới, sắp theo mức độ phổ biến giảm dần.
-3. Nếu không có nghĩa nào thực sự còn thiếu, trả về mảng "senses" rỗng.
-4. Với mỗi nghĩa mới được chọn, viết nghĩa tiếng Việt NGẮN GỌN theo kiểu một cuốn từ điển Anh-Việt thật sự ghi (ví dụ: "mốc", "khuôn"), KHÔNG dịch nguyên câu định nghĩa tiếng Anh. Tối đa khoảng 5 từ.`
+2. ${phraseExclusion}
+3. Trong số còn lại, chỉ chọn những định nghĩa thể hiện một Ý NGHĨA THỰC SỰ CÒN THIẾU, và chỉ giữ lại nghĩa THƯỜNG DÙNG (common), bỏ nghĩa hiếm/cổ/chuyên ngành hẹp và nghĩa trùng lặp lẫn nhau. Tối đa ${MAX_SENSES} nghĩa mới, sắp theo mức độ phổ biến giảm dần.
+4. Nếu không có nghĩa nào thực sự còn thiếu, trả về mảng "senses" rỗng.
+5. Với mỗi nghĩa mới được chọn, viết nghĩa tiếng Việt NGẮN GỌN theo kiểu một cuốn từ điển Anh-Việt thật sự ghi (ví dụ: "mốc", "khuôn"), KHÔNG dịch nguyên câu định nghĩa tiếng Anh. Tối đa khoảng 5 từ.`
     : `Nhiệm vụ:
-1. Chọn ra các nghĩa THƯỜNG DÙNG (common) của từ này, bỏ qua nghĩa trùng lặp (hai định nghĩa nói cùng một ý) và nghĩa hiếm/cổ/chuyên ngành hẹp. Tối đa ${MAX_SENSES} nghĩa, sắp theo mức độ phổ biến giảm dần.
-2. Với mỗi nghĩa đã chọn, viết nghĩa tiếng Việt NGẮN GỌN theo kiểu một cuốn từ điển Anh-Việt thật sự ghi (ví dụ: "mốc", "khuôn", "nấm mốc"), KHÔNG dịch nguyên câu định nghĩa tiếng Anh sang tiếng Việt. Mỗi nghĩa tiếng Việt chỉ nên là một từ hoặc cụm từ ngắn (tối đa khoảng 5 từ).`;
+1. ${phraseExclusion}
+2. Trong số còn lại, chọn ra các nghĩa THƯỜNG DÙNG (common) của từ này, bỏ qua nghĩa trùng lặp (hai định nghĩa nói cùng một ý) và nghĩa hiếm/cổ/chuyên ngành hẹp. Tối đa ${MAX_SENSES} nghĩa, sắp theo mức độ phổ biến giảm dần.
+3. Với mỗi nghĩa đã chọn, viết nghĩa tiếng Việt NGẮN GỌN theo kiểu một cuốn từ điển Anh-Việt thật sự ghi (ví dụ: "mốc", "khuôn", "nấm mốc"), KHÔNG dịch nguyên câu định nghĩa tiếng Anh sang tiếng Việt. Mỗi nghĩa tiếng Việt chỉ nên là một từ hoặc cụm từ ngắn (tối đa khoảng 5 từ).`;
 
   return `Từ tiếng Anh: "${word}"
 ${existingSection}
@@ -103,9 +107,11 @@ export async function POST(req: NextRequest) {
       model: MODEL,
       // "low" reasoning_effort was reliably producing invented, non-words in
       // the Vietnamese gloss for this model (e.g. "điên rối", "cảm hận" —
-      // reproduced 2/3 runs on "disruption" at low, 0/3 at high). The gloss
-      // itself is short, so there's budget to spare for the extra reasoning.
-      max_tokens: 2048,
+      // reproduced 2/3 runs on "disruption" at low, 0/3 at high). A word
+      // with many definitions (e.g. "bend", 20 deduped definitions) can
+      // reliably blow through 2048 tokens of reasoning + output before
+      // finishing valid JSON (reproduced 1/5 runs) — 4096 held up 4/4.
+      max_tokens: 4096,
       temperature: 0.3,
       reasoning_effort: "high",
       response_format: { type: "json_object" },
