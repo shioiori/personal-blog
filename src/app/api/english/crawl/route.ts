@@ -113,6 +113,64 @@ async function getIpaDict(): Promise<Map<string, string>> {
   return ipaDictPromise;
 }
 
+function stripHtml(html: string): string {
+  return html
+    .replace(/<[^>]+>/g, "")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+interface WiktionaryDefinition {
+  definition?: string;
+  examples?: string[];
+}
+
+interface WiktionaryEntry {
+  partOfSpeech?: string;
+  definitions?: WiktionaryDefinition[];
+}
+
+// dictionaryapi.dev is itself sourced from Wiktionary, but goes through its
+// own Cloudflare-fronted mirror that sometimes answers Vercel's serverless
+// IPs with an entry that has a part of speech but zero definitions (seen in
+// production, confirmed reproducible for specific words like "resent" —
+// not a transient blip). Wiktionary's own REST API is a different host with
+// no such bot-protection, so it's used as a fallback for full definitions
+// (not just a part-of-speech guess, unlike the datamuse fallback below).
+async function fetchWiktionaryFallback(word: string): Promise<EntrySenseBlock[]> {
+  try {
+    const res = await fetch(`https://en.wiktionary.org/api/rest_v1/page/definition/${encodeURIComponent(word)}`, {
+      signal: AbortSignal.timeout(8000),
+      headers: { "User-Agent": "personal-blog-english-study/1.0" },
+    });
+    if (!res.ok) return [];
+    const data = (await res.json()) as Record<string, WiktionaryEntry[]>;
+    const entries = data.en ?? [];
+    const senses: EntrySenseBlock[] = [];
+    for (const entry of entries) {
+      const definitions = (entry.definitions ?? [])
+        .map((d) => ({
+          text: stripHtml(d.definition ?? ""),
+          examples: (d.examples ?? []).map(stripHtml).filter(Boolean).slice(0, 1),
+        }))
+        .filter((d) => d.text)
+        .slice(0, 10);
+      if (definitions.length > 0) {
+        senses.push({ partOfSpeech: entry.partOfSpeech?.toLowerCase(), definitions });
+      }
+    }
+    return senses;
+  } catch (e) {
+    console.error("[dictionary crawl] wiktionary fallback failed", e);
+    return [];
+  }
+}
+
 const DATAMUSE_POS: Record<string, string> = { n: "noun", v: "verb", adj: "adjective", adv: "adverb" };
 
 async function fetchFallbackSenses(word: string): Promise<EntrySenseBlock[]> {
@@ -181,7 +239,8 @@ async function fetchDictionaryEntry(word: string): Promise<DictionaryCrawlData> 
     const result = emptyResult(word, apiUrl);
     const fallbackIpa = (await getIpaDict()).get(trimmed);
     if (fallbackIpa) result.pronunciations.push({ ipa: fallbackIpa });
-    result.senses = await fetchFallbackSenses(trimmed);
+    result.senses = await fetchWiktionaryFallback(trimmed);
+    if (result.senses.length === 0) result.senses = await fetchFallbackSenses(trimmed);
     return result;
   }
 
@@ -225,7 +284,10 @@ async function fetchDictionaryEntry(word: string): Promise<DictionaryCrawlData> 
     const fallbackIpa = (await getIpaDict()).get(trimmed);
     if (fallbackIpa) pronunciations.push({ ipa: fallbackIpa });
   }
-  if (senses.length === 0) senses.push(...(await fetchFallbackSenses(trimmed)));
+  if (senses.length === 0) {
+    senses.push(...(await fetchWiktionaryFallback(trimmed)));
+    if (senses.length === 0) senses.push(...(await fetchFallbackSenses(trimmed)));
+  }
 
   return {
     source: "dictionaryapi.dev",
