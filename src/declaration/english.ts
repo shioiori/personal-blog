@@ -23,6 +23,8 @@ export interface EnglishWord {
   /** Comma-separated related words (e.g. "obese, obesity"), resolved by text to other words in the list. */
   relatedWords?: string;
   altSpelling?: string;
+  /** URL of the page the word was captured from (e.g. via the browser extension). */
+  sourceUrl?: string;
 }
 
 export interface EnglishGroup {

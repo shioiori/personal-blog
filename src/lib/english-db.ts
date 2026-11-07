@@ -23,6 +23,9 @@ export const ensureEnglishTables = once(async function ensureEnglishTables() {
     ALTER TABLE english_words ADD COLUMN IF NOT EXISTS alt_spelling TEXT
   `;
   await sql`
+    ALTER TABLE english_words ADD COLUMN IF NOT EXISTS source_url TEXT
+  `;
+  await sql`
     CREATE TABLE IF NOT EXISTS english_senses (
       id                SERIAL PRIMARY KEY,
       word_id           INT NOT NULL REFERENCES english_words(id) ON DELETE CASCADE,
@@ -151,8 +154,8 @@ async function insertSenses(wordId: number, senses: SenseInput[]): Promise<void>
   }
 }
 
-export async function createWord(userId: number, word: string, senses: SenseInput[], crawlData?: unknown, relatedWords?: string | null, altSpelling?: string | null): Promise<EnglishWord> {
-  const rows = await sql`INSERT INTO english_words (user_id, word, related_words, alt_spelling) VALUES (${userId}, ${word}, ${relatedWords ?? null}, ${altSpelling ?? null}) RETURNING id, word, created_at`;
+export async function createWord(userId: number, word: string, senses: SenseInput[], crawlData?: unknown, relatedWords?: string | null, altSpelling?: string | null, sourceUrl?: string | null): Promise<EnglishWord> {
+  const rows = await sql`INSERT INTO english_words (user_id, word, related_words, alt_spelling, source_url) VALUES (${userId}, ${word}, ${relatedWords ?? null}, ${altSpelling ?? null}, ${sourceUrl ?? null}) RETURNING id, word, created_at`;
   const id = rows[0].id as number;
   if (senses.length > 0) await insertSenses(id, senses);
   else await insertSenses(id, [{}]);
@@ -161,9 +164,29 @@ export async function createWord(userId: number, word: string, senses: SenseInpu
     ON CONFLICT (word_id) DO NOTHING
   `;
   if (crawlData) await upsertWordCrawlData(userId, id, crawlData);
+  if (sourceUrl) {
+    const groupId = await getOrCreateGroupByUrl(userId, sourceUrl);
+    await addWordsToGroup(userId, groupId, [id]);
+  }
   const created = await getWord(userId, id);
   if (!created) throw new Error("failed to load created word");
   return created;
+}
+
+// Groups words added from the same web page together, named after that
+// page's hostname (e.g. "en.wikipedia.org"), so words captured via the
+// extension land in one shared category instead of a group per URL.
+async function getOrCreateGroupByUrl(userId: number, sourceUrl: string): Promise<number> {
+  let name: string;
+  try {
+    name = new URL(sourceUrl).hostname || sourceUrl;
+  } catch {
+    name = sourceUrl;
+  }
+  const existing = await sql`SELECT id FROM english_word_groups WHERE user_id = ${userId} AND name = ${name}`;
+  if (existing[0]) return existing[0].id as number;
+  const created = await createGroup(userId, name);
+  return created.id;
 }
 
 export async function updateWord(userId: number, id: number, word: string, senses: SenseInput[], relatedWords?: string | null, altSpelling?: string | null): Promise<boolean> {
@@ -216,7 +239,7 @@ export async function findWordByText(userId: number, text: string): Promise<{ id
 }
 
 export async function getWord(userId: number, id: number): Promise<EnglishWord | null> {
-  const wordRows = await sql`SELECT id, word, created_at, crawl_data, related_words, alt_spelling FROM english_words WHERE id = ${id} AND user_id = ${userId}`;
+  const wordRows = await sql`SELECT id, word, created_at, crawl_data, related_words, alt_spelling, source_url FROM english_words WHERE id = ${id} AND user_id = ${userId}`;
   if (!wordRows[0]) return null;
   const senseRows = await sql`SELECT * FROM english_senses WHERE word_id = ${id} ORDER BY sort_order ASC, id ASC`;
   const groupRows = await sql`SELECT group_id FROM english_word_group_members WHERE word_id = ${id}`;
@@ -231,6 +254,7 @@ export async function getWord(userId: number, id: number): Promise<EnglishWord |
     crawlData: (wordRows[0].crawl_data as unknown | null) ?? undefined,
     relatedWords: (wordRows[0].related_words as string | null) ?? undefined,
     altSpelling: (wordRows[0].alt_spelling as string | null) ?? undefined,
+    sourceUrl: (wordRows[0].source_url as string | null) ?? undefined,
   };
 }
 
@@ -238,7 +262,7 @@ export async function listWords(userId: number, opts: { groupId?: number; search
   let wordRows;
   if (opts.groupId) {
     wordRows = await sql`
-      SELECT w.id, w.word, w.created_at, w.crawl_data, w.related_words, w.alt_spelling FROM english_words w
+      SELECT w.id, w.word, w.created_at, w.crawl_data, w.related_words, w.alt_spelling, w.source_url FROM english_words w
       JOIN english_word_group_members m ON m.word_id = w.id
       WHERE m.group_id = ${opts.groupId} AND w.user_id = ${userId}
       ORDER BY w.word ASC
@@ -246,12 +270,12 @@ export async function listWords(userId: number, opts: { groupId?: number; search
   } else if (opts.search) {
     const pattern = `%${opts.search}%`;
     wordRows = await sql`
-      SELECT id, word, created_at, crawl_data, related_words, alt_spelling FROM english_words
+      SELECT id, word, created_at, crawl_data, related_words, alt_spelling, source_url FROM english_words
       WHERE user_id = ${userId} AND (word ILIKE ${pattern} OR alt_spelling ILIKE ${pattern})
       ORDER BY word ASC
     `;
   } else {
-    wordRows = await sql`SELECT id, word, created_at, crawl_data, related_words, alt_spelling FROM english_words WHERE user_id = ${userId} ORDER BY word ASC`;
+    wordRows = await sql`SELECT id, word, created_at, crawl_data, related_words, alt_spelling, source_url FROM english_words WHERE user_id = ${userId} ORDER BY word ASC`;
   }
 
   if (wordRows.length === 0) return [];
@@ -288,6 +312,7 @@ export async function listWords(userId: number, opts: { groupId?: number; search
       crawlData: (r.crawl_data as unknown | null) ?? undefined,
       relatedWords: (r.related_words as string | null) ?? undefined,
       altSpelling: (r.alt_spelling as string | null) ?? undefined,
+      sourceUrl: (r.source_url as string | null) ?? undefined,
     };
   });
 }
