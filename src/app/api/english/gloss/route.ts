@@ -2,23 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
 import { getUserId, unauthorized } from "@/src/lib/auth";
 
-// Best-effort sense selection + Vietnamese gloss generation for word-add
-// autofill. dictionaryapi.dev (the free source used by /api/english/crawl)
-// often returns duplicate entries and orders definitions by etymology, not by
-// how common they are — e.g. for "mould" the container/shaping sense comes
-// first and the everyday fungus sense ends up far down the list. Rather than
-// guessing which definitions to keep by position, this hands the FULL
-// deduped list to the model and lets it pick the common, non-duplicate senses
-// and gloss each one, the way a bilingual dictionary would (e.g. "mốc"), not
-// a translated sentence of the English definition. Runs on Groq's free tier,
-// triggered once per manual "add word" action, never bulk.
+// Vietnamese gloss generation for word-add autofill. No longer judges
+// "common" vs "rare" (that reasoning step, plus a cap on how many senses to
+// keep, reliably blew through the token budget for a word with many
+// definitions like "bend", 20 deduped — reproduced truncated/invalid JSON
+// 1/5 runs). The model's only filtering job now is to drop definitions that
+// only apply when the word combines with another particle into a DIFFERENT
+// phrasal verb (e.g. a "bend" lookup shouldn't absorb "bend down"'s sense).
+// Everything else is kept and glossed, the way a bilingual dictionary would
+// (e.g. "mốc"), not a translated sentence of the English definition. Runs on
+// Groq's free tier, triggered once per manual "add word" action, never bulk.
 //
 // When the word already exists, `existingSenses` is passed so the model can
 // also do semantic dedup against what's already saved — e.g. "echo (n):
 // tiếng vọng" already covers the idea, so a crawled definition that merely
-// rephrases it should NOT be selected as a new sense, even if its English
-// wording differs. Only genuinely missing senses (e.g. "echo (v): gợi nét,
-// tương đồng với") should come back.
+// rephrases it should NOT come back as a new sense, even if its English
+// wording differs.
 
 interface GlossRequestItem {
   partOfSpeech?: string | null;
@@ -37,7 +36,6 @@ interface ExistingSenseInput {
 // 0/6 across two different words in the same test. Cost difference is
 // negligible at this usage volume.
 const MODEL = "openai/gpt-oss-120b";
-const MAX_SENSES = 5;
 
 function buildPrompt(word: string, items: GlossRequestItem[], existingSenses: ExistingSenseInput[]): string {
   const lines = items
@@ -54,19 +52,17 @@ function buildPrompt(word: string, items: GlossRequestItem[], existingSenses: Ex
           .join("\n")}\n`
       : "";
 
-  const phraseExclusion = `LOẠI BỎ những định nghĩa CHỈ áp dụng khi từ "${word}" kết hợp với một giới từ/trạng từ khác để tạo thành một CỤM ĐỘNG TỪ (phrasal verb) KHÁC có nghĩa riêng biệt (ví dụ: nếu từ đang xét là "bend", bỏ định nghĩa thực chất là của "bend down", "bend over", "bend to" — những cụm đó nên được thêm như một mục riêng, không gộp vào nghĩa của "${word}" đứng một mình).`;
+  const phraseExclusion = `LOẠI BỎ những định nghĩa CHỈ áp dụng khi từ "${word}" kết hợp với một giới từ/trạng từ khác để tạo thành một CỤM ĐỘNG TỪ (phrasal verb) KHÁC có nghĩa riêng biệt (ví dụ: nếu từ đang xét là "bend", bỏ định nghĩa thực chất là của "bend down", "bend over", "bend to" — những cụm đó nên được thêm như một mục riêng, không gộp vào nghĩa của "${word}" đứng một mình). KHÔNG đánh giá độ phổ biến hay chọn lọc nghĩa thường dùng/hiếm — GIỮ LẠI TẤT CẢ các định nghĩa còn lại.`;
 
   const task = existingSenses.length > 0
     ? `Nhiệm vụ:
-1. So sánh từng định nghĩa bên dưới với các nghĩa ĐÃ CÓ ở trên. Nếu một định nghĩa chỉ diễn đạt lại (rephrase) cùng một ý với nghĩa đã có — dù câu chữ tiếng Anh khác nhau — thì KHÔNG chọn nó.
-2. ${phraseExclusion}
-3. Trong số còn lại, chỉ chọn những định nghĩa thể hiện một Ý NGHĨA THỰC SỰ CÒN THIẾU, và chỉ giữ lại nghĩa THƯỜNG DÙNG (common), bỏ nghĩa hiếm/cổ/chuyên ngành hẹp và nghĩa trùng lặp lẫn nhau. Tối đa ${MAX_SENSES} nghĩa mới, sắp theo mức độ phổ biến giảm dần.
-4. Nếu không có nghĩa nào thực sự còn thiếu, trả về mảng "senses" rỗng.
-5. Với mỗi nghĩa mới được chọn, viết nghĩa tiếng Việt NGẮN GỌN theo kiểu một cuốn từ điển Anh-Việt thật sự ghi (ví dụ: "mốc", "khuôn"), KHÔNG dịch nguyên câu định nghĩa tiếng Anh. Tối đa khoảng 5 từ.`
+1. ${phraseExclusion}
+2. Trong số còn lại, so sánh với các nghĩa ĐÃ CÓ ở trên. Nếu một định nghĩa chỉ diễn đạt lại (rephrase) cùng một ý với nghĩa đã có — dù câu chữ tiếng Anh khác nhau — thì KHÔNG chọn nó (đây là nghĩa trùng, không phải nghĩa mới). Giữ lại tất cả các định nghĩa còn lại (không đánh giá độ phổ biến).
+3. Nếu không còn định nghĩa nào sau bước 1 và 2, trả về mảng "senses" rỗng.
+4. Với mỗi nghĩa được giữ lại, viết nghĩa tiếng Việt NGẮN GỌN theo kiểu một cuốn từ điển Anh-Việt thật sự ghi (ví dụ: "mốc", "khuôn"), KHÔNG dịch nguyên câu định nghĩa tiếng Anh. Tối đa khoảng 5 từ.`
     : `Nhiệm vụ:
 1. ${phraseExclusion}
-2. Trong số còn lại, chọn ra các nghĩa THƯỜNG DÙNG (common) của từ này, bỏ qua nghĩa trùng lặp (hai định nghĩa nói cùng một ý) và nghĩa hiếm/cổ/chuyên ngành hẹp. Tối đa ${MAX_SENSES} nghĩa, sắp theo mức độ phổ biến giảm dần.
-3. Với mỗi nghĩa đã chọn, viết nghĩa tiếng Việt NGẮN GỌN theo kiểu một cuốn từ điển Anh-Việt thật sự ghi (ví dụ: "mốc", "khuôn", "nấm mốc"), KHÔNG dịch nguyên câu định nghĩa tiếng Anh sang tiếng Việt. Mỗi nghĩa tiếng Việt chỉ nên là một từ hoặc cụm từ ngắn (tối đa khoảng 5 từ).`;
+2. Với mỗi nghĩa được giữ lại, viết nghĩa tiếng Việt NGẮN GỌN theo kiểu một cuốn từ điển Anh-Việt thật sự ghi (ví dụ: "mốc", "khuôn", "nấm mốc"), KHÔNG dịch nguyên câu định nghĩa tiếng Anh sang tiếng Việt. Mỗi nghĩa tiếng Việt chỉ nên là một từ hoặc cụm từ ngắn (tối đa khoảng 5 từ).`;
 
   return `Từ tiếng Anh: "${word}"
 ${existingSection}
@@ -107,11 +103,8 @@ export async function POST(req: NextRequest) {
       model: MODEL,
       // "low" reasoning_effort was reliably producing invented, non-words in
       // the Vietnamese gloss for this model (e.g. "điên rối", "cảm hận" —
-      // reproduced 2/3 runs on "disruption" at low, 0/3 at high). A word
-      // with many definitions (e.g. "bend", 20 deduped definitions) can
-      // reliably blow through 2048 tokens of reasoning + output before
-      // finishing valid JSON (reproduced 1/5 runs) — 4096 held up 4/4.
-      max_tokens: 4096,
+      // reproduced 2/3 runs on "disruption" at low, 0/3 at high).
+      max_tokens: 2048,
       temperature: 0.3,
       reasoning_effort: "high",
       response_format: { type: "json_object" },
@@ -142,8 +135,7 @@ export async function POST(req: NextRequest) {
         const example = items[index].example?.trim() || modelExample;
         return { index, meaningVi, example };
       })
-      .filter((s): s is { index: number; meaningVi: string; example: string } => s !== null)
-      .slice(0, MAX_SENSES);
+      .filter((s): s is { index: number; meaningVi: string; example: string } => s !== null);
 
     return NextResponse.json({ senses });
   } catch (e) {
