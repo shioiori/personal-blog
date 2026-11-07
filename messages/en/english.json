@@ -41,6 +41,7 @@
             "delete": "Delete",
             "word": "Word / phrase",
             "altSpelling": "Alternative spelling",
+            "sourceUrl": "Source",
             "senses": "Senses",
             "phonetic": "Phonetic (IPA)",
             "partOfSpeech": "Part of speech (noun, verb...)",

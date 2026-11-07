@@ -437,6 +437,14 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
             <div className="space-y-4">
               <WordSenseList senses={senses} allWords={allWords} onOpenWord={onOpenWord} />
               <RelatedWordChips relatedWords={relatedWordsText} allWords={allWords} onOpenWord={onOpenWord ?? (() => {})} />
+              {word.sourceUrl && (
+                <p className="text-xs text-muted-foreground truncate">
+                  {t("EditWord.sourceUrl")}:{" "}
+                  <a href={word.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">
+                    {word.sourceUrl}
+                  </a>
+                </p>
+              )}
             </div>
           ) : (
             <>
