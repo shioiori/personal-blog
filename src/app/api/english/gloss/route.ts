@@ -89,9 +89,13 @@ export async function POST(req: NextRequest) {
     const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
     const completion = await groq.chat.completions.create({
       model: MODEL,
-      max_tokens: 1024,
+      // "low" reasoning_effort was reliably producing invented, non-words in
+      // the Vietnamese gloss for this model (e.g. "điên rối", "cảm hận" —
+      // reproduced 2/3 runs on "disruption" at low, 0/3 at high). The gloss
+      // itself is short, so there's budget to spare for the extra reasoning.
+      max_tokens: 2048,
       temperature: 0.3,
-      reasoning_effort: "low",
+      reasoning_effort: "high",
       response_format: { type: "json_object" },
       messages: [
         {

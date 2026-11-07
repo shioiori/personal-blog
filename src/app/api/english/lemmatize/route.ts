@@ -37,9 +37,12 @@ export async function POST(req: NextRequest) {
     const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
     const completion = await groq.chat.completions.create({
       model: MODEL,
-      max_tokens: 64,
+      // See gloss/route.ts: "low" reasoning_effort measurably degrades this
+      // model's Vietnamese/word-form output quality, so "high" is used
+      // everywhere despite the extra latency — the output here is tiny.
+      max_tokens: 512,
       temperature: 0,
-      reasoning_effort: "low",
+      reasoning_effort: "high",
       response_format: { type: "json_object" },
       messages: [
         {
