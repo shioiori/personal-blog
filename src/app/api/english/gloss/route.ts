@@ -31,7 +31,11 @@ interface ExistingSenseInput {
   meaningVi?: string | null;
 }
 
-const MODEL = "openai/gpt-oss-20b";
+// 20B still occasionally invents non-existent Vietnamese words even at
+// reasoning_effort "high" (~1/5 runs reproduced for "disruption"); 120b was
+// 0/6 across two different words in the same test. Cost difference is
+// negligible at this usage volume.
+const MODEL = "openai/gpt-oss-120b";
 const MAX_SENSES = 8;
 
 function buildPrompt(word: string, items: GlossRequestItem[], existingSenses: ExistingSenseInput[]): string {

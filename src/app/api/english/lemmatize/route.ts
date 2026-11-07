@@ -10,7 +10,10 @@ import { getUserId, unauthorized } from "@/src/lib/auth";
 // is returned unchanged, since splitting those into a "base form" would
 // usually be wrong.
 
-const MODEL = "openai/gpt-oss-20b";
+// See gloss/route.ts: 120b is measurably more reliable than 20b for
+// Vietnamese/word-form output on this provider; cost difference is
+// negligible at this usage volume.
+const MODEL = "openai/gpt-oss-120b";
 
 export async function POST(req: NextRequest) {
   if (!(await getUserId())) return unauthorized();
