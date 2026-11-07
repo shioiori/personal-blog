@@ -1,4 +1,4 @@
-import { sql } from "./db";
+import { sql, once } from "./db";
 import { CHAINS, CHAINS_BY_KEY, chainKey, dupsNeededToEvolve, pickRandomChain, speciesAt, type PokemonSpecies } from "./pokemon-evolutions";
 
 // Ported from anki-pokegacha/logic.py: a gacha-pull reward for flashcard
@@ -36,7 +36,7 @@ const DEFAULT_STATE: RawState = { tickets: 0, exchange_tickets: 0, card_rank: {}
 
 const EXCHANGE_COST = 5;
 
-export async function ensureGachaTables() {
+export const ensureGachaTables = once(async function ensureGachaTables() {
   await sql`
     CREATE TABLE IF NOT EXISTS english_gacha_state (
       user_id    INT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
@@ -46,7 +46,7 @@ export async function ensureGachaTables() {
     )
   `;
   await sql`ALTER TABLE english_gacha_state ADD COLUMN IF NOT EXISTS exchange_tickets INT NOT NULL DEFAULT 0`;
-}
+});
 
 async function loadState(userId: number): Promise<RawState> {
   const rows = await sql`SELECT tickets, exchange_tickets, card_rank, collection FROM english_gacha_state WHERE user_id = ${userId}`;

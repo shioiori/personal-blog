@@ -1,7 +1,7 @@
 import { randomBytes, scryptSync, timingSafeEqual, createHash } from "crypto";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { sql } from "./db";
+import { sql, once } from "./db";
 
 export const SESSION_COOKIE = "session";
 export const SESSION_MAX_AGE = 60 * 60 * 24 * 30;
@@ -11,7 +11,7 @@ export interface AuthUser {
   email: string;
 }
 
-export async function ensureAuthTables() {
+export const ensureAuthTables = once(async function ensureAuthTables() {
   await sql`
     CREATE TABLE IF NOT EXISTS users (
       id            SERIAL PRIMARY KEY,
@@ -27,7 +27,7 @@ export async function ensureAuthTables() {
       expires_at TIMESTAMPTZ NOT NULL
     )
   `;
-}
+});
 
 export function hashPassword(password: string): string {
   const salt = randomBytes(16).toString("hex");

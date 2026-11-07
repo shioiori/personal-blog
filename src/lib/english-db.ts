@@ -1,10 +1,10 @@
-import { sql } from "./db";
+import { sql, once } from "./db";
 import { deleteImages } from "./english-images";
 import type { EnglishWord, EnglishSense, EnglishGroup, FlashcardCard, ImportWordInput } from "@/src/declaration/english";
 
 // ── Schema ────────────────────────────────────────────────────────────────────
 
-export async function ensureEnglishTables() {
+export const ensureEnglishTables = once(async function ensureEnglishTables() {
   await sql`
     CREATE TABLE IF NOT EXISTS english_words (
       id         SERIAL PRIMARY KEY,
@@ -78,7 +78,7 @@ export async function ensureEnglishTables() {
       PRIMARY KEY (user_id, key)
     )
   `;
-}
+});
 
 // ── Settings ─────────────────────────────────────────────────────────────────
 

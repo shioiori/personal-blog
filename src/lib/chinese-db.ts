@@ -1,8 +1,8 @@
-import { sql } from "./db";
+import { sql, once } from "./db";
 import type { UserEdits } from "@/src/components/chinese/study/EditCardModal";
 import type { CompoundCategory, CompoundWord } from "@/src/declaration/chinese";
 
-export async function ensureTables() {
+export const ensureTables = once(async function ensureTables() {
   await sql`
     CREATE TABLE IF NOT EXISTS chinese_card_state (
       user_id    INT  NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -34,7 +34,7 @@ export async function ensureTables() {
       count      INT  NOT NULL DEFAULT 0
     )
   `;
-}
+});
 
 // ── Daily rate limit ─────────────────────────────────────────────────────────
 
@@ -124,7 +124,7 @@ export async function upsertCardCrawlData(userId: number, char: string, crawlDat
 
 // ── Compound words ────────────────────────────────────────────────────────────
 
-export async function ensureCompoundTables() {
+export const ensureCompoundTables = once(async function ensureCompoundTables() {
   await sql`
     CREATE TABLE IF NOT EXISTS compound_categories (
       id         SERIAL PRIMARY KEY,
@@ -156,7 +156,7 @@ export async function ensureCompoundTables() {
       PRIMARY KEY (word_id, category_id)
     )
   `;
-}
+});
 
 export async function getCompoundCategories(userId: number): Promise<CompoundCategory[]> {
   const rows = await sql`SELECT id, name FROM compound_categories WHERE user_id = ${userId} ORDER BY name`;
@@ -240,7 +240,7 @@ export async function deleteCompoundWord(userId: number, id: number): Promise<vo
 
 // ── Char groups (Gom từ) ──────────────────────────────────────────────────────
 
-export async function ensureCharGroupTables() {
+export const ensureCharGroupTables = once(async function ensureCharGroupTables() {
   await sql`
     CREATE TABLE IF NOT EXISTS char_groups (
       id         SERIAL PRIMARY KEY,
@@ -257,7 +257,7 @@ export async function ensureCharGroupTables() {
       PRIMARY KEY (group_id, char)
     )
   `;
-}
+});
 
 export interface CharGroup {
   id: number;
@@ -312,7 +312,7 @@ export async function removeCharFromGroup(userId: number, groupId: number, char:
 
 // ── Review history ───────────────────────────────────────────────────────────
 
-export async function ensureReviewHistoryTable() {
+export const ensureReviewHistoryTable = once(async function ensureReviewHistoryTable() {
   await sql`
     CREATE TABLE IF NOT EXISTS chinese_review_history (
       id            SERIAL PRIMARY KEY,
@@ -322,7 +322,7 @@ export async function ensureReviewHistoryTable() {
       created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `;
-}
+});
 
 export interface ReviewHistoryItem {
   id: number;
@@ -365,7 +365,7 @@ export async function deleteReviewHistory(userId: number, id: number): Promise<v
   await sql`DELETE FROM chinese_review_history WHERE id = ${id} AND user_id = ${userId}`;
 }
 
-export async function ensureUserTextTable() {
+export const ensureUserTextTable = once(async function ensureUserTextTable() {
   await sql`
     CREATE TABLE IF NOT EXISTS chinese_user_texts (
       id         SERIAL PRIMARY KEY,
@@ -378,7 +378,7 @@ export async function ensureUserTextTable() {
   await sql`
     ALTER TABLE chinese_user_texts ADD COLUMN IF NOT EXISTS title TEXT
   `;
-}
+});
 
 export interface ChineseUserTextItem {
   id: number;
@@ -444,7 +444,7 @@ export async function deleteChineseUserText(userId: number, id: number): Promise
 
 // ── Grammar posts ─────────────────────────────────────────────────────────────
 
-export async function ensureGrammarTables() {
+export const ensureGrammarTables = once(async function ensureGrammarTables() {
   await sql`
     CREATE TABLE IF NOT EXISTS grammar_posts (
       id         SERIAL PRIMARY KEY,
@@ -455,7 +455,7 @@ export async function ensureGrammarTables() {
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `;
-}
+});
 
 export interface GrammarPost {
   id: number;
@@ -505,7 +505,7 @@ export async function deleteGrammarPost(userId: number, id: number): Promise<voi
 
 export type FlashcardMode = "flip" | "write";
 
-export async function ensureFlashcardTables() {
+export const ensureFlashcardTables = once(async function ensureFlashcardTables() {
   await sql`
     CREATE TABLE IF NOT EXISTS chinese_flashcard_flip (
       user_id       INT  NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -530,7 +530,7 @@ export async function ensureFlashcardTables() {
       PRIMARY KEY (user_id, char)
     )
   `;
-}
+});
 
 export interface FlashcardRow {
   char: string;
