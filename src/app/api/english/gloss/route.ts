@@ -47,7 +47,7 @@ function buildRelatedExpandPrompt(word: string, partOfSpeech: string): string {
 
 Nhiệm vụ — làm TOÀN BỘ các bước sau trong MỘT lần trả lời, không cần dữ liệu từ điển ngoài:
 
-1. Đề xuất các từ CÙNG GỐC (word family) liên quan trực tiếp, mỗi loại tối đa 1 từ: "v" (động từ), "n" (danh từ), "adj" (tính từ), "phrase" (cụm động từ/cụm cố định thông dụng chứa từ gốc, viết ở dạng nguyên mẫu, không chia thì). Bỏ qua loại nào không có hoặc không đủ thông dụng. KHÔNG đề xuất lại chính từ đang xét.
+1. Đề xuất các từ CÙNG GỐC (word family) liên quan trực tiếp, mỗi loại tối đa 1 từ: "v" (động từ), "n" (danh từ), "adj" (tính từ), "phrase" (cụm động từ/cụm cố định thông dụng chứa từ gốc, viết ở dạng nguyên mẫu, không chia thì — BỎ QUA loại này nếu "${word}" đang xét ĐÃ LÀ một cụm từ/phrasal verb/idiom nhiều từ, vì đã là phrase rồi không cần đề xuất phrase khác). Bỏ qua loại nào không có hoặc không đủ thông dụng. KHÔNG đề xuất lại chính từ đang xét. Các từ liên đới đề xuất PHẢI KHÁC NHAU — không được đề xuất cùng một từ cho hai loại từ khác nhau.
 
 2. Với từ chính VÀ mỗi từ liên đới vừa đề xuất, tự viết đầy đủ thông tin từ điển:
    - "phonetic": phiên âm IPA kiểu Anh-Anh chuẩn, KHÔNG kèm dấu gạch chéo "/" ở đầu/cuối (bỏ trống nếu là cụm từ không có phiên âm riêng).
@@ -248,16 +248,38 @@ interface ExpandEntryRaw {
   antonyms?: unknown;
 }
 
+function normalizeWordKey(w: string): string {
+  return w.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
 // Shared by handleExpandRelated and handleFullyAiAdd — both ask the model
 // for the same {word, pos, phonetic, senses, synonyms, antonyms}[] shape,
 // just via different prompts (one takes a word already known to be valid,
 // the other validates+lemmatizes first).
-function parseExpandEntries(parsed: { entries?: unknown }) {
+//
+// `mainWord` (the word/lemma the whole request is about) drives two
+// defensive, code-level cleanups on top of the prompt's own instructions —
+// the model doesn't reliably follow either on its own:
+// - Dedup by word text: reproduced live for "let matters slide" (already a
+//   multi-word phrase), which came back with two separate "slide" entries.
+// - Drop any OTHER entry whose pos is "phrase" when mainWord is itself
+//   multi-word — a phrase doesn't need a second phrase suggested alongside
+//   it, and this is exactly the case that produced the duplicate above.
+function parseExpandEntries(parsed: { entries?: unknown }, mainWord: string) {
   const rawEntries = Array.isArray(parsed.entries) ? (parsed.entries as ExpandEntryRaw[]) : [];
+  const mainKey = normalizeWordKey(mainWord);
+  const mainIsPhrase = mainWord.trim().includes(" ");
+  const seen = new Set<string>();
+
   return rawEntries
     .map((e) => {
       const entryWord = String(e.word ?? "").trim();
       if (!entryWord) return null;
+      const pos = String(e.pos ?? "").trim();
+      const key = normalizeWordKey(entryWord);
+      if (seen.has(key)) return null; // duplicate word text — keep only the first
+      if (mainIsPhrase && key !== mainKey && pos.toLowerCase() === "phrase") return null;
+
       const rawSenses = Array.isArray(e.senses) ? e.senses : [];
       const senses = rawSenses
         .map((s) => {
@@ -272,9 +294,11 @@ function parseExpandEntries(parsed: { entries?: unknown }) {
         })
         .filter((s): s is { meaningVi: string; definitionEn: string; example: string } => s !== null);
       if (senses.length === 0) return null;
+
+      seen.add(key);
       return {
         word: entryWord,
-        pos: String(e.pos ?? "").trim(),
+        pos,
         phonetic: String(e.phonetic ?? "").trim().replace(/^\/+|\/+$/g, ""),
         senses,
         synonyms: String(e.synonyms ?? "").trim(),
@@ -305,7 +329,7 @@ async function handleExpandRelated(word: string, partOfSpeech: string) {
       userPrompt: buildRelatedExpandPrompt(word, partOfSpeech),
     });
     const parsed = JSON.parse(raw) as { related?: unknown; entries?: unknown };
-    return NextResponse.json({ entries: parseExpandEntries(parsed) });
+    return NextResponse.json({ entries: parseExpandEntries(parsed, word) });
   } catch (e) {
     console.error("[POST english/gloss expandRelated error]", e);
     return NextResponse.json({ entries: [], error: "related-word expansion failed" });
@@ -328,7 +352,7 @@ Nhiệm vụ — làm TOÀN BỘ các bước sau trong MỘT lần trả lời:
 
 2. Nếu hợp lệ: chuẩn hoá về DẠNG GỐC trong từ điển (lemma) — ví dụ số nhiều -> số ít, động từ chia thì -> nguyên mẫu, so sánh hơn/nhất -> dạng gốc, cụm động từ chia thì -> dạng nguyên mẫu của cụm. Giữ nguyên nếu đã là dạng gốc.
 
-3. Đề xuất các từ CÙNG GỐC (word family) liên quan trực tiếp đến lemma, mỗi loại tối đa 1 từ: "v" (động từ), "n" (danh từ), "adj" (tính từ), "phrase" (cụm động từ/cụm cố định thông dụng chứa lemma, dạng nguyên mẫu). Bỏ qua loại nào không có hoặc không đủ thông dụng. KHÔNG đề xuất lại chính lemma.
+3. Đề xuất các từ CÙNG GỐC (word family) liên quan trực tiếp đến lemma, mỗi loại tối đa 1 từ: "v" (động từ), "n" (danh từ), "adj" (tính từ), "phrase" (cụm động từ/cụm cố định thông dụng chứa lemma, dạng nguyên mẫu — BỎ QUA loại này nếu lemma ĐÃ LÀ một cụm từ/phrasal verb/idiom nhiều từ, vì đã là phrase rồi không cần đề xuất phrase khác). Bỏ qua loại nào không có hoặc không đủ thông dụng. KHÔNG đề xuất lại chính lemma. Các từ liên đới đề xuất PHẢI KHÁC NHAU — không được đề xuất cùng một từ cho hai loại từ khác nhau.
 
 4. Với lemma VÀ mỗi từ liên đới vừa đề xuất, tự viết đầy đủ thông tin từ điển:
    - "phonetic": phiên âm IPA kiểu Anh-Anh chuẩn, KHÔNG kèm dấu gạch chéo "/" ở đầu/cuối (bỏ trống nếu là cụm từ không có phiên âm riêng).
@@ -361,7 +385,7 @@ async function handleFullyAiAdd(rawWord: string) {
     }
     const lemma = String(parsed.lemma ?? "").trim();
     if (!lemma) return NextResponse.json({ valid: false, reason: "AI không xác định được dạng gốc của từ." });
-    return NextResponse.json({ valid: true, lemma, entries: parseExpandEntries(parsed) });
+    return NextResponse.json({ valid: true, lemma, entries: parseExpandEntries(parsed, lemma) });
   } catch (e) {
     console.error("[POST english/gloss fullyAiAdd error]", e);
     return NextResponse.json({ valid: false, reason: "AI gặp lỗi, thử lại sau hoặc thêm thủ công." });
