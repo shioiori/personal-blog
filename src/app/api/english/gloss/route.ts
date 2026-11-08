@@ -43,11 +43,16 @@ interface RelatedExpandRequest {
 }
 
 function buildRelatedExpandPrompt(word: string, partOfSpeech: string): string {
+  const isPhraseInput = word.trim().includes(" ");
+  const relatedStep = isPhraseInput
+    ? `KHÔNG đề xuất bất kỳ từ liên đới nào — "${word}" đang xét ĐÃ LÀ một cụm từ/phrasal verb/idiom nhiều từ, nên bỏ qua hẳn bước này. Mục "related" trả về mảng rỗng.`
+    : `Đề xuất các từ CÙNG GỐC (word family) liên quan trực tiếp, mỗi loại tối đa 1 từ: "v" (động từ), "n" (danh từ), "adj" (tính từ), "phrase" (cụm động từ/cụm cố định thông dụng chứa từ gốc, viết ở dạng nguyên mẫu, không chia thì). Bỏ qua loại nào không có hoặc không đủ thông dụng. KHÔNG đề xuất lại chính từ đang xét. Các từ liên đới đề xuất PHẢI KHÁC NHAU — không được đề xuất cùng một từ cho hai loại từ khác nhau.`;
+
   return `Từ tiếng Anh: "${word}" (loại từ: ${partOfSpeech || "?"}).
 
 Nhiệm vụ — làm TOÀN BỘ các bước sau trong MỘT lần trả lời, không cần dữ liệu từ điển ngoài:
 
-1. Đề xuất các từ CÙNG GỐC (word family) liên quan trực tiếp, mỗi loại tối đa 1 từ: "v" (động từ), "n" (danh từ), "adj" (tính từ), "phrase" (cụm động từ/cụm cố định thông dụng chứa từ gốc, viết ở dạng nguyên mẫu, không chia thì — BỎ QUA loại này nếu "${word}" đang xét ĐÃ LÀ một cụm từ/phrasal verb/idiom nhiều từ, vì đã là phrase rồi không cần đề xuất phrase khác). Bỏ qua loại nào không có hoặc không đủ thông dụng. KHÔNG đề xuất lại chính từ đang xét. Các từ liên đới đề xuất PHẢI KHÁC NHAU — không được đề xuất cùng một từ cho hai loại từ khác nhau.
+1. ${relatedStep}
 
 2. Với từ chính VÀ mỗi từ liên đới vừa đề xuất, tự viết đầy đủ thông tin từ điển:
    - "phonetic": phiên âm IPA kiểu Anh-Anh chuẩn, KHÔNG kèm dấu gạch chéo "/" ở đầu/cuối (bỏ trống nếu là cụm từ không có phiên âm riêng).
@@ -262,9 +267,10 @@ function normalizeWordKey(w: string): string {
 // the model doesn't reliably follow either on its own:
 // - Dedup by word text: reproduced live for "let matters slide" (already a
 //   multi-word phrase), which came back with two separate "slide" entries.
-// - Drop any OTHER entry whose pos is "phrase" when mainWord is itself
-//   multi-word — a phrase doesn't need a second phrase suggested alongside
-//   it, and this is exactly the case that produced the duplicate above.
+// - Drop every OTHER entry when mainWord is itself multi-word (a phrase/
+//   phrasal verb/idiom) — per explicit decision, a phrase gets no related
+//   words at all (not even v/n/adj), since its base verb is expected to be
+//   added as its own separate entry rather than inferred here.
 function parseExpandEntries(parsed: { entries?: unknown }, mainWord: string) {
   const rawEntries = Array.isArray(parsed.entries) ? (parsed.entries as ExpandEntryRaw[]) : [];
   const mainKey = normalizeWordKey(mainWord);
@@ -278,7 +284,7 @@ function parseExpandEntries(parsed: { entries?: unknown }, mainWord: string) {
       const pos = String(e.pos ?? "").trim();
       const key = normalizeWordKey(entryWord);
       if (seen.has(key)) return null; // duplicate word text — keep only the first
-      if (mainIsPhrase && key !== mainKey && pos.toLowerCase() === "phrase") return null;
+      if (mainIsPhrase && key !== mainKey) return null; // phrase input: no related words at all, any pos
 
       const rawSenses = Array.isArray(e.senses) ? e.senses : [];
       const senses = rawSenses
@@ -352,7 +358,9 @@ Nhiệm vụ — làm TOÀN BỘ các bước sau trong MỘT lần trả lời:
 
 2. Nếu hợp lệ: chuẩn hoá về DẠNG GỐC trong từ điển (lemma) — ví dụ số nhiều -> số ít, động từ chia thì -> nguyên mẫu, so sánh hơn/nhất -> dạng gốc, cụm động từ chia thì -> dạng nguyên mẫu của cụm. Giữ nguyên nếu đã là dạng gốc.
 
-3. Đề xuất các từ CÙNG GỐC (word family) liên quan trực tiếp đến lemma, mỗi loại tối đa 1 từ: "v" (động từ), "n" (danh từ), "adj" (tính từ), "phrase" (cụm động từ/cụm cố định thông dụng chứa lemma, dạng nguyên mẫu — BỎ QUA loại này nếu lemma ĐÃ LÀ một cụm từ/phrasal verb/idiom nhiều từ, vì đã là phrase rồi không cần đề xuất phrase khác). Bỏ qua loại nào không có hoặc không đủ thông dụng. KHÔNG đề xuất lại chính lemma. Các từ liên đới đề xuất PHẢI KHÁC NHAU — không được đề xuất cùng một từ cho hai loại từ khác nhau.
+3. ${rawWord.trim().includes(" ")
+    ? `KHÔNG đề xuất bất kỳ từ liên đới nào — "${rawWord}" là một cụm từ/phrasal verb/idiom nhiều từ, nên bỏ qua hẳn bước này dù lemma có thể viết hơi khác. Mục "entries" chỉ gồm 1 phần tử là chính lemma.`
+    : `Đề xuất các từ CÙNG GỐC (word family) liên quan trực tiếp đến lemma, mỗi loại tối đa 1 từ: "v" (động từ), "n" (danh từ), "adj" (tính từ), "phrase" (cụm động từ/cụm cố định thông dụng chứa lemma, dạng nguyên mẫu). Bỏ qua loại nào không có hoặc không đủ thông dụng. KHÔNG đề xuất lại chính lemma. Các từ liên đới đề xuất PHẢI KHÁC NHAU — không được đề xuất cùng một từ cho hai loại từ khác nhau.`}
 
 4. Với lemma VÀ mỗi từ liên đới vừa đề xuất, tự viết đầy đủ thông tin từ điển:
    - "phonetic": phiên âm IPA kiểu Anh-Anh chuẩn, KHÔNG kèm dấu gạch chéo "/" ở đầu/cuối (bỏ trống nếu là cụm từ không có phiên âm riêng).
