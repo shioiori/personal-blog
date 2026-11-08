@@ -163,6 +163,7 @@ export async function POST(req: NextRequest) {
     existingSenses?: ExistingSenseInput[];
     backfillItems?: BackfillRequestItem[];
     expandRelated?: RelatedExpandRequest;
+    fullyAiAdd?: boolean;
   };
   try {
     body = await req.json();
@@ -177,6 +178,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ senses: [], error: "GROQ_API_KEY not configured" });
   }
 
+  if (body.fullyAiAdd) return handleFullyAiAdd(word);
   if (body.expandRelated) return handleExpandRelated(word, body.expandRelated.partOfSpeech ?? "");
 
   const backfillItems = (body.backfillItems ?? []).filter(
@@ -246,12 +248,51 @@ interface ExpandEntryRaw {
   antonyms?: unknown;
 }
 
+// Shared by handleExpandRelated and handleFullyAiAdd — both ask the model
+// for the same {word, pos, phonetic, senses, synonyms, antonyms}[] shape,
+// just via different prompts (one takes a word already known to be valid,
+// the other validates+lemmatizes first).
+function parseExpandEntries(parsed: { entries?: unknown }) {
+  const rawEntries = Array.isArray(parsed.entries) ? (parsed.entries as ExpandEntryRaw[]) : [];
+  return rawEntries
+    .map((e) => {
+      const entryWord = String(e.word ?? "").trim();
+      if (!entryWord) return null;
+      const rawSenses = Array.isArray(e.senses) ? e.senses : [];
+      const senses = rawSenses
+        .map((s) => {
+          if (!s || typeof s !== "object") return null;
+          const meaningVi = String((s as { meaningVi?: unknown }).meaningVi ?? "").trim();
+          if (!meaningVi) return null;
+          return {
+            meaningVi,
+            definitionEn: String((s as { definitionEn?: unknown }).definitionEn ?? "").trim(),
+            example: String((s as { example?: unknown }).example ?? "").trim(),
+          };
+        })
+        .filter((s): s is { meaningVi: string; definitionEn: string; example: string } => s !== null);
+      if (senses.length === 0) return null;
+      return {
+        word: entryWord,
+        pos: String(e.pos ?? "").trim(),
+        phonetic: String(e.phonetic ?? "").trim(),
+        senses,
+        synonyms: String(e.synonyms ?? "").trim(),
+        antonyms: String(e.antonyms ?? "").trim(),
+      };
+    })
+    .filter((e): e is NonNullable<typeof e> => e !== null);
+}
+
 // Double the main gloss endpoint's budget — this single call has to write
 // full dictionary entries (not just a short gloss) for the main word AND up
 // to 4 related words at once, which empirically runs ~1,000-1,050 completion
 // tokens per entry at reasoning_effort "high" (measured live: ~5,800 tokens
 // total for 5 entries, ~3,750 for 3).
 const EXPAND_MAX_TOKENS = 8192 * 2;
+
+const EXPAND_SYSTEM_PROMPT =
+  "Bạn là biên tập viên từ điển Anh-Việt chuyên sâu, giỏi nhận diện word family, ý cảnh (nghĩa gốc chung đằng sau các cách dùng khác nhau), và viết nghĩa tiếng Việt ngắn gọn tự nhiên, phiên âm chuẩn. Luôn trả lời bằng JSON hợp lệ, không bịa từ không tồn tại.";
 
 async function handleExpandRelated(word: string, partOfSpeech: string) {
   try {
@@ -260,46 +301,70 @@ async function handleExpandRelated(word: string, partOfSpeech: string) {
       maxTokens: EXPAND_MAX_TOKENS,
       temperature: 0.3,
       reasoningEffort: "high",
-      systemPrompt:
-        "Bạn là biên tập viên từ điển Anh-Việt chuyên sâu, giỏi nhận diện word family, ý cảnh (nghĩa gốc chung đằng sau các cách dùng khác nhau), và viết nghĩa tiếng Việt ngắn gọn tự nhiên, phiên âm chuẩn. Luôn trả lời bằng JSON hợp lệ, không bịa từ không tồn tại.",
+      systemPrompt: EXPAND_SYSTEM_PROMPT,
       userPrompt: buildRelatedExpandPrompt(word, partOfSpeech),
     });
     const parsed = JSON.parse(raw) as { related?: unknown; entries?: unknown };
-    const rawEntries = Array.isArray(parsed.entries) ? (parsed.entries as ExpandEntryRaw[]) : [];
-
-    const entries = rawEntries
-      .map((e) => {
-        const entryWord = String(e.word ?? "").trim();
-        if (!entryWord) return null;
-        const rawSenses = Array.isArray(e.senses) ? e.senses : [];
-        const senses = rawSenses
-          .map((s) => {
-            if (!s || typeof s !== "object") return null;
-            const meaningVi = String((s as { meaningVi?: unknown }).meaningVi ?? "").trim();
-            if (!meaningVi) return null;
-            return {
-              meaningVi,
-              definitionEn: String((s as { definitionEn?: unknown }).definitionEn ?? "").trim(),
-              example: String((s as { example?: unknown }).example ?? "").trim(),
-            };
-          })
-          .filter((s): s is { meaningVi: string; definitionEn: string; example: string } => s !== null);
-        if (senses.length === 0) return null;
-        return {
-          word: entryWord,
-          pos: String(e.pos ?? "").trim(),
-          phonetic: String(e.phonetic ?? "").trim(),
-          senses,
-          synonyms: String(e.synonyms ?? "").trim(),
-          antonyms: String(e.antonyms ?? "").trim(),
-        };
-      })
-      .filter((e): e is NonNullable<typeof e> => e !== null);
-
-    return NextResponse.json({ entries });
+    return NextResponse.json({ entries: parseExpandEntries(parsed) });
   } catch (e) {
     console.error("[POST english/gloss expandRelated error]", e);
     return NextResponse.json({ entries: [], error: "related-word expansion failed" });
+  }
+}
+
+// Fully AI-driven add: no dictionaryapi.dev crawl, no local lemmatizer —
+// asks the model to validate the raw selected text is a real English
+// word/phrase, normalize it to its dictionary base form (lemma), then write
+// full entries for the lemma and its word family, all in one call. Per
+// explicit instruction: any failure of the validation step must make the
+// model bail out (`valid: false`) rather than press on and invent content
+// for something that isn't a real word.
+function buildFullyAiAddPrompt(rawWord: string): string {
+  return `Văn bản người dùng chọn để thêm vào từ điển cá nhân: "${rawWord}"
+
+Nhiệm vụ — làm TOÀN BỘ các bước sau trong MỘT lần trả lời:
+
+1. KIỂM TRA: đây có phải một từ/cụm từ tiếng Anh CÓ THẬT và có nghĩa rõ ràng không? Từ chối (dừng ngay, không làm bước nào sau) nếu đây là: một câu hoàn chỉnh (có chủ ngữ+động từ diễn đạt một ý trọn vẹn), văn bản vô nghĩa/gõ nhầm, ngôn ngữ khác không phải tiếng Anh, hoặc không phải từ/cụm từ thực sự tồn tại trong tiếng Anh. Nếu bị từ chối, trả về NGAY {"valid": false, "reason": "<lý do ngắn gọn bằng tiếng Việt>"} và DỪNG — không thực hiện các bước 2-4.
+
+2. Nếu hợp lệ: chuẩn hoá về DẠNG GỐC trong từ điển (lemma) — ví dụ số nhiều -> số ít, động từ chia thì -> nguyên mẫu, so sánh hơn/nhất -> dạng gốc, cụm động từ chia thì -> dạng nguyên mẫu của cụm. Giữ nguyên nếu đã là dạng gốc.
+
+3. Đề xuất các từ CÙNG GỐC (word family) liên quan trực tiếp đến lemma, mỗi loại tối đa 1 từ: "v" (động từ), "n" (danh từ), "adj" (tính từ), "phrase" (cụm động từ/cụm cố định thông dụng chứa lemma, dạng nguyên mẫu). Bỏ qua loại nào không có hoặc không đủ thông dụng. KHÔNG đề xuất lại chính lemma.
+
+4. Với lemma VÀ mỗi từ liên đới vừa đề xuất, tự viết đầy đủ thông tin từ điển:
+   - "phonetic": phiên âm IPA kiểu Anh-Anh chuẩn (bỏ trống nếu là cụm từ không có phiên âm riêng).
+   - "senses": danh sách các "ý cảnh" (nghĩa gốc) của từ đó. Hai định nghĩa thuộc CÙNG một ý cảnh khi một là ứng dụng trực tiếp của ý cảnh kia vào ngữ cảnh khác (vd thân cây/thân người/phần chính của vật đều là ứng dụng của ý cảnh "phần thân") — GỘP chúng vào MỘT sense. Chỉ tách sense mới khi nét nghĩa đã dịch chuyển sang phạm trù khái niệm khác hẳn (vd "phần thân" -> "vật chứa đồ"). Mỗi sense gồm "meaningVi" (ngắn gọn kiểu từ điển Anh-Việt, tối đa ~6 từ, liệt kê gọn trong ngoặc nếu gộp nhiều cách dùng), "definitionEn" (1 câu tiếng Anh ngắn gọn), "example" (1 câu ví dụ tiếng Anh tự nhiên).
+   - "synonyms": 2-4 từ đồng nghĩa tiếng Anh phổ biến (chuỗi, phân tách bởi dấu phẩy), để trống nếu không có từ nào thực sự phù hợp.
+   - "antonyms": tương tự, trái nghĩa.
+
+Chỉ đề xuất và viết nghĩa cho từ THỰC SỰ tồn tại và thông dụng — không bịa từ không có thật.
+
+Trả về CHỈ JSON theo một trong hai dạng:
+- Không hợp lệ: {"valid": false, "reason": "..."}
+- Hợp lệ: {"valid": true, "lemma": "...", "entries": [{"word":"...","pos":"...","phonetic":"...","senses":[{"meaningVi":"...","definitionEn":"...","example":"..."}],"synonyms":"...","antonyms":"..."}]}
+
+"entries" phải bao gồm CẢ lemma và mọi từ liên đới. Không giải thích gì thêm ngoài JSON.`;
+}
+
+async function handleFullyAiAdd(rawWord: string) {
+  try {
+    const { raw } = await aiComplete({
+      groqModel: MODEL,
+      maxTokens: EXPAND_MAX_TOKENS,
+      temperature: 0.3,
+      reasoningEffort: "high",
+      systemPrompt: EXPAND_SYSTEM_PROMPT,
+      userPrompt: buildFullyAiAddPrompt(rawWord),
+    });
+    const parsed = JSON.parse(raw) as { valid?: unknown; reason?: unknown; lemma?: unknown; entries?: unknown };
+    if (parsed.valid !== true) {
+      return NextResponse.json({ valid: false, reason: String(parsed.reason ?? "Không nhận diện được đây là từ tiếng Anh hợp lệ.") });
+    }
+    const lemma = String(parsed.lemma ?? "").trim();
+    if (!lemma) return NextResponse.json({ valid: false, reason: "AI không xác định được dạng gốc của từ." });
+    return NextResponse.json({ valid: true, lemma, entries: parseExpandEntries(parsed) });
+  } catch (e) {
+    console.error("[POST english/gloss fullyAiAdd error]", e);
+    return NextResponse.json({ valid: false, reason: "AI gặp lỗi, thử lại sau hoặc thêm thủ công." });
   }
 }
 
