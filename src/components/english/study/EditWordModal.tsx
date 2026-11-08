@@ -14,7 +14,7 @@ import { PronounceButton } from "./PronounceButton";
 import type { CambridgeCrawlData } from "./crawlData";
 import { compressImage, imageUrl, uploadImage, type PendingImage } from "./imageUpload";
 import { AltSpelling, ImageThumb, RelatedWordChips, WordSenseList, parseRelatedWords } from "./WordSenseDetail";
-import { buildSensesFromDictionary, checkDuplicateWord, findMissingSenses, validateAndNormalizeWord } from "@/src/lib/english-autofill";
+import { backfillIncompleteSenses, buildSensesFromDictionary, checkDuplicateWord, findMissingSenses, validateAndNormalizeWord } from "@/src/lib/english-autofill";
 
 interface EditWordModalProps {
   open: boolean;
@@ -259,9 +259,10 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
   // a fully AI-generated definition when the dictionary has nothing at all.
   // - New word (no existing rows with content yet): replaces the empty
   //   placeholder row(s) with the full set of senses found.
-  // - Existing word: only APPENDS senses that are semantically missing from
-  //   what's already saved (never re-adds a rephrased duplicate); does not
-  //   backfill blanks in already-present rows.
+  // - Existing word: APPENDS senses that are semantically missing from what's
+  //   already saved (never re-adds a rephrased duplicate), and separately
+  //   backfills blank meaningVi/example on already-present rows that have a
+  //   cambridgeMeaning but are missing one — never overwrites a non-blank field.
   async function handleAutoFillAll() {
     const raw = wordText.trim();
     if (!raw) return;
@@ -301,15 +302,42 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
       }
 
       if (word) {
-        const missing = await findMissingSenses(
-          check.normalized,
-          senses.filter(hasContent).map((s) => ({ partOfSpeech: s.partOfSpeech, cambridgeMeaning: s.cambridgeMeaning, meaningVi: s.meaningVi }))
-        );
-        if (missing.length === 0) {
+        const contentEntries = senses.map((s, i) => ({ s, i })).filter((x) => hasContent(x.s));
+
+        const [missing, backfill] = await Promise.all([
+          findMissingSenses(
+            check.normalized,
+            contentEntries.map((x) => ({ partOfSpeech: x.s.partOfSpeech, cambridgeMeaning: x.s.cambridgeMeaning, meaningVi: x.s.meaningVi }))
+          ),
+          backfillIncompleteSenses(
+            check.normalized,
+            contentEntries.map((x) => ({
+              index: x.i,
+              partOfSpeech: x.s.partOfSpeech,
+              cambridgeMeaning: x.s.cambridgeMeaning,
+              meaningVi: x.s.meaningVi,
+              example: x.s.example,
+            }))
+          ),
+        ]);
+
+        if (missing.length === 0 && backfill.length === 0) {
           setAutoFillError("Không có nghĩa nào còn thiếu so với từ điển.");
           return;
         }
-        setSenses((prev) => [...prev.filter(hasContent), ...missing.map((m) => ({ ...m, images: [] }))]);
+
+        setSenses((prev) => {
+          const patched = prev.map((s, i) => {
+            const patch = backfill.find((b) => b.index === i);
+            if (!patch) return s;
+            return {
+              ...s,
+              meaningVi: s.meaningVi?.trim() ? s.meaningVi : patch.meaningVi ?? s.meaningVi,
+              example: s.example?.trim() ? s.example : patch.example ?? s.example,
+            };
+          });
+          return [...patched.filter(hasContent), ...missing.map((m) => ({ ...m, images: [] }))];
+        });
       } else {
         const built = await buildSensesFromDictionary(check.normalized);
         const builtDrafts = built.map((m) => ({ ...m, images: [] }));

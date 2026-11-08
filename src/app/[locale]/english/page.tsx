@@ -5,6 +5,7 @@ import { ImportTab } from '@/src/components/english/study/ImportTab'
 import { GroupTab } from '@/src/components/english/groups/GroupTab'
 import { FlashcardTab } from '@/src/components/english/review/FlashcardTab'
 import { GachaTab } from '@/src/components/english/gacha/GachaTab'
+import { RefreshDataButton } from '@/src/components/english/shared/RefreshDataButton'
 import {
   Tabs,
   TabsContent,
@@ -20,7 +21,8 @@ export default function Page() {
   return (
     <EnglishProvider>
       <Tabs defaultValue="study" className="space-y-6">
-        <div className="-mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto no-scrollbar">
+        <div className="flex items-center justify-between gap-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+          <div className="overflow-x-auto no-scrollbar">
           <TabsList className="w-max sm:w-fit">
             <TabsTrigger value="study" className="flex items-center gap-2 whitespace-nowrap">
               <BookOpen className="h-4 w-4" />
@@ -43,6 +45,8 @@ export default function Page() {
               {t('gacha')}
             </TabsTrigger>
           </TabsList>
+          </div>
+          <RefreshDataButton />
         </div>
 
         <TabsContent value="study">

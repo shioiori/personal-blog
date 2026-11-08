@@ -5,7 +5,8 @@
             "groups": "Nhóm từ",
             "review": "Ôn tập",
             "import": "Import",
-            "gacha": "Gacha"
+            "gacha": "Gacha",
+            "refresh": "Làm mới dữ liệu"
         },
         "Common": {
             "cancel": "Huỷ",

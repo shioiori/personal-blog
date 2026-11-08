@@ -189,9 +189,8 @@ export async function buildSensesFromDictionary(wordText: string): Promise<Autof
   if (!crawl || crawl.flatDefs.length === 0) return aiDefineFallback(wordText, crawl?.ipa ?? "");
   const { flatDefs, ipa, synonyms, antonyms } = crawl;
 
-  let picks: GlossPick[] = [];
-  try {
-    const res = await apiFetch<{ senses?: GlossPick[] }>("/api/english/gloss", {
+  const requestGloss = () =>
+    apiFetch<{ senses?: GlossPick[]; error?: string }>("/api/english/gloss", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -199,14 +198,28 @@ export async function buildSensesFromDictionary(wordText: string): Promise<Autof
         items: flatDefs.map((d) => ({ partOfSpeech: d.partOfSpeech, definition: d.text, example: d.example })),
       }),
     });
-    picks = res?.senses ?? [];
-  } catch {
-    // best effort, fall through to the raw-definitions fallback below
+
+  let res = await requestGloss();
+  // An `error` with no senses means the model/JSON step itself failed
+  // server-side (e.g. a many-sense word like "trunk" exhausting the token
+  // budget) rather than the model genuinely finding nothing — worth one
+  // retry before giving up.
+  if (res?.error && (res?.senses ?? []).length === 0) {
+    res = await requestGloss();
   }
-  if (picks.length === 0) picks = flatDefs.slice(0, 6).map((_, i) => ({ index: i, meaningVi: "" }));
+  const picks = res?.senses ?? [];
+  // No more silent fallback to blank meaningVi/example: a gloss failure must
+  // surface as an error so the user knows to retry or fill it in by hand,
+  // rather than quietly saving a word with empty Vietnamese meaning.
+  if (picks.length === 0) {
+    throw new Error(`Không tạo được nghĩa tiếng Việt cho "${wordText}" (AI gặp lỗi). Thử lại sau hoặc điền thủ công.`);
+  }
 
   const built = buildSenseRows(picks, flatDefs, ipa, synonyms, antonyms);
-  return built.length > 0 ? built : [{ ...emptySense(), phonetic: ipa }];
+  if (built.length === 0) {
+    throw new Error(`Không tạo được nghĩa tiếng Việt cho "${wordText}" (AI gặp lỗi). Thử lại sau hoặc điền thủ công.`);
+  }
+  return built;
 }
 
 // Used when the word already exists: asks the gloss endpoint to semantically
@@ -235,4 +248,52 @@ export async function findMissingSenses(wordText: string, existingSenses: Existi
   if (picks.length === 0) return [];
   // Existing phonetic/synonyms/antonyms are already on the saved word.
   return buildSenseRows(picks, flatDefs, "", "", "");
+}
+
+export interface ExistingSenseForBackfill {
+  index: number;
+  partOfSpeech?: string | null;
+  cambridgeMeaning?: string | null;
+  meaningVi?: string | null;
+  example?: string | null;
+}
+
+export interface SenseBackfillPatch {
+  index: number;
+  meaningVi?: string;
+  example?: string;
+}
+
+// Fills blank meaningVi/example on senses that are already saved but
+// incomplete — e.g. quick-added from the extension with only the English
+// definition filled in. Writes directly from each sense's own
+// cambridgeMeaning, no dictionary crawl: there's nothing to match an
+// incomplete row against the way findMissingSenses matches crawled
+// definitions, so the model is simply asked to gloss what's already there.
+// Never touches a row whose fields are already filled in.
+export async function backfillIncompleteSenses(wordText: string, senses: ExistingSenseForBackfill[]): Promise<SenseBackfillPatch[]> {
+  const candidates = senses.filter((s) => (s.cambridgeMeaning ?? "").trim() && (!(s.meaningVi ?? "").trim() || !(s.example ?? "").trim()));
+  if (candidates.length === 0) return [];
+
+  try {
+    const res = await apiFetch<{ backfill?: SenseBackfillPatch[] }>("/api/english/gloss", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        word: wordText,
+        backfillItems: candidates.map((s) => ({
+          index: s.index,
+          partOfSpeech: s.partOfSpeech,
+          cambridgeMeaning: s.cambridgeMeaning,
+          needsMeaningVi: !(s.meaningVi ?? "").trim(),
+          needsExample: !(s.example ?? "").trim(),
+        })),
+      }),
+    });
+    return res?.backfill ?? [];
+  } catch {
+    // best effort, same as findMissingSenses's gloss retry path — a failure
+    // here should never block appending genuinely new senses
+    return [];
+  }
 }
