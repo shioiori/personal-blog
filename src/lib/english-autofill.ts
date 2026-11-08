@@ -280,7 +280,7 @@ export async function suggestRelatedWordEntries(wordText: string, partOfSpeech: 
       const dup = await checkDuplicateWord(e.word);
       const senses: AutofillSense[] = e.senses.map((s, i) => ({
         ...emptySense(),
-        phonetic: e.phonetic,
+        phonetic: e.phonetic.trim().replace(/^\/+|\/+$/g, ""),
         partOfSpeech: e.pos,
         cambridgeMeaning: s.definitionEn,
         meaningVi: s.meaningVi,

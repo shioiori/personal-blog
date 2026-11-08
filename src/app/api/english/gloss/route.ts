@@ -50,7 +50,7 @@ Nhiệm vụ — làm TOÀN BỘ các bước sau trong MỘT lần trả lời,
 1. Đề xuất các từ CÙNG GỐC (word family) liên quan trực tiếp, mỗi loại tối đa 1 từ: "v" (động từ), "n" (danh từ), "adj" (tính từ), "phrase" (cụm động từ/cụm cố định thông dụng chứa từ gốc, viết ở dạng nguyên mẫu, không chia thì). Bỏ qua loại nào không có hoặc không đủ thông dụng. KHÔNG đề xuất lại chính từ đang xét.
 
 2. Với từ chính VÀ mỗi từ liên đới vừa đề xuất, tự viết đầy đủ thông tin từ điển:
-   - "phonetic": phiên âm IPA kiểu Anh-Anh chuẩn (bỏ trống nếu là cụm từ không có phiên âm riêng).
+   - "phonetic": phiên âm IPA kiểu Anh-Anh chuẩn, KHÔNG kèm dấu gạch chéo "/" ở đầu/cuối (bỏ trống nếu là cụm từ không có phiên âm riêng).
    - "senses": danh sách các "ý cảnh" (nghĩa gốc) của từ đó. Hai định nghĩa thuộc CÙNG một ý cảnh khi một là ứng dụng trực tiếp của ý cảnh kia vào ngữ cảnh khác (vd thân cây/thân người/phần chính của vật đều là ứng dụng của ý cảnh "phần thân") — GỘP chúng vào MỘT sense. Chỉ tách sense mới khi nét nghĩa đã dịch chuyển sang phạm trù khái niệm khác hẳn (vd "phần thân" -> "vật chứa đồ"). Mỗi sense gồm:
      - "meaningVi": nghĩa tiếng Việt ngắn gọn kiểu từ điển Anh-Việt (tối đa ~6 từ). Nếu sense này gộp nhiều cách dùng, liệt kê gọn trong ngoặc, ví dụ "phần thân (thân cây, thân người)".
      - "definitionEn": 1 câu định nghĩa tiếng Anh ngắn gọn đại diện cho sense này.
@@ -275,7 +275,7 @@ function parseExpandEntries(parsed: { entries?: unknown }) {
       return {
         word: entryWord,
         pos: String(e.pos ?? "").trim(),
-        phonetic: String(e.phonetic ?? "").trim(),
+        phonetic: String(e.phonetic ?? "").trim().replace(/^\/+|\/+$/g, ""),
         senses,
         synonyms: String(e.synonyms ?? "").trim(),
         antonyms: String(e.antonyms ?? "").trim(),
@@ -331,7 +331,7 @@ Nhiệm vụ — làm TOÀN BỘ các bước sau trong MỘT lần trả lời:
 3. Đề xuất các từ CÙNG GỐC (word family) liên quan trực tiếp đến lemma, mỗi loại tối đa 1 từ: "v" (động từ), "n" (danh từ), "adj" (tính từ), "phrase" (cụm động từ/cụm cố định thông dụng chứa lemma, dạng nguyên mẫu). Bỏ qua loại nào không có hoặc không đủ thông dụng. KHÔNG đề xuất lại chính lemma.
 
 4. Với lemma VÀ mỗi từ liên đới vừa đề xuất, tự viết đầy đủ thông tin từ điển:
-   - "phonetic": phiên âm IPA kiểu Anh-Anh chuẩn (bỏ trống nếu là cụm từ không có phiên âm riêng).
+   - "phonetic": phiên âm IPA kiểu Anh-Anh chuẩn, KHÔNG kèm dấu gạch chéo "/" ở đầu/cuối (bỏ trống nếu là cụm từ không có phiên âm riêng).
    - "senses": danh sách các "ý cảnh" (nghĩa gốc) của từ đó. Hai định nghĩa thuộc CÙNG một ý cảnh khi một là ứng dụng trực tiếp của ý cảnh kia vào ngữ cảnh khác (vd thân cây/thân người/phần chính của vật đều là ứng dụng của ý cảnh "phần thân") — GỘP chúng vào MỘT sense. Chỉ tách sense mới khi nét nghĩa đã dịch chuyển sang phạm trù khái niệm khác hẳn (vd "phần thân" -> "vật chứa đồ"). Mỗi sense gồm "meaningVi" (ngắn gọn kiểu từ điển Anh-Việt, tối đa ~6 từ, liệt kê gọn trong ngoặc nếu gộp nhiều cách dùng), "definitionEn" (1 câu tiếng Anh ngắn gọn), "example" (1 câu ví dụ tiếng Anh tự nhiên).
    - "synonyms": 2-4 từ đồng nghĩa tiếng Anh phổ biến (chuỗi, phân tách bởi dấu phẩy), để trống nếu không có từ nào thực sự phù hợp.
    - "antonyms": tương tự, trái nghĩa.
