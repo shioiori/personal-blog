@@ -2,7 +2,6 @@
 
 import { WordList } from '@/src/components/english/study/WordList'
 import { ImportTab } from '@/src/components/english/study/ImportTab'
-import { GroupTab } from '@/src/components/english/groups/GroupTab'
 import { FlashcardTab } from '@/src/components/english/review/FlashcardTab'
 import { GachaTab } from '@/src/components/english/gacha/GachaTab'
 import { RefreshDataButton } from '@/src/components/english/shared/RefreshDataButton'
@@ -12,7 +11,7 @@ import {
   TabsList,
   TabsTrigger
 } from '@/src/components/ui/Tabs'
-import { BookOpen, RotateCcw, FolderOpen, Upload, Sparkles } from 'lucide-react'
+import { BookOpen, RotateCcw, Upload, Sparkles } from 'lucide-react'
 import { EnglishProvider } from '@/src/context/english'
 import { useTranslations } from 'next-intl'
 
@@ -27,10 +26,6 @@ export default function Page() {
             <TabsTrigger value="study" className="flex items-center gap-2 whitespace-nowrap">
               <BookOpen className="h-4 w-4" />
               {t('study')}
-            </TabsTrigger>
-            <TabsTrigger value="groups" className="flex items-center gap-2 whitespace-nowrap">
-              <FolderOpen className="h-4 w-4" />
-              {t('groups')}
             </TabsTrigger>
             <TabsTrigger value="review" className="flex items-center gap-2 whitespace-nowrap">
               <RotateCcw className="h-4 w-4" />
@@ -51,10 +46,6 @@ export default function Page() {
 
         <TabsContent value="study">
           <WordList />
-        </TabsContent>
-
-        <TabsContent value="groups">
-          <GroupTab />
         </TabsContent>
 
         <TabsContent value="review">

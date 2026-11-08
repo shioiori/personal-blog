@@ -403,7 +403,13 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
     if (toAdd.length === 0) return;
     setRelatedAdding(true);
     try {
+      const mainWord = wordText.trim();
       for (const entry of toAdd) {
+        // Link back to the main word AND to every sibling being added in
+        // this same batch — not just a star pointing at the main word —
+        // so e.g. "concentrate" and "concentration" end up pointing at each
+        // other too, not only both pointing at "concentrated".
+        const linkedWords = [mainWord, ...toAdd.filter((o) => o !== entry).map((o) => o.word)].join(", ");
         await fetch("/api/english/words", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -420,9 +426,19 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
               note: s.note || null,
               images: [],
             })),
+            relatedWords: linkedWords,
           }),
         });
       }
+      // The main word (not saved yet — this panel only exists in create
+      // mode) also needs the reverse link once it IS saved, so fold the
+      // newly-added words into its own related-words field right away.
+      setRelatedWordsText((prev) => {
+        const existing = parseRelatedWords(prev);
+        const already = new Set(existing.map((w) => w.toLowerCase()));
+        const additions = toAdd.map((e) => e.word).filter((w) => !already.has(w.toLowerCase()));
+        return [...existing, ...additions].join(", ");
+      });
       await refetchWords();
       setRelatedSuggestions((prev) => prev?.filter((e) => !toAdd.includes(e)) ?? null);
       setRelatedSelected(new Set());
