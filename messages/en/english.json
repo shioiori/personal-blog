@@ -60,7 +60,12 @@
             "relatedWords": "Related words (comma-separated)",
             "suggestions": "Suggestions:",
             "uploadError": "Couldn't upload the image. Please try again later.",
-            "duplicateWord": "\"{word}\" is already in your dictionary."
+            "duplicateWord": "\"{word}\" is already in your dictionary.",
+            "suggestRelatedAi": "Suggest related words (AI)",
+            "suggestingRelatedAi": "Finding related words...",
+            "relatedAiEmpty": "AI couldn't find any suitable related words.",
+            "relatedAiAlreadyExists": "Already in dictionary",
+            "relatedAiAddSelected": "Add {count} selected"
         },
         "Groups": {
             "rename": "Rename group",

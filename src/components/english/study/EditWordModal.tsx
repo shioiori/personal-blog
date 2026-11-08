@@ -14,7 +14,15 @@ import { PronounceButton } from "./PronounceButton";
 import type { CambridgeCrawlData } from "./crawlData";
 import { compressImage, imageUrl, uploadImage, type PendingImage } from "./imageUpload";
 import { AltSpelling, ImageThumb, RelatedWordChips, WordSenseList, parseRelatedWords } from "./WordSenseDetail";
-import { backfillIncompleteSenses, buildSensesFromDictionary, checkDuplicateWord, findMissingSenses, validateAndNormalizeWord } from "@/src/lib/english-autofill";
+import {
+  backfillIncompleteSenses,
+  buildSensesFromDictionary,
+  checkDuplicateWord,
+  findMissingSenses,
+  suggestRelatedWordEntries,
+  validateAndNormalizeWord,
+  type RelatedWordEntry,
+} from "@/src/lib/english-autofill";
 
 interface EditWordModalProps {
   open: boolean;
@@ -155,11 +163,17 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
   const [autoFilling, setAutoFilling] = useState(false);
   const [autoFillError, setAutoFillError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [relatedSuggestions, setRelatedSuggestions] = useState<RelatedWordEntry[] | null>(null);
+  const [relatedSelected, setRelatedSelected] = useState<Set<string>>(new Set());
+  const [relatedSuggesting, setRelatedSuggesting] = useState(false);
+  const [relatedAdding, setRelatedAdding] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     setSaveError(null);
     setAutoFillError(null);
+    setRelatedSuggestions(null);
+    setRelatedSelected(new Set());
     setMode(word ? (startInEditMode ? "edit" : "view") : "edit");
     if (word) {
       setWordText(word.word);
@@ -350,6 +364,71 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
       setAutoFillError(err instanceof Error ? err.message : String(err));
     } finally {
       setAutoFilling(false);
+    }
+  }
+
+  // AI-only (no dictionary crawl) suggestion of same-word-family related
+  // words (verb/noun/adj/phrase forms), each with a full ready-to-save entry.
+  // Purely additive and opt-in: nothing is saved until the user ticks a
+  // checkbox and presses "add selected" — mirrors how the manual add-word
+  // flow always leaves the save step to the user.
+  async function handleSuggestRelated() {
+    const raw = wordText.trim();
+    if (!raw) return;
+    setRelatedSuggesting(true);
+    setRelatedSuggestions(null);
+    try {
+      const entries = await suggestRelatedWordEntries(raw, senses[0]?.partOfSpeech ?? "");
+      setRelatedSuggestions(entries);
+      setRelatedSelected(new Set(entries.filter((e) => !e.isExisting).map((e) => e.word)));
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+    } finally {
+      setRelatedSuggesting(false);
+    }
+  }
+
+  function toggleRelatedSelected(word: string) {
+    setRelatedSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(word)) next.delete(word);
+      else next.add(word);
+      return next;
+    });
+  }
+
+  async function handleAddSelectedRelated() {
+    if (!relatedSuggestions) return;
+    const toAdd = relatedSuggestions.filter((e) => !e.isExisting && relatedSelected.has(e.word));
+    if (toAdd.length === 0) return;
+    setRelatedAdding(true);
+    try {
+      for (const entry of toAdd) {
+        await fetch("/api/english/words", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            word: entry.word,
+            senses: entry.senses.map((s) => ({
+              phonetic: s.phonetic || null,
+              partOfSpeech: s.partOfSpeech || null,
+              cambridgeMeaning: s.cambridgeMeaning || null,
+              meaningVi: s.meaningVi || null,
+              example: s.example || null,
+              synonyms: s.synonyms || null,
+              antonyms: s.antonyms || null,
+              note: s.note || null,
+              images: [],
+            })),
+          }),
+        });
+      }
+      await refetchWords();
+      setRelatedSuggestions((prev) => prev?.filter((e) => !toAdd.includes(e)) ?? null);
+      setRelatedSelected(new Set());
+      toast.success(t("EditWord.relatedAiAddSelected", { count: toAdd.length }));
+    } finally {
+      setRelatedAdding(false);
     }
   }
 
@@ -597,6 +676,51 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
                   );
                 })()}
               </div>
+
+              {!word && (
+                <div className="space-y-2">
+                  <Button variant="outline" size="sm" onClick={handleSuggestRelated} disabled={relatedSuggesting || !wordText.trim()}>
+                    <RefreshCw className={`w-3.5 h-3.5 mr-1 ${relatedSuggesting ? "animate-spin" : ""}`} />
+                    {relatedSuggesting ? t("EditWord.suggestingRelatedAi") : t("EditWord.suggestRelatedAi")}
+                  </Button>
+                  {relatedSuggestions && relatedSuggestions.length === 0 && (
+                    <p className="text-xs text-muted-foreground">{t("EditWord.relatedAiEmpty")}</p>
+                  )}
+                  {relatedSuggestions && relatedSuggestions.length > 0 && (
+                    <div className="space-y-2">
+                      {relatedSuggestions.map((entry) => (
+                        <label
+                          key={entry.word}
+                          className={`flex items-start gap-2 rounded-lg border border-border p-2 text-sm ${entry.isExisting ? "opacity-50" : "cursor-pointer hover:bg-accent/50"}`}
+                        >
+                          <input
+                            type="checkbox"
+                            className="mt-1"
+                            disabled={entry.isExisting}
+                            checked={relatedSelected.has(entry.word)}
+                            onChange={() => toggleRelatedSelected(entry.word)}
+                          />
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="font-medium">{entry.word}</span>
+                              <span className="text-xs text-muted-foreground">({entry.pos})</span>
+                              {entry.isExisting && (
+                                <span className="text-xs text-muted-foreground italic">{t("EditWord.relatedAiAlreadyExists")}</span>
+                              )}
+                            </div>
+                            {entry.senses.map((s, i) => (
+                              <p key={i} className="text-xs text-muted-foreground truncate">{s.meaningVi}</p>
+                            ))}
+                          </div>
+                        </label>
+                      ))}
+                      <Button size="sm" onClick={handleAddSelectedRelated} disabled={relatedAdding || relatedSelected.size === 0}>
+                        {t("EditWord.relatedAiAddSelected", { count: relatedSelected.size })}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
             </>
           )}
         </div>

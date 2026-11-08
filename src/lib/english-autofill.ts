@@ -250,6 +250,50 @@ export async function findMissingSenses(wordText: string, existingSenses: Existi
   return buildSenseRows(picks, flatDefs, "", "", "");
 }
 
+export interface RelatedWordEntry {
+  word: string;
+  pos: string;
+  isExisting: boolean;
+  existingId?: number;
+  senses: AutofillSense[];
+}
+
+// AI-only expansion (no dictionary crawl): asks the model to suggest up to
+// one related word per other part of speech (v/n/adj/phrase) in the same
+// word family as `word`, and to write a full entry (phonetic, ý-cảnh-grouped
+// senses, synonyms, antonyms) for the main word and every related word in a
+// single call. Each returned entry is checked against the user's existing
+// dictionary so the caller can grey out/skip ones already saved instead of
+// creating a duplicate.
+export async function suggestRelatedWordEntries(wordText: string, partOfSpeech: string): Promise<RelatedWordEntry[]> {
+  const res = await apiFetch<{
+    entries?: { word: string; pos: string; phonetic: string; senses: { meaningVi: string; definitionEn: string; example: string }[]; synonyms: string; antonyms: string }[];
+  }>("/api/english/gloss", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ word: wordText, expandRelated: { word: wordText, partOfSpeech } }),
+  });
+  const entries = (res?.entries ?? []).filter((e) => normalizeForDedup(e.word) !== normalizeForDedup(wordText));
+
+  return Promise.all(
+    entries.map(async (e) => {
+      const dup = await checkDuplicateWord(e.word);
+      const senses: AutofillSense[] = e.senses.map((s, i) => ({
+        ...emptySense(),
+        phonetic: e.phonetic,
+        partOfSpeech: e.pos,
+        cambridgeMeaning: s.definitionEn,
+        meaningVi: s.meaningVi,
+        example: s.example,
+        synonyms: i === 0 ? e.synonyms : "",
+        antonyms: i === 0 ? e.antonyms : "",
+        note: "Từ liên đới do AI tạo (không tra từ điển) — nên kiểm tra lại.",
+      }));
+      return { word: e.word, pos: e.pos, isExisting: dup.exists, existingId: dup.id, senses };
+    })
+  );
+}
+
 export interface ExistingSenseForBackfill {
   index: number;
   partOfSpeech?: string | null;

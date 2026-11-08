@@ -25,6 +25,48 @@ interface GlossRequestItem {
   example?: string | null;
 }
 
+// Related-word expansion: given a word being added (e.g. "concentrated",
+// adj), asks the model to suggest up to one word per other part of speech in
+// the same word family (v/n/adj/phrase) and write a FULL dictionary entry for
+// it AND for the word itself — all in one call, no dictionaryapi.dev crawl
+// involved. Senses are grouped by "ý cảnh" (the underlying core sense a
+// definition is an application of), e.g. "trunk" collapses tree-trunk/
+// body-trunk/structure-trunk into one entry instead of three, but keeps
+// "storage box" as a separate entry since that sense has drifted into a
+// different concept. Phonetic here is model-generated (no dictionary source
+// to check against), unlike the rest of this file's pipeline which never
+// trusts the model for IPA — this is an explicit, known trade-off: fine for
+// common words, unverifiable for rare ones.
+interface RelatedExpandRequest {
+  word: string;
+  partOfSpeech?: string | null;
+}
+
+function buildRelatedExpandPrompt(word: string, partOfSpeech: string): string {
+  return `Từ tiếng Anh: "${word}" (loại từ: ${partOfSpeech || "?"}).
+
+Nhiệm vụ — làm TOÀN BỘ các bước sau trong MỘT lần trả lời, không cần dữ liệu từ điển ngoài:
+
+1. Đề xuất các từ CÙNG GỐC (word family) liên quan trực tiếp, mỗi loại tối đa 1 từ: "v" (động từ), "n" (danh từ), "adj" (tính từ), "phrase" (cụm động từ/cụm cố định thông dụng chứa từ gốc, viết ở dạng nguyên mẫu, không chia thì). Bỏ qua loại nào không có hoặc không đủ thông dụng. KHÔNG đề xuất lại chính từ đang xét.
+
+2. Với từ chính VÀ mỗi từ liên đới vừa đề xuất, tự viết đầy đủ thông tin từ điển:
+   - "phonetic": phiên âm IPA kiểu Anh-Anh chuẩn (bỏ trống nếu là cụm từ không có phiên âm riêng).
+   - "senses": danh sách các "ý cảnh" (nghĩa gốc) của từ đó. Hai định nghĩa thuộc CÙNG một ý cảnh khi một là ứng dụng trực tiếp của ý cảnh kia vào ngữ cảnh khác (vd thân cây/thân người/phần chính của vật đều là ứng dụng của ý cảnh "phần thân") — GỘP chúng vào MỘT sense. Chỉ tách sense mới khi nét nghĩa đã dịch chuyển sang phạm trù khái niệm khác hẳn (vd "phần thân" -> "vật chứa đồ"). Mỗi sense gồm:
+     - "meaningVi": nghĩa tiếng Việt ngắn gọn kiểu từ điển Anh-Việt (tối đa ~6 từ). Nếu sense này gộp nhiều cách dùng, liệt kê gọn trong ngoặc, ví dụ "phần thân (thân cây, thân người)".
+     - "definitionEn": 1 câu định nghĩa tiếng Anh ngắn gọn đại diện cho sense này.
+     - "example": 1 câu ví dụ tiếng Anh tự nhiên minh hoạ đúng sense đó.
+   - "synonyms": 2-4 từ đồng nghĩa tiếng Anh phổ biến (chuỗi, phân tách bởi dấu phẩy), để trống nếu không có từ nào thực sự phù hợp.
+   - "antonyms": tương tự, trái nghĩa.
+
+Chỉ đề xuất và viết nghĩa cho từ THỰC SỰ tồn tại và thông dụng — không bịa từ không có thật.
+
+Trả về CHỈ JSON theo schema:
+{"related":[{"word":"...","pos":"v|n|adj|phrase"}],
+ "entries":[{"word":"...","pos":"...","phonetic":"...","senses":[{"meaningVi":"...","definitionEn":"...","example":"..."}],"synonyms":"...","antonyms":"..."}]}
+
+"entries" phải bao gồm CẢ từ chính "${word}" và mọi từ liên đới ở mục "related". Không giải thích gì thêm ngoài JSON.`;
+}
+
 interface ExistingSenseInput {
   partOfSpeech?: string | null;
   cambridgeMeaning?: string | null;
@@ -115,7 +157,13 @@ Trả về CHỈ một JSON object dạng {"senses": [{"index": <số index gố
 export async function POST(req: NextRequest) {
   if (!(await getUserId())) return unauthorized();
 
-  let body: { word?: string; items?: GlossRequestItem[]; existingSenses?: ExistingSenseInput[]; backfillItems?: BackfillRequestItem[] };
+  let body: {
+    word?: string;
+    items?: GlossRequestItem[];
+    existingSenses?: ExistingSenseInput[];
+    backfillItems?: BackfillRequestItem[];
+    expandRelated?: RelatedExpandRequest;
+  };
   try {
     body = await req.json();
   } catch {
@@ -128,6 +176,8 @@ export async function POST(req: NextRequest) {
   if (!process.env.GROQ_API_KEY && !process.env.GEMINI_API_KEY) {
     return NextResponse.json({ senses: [], error: "GROQ_API_KEY not configured" });
   }
+
+  if (body.expandRelated) return handleExpandRelated(word, body.expandRelated.partOfSpeech ?? "");
 
   const backfillItems = (body.backfillItems ?? []).filter(
     (it) => it?.cambridgeMeaning?.trim() && Number.isInteger(it.index) && (it.needsMeaningVi || it.needsExample)
@@ -184,6 +234,72 @@ export async function POST(req: NextRequest) {
   } catch (e) {
     console.error("[POST english/gloss error]", e);
     return NextResponse.json({ senses: [], error: "gloss generation failed" });
+  }
+}
+
+interface ExpandEntryRaw {
+  word?: unknown;
+  pos?: unknown;
+  phonetic?: unknown;
+  senses?: unknown;
+  synonyms?: unknown;
+  antonyms?: unknown;
+}
+
+// Double the main gloss endpoint's budget — this single call has to write
+// full dictionary entries (not just a short gloss) for the main word AND up
+// to 4 related words at once, which empirically runs ~1,000-1,050 completion
+// tokens per entry at reasoning_effort "high" (measured live: ~5,800 tokens
+// total for 5 entries, ~3,750 for 3).
+const EXPAND_MAX_TOKENS = 8192 * 2;
+
+async function handleExpandRelated(word: string, partOfSpeech: string) {
+  try {
+    const { raw } = await aiComplete({
+      groqModel: MODEL,
+      maxTokens: EXPAND_MAX_TOKENS,
+      temperature: 0.3,
+      reasoningEffort: "high",
+      systemPrompt:
+        "Bạn là biên tập viên từ điển Anh-Việt chuyên sâu, giỏi nhận diện word family, ý cảnh (nghĩa gốc chung đằng sau các cách dùng khác nhau), và viết nghĩa tiếng Việt ngắn gọn tự nhiên, phiên âm chuẩn. Luôn trả lời bằng JSON hợp lệ, không bịa từ không tồn tại.",
+      userPrompt: buildRelatedExpandPrompt(word, partOfSpeech),
+    });
+    const parsed = JSON.parse(raw) as { related?: unknown; entries?: unknown };
+    const rawEntries = Array.isArray(parsed.entries) ? (parsed.entries as ExpandEntryRaw[]) : [];
+
+    const entries = rawEntries
+      .map((e) => {
+        const entryWord = String(e.word ?? "").trim();
+        if (!entryWord) return null;
+        const rawSenses = Array.isArray(e.senses) ? e.senses : [];
+        const senses = rawSenses
+          .map((s) => {
+            if (!s || typeof s !== "object") return null;
+            const meaningVi = String((s as { meaningVi?: unknown }).meaningVi ?? "").trim();
+            if (!meaningVi) return null;
+            return {
+              meaningVi,
+              definitionEn: String((s as { definitionEn?: unknown }).definitionEn ?? "").trim(),
+              example: String((s as { example?: unknown }).example ?? "").trim(),
+            };
+          })
+          .filter((s): s is { meaningVi: string; definitionEn: string; example: string } => s !== null);
+        if (senses.length === 0) return null;
+        return {
+          word: entryWord,
+          pos: String(e.pos ?? "").trim(),
+          phonetic: String(e.phonetic ?? "").trim(),
+          senses,
+          synonyms: String(e.synonyms ?? "").trim(),
+          antonyms: String(e.antonyms ?? "").trim(),
+        };
+      })
+      .filter((e): e is NonNullable<typeof e> => e !== null);
+
+    return NextResponse.json({ entries });
+  } catch (e) {
+    console.error("[POST english/gloss expandRelated error]", e);
+    return NextResponse.json({ entries: [], error: "related-word expansion failed" });
   }
 }
 

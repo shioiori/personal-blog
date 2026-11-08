@@ -60,7 +60,12 @@
             "relatedWords": "Từ liên quan (phân cách bởi dấu phẩy)",
             "suggestions": "Gợi ý:",
             "uploadError": "Không upload được ảnh. Thử lại sau.",
-            "duplicateWord": "\"{word}\" đã có trong từ điển."
+            "duplicateWord": "\"{word}\" đã có trong từ điển.",
+            "suggestRelatedAi": "Gợi ý từ liên đới (AI)",
+            "suggestingRelatedAi": "Đang tìm từ liên đới...",
+            "relatedAiEmpty": "AI không tìm thấy từ liên đới phù hợp.",
+            "relatedAiAlreadyExists": "Đã có trong từ điển",
+            "relatedAiAddSelected": "Thêm {count} từ đã chọn"
         },
         "Groups": {
             "rename": "Đổi tên nhóm",
