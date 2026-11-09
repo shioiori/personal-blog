@@ -56,7 +56,8 @@ Nhiệm vụ — làm TOÀN BỘ các bước sau trong MỘT lần trả lời,
 
 2. Với từ chính VÀ mỗi từ liên đới vừa đề xuất, tự viết đầy đủ thông tin từ điển:
    - "phonetic": phiên âm IPA kiểu Anh-Anh chuẩn, KHÔNG kèm dấu gạch chéo "/" ở đầu/cuối (bỏ trống nếu là cụm từ không có phiên âm riêng).
-   - "senses": danh sách các "ý cảnh" (nghĩa gốc) của từ đó. Hai định nghĩa thuộc CÙNG một ý cảnh khi một là ứng dụng trực tiếp của ý cảnh kia vào ngữ cảnh khác (vd thân cây/thân người/phần chính của vật đều là ứng dụng của ý cảnh "phần thân") — GỘP chúng vào MỘT sense. Chỉ tách sense mới khi nét nghĩa đã dịch chuyển sang phạm trù khái niệm khác hẳn (vd "phần thân" -> "vật chứa đồ"). Mỗi sense gồm:
+   - "senses": danh sách các "ý cảnh" (nghĩa gốc) của từ đó. LƯU Ý: một từ có thể có NHIỀU loại từ khác nhau (vd "concrete" vừa là danh từ, vừa là động từ, vừa là tính từ) — mỗi loại từ khác nhau PHẢI là (các) sense riêng, KHÔNG được gộp hai loại từ khác nhau vào cùng một sense. Trong CÙNG một loại từ, hai định nghĩa thuộc CÙNG một ý cảnh khi một là ứng dụng trực tiếp của ý cảnh kia vào ngữ cảnh khác (vd thân cây/thân người/phần chính của vật đều là ứng dụng của ý cảnh "phần thân") — GỘP chúng vào MỘT sense. Chỉ tách sense mới khi nét nghĩa đã dịch chuyển sang phạm trù khái niệm khác hẳn (vd "phần thân" -> "vật chứa đồ"). Mỗi sense gồm:
+     - "pos": loại từ CỦA RIÊNG sense này, MỘT từ tiếng Anh ĐẦY ĐỦ, chữ thường, KHÔNG viết tắt và KHÔNG liệt kê nhiều loại (vd "noun", "verb", "adjective", "adverb", "phrasal verb", "idiom" — không phải "n", không phải "n, adj, v").
      - "meaningVi": nghĩa tiếng Việt ngắn gọn kiểu từ điển Anh-Việt (tối đa ~6 từ). Nếu sense này gộp nhiều cách dùng, liệt kê gọn trong ngoặc, ví dụ "phần thân (thân cây, thân người)".
      - "definitionEn": 1 câu định nghĩa tiếng Anh ngắn gọn đại diện cho sense này.
      - "example": 1 câu ví dụ tiếng Anh tự nhiên minh hoạ đúng sense đó.
@@ -67,7 +68,7 @@ Chỉ đề xuất và viết nghĩa cho từ THỰC SỰ tồn tại và thông
 
 Trả về CHỈ JSON theo schema:
 {"related":[{"word":"...","pos":"v|n|adj|phrase"}],
- "entries":[{"word":"...","pos":"...","phonetic":"...","senses":[{"meaningVi":"...","definitionEn":"...","example":"..."}],"synonyms":"...","antonyms":"..."}]}
+ "entries":[{"word":"...","phonetic":"...","senses":[{"pos":"noun|verb|adjective|...","meaningVi":"...","definitionEn":"...","example":"..."}],"synonyms":"...","antonyms":"..."}]}
 
 "entries" phải bao gồm CẢ từ chính "${word}" và mọi từ liên đới ở mục "related". Không giải thích gì thêm ngoài JSON.`;
 }
@@ -304,18 +305,28 @@ function parseExpandEntries(parsed: { entries?: unknown }, mainWord: string) {
           const meaningVi = String((s as { meaningVi?: unknown }).meaningVi ?? "").trim();
           if (!meaningVi) return null;
           return {
+            // Each sense carries its own part of speech — a word like
+            // "concrete" is noun, verb AND adjective, each with different
+            // senses, so this must never be collapsed to one entry-level tag.
+            // Defensive: if the model still lumps several in despite the
+            // prompt (e.g. "n, adj, v"), keep only the first rather than
+            // saving the raw abbreviated list.
+            pos: String((s as { pos?: unknown }).pos ?? "").split(",")[0].trim(),
             meaningVi,
             definitionEn: String((s as { definitionEn?: unknown }).definitionEn ?? "").trim(),
             example: String((s as { example?: unknown }).example ?? "").trim(),
           };
         })
-        .filter((s): s is { meaningVi: string; definitionEn: string; example: string } => s !== null);
+        .filter((s): s is { pos: string; meaningVi: string; definitionEn: string; example: string } => s !== null);
       if (senses.length === 0) return null;
 
       seen.add(key);
       return {
         word: entryWord,
-        pos,
+        // Short display tag for the related-word suggestion list (e.g. "v",
+        // "n") — not what gets saved onto senses, so it's fine if the model's
+        // top-level `pos` only reflects the entry's primary part of speech.
+        pos: pos || senses[0].pos,
         phonetic: String(e.phonetic ?? "").trim().replace(/^\/+|\/+$/g, ""),
         senses,
         synonyms: String(e.synonyms ?? "").trim(),
@@ -377,7 +388,7 @@ Nhiệm vụ — làm TOÀN BỘ các bước sau trong MỘT lần trả lời:
 
 4. Với lemma VÀ mỗi từ liên đới vừa đề xuất, tự viết đầy đủ thông tin từ điển:
    - "phonetic": phiên âm IPA kiểu Anh-Anh chuẩn, KHÔNG kèm dấu gạch chéo "/" ở đầu/cuối (bỏ trống nếu là cụm từ không có phiên âm riêng).
-   - "senses": danh sách các "ý cảnh" (nghĩa gốc) của từ đó. Hai định nghĩa thuộc CÙNG một ý cảnh khi một là ứng dụng trực tiếp của ý cảnh kia vào ngữ cảnh khác (vd thân cây/thân người/phần chính của vật đều là ứng dụng của ý cảnh "phần thân") — GỘP chúng vào MỘT sense. Chỉ tách sense mới khi nét nghĩa đã dịch chuyển sang phạm trù khái niệm khác hẳn (vd "phần thân" -> "vật chứa đồ"). Mỗi sense gồm "meaningVi" (ngắn gọn kiểu từ điển Anh-Việt, tối đa ~6 từ, liệt kê gọn trong ngoặc nếu gộp nhiều cách dùng), "definitionEn" (1 câu tiếng Anh ngắn gọn), "example" (1 câu ví dụ tiếng Anh tự nhiên).
+   - "senses": danh sách các "ý cảnh" (nghĩa gốc) của từ đó. LƯU Ý: một từ có thể có NHIỀU loại từ khác nhau (vd "concrete" vừa là danh từ, vừa là động từ, vừa là tính từ) — mỗi loại từ khác nhau PHẢI là (các) sense riêng, KHÔNG được gộp hai loại từ khác nhau vào cùng một sense. Trong CÙNG một loại từ, hai định nghĩa thuộc CÙNG một ý cảnh khi một là ứng dụng trực tiếp của ý cảnh kia vào ngữ cảnh khác (vd thân cây/thân người/phần chính của vật đều là ứng dụng của ý cảnh "phần thân") — GỘP chúng vào MỘT sense. Chỉ tách sense mới khi nét nghĩa đã dịch chuyển sang phạm trù khái niệm khác hẳn (vd "phần thân" -> "vật chứa đồ"). Mỗi sense gồm "pos" (loại từ CỦA RIÊNG sense này, MỘT từ tiếng Anh ĐẦY ĐỦ, chữ thường, KHÔNG viết tắt và KHÔNG liệt kê nhiều loại — vd "noun", "verb", "adjective", "adverb", "phrasal verb", "idiom" — không phải "n", không phải "n, adj, v"), "meaningVi" (ngắn gọn kiểu từ điển Anh-Việt, tối đa ~6 từ, liệt kê gọn trong ngoặc nếu gộp nhiều cách dùng), "definitionEn" (1 câu tiếng Anh ngắn gọn), "example" (1 câu ví dụ tiếng Anh tự nhiên).
    - "synonyms": 2-4 từ đồng nghĩa tiếng Anh phổ biến (chuỗi, phân tách bởi dấu phẩy), để trống nếu không có từ nào thực sự phù hợp.
    - "antonyms": tương tự, trái nghĩa.
 
@@ -385,7 +396,7 @@ Chỉ đề xuất và viết nghĩa cho từ THỰC SỰ tồn tại và thông
 
 Trả về CHỈ JSON theo một trong hai dạng:
 - Không hợp lệ: {"valid": false, "reason": "..."}
-- Hợp lệ: {"valid": true, "lemma": "...", "entries": [{"word":"...","pos":"...","phonetic":"...","senses":[{"meaningVi":"...","definitionEn":"...","example":"..."}],"synonyms":"...","antonyms":"..."}]}
+- Hợp lệ: {"valid": true, "lemma": "...", "entries": [{"word":"...","phonetic":"...","senses":[{"pos":"noun|verb|adjective|...","meaningVi":"...","definitionEn":"...","example":"..."}],"synonyms":"...","antonyms":"..."}]}
 
 "entries" phải bao gồm CẢ lemma và mọi từ liên đới. Không giải thích gì thêm ngoài JSON.`;
 }

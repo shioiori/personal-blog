@@ -145,6 +145,20 @@ function toSenseDrafts(senses: EnglishSense[]): SenseDraft[] {
   }));
 }
 
+// Mirrors the server's own normalization (src/lib/english-db.ts) closely
+// enough to match a word's sourceUrl against an auto-created source group's
+// stored URL — strips the hash fragment, falls back to the raw string if
+// it isn't a parseable URL.
+function normalizeSourceUrlClient(url: string): string {
+  try {
+    const u = new URL(url);
+    u.hash = "";
+    return u.toString();
+  } catch {
+    return url.trim();
+  }
+}
+
 function hasContent(s: SenseDraft): boolean {
   if ((s.images?.length ?? 0) > 0 || (s.pendingImages?.length ?? 0) > 0) return true;
   return [s.phonetic, s.partOfSpeech, s.cambridgeMeaning, s.meaningVi, s.example, s.synonyms, s.antonyms, s.note].some((v) => v?.trim());
@@ -152,12 +166,16 @@ function hasContent(s: SenseDraft): boolean {
 
 export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, onOpenWord }: EditWordModalProps) {
   const t = useTranslations("English");
-  const { refetchWords, words: allWords } = useEnglishStudy();
+  const { refetchWords, words: allWords, groups, refetchGroups } = useEnglishStudy();
   const [mode, setMode] = useState<"view" | "edit">(word ? "view" : "edit");
   const [wordText, setWordText] = useState("");
   const [senses, setSenses] = useState<SenseDraft[]>([{ ...emptySense }]);
   const [relatedWordsText, setRelatedWordsText] = useState("");
   const [altSpelling, setAltSpelling] = useState("");
+  const [sourceUrl, setSourceUrl] = useState("");
+  const [selectedGroupIds, setSelectedGroupIds] = useState<Set<number>>(new Set());
+  const [newCategoryDraft, setNewCategoryDraft] = useState("");
+  const [creatingCategory, setCreatingCategory] = useState(false);
   const [saving, setSaving] = useState(false);
   const [crawlData, setCrawlData] = useState<CambridgeCrawlData | null>(null);
   const [autoFilling, setAutoFilling] = useState(false);
@@ -181,14 +199,58 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
       setCrawlData((word.crawlData as CambridgeCrawlData | undefined) ?? null);
       setRelatedWordsText(word.relatedWords ?? "");
       setAltSpelling(word.altSpelling ?? "");
+      setSourceUrl(word.sourceUrl ?? "");
+      setSelectedGroupIds(new Set(word.groupIds ?? []));
     } else {
       setWordText("");
       setSenses([{ ...emptySense }]);
       setCrawlData(null);
       setRelatedWordsText("");
       setAltSpelling("");
+      setSourceUrl("");
+      setSelectedGroupIds(new Set());
     }
+    setNewCategoryDraft("");
   }, [open, word, startInEditMode]);
+
+  // The group auto-created for the word's current sourceUrl, if any — a word
+  // can never have a sourceUrl without belonging to that group (also
+  // enforced server-side in updateWord/createWord), so this chip is locked on.
+  const sourceGroupId = (() => {
+    const url = sourceUrl.trim();
+    if (!url) return null;
+    const normalized = normalizeSourceUrlClient(url);
+    return groups.find((g) => g.sourceUrl && normalizeSourceUrlClient(g.sourceUrl) === normalized)?.id ?? null;
+  })();
+
+  function toggleGroupSelected(id: number) {
+    if (id === sourceGroupId) return; // locked on while sourceUrl matches it
+    setSelectedGroupIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  async function handleCreateCategory() {
+    const name = newCategoryDraft.trim();
+    if (!name) return;
+    setCreatingCategory(true);
+    try {
+      const res = await fetch("/api/english/groups", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+      const created = (await res.json()) as { id: number };
+      await refetchGroups();
+      if (created?.id) setSelectedGroupIds((prev) => new Set(prev).add(created.id));
+      setNewCategoryDraft("");
+    } finally {
+      setCreatingCategory(false);
+    }
+  }
 
   function updateSense(i: number, patch: Partial<SenseDraft>) {
     setSenses((prev) => prev.map((s, idx) => (idx === i ? { ...s, ...patch } : s)));
@@ -474,6 +536,7 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
         senses: uploadedSenses.map(toSenseInput),
         relatedWords: newRelatedTexts.join(", ") || null,
         altSpelling: altSpelling.trim() || null,
+        sourceUrl: sourceUrl.trim() || null,
         ...(word ? {} : { crawlData: crawlData ?? undefined }),
       };
 
@@ -500,6 +563,30 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
       senses.forEach((s) => s.pendingImages?.forEach((p) => URL.revokeObjectURL(p.previewUrl)));
       setSenses(uploadedSenses.length > 0 ? uploadedSenses.map(({ pendingImages: _, imageLinkDraft: __, ...s }) => s) : [{ ...emptySense }]);
       await syncRelatedWords(savedId, wordText.trim(), oldRelatedTexts, newRelatedTexts, allWords);
+
+      const oldGroupIds = new Set(word?.groupIds ?? []);
+      const effectiveSelected = new Set(selectedGroupIds);
+      if (sourceGroupId) effectiveSelected.add(sourceGroupId); // locked on, see sourceGroupId above
+      const added = [...effectiveSelected].filter((id) => !oldGroupIds.has(id));
+      const removed = [...oldGroupIds].filter((id) => !effectiveSelected.has(id) && id !== sourceGroupId);
+      await Promise.all([
+        ...added.map((groupId) =>
+          fetch(`/api/english/groups/${groupId}/words`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ wordIds: [savedId] }),
+          })
+        ),
+        ...removed.map((groupId) =>
+          fetch(`/api/english/groups/${groupId}/words`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ wordId: savedId }),
+          })
+        ),
+      ]);
+      if (added.length > 0 || removed.length > 0) await refetchGroups();
+
       await refetchWords();
       if (word) setMode("view");
       else onClose();
@@ -517,6 +604,9 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
       setSenses(toSenseDrafts(word.senses));
       setRelatedWordsText(word.relatedWords ?? "");
       setAltSpelling(word.altSpelling ?? "");
+      setSourceUrl(word.sourceUrl ?? "");
+      setSelectedGroupIds(new Set(word.groupIds ?? []));
+      setNewCategoryDraft("");
       setSaveError(null);
       setMode("view");
     } else {
@@ -694,6 +784,61 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
                     </div>
                   );
                 })()}
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t("EditWord.sourceUrl")}</label>
+                <Input
+                  value={sourceUrl}
+                  onChange={(e) => setSourceUrl(e.target.value)}
+                  placeholder="https://..."
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t("EditWord.categories")}</label>
+                {groups.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">{t("EditWord.noCategoriesYet")}</p>
+                ) : (
+                  <div className="flex flex-wrap gap-1.5">
+                    {groups.map((g) => {
+                      const locked = g.id === sourceGroupId;
+                      const active = locked || selectedGroupIds.has(g.id);
+                      return (
+                        <button
+                          key={g.id}
+                          type="button"
+                          onClick={() => toggleGroupSelected(g.id)}
+                          disabled={locked}
+                          title={locked ? t("EditWord.categoryLockedBySource") : undefined}
+                          className={`px-2 py-0.5 rounded-full border text-xs transition-colors ${
+                            active
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-dashed border-border hover:bg-accent hover:text-accent-foreground"
+                          } ${locked ? "cursor-not-allowed opacity-90" : ""}`}
+                        >
+                          {g.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <Input
+                    value={newCategoryDraft}
+                    onChange={(e) => setNewCategoryDraft(e.target.value)}
+                    placeholder={t("EditWord.newCategoryPlaceholder")}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        void handleCreateCategory();
+                      }
+                    }}
+                  />
+                  <Button type="button" variant="outline" size="sm" onClick={handleCreateCategory} disabled={creatingCategory || !newCategoryDraft.trim()}>
+                    <Plus className="w-3.5 h-3.5 mr-1" /> {t("Groups.createShort")}
+                  </Button>
+                </div>
               </div>
 
               {!word && (

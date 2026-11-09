@@ -65,7 +65,11 @@
             "suggestingRelatedAi": "Finding related words...",
             "relatedAiEmpty": "AI couldn't find any suitable related words.",
             "relatedAiAlreadyExists": "Already in dictionary",
-            "relatedAiAddSelected": "Add {count} selected"
+            "relatedAiAddSelected": "Add {count} selected",
+            "categories": "Categories",
+            "newCategoryPlaceholder": "Create new category...",
+            "noCategoriesYet": "No categories yet.",
+            "categoryLockedBySource": "Locked to the source page — can't be unchecked."
         },
         "Groups": {
             "rename": "Rename group",

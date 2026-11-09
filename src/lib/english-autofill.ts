@@ -280,7 +280,7 @@ export interface RelatedWordEntry {
 // creating a duplicate.
 export async function suggestRelatedWordEntries(wordText: string, partOfSpeech: string): Promise<RelatedWordEntry[]> {
   const res = await apiFetch<{
-    entries?: { word: string; pos: string; phonetic: string; senses: { meaningVi: string; definitionEn: string; example: string }[]; synonyms: string; antonyms: string }[];
+    entries?: { word: string; pos: string; phonetic: string; senses: { pos?: string; meaningVi: string; definitionEn: string; example: string }[]; synonyms: string; antonyms: string }[];
   }>("/api/english/gloss", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -294,7 +294,10 @@ export async function suggestRelatedWordEntries(wordText: string, partOfSpeech: 
       const senses: AutofillSense[] = e.senses.map((s, i) => ({
         ...emptySense(),
         phonetic: e.phonetic.trim().replace(/^\/+|\/+$/g, ""),
-        partOfSpeech: e.pos,
+        // Each sense's own part of speech — a word can be noun/verb/adjective
+        // at once, each with different senses, so this must not be the same
+        // single tag (`e.pos`) for every row.
+        partOfSpeech: s.pos || e.pos,
         cambridgeMeaning: s.definitionEn,
         meaningVi: s.meaningVi,
         example: s.example,

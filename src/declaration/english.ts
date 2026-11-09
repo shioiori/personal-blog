@@ -31,6 +31,8 @@ export interface EnglishGroup {
   id: number;
   name: string;
   wordIds: number[];
+  /** Set when this group was auto-created for a page's source URL (see EnglishWord.sourceUrl) — such a group can't be left manually: it always contains every word whose sourceUrl matches. */
+  sourceUrl?: string;
 }
 
 export interface FlashcardCard {

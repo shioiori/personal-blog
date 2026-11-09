@@ -231,8 +231,8 @@ export async function linkWordToSourceGroup(userId: number, wordId: number, sour
   await addWordsToGroup(userId, groupId, [wordId]);
 }
 
-export async function updateWord(userId: number, id: number, word: string, senses: SenseInput[], relatedWords?: string | null, altSpelling?: string | null): Promise<boolean> {
-  const rows = await sql`UPDATE english_words SET word = ${word}, related_words = ${relatedWords ?? null}, alt_spelling = ${altSpelling ?? null} WHERE id = ${id} AND user_id = ${userId} RETURNING id`;
+export async function updateWord(userId: number, id: number, word: string, senses: SenseInput[], relatedWords?: string | null, altSpelling?: string | null, sourceUrl?: string | null): Promise<boolean> {
+  const rows = await sql`UPDATE english_words SET word = ${word}, related_words = ${relatedWords ?? null}, alt_spelling = ${altSpelling ?? null}, source_url = ${sourceUrl ?? null} WHERE id = ${id} AND user_id = ${userId} RETURNING id`;
   if (!rows[0]) return false;
   const oldImages = await getSenseImages(id);
   await sql`DELETE FROM english_senses WHERE word_id = ${id}`;
@@ -240,6 +240,10 @@ export async function updateWord(userId: number, id: number, word: string, sense
   else await insertSenses(id, [{}]);
   const kept = new Set(senses.flatMap((s) => s.images ?? []));
   await deleteImages(userId, oldImages.filter((k) => !kept.has(k)));
+  // Invariant: a word can never have a sourceUrl without being a member of
+  // that source's group — enforced here so it holds regardless of which
+  // group chips the caller did or didn't toggle.
+  if (sourceUrl) await linkWordToSourceGroup(userId, id, sourceUrl);
   return true;
 }
 
@@ -391,15 +395,20 @@ async function syncGroupsFromSourceUrls(userId: number): Promise<void> {
 export async function listGroups(userId: number): Promise<EnglishGroup[]> {
   await syncGroupsFromSourceUrls(userId);
   const rows = await sql`
-    SELECT g.id, g.name,
+    SELECT g.id, g.name, g.source_url,
            COALESCE(array_agg(m.word_id) FILTER (WHERE m.word_id IS NOT NULL), '{}') AS word_ids
     FROM english_word_groups g
     LEFT JOIN english_word_group_members m ON g.id = m.group_id
     WHERE g.user_id = ${userId}
-    GROUP BY g.id, g.name
+    GROUP BY g.id, g.name, g.source_url
     ORDER BY g.name
   `;
-  return rows.map((r) => ({ id: r.id as number, name: r.name as string, wordIds: (r.word_ids as number[]) ?? [] }));
+  return rows.map((r) => ({
+    id: r.id as number,
+    name: r.name as string,
+    wordIds: (r.word_ids as number[]) ?? [],
+    sourceUrl: (r.source_url as string | null) ?? undefined,
+  }));
 }
 
 export async function createGroup(userId: number, name: string): Promise<EnglishGroup> {

@@ -18,11 +18,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   await ensureEnglishTables();
   const { id } = await params;
   const wordId = parseInt(id, 10);
-  const body = (await req.json()) as { word: string; senses?: SenseInput[]; relatedWords?: string | null; altSpelling?: string | null };
+  const body = (await req.json()) as { word: string; senses?: SenseInput[]; relatedWords?: string | null; altSpelling?: string | null; sourceUrl?: string | null };
   if (!body.word?.trim()) {
     return NextResponse.json({ error: "word is required" }, { status: 400 });
   }
-  if (!(await updateWord(userId, wordId, body.word.trim(), body.senses ?? [], body.relatedWords, body.altSpelling))) {
+  if (!(await updateWord(userId, wordId, body.word.trim(), body.senses ?? [], body.relatedWords, body.altSpelling, body.sourceUrl))) {
     return NextResponse.json({ error: "not found" }, { status: 404 });
   }
   const updated = await getWord(userId, wordId);

@@ -65,7 +65,11 @@
             "suggestingRelatedAi": "Đang tìm từ liên đới...",
             "relatedAiEmpty": "AI không tìm thấy từ liên đới phù hợp.",
             "relatedAiAlreadyExists": "Đã có trong từ điển",
-            "relatedAiAddSelected": "Thêm {count} từ đã chọn"
+            "relatedAiAddSelected": "Thêm {count} từ đã chọn",
+            "categories": "Nhóm / Chủ đề",
+            "newCategoryPlaceholder": "Tạo nhóm mới...",
+            "noCategoriesYet": "Chưa có nhóm nào.",
+            "categoryLockedBySource": "Tự động theo nguồn — không thể bỏ chọn."
         },
         "Groups": {
             "rename": "Đổi tên nhóm",
