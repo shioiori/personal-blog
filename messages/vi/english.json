@@ -33,7 +33,8 @@
             "next": "Tiếp theo",
             "moreSenses": "+{count} nghĩa khác",
             "noSenses": "Chưa có nghĩa nào.",
-            "pronounce": "Phát âm"
+            "pronounce": "Phát âm",
+            "autoPronounceOnFlip": "Tự động phát âm khi lật thẻ"
         },
         "EditWord": {
             "editTitle": "Sửa từ",

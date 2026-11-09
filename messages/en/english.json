@@ -33,7 +33,8 @@
             "next": "Next",
             "moreSenses": "+{count} more senses",
             "noSenses": "No senses yet.",
-            "pronounce": "Pronounce"
+            "pronounce": "Pronounce",
+            "autoPronounceOnFlip": "Auto-pronounce on flip"
         },
         "EditWord": {
             "editTitle": "Edit word",

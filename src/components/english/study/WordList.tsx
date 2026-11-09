@@ -35,7 +35,11 @@ export function WordList() {
 
   const filtered = useMemo(() => {
     return words.filter((w) => {
-      if (groupFilter !== "all" && !w.groupIds.includes(parseInt(groupFilter, 10))) return false;
+      if (groupFilter === "none") {
+        if (w.groupIds.length > 0) return false;
+      } else if (groupFilter !== "all" && !w.groupIds.includes(parseInt(groupFilter, 10))) {
+        return false;
+      }
       const q = search.trim().toLowerCase();
       if (q && ![w.word, w.altSpelling ?? ""].some((v) => v.toLowerCase().includes(q))) return false;
       return true;
@@ -83,6 +87,7 @@ export function WordList() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{t("Words.allGroups")}</SelectItem>
+            <SelectItem value="none">{t("Settings.ungrouped")}</SelectItem>
             {groups.map((g) => (
               <SelectItem key={g.id} value={String(g.id)}>{g.name}</SelectItem>
             ))}

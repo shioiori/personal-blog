@@ -2,19 +2,46 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { Volume2 } from "lucide-react";
 import { Button } from "@/src/components/ui/Button";
 import type { EnglishWord } from "@/src/declaration/english";
 import { getCrawlAudioUrl } from "./crawlData";
 import { FlashcardCard, FlashcardProgress } from "../shared/FlashcardCard";
+import { usePronounce } from "./PronounceButton";
+import { cn } from "@/src/utils/ui";
 
 interface WordFlashcardViewProps {
   words: EnglishWord[];
 }
 
+const AUTO_PRONOUNCE_KEY = "english-study-flashcard-auto-pronounce";
+
 export function WordFlashcardView({ words }: WordFlashcardViewProps) {
   const t = useTranslations("English");
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
+  const [autoPronounce, setAutoPronounce] = useState(false);
+  const { pronounce } = usePronounce();
+
+  useEffect(() => {
+    try {
+      setAutoPronounce(localStorage.getItem(AUTO_PRONOUNCE_KEY) === "1");
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  function toggleAutoPronounce() {
+    setAutoPronounce((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(AUTO_PRONOUNCE_KEY, next ? "1" : "0");
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  }
 
   useEffect(() => {
     setIndex(0);
@@ -38,7 +65,7 @@ export function WordFlashcardView({ words }: WordFlashcardViewProps) {
       if (e.target instanceof HTMLElement && e.target.closest("input, textarea, select, [contenteditable], [role=listbox], [role=dialog]")) return;
       if (e.key === "ArrowLeft") goPrev();
       else if (e.key === "ArrowRight") goNext();
-      else if (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "Enter") setFlipped((f) => !f);
+      else if (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "Enter") handleFlip();
       else return;
       e.preventDefault();
     }
@@ -56,17 +83,42 @@ export function WordFlashcardView({ words }: WordFlashcardViewProps) {
 
   const safeIndex = Math.min(index, words.length - 1);
   const current = words[safeIndex];
+  const audioUrl = getCrawlAudioUrl(current);
+
+  function handleFlip() {
+    setFlipped((f) => {
+      const next = !f;
+      if (next && autoPronounce) pronounce(current.word, audioUrl);
+      return next;
+    });
+  }
 
   return (
     <div className="flex flex-col items-center gap-6 max-w-2xl mx-auto py-8 px-4">
-      <FlashcardProgress index={safeIndex} total={words.length} />
+      <div className="w-full flex items-center gap-4">
+        <div className="flex-1 min-w-0">
+          <FlashcardProgress index={safeIndex} total={words.length} />
+        </div>
+        <button
+          type="button"
+          onClick={toggleAutoPronounce}
+          title={t("Words.autoPronounceOnFlip")}
+          className={cn(
+            "shrink-0 flex items-center gap-1.5 px-2 py-1 rounded-md border text-xs transition-colors",
+            autoPronounce ? "border-primary text-primary bg-primary/10" : "border-border text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <Volume2 className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">{t("Words.autoPronounceOnFlip")}</span>
+        </button>
+      </div>
 
       <FlashcardCard
         word={current.word}
         senses={current.senses}
         flipped={flipped}
-        onFlip={() => setFlipped((f) => !f)}
-        audioUrl={getCrawlAudioUrl(current)}
+        onFlip={handleFlip}
+        audioUrl={audioUrl}
         relatedWords={current.relatedWords}
         allWords={words}
       />

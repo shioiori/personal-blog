@@ -78,7 +78,7 @@ export function FlashcardProgress({ index, total }: { index: number; total: numb
     <div className="w-full flex items-center justify-between text-sm text-muted-foreground">
       <span>{index + 1} / {total}</span>
       <div className="h-2 flex-1 mx-4 bg-muted rounded-full overflow-hidden">
-        <div className="h-full bg-primary transition-all" style={{ width: `${(index / total) * 100}%` }} />
+        <div className="h-full bg-primary transition-all" style={{ width: `${((index + 1) / total) * 100}%` }} />
       </div>
     </div>
   );
