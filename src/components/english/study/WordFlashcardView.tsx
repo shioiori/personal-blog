@@ -85,12 +85,18 @@ export function WordFlashcardView({ words }: WordFlashcardViewProps) {
   const current = words[safeIndex];
   const audioUrl = getCrawlAudioUrl(current);
 
+  useEffect(() => {
+    if (autoPronounce) pronounce(current.word, audioUrl);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [current.id]);
+
+  useEffect(() => {
+    if (flipped && autoPronounce) pronounce(current.word, audioUrl);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [flipped]);
+
   function handleFlip() {
-    setFlipped((f) => {
-      const next = !f;
-      if (next && autoPronounce) pronounce(current.word, audioUrl);
-      return next;
-    });
+    setFlipped((f) => !f);
   }
 
   return (
