@@ -32,7 +32,7 @@ export function FlashcardCard({
   return (
     <div
       className="w-full cursor-pointer select-none"
-      style={{ perspective: "1000px", height: "clamp(20rem, 60dvh, 36rem)" }}
+      style={{ perspective: "1000px", height: "clamp(16rem, 45dvh, 26rem)" }}
       onClick={onFlip}
     >
       <div
@@ -44,7 +44,7 @@ export function FlashcardCard({
           height: "100%",
         }}
       >
-        <div className="absolute inset-0 border rounded-2xl p-8 flex flex-col items-center justify-center gap-4 shadow-sm bg-background" style={{ backfaceVisibility: "hidden" }}>
+        <div className="absolute inset-0 border rounded-2xl p-8 flex flex-col items-center gap-4 shadow-sm bg-background overflow-y-auto" style={{ backfaceVisibility: "hidden" }}>
           <div className="flex items-center gap-2">
             <span className="text-4xl sm:text-5xl font-semibold text-center">{word}</span>
             <PronounceButton word={word} audioUrl={audioUrl} size="md" />
@@ -63,7 +63,7 @@ export function FlashcardCard({
             <span className="text-2xl font-semibold">{word}</span>
             <PronounceButton word={word} audioUrl={audioUrl} size="md" />
           </div>
-          <WordSenseList senses={senses} allWords={allWords} onOpenWord={onOpenWord} />
+          <WordSenseList senses={senses} allWords={allWords} onOpenWord={onOpenWord} divided />
           {allWords && (
             <RelatedWordChips relatedWords={relatedWords ?? ""} allWords={allWords} onOpenWord={onOpenWord} />
           )}

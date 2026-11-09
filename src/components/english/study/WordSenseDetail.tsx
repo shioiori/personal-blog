@@ -116,17 +116,19 @@ export function WordSenseList({
   senses,
   allWords,
   onOpenWord,
+  divided,
 }: {
   senses: EnglishSense[];
   allWords?: EnglishWord[];
   onOpenWord?: (id: number) => void;
+  divided?: boolean;
 }) {
   const t = useTranslations("English");
   if (senses.length === 0) return <p className="text-sm text-muted-foreground italic">{t("Words.noSenses")}</p>;
   return (
     <>
       {senses.map((s, i) => (
-        <div key={i} className="rounded-lg border border-border p-3 space-y-1.5">
+        <div key={i} className={divided ? `space-y-1.5${i > 0 ? " border-t border-border pt-3" : ""}` : "rounded-lg border border-border p-3 space-y-1.5"}>
           <div className="flex items-center gap-2 flex-wrap">
             {s.partOfSpeech && (
               <span className="inline-block px-1.5 py-0.5 rounded bg-muted text-[10px] font-medium uppercase text-muted-foreground">

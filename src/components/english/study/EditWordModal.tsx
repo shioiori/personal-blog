@@ -285,15 +285,26 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
     try {
       // Cheap, non-AI check first — skip the whole AI pipeline (lemmatize +
       // gloss/ai-define) entirely on an exact repeat add.
-      if (!word) {
-        const dup = await checkDuplicateWord(raw);
+      const resolveExisting = async (text: string) => {
+        const dup = await checkDuplicateWord(text, null, "fill");
         if (dup.exists) {
-          const message = t("EditWord.duplicateWord", { word: dup.word ?? raw });
+          const message = t("EditWord.duplicateWord", { word: dup.word ?? text });
           toast.error(message);
           setAutoFillError(message);
-          return;
+          return true;
         }
-      }
+        if (!dup.source) return false;
+        const src = dup.source;
+        const drafts = toSenseDrafts(src.senses);
+        setWordText(src.word);
+        setSenses((prev) => (prev.length === 1 && !hasContent(prev[0]) ? drafts : [...prev, ...drafts]));
+        setRelatedWordsText((prev) => prev || src.relatedWords || "");
+        setAltSpelling((prev) => prev || src.altSpelling || "");
+        setCrawlData((prev) => prev ?? ((src.crawlData as CambridgeCrawlData | undefined) ?? null));
+        return true;
+      };
+
+      if (!word && (await resolveExisting(raw))) return;
 
       const check = await validateAndNormalizeWord(raw);
       if (!check.valid) {
@@ -305,15 +316,7 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
       // Normalization can reveal a duplicate the raw-text check missed (e.g.
       // "went up" -> "go up" already exists) — check again before the
       // heavier gloss/ai-define calls.
-      if (!word && check.normalized.toLowerCase() !== raw.toLowerCase()) {
-        const dup = await checkDuplicateWord(check.normalized);
-        if (dup.exists) {
-          const message = t("EditWord.duplicateWord", { word: dup.word ?? check.normalized });
-          toast.error(message);
-          setAutoFillError(message);
-          return;
-        }
-      }
+      if (!word && check.normalized.toLowerCase() !== raw.toLowerCase() && (await resolveExisting(check.normalized))) return;
 
       if (word) {
         const contentEntries = senses.map((s, i) => ({ s, i })).filter((x) => hasContent(x.s));

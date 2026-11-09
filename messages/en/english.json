@@ -107,7 +107,9 @@
             "orderDue": "Due first",
             "orderRandom": "Random",
             "autoPronounce": "Auto-pronounce when switching cards",
-            "manage": "Manage words in spaced repetition"
+            "manage": "Manage words in spaced repetition",
+            "ungrouped": "Uncategorized",
+            "toggleAll": "Toggle all ({count})"
         },
         "Chart": {
             "today": "Today",

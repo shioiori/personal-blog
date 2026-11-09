@@ -107,7 +107,9 @@
             "orderDue": "Đến hạn trước",
             "orderRandom": "Ngẫu nhiên",
             "autoPronounce": "Tự động phát âm khi chuyển thẻ",
-            "manage": "Quản lý từ trong lặp lại ngắt quãng"
+            "manage": "Quản lý từ trong lặp lại ngắt quãng",
+            "ungrouped": "Chưa phân loại",
+            "toggleAll": "Bật/tắt tất cả ({count})"
         },
         "Chart": {
             "today": "Hôm nay",

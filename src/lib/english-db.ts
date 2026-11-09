@@ -271,14 +271,20 @@ export async function upsertWordCrawlData(userId: number, id: number, crawlData:
 
 // Case-insensitive lookup by exact word or alt spelling, used to warn the
 // user before spending AI tokens re-defining a word they already have.
-export async function findWordByText(userId: number, text: string, candidates?: string[]): Promise<{ id: number; word: string } | null> {
+export async function findWordByText(userId: number, text: string, candidates?: string[], includeOthers = false): Promise<{ id: number; word: string; userId: number } | null> {
   const terms = (candidates && candidates.length > 0 ? candidates : [text]).map((t) => t.toLowerCase());
   const rows = await sql`
-    SELECT id, word FROM english_words
-    WHERE user_id = ${userId} AND (LOWER(word) = ANY(${terms}) OR LOWER(alt_spelling) = ANY(${terms}))
+    SELECT w.id, w.word, w.user_id FROM english_words w
+    WHERE (LOWER(w.word) = ANY(${terms}) OR LOWER(w.alt_spelling) = ANY(${terms}))
+      AND (w.user_id = ${userId} OR (${includeOthers} AND EXISTS (
+        SELECT 1 FROM english_senses s WHERE s.word_id = w.id AND COALESCE(s.meaning_vi, '') <> ''
+      )))
+    ORDER BY (w.user_id = ${userId}) DESC,
+      (SELECT COUNT(*) FROM english_senses s WHERE s.word_id = w.id) DESC,
+      w.id ASC
     LIMIT 1
   `;
-  return rows[0] ? { id: rows[0].id as number, word: rows[0].word as string } : null;
+  return rows[0] ? { id: rows[0].id as number, word: rows[0].word as string, userId: rows[0].user_id as number } : null;
 }
 
 export async function getWord(userId: number, id: number): Promise<EnglishWord | null> {
@@ -429,10 +435,10 @@ export async function removeWordFromGroup(userId: number, groupId: number, wordI
 
 // ── Flashcard / SRS ──────────────────────────────────────────────────────────
 
-export async function setFlashcardActive(userId: number, wordId: number, active: boolean): Promise<void> {
+export async function setFlashcardActive(userId: number, wordIds: number[], active: boolean): Promise<void> {
   await sql`
     INSERT INTO english_flashcard (word_id, active)
-    SELECT id, ${active} FROM english_words WHERE id = ${wordId} AND user_id = ${userId}
+    SELECT id, ${active} FROM english_words WHERE id = ANY(${wordIds}) AND user_id = ${userId}
     ON CONFLICT (word_id) DO UPDATE SET active = ${active}, updated_at = NOW()
   `;
 }

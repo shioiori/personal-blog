@@ -144,7 +144,7 @@ export function FlashcardTab() {
           <DialogHeader>
             <DialogTitle>{t("Review.settingsTitle")}</DialogTitle>
           </DialogHeader>
-          <FlashcardSettingsTab settings={settings} onChange={updateSettings} />
+          <FlashcardSettingsTab settings={settings} onSave={(next) => { updateSettings(next); setSettingsOpen(false); }} />
         </DialogContent>
       </Dialog>
     </div>

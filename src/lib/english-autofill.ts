@@ -1,5 +1,6 @@
 import type { CambridgeCrawlData } from "@/src/components/english/study/crawlData";
 import { localNormalize } from "@/src/lib/english-lemmatize";
+import type { EnglishWord } from "@/src/declaration/english";
 
 // Shared autofill pipeline for word-add, used by both the EditWordModal (web
 // app) and the browser extension's quick-add — ported from the extension's
@@ -65,6 +66,8 @@ export interface DuplicateCheckResult {
   exists: boolean;
   id?: number;
   word?: string;
+  cloned?: boolean;
+  source?: Pick<EnglishWord, "word" | "senses" | "relatedWords" | "altSpelling" | "crawlData">;
 }
 
 // Cheap, non-AI check — call before validateAndNormalizeWord/buildSensesFromDictionary
@@ -72,9 +75,13 @@ export interface DuplicateCheckResult {
 // `sourceUrl` (the page the word was captured from) lets the server also
 // group an already-existing word under that page's hostname when it isn't
 // grouped there yet — a no-op when the hostname is already one of its groups.
-export async function checkDuplicateWord(wordText: string, sourceUrl?: string | null): Promise<DuplicateCheckResult> {
+export async function checkDuplicateWord(
+  wordText: string,
+  sourceUrl?: string | null,
+  otherUser: "clone" | "fill" | "skip" = "skip"
+): Promise<DuplicateCheckResult> {
   try {
-    const params = new URLSearchParams({ word: wordText });
+    const params = new URLSearchParams({ word: wordText, otherUser });
     if (sourceUrl) params.set("sourceUrl", sourceUrl);
     return await apiFetch<DuplicateCheckResult>(`/api/english/words/exists?${params.toString()}`);
   } catch {

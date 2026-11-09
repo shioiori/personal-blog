@@ -7,9 +7,9 @@ export async function POST(req: NextRequest) {
   if (!userId) return unauthorized();
   try {
     await ensureEnglishTables();
-    const { wordId, active } = (await req.json()) as { wordId: number; active: boolean };
-    if (!wordId) return NextResponse.json({ error: "wordId required" }, { status: 400 });
-    await setFlashcardActive(userId, wordId, !!active);
+    const { wordIds, active } = (await req.json()) as { wordIds: number[]; active: boolean };
+    if (!Array.isArray(wordIds) || wordIds.length === 0) return NextResponse.json({ error: "wordIds required" }, { status: 400 });
+    await setFlashcardActive(userId, wordIds, !!active);
     return NextResponse.json({ ok: true });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
