@@ -139,7 +139,7 @@
             "colMeaningVi": "Nghĩa tiếng Việt",
             "colAutoFill": "Tự động điền",
             "confirm": "OK – Xác nhận import",
-            "uploadHint": "Tải lên file <code>.xlsx</code> xuất từ Cambridge Dictionary. Các dòng cùng từ sẽ được gộp thành nhiều nghĩa của một từ.",
+            "uploadHint": "Tải lên file <code>.xlsx</code> với thứ tự cột: <code>Từ | Loại từ | Nghĩa Cambridge | Nghĩa tiếng Việt | Ví dụ | Đồng nghĩa | Trái nghĩa | Ghi chú</code> (chỉ bắt buộc cột Từ). Dòng 1 là tiêu đề, ô A1 phải là \"Từ\" hoặc \"Word\"; file xuất từ Cambridge Dictionary vẫn được hỗ trợ. Loại từ cách nhau bởi dấu phẩy sẽ được tách thành nhiều nghĩa; các dòng cùng từ được gộp lại.",
             "parsing": "Đang đọc file...",
             "dropzone": "Kéo thả file vào đây hoặc <link>chọn file</link>"
         },

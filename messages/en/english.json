@@ -139,7 +139,7 @@
             "colMeaningVi": "Vietnamese meaning",
             "colAutoFill": "Auto-filled",
             "confirm": "OK – Confirm import",
-            "uploadHint": "Upload an <code>.xlsx</code> file exported from Cambridge Dictionary. Rows with the same word are merged into multiple senses of one word.",
+            "uploadHint": "Upload an <code>.xlsx</code> file with columns in this order: <code>Word | Part of speech | Cambridge meaning | Vietnamese meaning | Example | Synonyms | Antonyms | Note</code> (only Word is required). Row 1 is the header and cell A1 must be \"Word\" or \"Từ\"; files exported from Cambridge Dictionary are still supported. Comma-separated parts of speech become separate senses; rows with the same word are merged.",
             "parsing": "Reading file...",
             "dropzone": "Drag and drop a file here or <link>choose a file</link>"
         },

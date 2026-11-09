@@ -18,6 +18,7 @@ interface PreviewSense {
   example: string;
   synonyms: string;
   antonyms: string;
+  note: string;
 }
 
 interface PreviewEntry {
@@ -38,32 +39,28 @@ interface DictionaryCrawlData {
 
 type Stage = "idle" | "parsing" | "preview" | "done";
 
+const HEADER_WORDS = ["từ", "word"];
+
 function parseWorkbook(buf: ArrayBuffer): PreviewEntry[] {
   const wb = XLSX.read(buf, { type: "array" });
   const sheet = wb.Sheets[wb.SheetNames[0]];
   const rows = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1, raw: false });
 
-  // Row 1 blank, row 2 title, data from row 3 (index 2).
-  const dataRows = rows.slice(2);
+  const a1 = String(rows[0]?.[0] ?? "").trim().normalize("NFC").toLowerCase();
   const byWord = new Map<string, PreviewEntry>();
 
-  for (const row of dataRows) {
-    const wordRaw = (row?.[0] as string | undefined)?.toString().trim();
-    const pos = (row?.[1] as string | undefined)?.toString().trim() ?? "";
-    const meaning = (row?.[2] as string | undefined)?.toString().trim() ?? "";
-    if (!wordRaw) continue;
+  for (const row of rows.slice(HEADER_WORDS.includes(a1) ? 1 : 2)) {
+    const [word, pos, cambridgeMeaning, meaningVi, example, synonyms, antonyms, note] = Array.from({ length: 8 }, (_, i) =>
+      String(row?.[i] ?? "").trim()
+    );
+    if (!word) continue;
+    const key = word.toLowerCase();
+    if (!byWord.has(key)) byWord.set(key, { word, senses: [] });
 
-    const key = wordRaw.toLowerCase();
-    if (!byWord.has(key)) byWord.set(key, { word: wordRaw, senses: [] });
-    byWord.get(key)!.senses.push({
-      partOfSpeech: pos,
-      cambridgeMeaning: meaning,
-      meaningVi: "",
-      phonetic: "",
-      example: "",
-      synonyms: "",
-      antonyms: "",
-    });
+    const poses = pos.split(",").map((p) => p.trim()).filter(Boolean);
+    for (const partOfSpeech of poses.length ? poses : [""]) {
+      byWord.get(key)!.senses.push({ partOfSpeech, cambridgeMeaning, meaningVi, phonetic: "", example, synonyms, antonyms, note });
+    }
   }
 
   return [...byWord.values()];
@@ -98,7 +95,7 @@ export function ImportTab() {
       // translation per distinct word is applied to every sense still
       // missing a meaning. Never blocks the flow.
       setTranslating(true);
-      const jobs = parsed.map((entry) => ({ word: entry.word }));
+      const jobs = parsed.filter((e) => e.senses.some((s) => !s.meaningVi)).map((e) => ({ word: e.word }));
 
       const BATCH = 6;
       for (let i = 0; i < jobs.length; i += BATCH) {
@@ -223,6 +220,7 @@ export function ImportTab() {
           example: s.example || undefined,
           synonyms: s.synonyms || undefined,
           antonyms: s.antonyms || undefined,
+          note: s.note || undefined,
         })),
       }));
 
@@ -354,6 +352,7 @@ export function ImportTab() {
                     s.example && `"${s.example}"`,
                     s.synonyms && `${t("Common.synonyms")} ${s.synonyms}`,
                     s.antonyms && `${t("Common.antonyms")} ${s.antonyms}`,
+                    s.note && `${t("EditWord.note")}: ${s.note}`,
                   ].filter(Boolean);
                   return (
                     <tr key={`${wi}-${si}`} className="border-t border-border">
