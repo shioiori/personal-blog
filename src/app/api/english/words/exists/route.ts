@@ -30,13 +30,21 @@ export async function GET(req: NextRequest) {
     if (!other) return NextResponse.json({ exists: false });
     const senses = other.senses.map((s) => ({ ...s, images: [] }));
     if (mode === "fill") {
+      // Web modal path: just hand back the other user's data to prefill the
+      // form. Nothing is written yet — handleSave decides, once the user
+      // saves, whether this ends up a live reference (untouched) or a fork
+      // with their edits (see EditWordModal.handleSave).
       return NextResponse.json({
         exists: false,
+        originWordId: match.id,
         source: { word: other.word, senses, relatedWords: other.relatedWords ?? null, altSpelling: other.altSpelling ?? null, crawlData: other.crawlData ?? null },
       });
     }
-    const cloned = await createWord(userId, other.word, senses, other.crawlData, other.relatedWords, other.altSpelling, sourceUrl);
-    return NextResponse.json({ exists: true, cloned: true, id: cloned.id, word: cloned.word });
+    // Quick-add path (browser extension, no editing step): add it as a pure
+    // reference — no sense rows of its own, so it always shows the origin
+    // owner's current data until this user edits it from the word list.
+    const ref = await createWord(userId, other.word, [], undefined, other.relatedWords, other.altSpelling, sourceUrl, match.id);
+    return NextResponse.json({ exists: true, cloned: true, id: ref.id, word: ref.word });
   } catch (e) {
     console.error("[GET english/words/exists error]", e);
     return NextResponse.json({ exists: false, error: "db error" }, { status: 500 });

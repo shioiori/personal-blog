@@ -185,6 +185,13 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
   const [relatedSelected, setRelatedSelected] = useState<Set<string>>(new Set());
   const [relatedSuggesting, setRelatedSuggesting] = useState(false);
   const [relatedAdding, setRelatedAdding] = useState(false);
+  // Set when this (new) word was prefilled from another user's identical
+  // word (see resolveExisting below). `originBaseline` is a snapshot of what
+  // was prefilled, used at save time to tell whether the user changed
+  // anything: unchanged -> save as a live reference to that word; edited ->
+  // save as an independent copy with the edits (see handleSave).
+  const [originWordId, setOriginWordId] = useState<number | null>(null);
+  const [originBaseline, setOriginBaseline] = useState<{ word: string; senses: string; relatedWords: string; altSpelling: string } | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -211,6 +218,8 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
       setSelectedGroupIds(new Set());
     }
     setNewCategoryDraft("");
+    setOriginWordId(null);
+    setOriginBaseline(null);
   }, [open, word, startInEditMode]);
 
   // The group auto-created for the word's current sourceUrl, if any — a word
@@ -358,11 +367,25 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
         if (!dup.source) return false;
         const src = dup.source;
         const drafts = toSenseDrafts(src.senses);
+        const wasUntouched = senses.length === 1 && !hasContent(senses[0]) && !relatedWordsText && !altSpelling;
         setWordText(src.word);
         setSenses((prev) => (prev.length === 1 && !hasContent(prev[0]) ? drafts : [...prev, ...drafts]));
         setRelatedWordsText((prev) => prev || src.relatedWords || "");
         setAltSpelling((prev) => prev || src.altSpelling || "");
         setCrawlData((prev) => prev ?? ((src.crawlData as CambridgeCrawlData | undefined) ?? null));
+        // Only treat this as a potential reference when nothing but the
+        // autofilled source went into the form — if the user had already
+        // typed senses of their own, this save was always going to be an
+        // independent word regardless of what resolveExisting adds.
+        if (wasUntouched && dup.originWordId) {
+          setOriginWordId(dup.originWordId);
+          setOriginBaseline({
+            word: src.word,
+            senses: JSON.stringify(drafts.map(toSenseInput)),
+            relatedWords: src.relatedWords || "",
+            altSpelling: src.altSpelling || "",
+          });
+        }
         return true;
       };
 
@@ -531,13 +554,27 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
         setSaveError(t("EditWord.uploadError"));
         return;
       }
+      // A new word prefilled from another user's identical word: if nothing
+      // was changed since the prefill, save it as a live reference (no sense
+      // rows of our own — origin's future edits stay visible); otherwise it
+      // forks into an independent copy that keeps our edits plus the
+      // (now purely informational) origin link.
+      const isUntouchedReference =
+        !word &&
+        originWordId !== null &&
+        originBaseline !== null &&
+        wordText.trim() === originBaseline.word &&
+        JSON.stringify(uploadedSenses.map(toSenseInput)) === originBaseline.senses &&
+        (newRelatedTexts.join(", ") || "") === originBaseline.relatedWords &&
+        altSpelling.trim() === originBaseline.altSpelling;
+
       const payload = {
         word: wordText.trim(),
-        senses: uploadedSenses.map(toSenseInput),
+        senses: isUntouchedReference ? [] : uploadedSenses.map(toSenseInput),
         relatedWords: newRelatedTexts.join(", ") || null,
         altSpelling: altSpelling.trim() || null,
         sourceUrl: sourceUrl.trim() || null,
-        ...(word ? {} : { crawlData: crawlData ?? undefined }),
+        ...(word ? {} : { crawlData: crawlData ?? undefined, originWordId }),
       };
 
       let savedId: number;
@@ -562,6 +599,8 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
 
       senses.forEach((s) => s.pendingImages?.forEach((p) => URL.revokeObjectURL(p.previewUrl)));
       setSenses(uploadedSenses.length > 0 ? uploadedSenses.map(({ pendingImages: _, imageLinkDraft: __, ...s }) => s) : [{ ...emptySense }]);
+      setOriginWordId(null);
+      setOriginBaseline(null);
       await syncRelatedWords(savedId, wordText.trim(), oldRelatedTexts, newRelatedTexts, allWords);
 
       const oldGroupIds = new Set(word?.groupIds ?? []);

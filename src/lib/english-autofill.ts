@@ -73,6 +73,8 @@ export interface DuplicateCheckResult {
   id?: number;
   word?: string;
   cloned?: boolean;
+  /** Id of the other user's word this `source` was prefilled from (mode "fill" only) — pass back on save so the new row can reference or fork it. */
+  originWordId?: number;
   source?: Pick<EnglishWord, "word" | "senses" | "relatedWords" | "altSpelling" | "crawlData">;
 }
 

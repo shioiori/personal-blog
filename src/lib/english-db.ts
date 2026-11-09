@@ -25,6 +25,15 @@ export const ensureEnglishTables = once(async function ensureEnglishTables() {
   await sql`
     ALTER TABLE english_words ADD COLUMN IF NOT EXISTS source_url TEXT
   `;
+  // Set when this row was added as a duplicate of another user's word. While
+  // this row has no senses of its own, it's a pure reference — display data
+  // is resolved live from the origin row (see resolveOrigin) so the original
+  // owner's later edits stay visible. The first edit this user makes inserts
+  // real sense rows here (see updateWord), forking it into an independent
+  // copy without ever touching the origin row.
+  await sql`
+    ALTER TABLE english_words ADD COLUMN IF NOT EXISTS origin_word_id INT REFERENCES english_words(id) ON DELETE SET NULL
+  `;
   await sql`
     CREATE TABLE IF NOT EXISTS english_senses (
       id                SERIAL PRIMARY KEY,
@@ -176,11 +185,14 @@ async function insertSenses(wordId: number, senses: SenseInput[]): Promise<void>
   }
 }
 
-export async function createWord(userId: number, word: string, senses: SenseInput[], crawlData?: unknown, relatedWords?: string | null, altSpelling?: string | null, sourceUrl?: string | null): Promise<EnglishWord> {
-  const rows = await sql`INSERT INTO english_words (user_id, word, related_words, alt_spelling, source_url) VALUES (${userId}, ${word}, ${relatedWords ?? null}, ${altSpelling ?? null}, ${sourceUrl ?? null}) RETURNING id, word, created_at`;
+export async function createWord(userId: number, word: string, senses: SenseInput[], crawlData?: unknown, relatedWords?: string | null, altSpelling?: string | null, sourceUrl?: string | null, originWordId?: number | null): Promise<EnglishWord> {
+  const rows = await sql`INSERT INTO english_words (user_id, word, related_words, alt_spelling, source_url, origin_word_id) VALUES (${userId}, ${word}, ${relatedWords ?? null}, ${altSpelling ?? null}, ${sourceUrl ?? null}, ${originWordId ?? null}) RETURNING id, word, created_at`;
   const id = rows[0].id as number;
+  // No senses given for a word that references another user's word: leave it
+  // as a pure reference (no own sense rows) instead of inserting a blank
+  // placeholder — getWord/listWords resolve its display data from the origin.
   if (senses.length > 0) await insertSenses(id, senses);
-  else await insertSenses(id, [{}]);
+  else if (!originWordId) await insertSenses(id, [{}]);
   await sql`
     INSERT INTO english_flashcard (word_id, active) VALUES (${id}, TRUE)
     ON CONFLICT (word_id) DO NOTHING
@@ -291,22 +303,65 @@ export async function findWordByText(userId: number, text: string, candidates?: 
   return rows[0] ? { id: rows[0].id as number, word: rows[0].word as string, userId: rows[0].user_id as number } : null;
 }
 
+// A row with origin_word_id set and no sense rows of its own is a pure
+// reference to another user's word (see ensureEnglishTables' comment on
+// origin_word_id). Resolves its display word/senses/crawlData/relatedWords/
+// altSpelling live from that origin row, so the original owner's later edits
+// stay visible until this user makes their own edit (which forks it via
+// insertSenses in updateWord).
+async function resolveOrigin(originWordId: number): Promise<{
+  word: string;
+  senses: EnglishSense[];
+  crawlData: unknown | null;
+  relatedWords: string | null;
+  altSpelling: string | null;
+} | null> {
+  const originRows = await sql`SELECT word, crawl_data, related_words, alt_spelling FROM english_words WHERE id = ${originWordId}`;
+  if (!originRows[0]) return null;
+  const originSenseRows = await sql`SELECT * FROM english_senses WHERE word_id = ${originWordId} ORDER BY sort_order ASC, id ASC`;
+  return {
+    word: originRows[0].word as string,
+    senses: originSenseRows.map(mapSenseRow),
+    crawlData: (originRows[0].crawl_data as unknown | null) ?? null,
+    relatedWords: (originRows[0].related_words as string | null) ?? null,
+    altSpelling: (originRows[0].alt_spelling as string | null) ?? null,
+  };
+}
+
 export async function getWord(userId: number, id: number): Promise<EnglishWord | null> {
-  const wordRows = await sql`SELECT id, word, created_at, crawl_data, related_words, alt_spelling, source_url FROM english_words WHERE id = ${id} AND user_id = ${userId}`;
+  const wordRows = await sql`SELECT id, word, created_at, crawl_data, related_words, alt_spelling, source_url, origin_word_id FROM english_words WHERE id = ${id} AND user_id = ${userId}`;
   if (!wordRows[0]) return null;
-  const senseRows = await sql`SELECT * FROM english_senses WHERE word_id = ${id} ORDER BY sort_order ASC, id ASC`;
+  let senseRows = await sql`SELECT * FROM english_senses WHERE word_id = ${id} ORDER BY sort_order ASC, id ASC`;
   const groupRows = await sql`SELECT group_id FROM english_word_group_members WHERE word_id = ${id}`;
   const fcRows = await sql`SELECT active FROM english_flashcard WHERE word_id = ${id}`;
+
+  let displayWord = wordRows[0].word as string;
+  let crawlData: unknown | null = (wordRows[0].crawl_data as unknown | null) ?? null;
+  let relatedWords = wordRows[0].related_words as string | null;
+  let altSpelling = wordRows[0].alt_spelling as string | null;
+  let senses: EnglishSense[] = senseRows.map(mapSenseRow);
+  const originWordId = wordRows[0].origin_word_id as number | null;
+  if (senses.length === 0 && originWordId) {
+    const origin = await resolveOrigin(originWordId);
+    if (origin) {
+      displayWord = origin.word;
+      crawlData = origin.crawlData;
+      relatedWords = origin.relatedWords;
+      altSpelling = origin.altSpelling;
+      senses = origin.senses;
+    }
+  }
+
   return {
     id: wordRows[0].id as number,
-    word: wordRows[0].word as string,
+    word: displayWord,
     createdAt: (wordRows[0].created_at as Date).toISOString(),
-    senses: senseRows.map(mapSenseRow),
+    senses,
     groupIds: groupRows.map((r) => r.group_id as number),
     flashcardActive: (fcRows[0]?.active as boolean) ?? true,
-    crawlData: (wordRows[0].crawl_data as unknown | null) ?? undefined,
-    relatedWords: (wordRows[0].related_words as string | null) ?? undefined,
-    altSpelling: (wordRows[0].alt_spelling as string | null) ?? undefined,
+    crawlData: crawlData ?? undefined,
+    relatedWords: relatedWords ?? undefined,
+    altSpelling: altSpelling ?? undefined,
     sourceUrl: (wordRows[0].source_url as string | null) ?? undefined,
   };
 }
@@ -315,7 +370,7 @@ export async function listWords(userId: number, opts: { groupId?: number; search
   let wordRows;
   if (opts.groupId) {
     wordRows = await sql`
-      SELECT w.id, w.word, w.created_at, w.crawl_data, w.related_words, w.alt_spelling, w.source_url FROM english_words w
+      SELECT w.id, w.word, w.created_at, w.crawl_data, w.related_words, w.alt_spelling, w.source_url, w.origin_word_id FROM english_words w
       JOIN english_word_group_members m ON m.word_id = w.id
       WHERE m.group_id = ${opts.groupId} AND w.user_id = ${userId}
       ORDER BY w.word ASC
@@ -323,12 +378,12 @@ export async function listWords(userId: number, opts: { groupId?: number; search
   } else if (opts.search) {
     const pattern = `%${opts.search}%`;
     wordRows = await sql`
-      SELECT id, word, created_at, crawl_data, related_words, alt_spelling, source_url FROM english_words
+      SELECT id, word, created_at, crawl_data, related_words, alt_spelling, source_url, origin_word_id FROM english_words
       WHERE user_id = ${userId} AND (word ILIKE ${pattern} OR alt_spelling ILIKE ${pattern})
       ORDER BY word ASC
     `;
   } else {
-    wordRows = await sql`SELECT id, word, created_at, crawl_data, related_words, alt_spelling, source_url FROM english_words WHERE user_id = ${userId} ORDER BY word ASC`;
+    wordRows = await sql`SELECT id, word, created_at, crawl_data, related_words, alt_spelling, source_url, origin_word_id FROM english_words WHERE user_id = ${userId} ORDER BY word ASC`;
   }
 
   if (wordRows.length === 0) return [];
@@ -353,18 +408,28 @@ export async function listWords(userId: number, opts: { groupId?: number; search
   const activeByWord = new Map<number, boolean>();
   for (const r of fcRows) activeByWord.set(r.word_id as number, r.active as boolean);
 
+  // Reference rows (no own senses, origin_word_id set) resolve their display
+  // data live from the origin row — see resolveOrigin.
+  const originByWord = new Map<number, Awaited<ReturnType<typeof resolveOrigin>>>();
+  const refRows = wordRows.filter((r) => !sensesByWord.has(r.id as number) && r.origin_word_id);
+  for (const r of refRows) {
+    const originWordId = r.origin_word_id as number;
+    originByWord.set(r.id as number, await resolveOrigin(originWordId));
+  }
+
   return wordRows.map((r) => {
     const id = r.id as number;
+    const origin = originByWord.get(id);
     return {
       id,
-      word: r.word as string,
+      word: origin?.word ?? (r.word as string),
       createdAt: (r.created_at as Date).toISOString(),
-      senses: sensesByWord.get(id) ?? [],
+      senses: sensesByWord.get(id) ?? origin?.senses ?? [],
       groupIds: groupsByWord.get(id) ?? [],
       flashcardActive: activeByWord.get(id) ?? true,
-      crawlData: (r.crawl_data as unknown | null) ?? undefined,
-      relatedWords: (r.related_words as string | null) ?? undefined,
-      altSpelling: (r.alt_spelling as string | null) ?? undefined,
+      crawlData: (origin ? origin.crawlData : (r.crawl_data as unknown | null)) ?? undefined,
+      relatedWords: (origin ? origin.relatedWords : (r.related_words as string | null)) ?? undefined,
+      altSpelling: (origin ? origin.altSpelling : (r.alt_spelling as string | null)) ?? undefined,
       sourceUrl: (r.source_url as string | null) ?? undefined,
     };
   });
@@ -454,13 +519,13 @@ export async function setFlashcardActive(userId: number, wordIds: number[], acti
 
 export async function getFlashcardsDueToday(userId: number, opts: { limit?: number; order?: "due" | "random" } = {}): Promise<FlashcardCard[]> {
   const rows = await sql`
-    SELECT w.id, w.word
+    SELECT w.id, w.word, w.origin_word_id
     FROM english_flashcard f
     JOIN english_words w ON w.id = f.word_id
     WHERE w.user_id = ${userId} AND f.active = TRUE AND f.due_date <= CURRENT_DATE
     ORDER BY f.due_date ASC
   `;
-  let cards = rows.map((r) => ({ wordId: r.id as number, word: r.word as string }));
+  let cards = rows.map((r) => ({ wordId: r.id as number, word: r.word as string, originWordId: r.origin_word_id as number | null }));
   if (opts.order === "random") cards = cards.sort(() => Math.random() - 0.5);
   if (opts.limit && opts.limit > 0) cards = cards.slice(0, opts.limit);
   if (cards.length === 0) return [];
@@ -473,7 +538,13 @@ export async function getFlashcardsDueToday(userId: number, opts: { limit?: numb
     if (!sensesByWord.has(wid)) sensesByWord.set(wid, []);
     sensesByWord.get(wid)!.push(mapSenseRow(r));
   }
-  return cards.map((c) => ({ ...c, senses: sensesByWord.get(c.wordId) ?? [] }));
+  return Promise.all(
+    cards.map(async (c) => {
+      if (sensesByWord.has(c.wordId) || !c.originWordId) return { wordId: c.wordId, word: c.word, senses: sensesByWord.get(c.wordId) ?? [] };
+      const origin = await resolveOrigin(c.originWordId);
+      return { wordId: c.wordId, word: origin?.word ?? c.word, senses: origin?.senses ?? [] };
+    })
+  );
 }
 
 export interface DueForecastDay {
