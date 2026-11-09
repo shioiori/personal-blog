@@ -83,7 +83,9 @@
             "add": "Add",
             "addCount": "Add ({count})",
             "empty": "No groups yet. Tap \"Create group\" to get started.",
-            "emptyWords": "No words yet. Tap \"Add word\" to add some."
+            "emptyWords": "No words yet. Tap \"Add word\" to add some.",
+            "manage": "Manage groups",
+            "manageTitle": "Manage word groups"
         },
         "Review": {
             "settings": "Settings",

@@ -83,7 +83,9 @@
             "add": "Thêm",
             "addCount": "Thêm ({count})",
             "empty": "Chưa có nhóm nào. Nhấn \"Tạo nhóm\" để bắt đầu.",
-            "emptyWords": "Chưa có từ nào. Nhấn \"Thêm từ\" để thêm."
+            "emptyWords": "Chưa có từ nào. Nhấn \"Thêm từ\" để thêm.",
+            "manage": "Quản lý nhóm",
+            "manageTitle": "Quản lý nhóm từ"
         },
         "Review": {
             "settings": "Cài đặt",

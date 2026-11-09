@@ -2,9 +2,10 @@
 
 import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { Plus, Search, List, Layers } from "lucide-react";
+import { Plus, Search, List, Layers, X, FolderCog } from "lucide-react";
 import { Button } from "@/src/components/ui/Button";
 import { Input } from "@/src/components/ui/Input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/src/components/ui/Dialog";
 import {
   Select,
   SelectContent,
@@ -15,6 +16,7 @@ import {
 import { WordCard } from "./WordCard";
 import { EditWordModal } from "./EditWordModal";
 import { WordFlashcardView } from "./WordFlashcardView";
+import { GroupTab } from "@/src/components/english/groups/GroupTab";
 import { useEnglishStudy } from "@/src/context/english";
 import type { EnglishWord } from "@/src/declaration/english";
 
@@ -29,6 +31,7 @@ export function WordList() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingWord, setEditingWord] = useState<EnglishWord | null>(null);
   const [startInEditMode, setStartInEditMode] = useState(false);
+  const [groupManagerOpen, setGroupManagerOpen] = useState(false);
 
   const filtered = useMemo(() => {
     return words.filter((w) => {
@@ -62,8 +65,17 @@ export function WordList() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t("Common.searchWord")}
-            className="pl-8"
+            className="pl-8 pr-8"
           />
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch("")}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
         <Select value={groupFilter} onValueChange={setGroupFilter}>
           <SelectTrigger className="w-[180px]">
@@ -76,6 +88,9 @@ export function WordList() {
             ))}
           </SelectContent>
         </Select>
+        <Button size="sm" variant="outline" onClick={() => setGroupManagerOpen(true)}>
+          <FolderCog className="w-3.5 h-3.5 mr-1" /> {t("Groups.manage")}
+        </Button>
         <Button size="sm" onClick={() => { setEditingWord(null); setStartInEditMode(true); setModalOpen(true); }}>
           <Plus className="w-3.5 h-3.5 mr-1" /> {t("Common.addWord")}
         </Button>
@@ -135,6 +150,15 @@ export function WordList() {
           }
         }}
       />
+
+      <Dialog open={groupManagerOpen} onOpenChange={setGroupManagerOpen}>
+        <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-2xl max-h-[85dvh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{t("Groups.manageTitle")}</DialogTitle>
+          </DialogHeader>
+          <GroupTab />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
