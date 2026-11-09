@@ -37,17 +37,23 @@ function normalizeForDedup(text: string): string {
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(path, options);
-  if (!res.ok) {
-    let msg = "HTTP " + res.status;
-    try {
-      const data = await res.json();
-      if (data?.error) msg = data.error;
-    } catch {
-      // ignore
-    }
-    throw new Error(msg);
+  let data: unknown;
+  try {
+    data = await res.json();
+  } catch {
+    data = undefined;
   }
-  return res.json();
+  const parsed = data as { error?: string; needsPremium?: boolean } | undefined;
+  // Returned with HTTP 200 (same shape as any other AI-step failure), but
+  // always worth surfacing verbatim rather than the generic per-call-site
+  // "AI gặp lỗi" message — the user needs to know to upgrade, not retry.
+  if (parsed?.needsPremium) {
+    throw new Error(parsed.error || "Bạn cần nâng cấp lên Premium để tiếp tục dùng tính năng AI hôm nay.");
+  }
+  if (!res.ok) {
+    throw new Error(parsed?.error || "HTTP " + res.status);
+  }
+  return data as T;
 }
 
 // Normalizes the selected text locally (no AI call) — only rejects blank

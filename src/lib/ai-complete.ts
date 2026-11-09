@@ -50,11 +50,26 @@ export interface AiCompleteOptions {
   maxTokens: number;
   temperature: number;
   reasoningEffort?: "low" | "medium" | "high";
+  // Whether the calling user has an active premium subscription — Gemini is
+  // only ever used as a fallback once Groq's free daily quota is exhausted,
+  // and that fallback is a premium-only perk (see PremiumRequiredError).
+  isPremium: boolean;
 }
 
 export interface AiCompleteResult {
   raw: string;
   provider: "groq" | "gemini";
+}
+
+// Thrown instead of silently calling Gemini when Groq's free quota is
+// exhausted (or unconfigured) and the calling user isn't premium — callers
+// should catch this and tell the user to upgrade rather than treating it
+// like a generic AI failure.
+export class PremiumRequiredError extends Error {
+  constructor() {
+    super("Groq đã hết lượt miễn phí hôm nay — cần tài khoản Premium để tiếp tục dùng AI (Gemini).");
+    this.name = "PremiumRequiredError";
+  }
 }
 
 function isQuotaOrRateLimitError(e: unknown): boolean {
@@ -100,10 +115,12 @@ async function completeWithGemini(opts: AiCompleteOptions): Promise<string> {
 export async function aiComplete(opts: AiCompleteOptions): Promise<AiCompleteResult> {
   if (!process.env.GROQ_API_KEY) {
     if (!process.env.GEMINI_API_KEY) throw new Error("GROQ_API_KEY not configured");
+    if (!opts.isPremium) throw new PremiumRequiredError();
     return { raw: await completeWithGemini(opts), provider: "gemini" };
   }
 
   if (process.env.GEMINI_API_KEY && (await isGroqExhaustedToday())) {
+    if (!opts.isPremium) throw new PremiumRequiredError();
     return { raw: await completeWithGemini(opts), provider: "gemini" };
   }
 
@@ -113,6 +130,7 @@ export async function aiComplete(opts: AiCompleteOptions): Promise<AiCompleteRes
     if (!process.env.GEMINI_API_KEY || !isQuotaOrRateLimitError(e)) throw e;
     console.warn("[ai-complete] Groq quota/rate-limit hit, caching for today and falling back to Gemini:", e);
     await markGroqExhausted();
+    if (!opts.isPremium) throw new PremiumRequiredError();
     return { raw: await completeWithGemini(opts), provider: "gemini" };
   }
 }

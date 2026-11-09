@@ -26,6 +26,7 @@ await sql`
     created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )
 `;
+await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS premium_expire TIMESTAMPTZ`;
 await sql`
   CREATE TABLE IF NOT EXISTS sessions (
     token_hash TEXT PRIMARY KEY,
@@ -37,8 +38,9 @@ await sql`
 const salt = randomBytes(16).toString("hex");
 const passwordHash = `${salt}:${scryptSync(PASSWORD, salt, 64).toString("hex")}`;
 await sql`INSERT INTO users (email, password_hash) VALUES (${EMAIL}, ${passwordHash}) ON CONFLICT (email) DO NOTHING`;
+await sql`UPDATE users SET premium_expire = '9999-12-31T23:59:59Z' WHERE email = ${EMAIL}`;
 const userId = (await sql`SELECT id FROM users WHERE email = ${EMAIL}`)[0].id;
-console.log(`User ${EMAIL} -> id ${userId}`);
+console.log(`User ${EMAIL} -> id ${userId} (premium_expire set to max date)`);
 
 const TABLES = {
   english_words: [],

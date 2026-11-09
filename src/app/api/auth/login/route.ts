@@ -14,10 +14,15 @@ export async function POST(req: NextRequest) {
   }
   const token = await createSession(user.id);
   const cookieStore = await cookies();
+  const secure = process.env.NODE_ENV === "production";
   cookieStore.set(SESSION_COOKIE, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure,
+    // "none" (prod, over https) so the Vocal Bubble browser extension can
+    // send this cookie on its own cross-site fetch requests — "lax" is
+    // excluded from those. Falls back to "lax" in dev, since "none"
+    // requires Secure, which plain http can't satisfy.
+    sameSite: secure ? "none" : "lax",
     path: "/",
     maxAge: SESSION_MAX_AGE
   });

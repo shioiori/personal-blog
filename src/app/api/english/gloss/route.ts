@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserId, unauthorized } from "@/src/lib/auth";
-import { aiComplete } from "@/src/lib/ai-complete";
+import { getCurrentUser, isPremium, unauthorized } from "@/src/lib/auth";
+import { aiComplete, PremiumRequiredError } from "@/src/lib/ai-complete";
 
 // Vietnamese gloss generation for word-add autofill. No longer judges
 // "common" vs "rare" (that reasoning step, plus a cap on how many senses to
@@ -159,8 +159,17 @@ Ngoài ra, với MỖI nghĩa được chọn ở trên: nếu dòng đó có "[
 Trả về CHỈ một JSON object dạng {"senses": [{"index": <số index gốc ở trên, ĐẠI DIỆN cho nhóm nếu đã gộp nhiều định nghĩa>, "meaningVi": "...", "example": "..."}, ...]}. Không thêm giải thích gì khác.`;
 }
 
+const PREMIUM_REQUIRED_MESSAGE =
+  "Đã dùng hết lượt AI miễn phí hôm nay (Groq). Nâng cấp lên Premium để tiếp tục dùng AI (Gemini) không giới hạn.";
+
+function premiumRequiredResponse() {
+  return NextResponse.json({ senses: [], entries: [], valid: false, needsPremium: true, error: PREMIUM_REQUIRED_MESSAGE });
+}
+
 export async function POST(req: NextRequest) {
-  if (!(await getUserId())) return unauthorized();
+  const user = await getCurrentUser();
+  if (!user) return unauthorized();
+  const premium = isPremium(user);
 
   let body: {
     word?: string;
@@ -183,13 +192,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ senses: [], error: "GROQ_API_KEY not configured" });
   }
 
-  if (body.fullyAiAdd) return handleFullyAiAdd(word);
-  if (body.expandRelated) return handleExpandRelated(word, body.expandRelated.partOfSpeech ?? "");
+  if (body.fullyAiAdd) return handleFullyAiAdd(word, premium);
+  if (body.expandRelated) return handleExpandRelated(word, body.expandRelated.partOfSpeech ?? "", premium);
 
   const backfillItems = (body.backfillItems ?? []).filter(
     (it) => it?.cambridgeMeaning?.trim() && Number.isInteger(it.index) && (it.needsMeaningVi || it.needsExample)
   );
-  if (backfillItems.length > 0) return handleBackfill(word, backfillItems);
+  if (backfillItems.length > 0) return handleBackfill(word, backfillItems, premium);
 
   const items = (body.items ?? []).filter((it) => it?.definition?.trim());
   const existingSenses = (body.existingSenses ?? []).filter((s) => s?.cambridgeMeaning?.trim() || s?.meaningVi?.trim());
@@ -218,6 +227,7 @@ export async function POST(req: NextRequest) {
       systemPrompt:
         "Bạn là một biên tập viên từ điển Anh-Việt, chuyên chọn lọc nghĩa thường dùng, phát hiện nghĩa trùng ý dù diễn đạt khác nhau, và viết nghĩa tiếng Việt ngắn gọn, tự nhiên. Luôn trả lời bằng JSON hợp lệ.",
       userPrompt: buildPrompt(word, items, existingSenses),
+      isPremium: premium,
     });
     const parsed = JSON.parse(raw) as { senses?: unknown };
     const rawSenses = Array.isArray(parsed.senses) ? parsed.senses : [];
@@ -239,6 +249,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ senses });
   } catch (e) {
+    if (e instanceof PremiumRequiredError) return premiumRequiredResponse();
     console.error("[POST english/gloss error]", e);
     return NextResponse.json({ senses: [], error: "gloss generation failed" });
   }
@@ -324,7 +335,7 @@ const EXPAND_MAX_TOKENS = 8192 * 2;
 const EXPAND_SYSTEM_PROMPT =
   "Bạn là biên tập viên từ điển Anh-Việt chuyên sâu, giỏi nhận diện word family, ý cảnh (nghĩa gốc chung đằng sau các cách dùng khác nhau), và viết nghĩa tiếng Việt ngắn gọn tự nhiên, phiên âm chuẩn. Luôn trả lời bằng JSON hợp lệ, không bịa từ không tồn tại.";
 
-async function handleExpandRelated(word: string, partOfSpeech: string) {
+async function handleExpandRelated(word: string, partOfSpeech: string, premium: boolean) {
   try {
     const { raw } = await aiComplete({
       groqModel: MODEL,
@@ -333,10 +344,12 @@ async function handleExpandRelated(word: string, partOfSpeech: string) {
       reasoningEffort: "high",
       systemPrompt: EXPAND_SYSTEM_PROMPT,
       userPrompt: buildRelatedExpandPrompt(word, partOfSpeech),
+      isPremium: premium,
     });
     const parsed = JSON.parse(raw) as { related?: unknown; entries?: unknown };
     return NextResponse.json({ entries: parseExpandEntries(parsed, word) });
   } catch (e) {
+    if (e instanceof PremiumRequiredError) return premiumRequiredResponse();
     console.error("[POST english/gloss expandRelated error]", e);
     return NextResponse.json({ entries: [], error: "related-word expansion failed" });
   }
@@ -377,7 +390,7 @@ Trả về CHỈ JSON theo một trong hai dạng:
 "entries" phải bao gồm CẢ lemma và mọi từ liên đới. Không giải thích gì thêm ngoài JSON.`;
 }
 
-async function handleFullyAiAdd(rawWord: string) {
+async function handleFullyAiAdd(rawWord: string, premium: boolean) {
   try {
     const { raw } = await aiComplete({
       groqModel: MODEL,
@@ -386,6 +399,7 @@ async function handleFullyAiAdd(rawWord: string) {
       reasoningEffort: "high",
       systemPrompt: EXPAND_SYSTEM_PROMPT,
       userPrompt: buildFullyAiAddPrompt(rawWord),
+      isPremium: premium,
     });
     const parsed = JSON.parse(raw) as { valid?: unknown; reason?: unknown; lemma?: unknown; entries?: unknown };
     if (parsed.valid !== true) {
@@ -395,12 +409,13 @@ async function handleFullyAiAdd(rawWord: string) {
     if (!lemma) return NextResponse.json({ valid: false, reason: "AI không xác định được dạng gốc của từ." });
     return NextResponse.json({ valid: true, lemma, entries: parseExpandEntries(parsed, lemma) });
   } catch (e) {
+    if (e instanceof PremiumRequiredError) return premiumRequiredResponse();
     console.error("[POST english/gloss fullyAiAdd error]", e);
     return NextResponse.json({ valid: false, reason: "AI gặp lỗi, thử lại sau hoặc thêm thủ công." });
   }
 }
 
-async function handleBackfill(word: string, items: BackfillRequestItem[]) {
+async function handleBackfill(word: string, items: BackfillRequestItem[], premium: boolean) {
   try {
     const { raw } = await aiComplete({
       groqModel: MODEL,
@@ -414,6 +429,7 @@ async function handleBackfill(word: string, items: BackfillRequestItem[]) {
       systemPrompt:
         "Bạn là một biên tập viên từ điển Anh-Việt, chuyên viết nghĩa tiếng Việt ngắn gọn, tự nhiên và ví dụ minh hoạ. Luôn trả lời bằng JSON hợp lệ.",
       userPrompt: buildBackfillPrompt(word, items),
+      isPremium: premium,
     });
     const parsed = JSON.parse(raw) as { backfill?: unknown };
     const rawBackfill = Array.isArray(parsed.backfill) ? parsed.backfill : [];
@@ -434,6 +450,7 @@ async function handleBackfill(word: string, items: BackfillRequestItem[]) {
 
     return NextResponse.json({ backfill });
   } catch (e) {
+    if (e instanceof PremiumRequiredError) return NextResponse.json({ backfill: [], needsPremium: true, error: PREMIUM_REQUIRED_MESSAGE });
     console.error("[POST english/gloss backfill error]", e);
     return NextResponse.json({ backfill: [], error: "backfill generation failed" });
   }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserId, unauthorized } from "@/src/lib/auth";
-import { aiComplete } from "@/src/lib/ai-complete";
+import { getCurrentUser, isPremium, unauthorized } from "@/src/lib/auth";
+import { aiComplete, PremiumRequiredError } from "@/src/lib/ai-complete";
 
 // Last-resort fallback for word-add: used only when BOTH dictionaryapi.dev
 // and the Wiktionary fallback (see /api/english/crawl) returned nothing —
@@ -48,8 +48,13 @@ BƯỚC 2 — nếu chắc chắn tồn tại, liệt kê TẤT CẢ các nghĩa
 
 Trả về CHỈ một JSON object đúng định dạng: {"senses": [{"partOfSpeech": "...", "cambridgeMeaning": "...", "meaningVi": "...", "example": "...", "synonyms": "...", "antonyms": "..."}, ...]}. Không thêm bất kỳ chữ giải thích nào ngoài JSON.`;
 
+const PREMIUM_REQUIRED_MESSAGE =
+  "Đã dùng hết lượt AI miễn phí hôm nay (Groq). Nâng cấp lên Premium để tiếp tục dùng AI (Gemini) không giới hạn.";
+
 export async function POST(req: NextRequest) {
-  if (!(await getUserId())) return unauthorized();
+  const user = await getCurrentUser();
+  if (!user) return unauthorized();
+  const premium = isPremium(user);
 
   let body: { word?: string };
   try {
@@ -74,6 +79,7 @@ export async function POST(req: NextRequest) {
       systemPrompt:
         "Bạn là một biên tập viên từ điển Anh-Việt thận trọng: chỉ đưa ra định nghĩa khi chắc chắn từ/cụm từ đó thực sự tồn tại, không bao giờ bịa đặt. Luôn trả lời bằng JSON hợp lệ.",
       userPrompt: PROMPT(word),
+      isPremium: premium,
     });
     const parsed = JSON.parse(raw) as { senses?: unknown };
     const rawSenses = Array.isArray(parsed.senses) ? parsed.senses : [];
@@ -99,6 +105,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ senses });
   } catch (e) {
+    if (e instanceof PremiumRequiredError) {
+      return NextResponse.json({ senses: [], needsPremium: true, error: PREMIUM_REQUIRED_MESSAGE });
+    }
     console.error("[POST english/ai-define error]", e);
     return NextResponse.json({ senses: [], error: "ai-define failed" });
   }
