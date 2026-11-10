@@ -26,13 +26,15 @@ BƯỚC 2 — XÁC ĐỊNH BÀI GỐC:
 - Nếu nội dung đã có sẵn bài điền từ (có các chỗ trống như ___, ......, (1), [1]...), dùng bài đó làm bài gốc.
 - Nếu không có, dùng Google Search tìm bài điền từ gốc đi kèm transcript này (ví dụ đề Cambridge IELTS Listening). Chỉ dùng làm bài gốc khi chắc chắn đúng là bài của transcript này; nếu không tìm thấy thì coi như không có bài gốc.
 
-BƯỚC 3 — TẠO BÀI MỚI dạng IELTS note/summary completion dựa trên transcript:
+BƯỚC 3 — TẠO BÀI MỚI dựa trên transcript, trình bày giống đề IELTS Listening Part 4 (note completion cho một bài giảng học thuật):
+- Dòng đầu là tiêu đề bài giảng, sau đó chia thành các mục có tiêu đề ngắn, theo đúng trình tự nội dung bài nói.
+- Mỗi ý là một gạch đầu dòng "• " ngắn gọn kiểu ghi chú (không viết thành đoạn văn), mỗi gạch đầu dòng có TỐI ĐA MỘT chỗ trống.
 - Nếu có bài gốc: tạo một bản KHÁC bài gốc — ưu tiên diễn đạt lại bằng câu chữ khác và chọn chỗ trống khác bài gốc, nội dung vẫn bám đúng transcript.
 - Nếu không có bài gốc: tự tạo từ transcript.
 - Có từ ${MIN_BLANKS} đến ${MAX_BLANKS} chỗ trống, đánh dấu bằng {{1}}, {{2}}, ... theo đúng thứ tự xuất hiện, mỗi số dùng đúng một lần.
 - Mỗi đáp án phải tuân thủ đúng giới hạn "${WORD_LIMITS[wordLimit].instruction}" và phải là từ/cụm từ được nói NGUYÊN VĂN trong transcript, đúng từng chữ — chỉ phần câu chữ xung quanh chỗ trống được diễn đạt lại, TUYỆT ĐỐI KHÔNG thay đáp án bằng từ đồng nghĩa hay cách nói khác. Ví dụ: transcript nói "...directing them towards a designated open plane." thì đáp án phải là "open plane", KHÔNG được là "open area".
 - Mỗi đáp án kèm "alternatives": CHỈ gồm các khác biệt về cách viết (vd "15" và "fifteen", chính tả Anh-Anh/Anh-Mỹ), KHÔNG được là từ đồng nghĩa; để [] nếu không có.
-- "content": phần notes hoàn chỉnh bằng tiếng Anh, có tiêu đề mục/gạch đầu dòng nếu cần, xuống dòng bằng "\\n", TUYỆT ĐỐI KHÔNG chứa đáp án.
+- "content": phần notes hoàn chỉnh bằng tiếng Anh, xuống dòng bằng "\\n", TUYỆT ĐỐI KHÔNG chứa đáp án.
 - "title": tiêu đề ngắn gọn bằng tiếng Anh cho bài.
 
 Trả về CHỈ một JSON object: {"status": "ok", "title": "...", "content": "...", "answers": [{"answer": "...", "alternatives": ["..."]}]} trong đó answers[i] là đáp án của {{i+1}}.`;

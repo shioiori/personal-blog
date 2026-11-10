@@ -1,13 +1,14 @@
 export const WORD_LIMITS = {
-  one_number: { instruction: "One word and/or a number", maxWords: 1, numberExtra: true },
+  one: { instruction: "One word only", maxWords: 1, numberExtra: false },
   two: { instruction: "No more than two words", maxWords: 2, numberExtra: false },
   two_number: { instruction: "No more than two words and/or a number", maxWords: 2, numberExtra: true },
   three: { instruction: "No more than three words", maxWords: 3, numberExtra: false },
+  one_number: { instruction: "One word and/or a number", maxWords: 1, numberExtra: true },
 } as const;
 
 export type WordLimit = keyof typeof WORD_LIMITS;
 
-export const WORD_LIMIT_KEYS = Object.keys(WORD_LIMITS) as WordLimit[];
+export const WORD_LIMIT_KEYS: WordLimit[] = ["one", "two", "two_number", "three"];
 
 export const DEFAULT_WORD_LIMIT: WordLimit = "two_number";
 
