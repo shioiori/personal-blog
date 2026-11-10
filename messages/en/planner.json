@@ -1,0 +1,12 @@
+{
+    "Planner": {
+        "title": "Planner",
+        "loginRequired": "Please log in to use the planner",
+        "noTasks": "No tasks for this day",
+        "taskPlaceholder": "What do you need to do?",
+        "add": "Add",
+        "save": "Save",
+        "cancel": "Cancel",
+        "saveError": "Please log in to save tasks"
+    }
+}

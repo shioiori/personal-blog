@@ -1,0 +1,12 @@
+{
+    "Planner": {
+        "title": "Kế hoạch",
+        "loginRequired": "Vui lòng đăng nhập để sử dụng tính năng này",
+        "noTasks": "Chưa có đầu việc nào trong ngày này",
+        "taskPlaceholder": "Bạn cần làm gì?",
+        "add": "Thêm",
+        "save": "Lưu",
+        "cancel": "Hủy",
+        "saveError": "Vui lòng đăng nhập để lưu đầu việc"
+    }
+}
