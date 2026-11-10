@@ -1,3 +1,5 @@
+import type { WordLimit } from "@/src/lib/gapfill-word-limit";
+
 export interface EnglishSense {
   id?: number;
   phonetic?: string;
@@ -80,3 +82,35 @@ export type GachaPullResult =
   | { type: "evolve"; species: PokemonSpecies; chainKey: string }
   | { type: "choose_evolution"; options: PokemonSpecies[]; chainKey: string }
   | { type: "maxed"; species: PokemonSpecies; chainKey: string };
+
+export interface GapFillAnswer {
+  answer: string;
+  alternatives: string[];
+}
+
+export interface GapFillAttempt {
+  id: number;
+  responses: string[];
+  results: boolean[];
+  score: number;
+  total: number;
+}
+
+export interface GapFillExerciseSummary {
+  id: number;
+  title: string;
+  createdAt: string;
+  blankCount: number;
+  attemptCount: number;
+  bestScore: number | null;
+}
+
+export interface GapFillExercise {
+  id: number;
+  title: string;
+  content: string;
+  wordLimit: WordLimit;
+  blankCount: number;
+  answers: GapFillAnswer[] | null;
+  attempts: GapFillAttempt[];
+}

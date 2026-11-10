@@ -95,16 +95,18 @@ async function completeWithGroq(opts: AiCompleteOptions): Promise<string> {
   return completion.choices[0]?.message?.content ?? "{}";
 }
 
-async function completeWithGemini(opts: AiCompleteOptions): Promise<string> {
+type GeminiPromptOptions = Pick<AiCompleteOptions, "systemPrompt" | "userPrompt" | "maxTokens" | "temperature">;
+
+async function completeWithGemini(opts: GeminiPromptOptions, googleSearch = false, model = GEMINI_MODEL): Promise<string> {
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   const response = await ai.models.generateContent({
-    model: GEMINI_MODEL,
+    model,
     contents: [{ role: "user", parts: [{ text: opts.userPrompt }] }],
     config: {
       systemInstruction: opts.systemPrompt,
       temperature: opts.temperature,
       maxOutputTokens: opts.maxTokens,
-      responseMimeType: "application/json",
+      ...(googleSearch ? { tools: [{ googleSearch: {} }] } : { responseMimeType: "application/json" }),
     },
   });
   return response.text ?? "{}";
@@ -120,6 +122,18 @@ function repairJson(raw: string): string {
   } catch {
     return raw.replace(/,\s*([}\]])/g, "$1");
   }
+}
+
+function extractJsonObject(raw: string): string {
+  const start = raw.indexOf("{");
+  const end = raw.lastIndexOf("}");
+  return start >= 0 && end > start ? raw.slice(start, end + 1) : raw;
+}
+
+export async function geminiComplete(opts: GeminiPromptOptions & { googleSearch?: boolean; model?: string }): Promise<string> {
+  if (!process.env.GEMINI_API_KEY) throw new Error("GEMINI_API_KEY not configured");
+  const raw = await completeWithGemini({ ...opts, systemPrompt: opts.systemPrompt + STRICT_JSON_RULE }, opts.googleSearch, opts.model);
+  return repairJson(extractJsonObject(raw));
 }
 
 // Throws if neither provider is configured/succeeds — callers already wrap

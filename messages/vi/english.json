@@ -6,7 +6,8 @@
             "review": "Ôn tập",
             "import": "Import",
             "gacha": "Gacha",
-            "refresh": "Làm mới dữ liệu"
+            "refresh": "Làm mới dữ liệu",
+            "gapfill": "Điền từ"
         },
         "Common": {
             "cancel": "Huỷ",
@@ -175,6 +176,37 @@
             "exchangeBalance": "Vé đổi hiện có: <b>{count}</b>. Mỗi lần đổi tốn {cost} vé.",
             "exchangeAgain": "Đổi tiếp",
             "noExchangeTargets": "Chưa có Pokémon nào có thể tích thêm mảnh."
+        },
+        "GapFill": {
+            "inputLabel": "Transcript (có thể dán kèm bài điền từ gốc)",
+            "inputPlaceholder": "Dán transcript bài nghe tiếng Anh vào đây...",
+            "generate": "Tạo bài",
+            "generating": "Đang tạo bài...",
+            "generated": "Đã tạo bài mới",
+            "needsPremium": "Tạo bài điền từ dùng AI Gemini, chỉ dành cho tài khoản Premium.",
+            "invalidInput": "Nội dung không phải transcript tiếng Anh hợp lệ nên không tạo bài.",
+            "tooLong": "Nội dung quá dài.",
+            "generateFailed": "Tạo bài thất bại, vui lòng thử lại.",
+            "wordLimit": "Giới hạn từ",
+            "myExercises": "Bài đã tạo",
+            "empty": "Chưa có bài nào.",
+            "blanks": "{count} chỗ trống",
+            "attempts": "{count} lần làm",
+            "bestScore": "Cao nhất: {score}/{total}",
+            "notAttempted": "Chưa làm",
+            "delete": "Xoá",
+            "confirmDelete": "Xoá bài này và toàn bộ lịch sử làm bài?",
+            "back": "← Quay lại",
+            "submit": "Nộp bài",
+            "submitting": "Đang chấm...",
+            "submitFailed": "Nộp bài thất bại, vui lòng thử lại.",
+            "score": "Kết quả: {score}/{total}",
+            "showAnswers": "Hiện đáp án",
+            "hideAnswers": "Ẩn đáp án",
+            "retry": "Làm lại",
+            "history": "Lịch sử làm bài",
+            "attemptLabel": "Lần {n} – {score}/{total}",
+            "noAttempts": "Chưa có lần làm nào."
         }
     }
 }

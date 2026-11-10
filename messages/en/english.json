@@ -6,7 +6,8 @@
             "review": "Review",
             "import": "Import",
             "gacha": "Gacha",
-            "refresh": "Refresh data"
+            "refresh": "Refresh data",
+            "gapfill": "Gap-fill"
         },
         "Common": {
             "cancel": "Cancel",
@@ -175,6 +176,37 @@
             "exchangeBalance": "Exchange tickets: <b>{count}</b>. Each exchange costs {cost} tickets.",
             "exchangeAgain": "Exchange again",
             "noExchangeTargets": "No Pokémon can receive more shards yet."
+        },
+        "GapFill": {
+            "inputLabel": "Transcript (you can paste the original gap-fill exercise with it)",
+            "inputPlaceholder": "Paste an English listening transcript here...",
+            "generate": "Create exercise",
+            "generating": "Creating exercise...",
+            "generated": "New exercise created",
+            "needsPremium": "Creating gap-fill exercises uses Gemini AI and is for Premium accounts only.",
+            "invalidInput": "This isn't a valid English transcript, so no exercise was created.",
+            "tooLong": "The text is too long.",
+            "generateFailed": "Couldn't create the exercise. Please try again.",
+            "wordLimit": "Word limit",
+            "myExercises": "My exercises",
+            "empty": "No exercises yet.",
+            "blanks": "{count} blanks",
+            "attempts": "{count} attempts",
+            "bestScore": "Best: {score}/{total}",
+            "notAttempted": "Not attempted",
+            "delete": "Delete",
+            "confirmDelete": "Delete this exercise and all its attempts?",
+            "back": "← Back",
+            "submit": "Submit",
+            "submitting": "Grading...",
+            "submitFailed": "Couldn't submit. Please try again.",
+            "score": "Score: {score}/{total}",
+            "showAnswers": "Show answers",
+            "hideAnswers": "Hide answers",
+            "retry": "Try again",
+            "history": "Attempt history",
+            "attemptLabel": "Attempt {n} – {score}/{total}",
+            "noAttempts": "No attempts yet."
         }
     }
 }

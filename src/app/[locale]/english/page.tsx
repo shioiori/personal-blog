@@ -11,7 +11,8 @@ import {
   TabsList,
   TabsTrigger
 } from '@/src/components/ui/Tabs'
-import { BookOpen, RotateCcw, Upload, Sparkles } from 'lucide-react'
+import { GapFillTab } from '@/src/components/english/gapfill/GapFillTab'
+import { BookOpen, RotateCcw, Upload, Sparkles, PenLine } from 'lucide-react'
 import { EnglishProvider } from '@/src/context/english'
 import { useTranslations } from 'next-intl'
 
@@ -39,6 +40,10 @@ export default function Page() {
               <Sparkles className="h-4 w-4" />
               {t('gacha')}
             </TabsTrigger>
+            <TabsTrigger value="gapfill" className="flex items-center gap-2 whitespace-nowrap">
+              <PenLine className="h-4 w-4" />
+              {t('gapfill')}
+            </TabsTrigger>
           </TabsList>
           </div>
           <RefreshDataButton />
@@ -58,6 +63,10 @@ export default function Page() {
 
         <TabsContent value="gacha">
           <GachaTab />
+        </TabsContent>
+
+        <TabsContent value="gapfill">
+          <GapFillTab />
         </TabsContent>
       </Tabs>
     </EnglishProvider>
