@@ -94,7 +94,7 @@ export function GapFillExerciseView({ id, onBack }: Props) {
         </p>
       </div>
 
-      <div className="whitespace-pre-wrap rounded-lg border p-4 leading-[3]">
+      <div className="whitespace-pre-wrap rounded-lg border p-4 leading-10">
         {parts.map((part, i) => {
           if (i % 2 === 0) return <Fragment key={i}>{part}</Fragment>;
           const index = Number(part) - 1;
@@ -108,7 +108,7 @@ export function GapFillExerciseView({ id, onBack }: Props) {
                 onChange={(e) => setResponses((r) => r.map((v, j) => (j === index ? e.target.value : v)))}
                 onFocus={() => { if (submitted) exitResult(); }}
                 className={cn(
-                  "h-8 rounded-md border bg-background px-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  "h-7 rounded-md border bg-background px-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring",
                   exercise.wordLimit === "three" ? "w-44" : "w-36",
                   result === true && "border-green-500 bg-green-50 text-green-800 dark:bg-green-950/40 dark:text-green-300",
                   result === false && "border-red-500 bg-red-50 text-red-800 dark:bg-red-950/40 dark:text-red-300"

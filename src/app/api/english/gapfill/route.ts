@@ -56,6 +56,7 @@ BƯỚC 3 — TẠO BÀI MỚI dựa trên transcript, trình bày giống đề
 - Nếu không có bài gốc: tự tạo từ transcript.
 - Có từ ${MIN_BLANKS} đến ${MAX_BLANKS} chỗ trống, đánh dấu bằng {{1}}, {{2}}, ... theo đúng thứ tự xuất hiện, mỗi số dùng đúng một lần.
 - Mỗi đáp án phải tuân thủ đúng giới hạn "${WORD_LIMITS[wordLimit].instruction}" và phải là từ/cụm từ được nói NGUYÊN VĂN trong transcript, đúng từng chữ — chỉ phần câu chữ xung quanh chỗ trống được diễn đạt lại, TUYỆT ĐỐI KHÔNG thay đáp án bằng từ đồng nghĩa hay cách nói khác. Ví dụ: transcript nói "...directing them towards a designated open plane." thì đáp án phải là "open plane", KHÔNG được là "open area".
+- Đáp án KHÔNG được là tên riêng (tên người, địa danh, tổ chức, công ty, thương hiệu, tác phẩm...), NGOẠI TRỪ tên quốc gia và tên ngôn ngữ (vd "Japan", "Spanish" thì được).
 - Mỗi đáp án kèm "alternatives": CHỈ gồm các khác biệt về cách viết (vd "15" và "fifteen", chính tả Anh-Anh/Anh-Mỹ), KHÔNG được là từ đồng nghĩa; để [] nếu không có.
 - "content": phần notes hoàn chỉnh bằng tiếng Anh, xuống dòng bằng "\\n", TUYỆT ĐỐI KHÔNG chứa đáp án.
 - "title": tiêu đề ngắn gọn bằng tiếng Anh cho bài.
