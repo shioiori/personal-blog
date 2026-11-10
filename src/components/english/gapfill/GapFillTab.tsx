@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Loader2, Trash2, Wand2 } from "lucide-react";
 import { Button } from "@/src/components/ui/Button";
 import { Textarea } from "@/src/components/ui/Textarea";
+import { Input } from "@/src/components/ui/Input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/Select";
 import { DEFAULT_WORD_LIMIT, WORD_LIMITS, WORD_LIMIT_KEYS, type WordLimit } from "@/src/lib/gapfill-word-limit";
 import { GapFillExerciseView } from "@/src/components/english/gapfill/GapFillExercise";
@@ -15,6 +16,7 @@ export function GapFillTab() {
   const t = useTranslations("English.GapFill");
   const [exercises, setExercises] = useState<GapFillExerciseSummary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [source, setSource] = useState("");
   const [input, setInput] = useState("");
   const [wordLimit, setWordLimit] = useState<WordLimit>(DEFAULT_WORD_LIMIT);
   const [generating, setGenerating] = useState(false);
@@ -38,7 +40,7 @@ export function GapFillTab() {
       const res = await fetch("/api/english/gapfill", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input, wordLimit }),
+        body: JSON.stringify({ input, wordLimit, source }),
       });
       const data = (await res.json()) as { id?: number; needsPremium?: boolean; invalid?: boolean; tooLong?: boolean };
       if (!res.ok || !data.id) {
@@ -47,6 +49,7 @@ export function GapFillTab() {
       }
       toast.success(t("generated"));
       setInput("");
+      setSource("");
       await load();
       setSelectedId(data.id);
     } catch {
@@ -69,7 +72,15 @@ export function GapFillTab() {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <label className="text-sm font-medium">{t("inputLabel")}</label>
+        <label className="text-sm font-medium">{t("source")}</label>
+        <Input
+          value={source}
+          onChange={(e) => setSource(e.target.value)}
+          placeholder={t("sourcePlaceholder")}
+          maxLength={500}
+          disabled={generating}
+        />
+        <label className="block pt-2 text-sm font-medium">{t("inputLabel")}</label>
         <Textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -107,6 +118,7 @@ export function GapFillTab() {
               <li key={e.id} className="flex items-center gap-2 px-4 py-3">
                 <button type="button" className="min-w-0 flex-1 text-left" onClick={() => setSelectedId(e.id)}>
                   <div className="truncate font-medium hover:underline">{e.title}</div>
+                  {e.source && <div className="truncate text-xs text-muted-foreground">{e.source}</div>}
                   <div className="text-xs text-muted-foreground">
                     {new Date(e.createdAt).toLocaleDateString()} · {t("blanks", { count: e.blankCount })} ·{" "}
                     {e.attemptCount === 0

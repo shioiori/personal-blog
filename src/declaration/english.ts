@@ -99,6 +99,7 @@ export interface GapFillAttempt {
 export interface GapFillExerciseSummary {
   id: number;
   title: string;
+  source: string | null;
   createdAt: string;
   blankCount: number;
   attemptCount: number;
@@ -108,6 +109,7 @@ export interface GapFillExerciseSummary {
 export interface GapFillExercise {
   id: number;
   title: string;
+  source: string | null;
   content: string;
   wordLimit: WordLimit;
   blankCount: number;

@@ -3,8 +3,9 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Eye, EyeOff, Loader2, RotateCcw, Send } from "lucide-react";
+import { Eye, EyeOff, Loader2, Pencil, RotateCcw, Send } from "lucide-react";
 import { Button } from "@/src/components/ui/Button";
+import { Input } from "@/src/components/ui/Input";
 import { cn } from "@/src/utils/ui";
 import { WORD_LIMITS } from "@/src/lib/gapfill-word-limit";
 import type { GapFillAnswer, GapFillAttempt, GapFillExercise } from "@/src/declaration/english";
@@ -17,7 +18,11 @@ interface Props {
 
 export function GapFillExerciseView({ id, onBack, onChanged }: Props) {
   const t = useTranslations("English.GapFill");
+  const tc = useTranslations("English.Common");
   const [exercise, setExercise] = useState<GapFillExercise | null>(null);
+  const [source, setSource] = useState<string | null>(null);
+  const [sourceDraft, setSourceDraft] = useState<string | null>(null);
+  const [savingSource, setSavingSource] = useState(false);
   const [answers, setAnswers] = useState<GapFillAnswer[] | null>(null);
   const [attempts, setAttempts] = useState<GapFillAttempt[]>([]);
   const [responses, setResponses] = useState<string[]>([]);
@@ -41,6 +46,7 @@ export function GapFillExerciseView({ id, onBack, onChanged }: Props) {
       if (!res.ok) return;
       const data = ((await res.json()) as { exercise: GapFillExercise }).exercise;
       setExercise(data);
+      setSource(data.source);
       setAnswers(data.answers);
       setAttempts(data.attempts);
       resetPractice(data.blankCount);
@@ -72,6 +78,26 @@ export function GapFillExerciseView({ id, onBack, onChanged }: Props) {
     }
   }
 
+  async function saveSource() {
+    if (savingSource || sourceDraft === null) return;
+    setSavingSource(true);
+    try {
+      const res = await fetch(`/api/english/gapfill/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ source: sourceDraft }),
+      });
+      if (!res.ok) throw new Error();
+      setSource(((await res.json()) as { source: string | null }).source);
+      setSourceDraft(null);
+      onChanged();
+    } catch {
+      toast.error(t("sourceSaveFailed"));
+    } finally {
+      setSavingSource(false);
+    }
+  }
+
   function viewAttempt(attempt: GapFillAttempt) {
     setActiveAttempt(attempt);
     setResponses(attempt.responses);
@@ -86,6 +112,41 @@ export function GapFillExerciseView({ id, onBack, onChanged }: Props) {
       <div className="space-y-1">
         <Button variant="link" className="h-auto p-0" onClick={onBack}>{t("back")}</Button>
         <h2 className="text-lg font-semibold">{exercise.title}</h2>
+        {sourceDraft !== null ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <Input
+              value={sourceDraft}
+              onChange={(e) => setSourceDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") void saveSource();
+                if (e.key === "Escape") setSourceDraft(null);
+              }}
+              placeholder={t("sourcePlaceholder")}
+              maxLength={500}
+              autoFocus
+              className="h-9 max-w-md"
+            />
+            <Button size="sm" onClick={saveSource} disabled={savingSource}>
+              {savingSource && <Loader2 className="animate-spin" />}
+              {tc("save")}
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => setSourceDraft(null)} disabled={savingSource}>
+              {tc("cancel")}
+            </Button>
+          </div>
+        ) : (
+          <p className="flex min-w-0 items-center gap-1 text-sm text-muted-foreground">
+            <span className="shrink-0">{t("source")}:</span>
+            {source && /^https?:\/\//i.test(source) ? (
+              <a href={source} target="_blank" rel="noopener noreferrer" className="truncate underline">{source}</a>
+            ) : (
+              <span className="truncate">{source ?? "—"}</span>
+            )}
+            <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => setSourceDraft(source ?? "")} aria-label={t("editSource")}>
+              <Pencil />
+            </Button>
+          </p>
+        )}
         <p className="text-sm">
           {t("wordLimit")}: {WORD_LIMITS[exercise.wordLimit].instruction}
         </p>

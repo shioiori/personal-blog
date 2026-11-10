@@ -178,6 +178,10 @@
             "noExchangeTargets": "No Pokémon can receive more shards yet."
         },
         "GapFill": {
+            "source": "Source",
+            "sourcePlaceholder": "e.g. Cambridge IELTS 18 – Test 2 – Part 4, or a link",
+            "editSource": "Edit source",
+            "sourceSaveFailed": "Couldn't save the source. Please try again.",
             "inputLabel": "Transcript (you can paste the original gap-fill exercise with it)",
             "inputPlaceholder": "Paste an English listening transcript here...",
             "generate": "Create exercise",

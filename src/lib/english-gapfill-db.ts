@@ -18,6 +18,9 @@ export const ensureGapFillTables = once(async function ensureGapFillTables() {
     ALTER TABLE english_gapfill_exercises ADD COLUMN IF NOT EXISTS word_limit TEXT NOT NULL DEFAULT 'two_number'
   `;
   await sql`
+    ALTER TABLE english_gapfill_exercises ADD COLUMN IF NOT EXISTS source TEXT
+  `;
+  await sql`
     CREATE TABLE IF NOT EXISTS english_gapfill_attempts (
       id          SERIAL PRIMARY KEY,
       exercise_id INT NOT NULL REFERENCES english_gapfill_exercises(id) ON DELETE CASCADE,
@@ -47,13 +50,20 @@ function gradeResponses(answers: GapFillAnswer[], responses: string[]): boolean[
   });
 }
 
+const MAX_SOURCE_LENGTH = 500;
+
+export function normalizeSource(value: unknown): string | null {
+  const source = typeof value === "string" ? value.trim().slice(0, MAX_SOURCE_LENGTH) : "";
+  return source || null;
+}
+
 export async function createExercise(
   userId: number,
-  data: { title: string; transcript: string; content: string; answers: GapFillAnswer[]; wordLimit: WordLimit }
+  data: { title: string; transcript: string; content: string; answers: GapFillAnswer[]; wordLimit: WordLimit; source: string | null }
 ): Promise<number> {
   const rows = await sql`
-    INSERT INTO english_gapfill_exercises (user_id, title, transcript, content, answers, word_limit)
-    VALUES (${userId}, ${data.title}, ${data.transcript}, ${data.content}, ${JSON.stringify(data.answers)}::jsonb, ${data.wordLimit})
+    INSERT INTO english_gapfill_exercises (user_id, title, transcript, content, answers, word_limit, source)
+    VALUES (${userId}, ${data.title}, ${data.transcript}, ${data.content}, ${JSON.stringify(data.answers)}::jsonb, ${data.wordLimit}, ${data.source})
     RETURNING id
   `;
   return rows[0].id as number;
@@ -61,7 +71,7 @@ export async function createExercise(
 
 export async function listExercises(userId: number): Promise<GapFillExerciseSummary[]> {
   const rows = await sql`
-    SELECT e.id, e.title, e.created_at, jsonb_array_length(e.answers) AS blank_count,
+    SELECT e.id, e.title, e.source, e.created_at, jsonb_array_length(e.answers) AS blank_count,
            COUNT(a.id)::int AS attempt_count, MAX(a.score) AS best_score
     FROM english_gapfill_exercises e
     LEFT JOIN english_gapfill_attempts a ON a.exercise_id = e.id
@@ -72,6 +82,7 @@ export async function listExercises(userId: number): Promise<GapFillExerciseSumm
   return rows.map((r) => ({
     id: r.id as number,
     title: r.title as string,
+    source: (r.source as string | null) ?? null,
     createdAt: (r.created_at as Date).toISOString(),
     blankCount: r.blank_count as number,
     attemptCount: r.attempt_count as number,
@@ -95,7 +106,7 @@ async function listAttempts(exerciseId: number): Promise<GapFillAttempt[]> {
 
 export async function getExercise(userId: number, id: number): Promise<GapFillExercise | null> {
   const rows = await sql`
-    SELECT id, title, content, answers, word_limit FROM english_gapfill_exercises WHERE id = ${id} AND user_id = ${userId}
+    SELECT id, title, source, content, answers, word_limit FROM english_gapfill_exercises WHERE id = ${id} AND user_id = ${userId}
   `;
   if (!rows[0]) return null;
   const answers = rows[0].answers as GapFillAnswer[];
@@ -103,12 +114,17 @@ export async function getExercise(userId: number, id: number): Promise<GapFillEx
   return {
     id,
     title: rows[0].title as string,
+    source: (rows[0].source as string | null) ?? null,
     content: rows[0].content as string,
     wordLimit: rows[0].word_limit as WordLimit,
     blankCount: answers.length,
     answers: attempts.length > 0 ? answers : null,
     attempts,
   };
+}
+
+export async function updateExerciseSource(userId: number, id: number, source: string | null): Promise<void> {
+  await sql`UPDATE english_gapfill_exercises SET source = ${source} WHERE id = ${id} AND user_id = ${userId}`;
 }
 
 export async function deleteExercise(userId: number, id: number): Promise<void> {

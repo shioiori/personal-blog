@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser, isPremium, unauthorized } from "@/src/lib/auth";
 import { geminiComplete } from "@/src/lib/ai-complete";
-import { createExercise, ensureGapFillTables, listExercises } from "@/src/lib/english-gapfill-db";
+import { createExercise, ensureGapFillTables, listExercises, normalizeSource } from "@/src/lib/english-gapfill-db";
 import { fitsWordLimit, isWordLimit, WORD_LIMITS, type WordLimit } from "@/src/lib/gapfill-word-limit";
 import type { GapFillAnswer } from "@/src/declaration/english";
 
@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
   if (!user) return unauthorized();
   if (!isPremium(user)) return NextResponse.json({ needsPremium: true }, { status: 403 });
 
-  let body: { input?: string; wordLimit?: unknown };
+  let body: { input?: string; wordLimit?: unknown; source?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
       const result = parseExercise(raw, wordLimit, transcriptText);
       if (result === "invalid") return NextResponse.json({ invalid: true }, { status: 422 });
       if (result) {
-        const id = await createExercise(user.id, { ...result, transcript: input, wordLimit });
+        const id = await createExercise(user.id, { ...result, transcript: input, wordLimit, source: normalizeSource(body.source) });
         return NextResponse.json({ id });
       }
       console.warn("[POST english/gapfill] invalid AI output, retrying:", raw.slice(0, 500));
