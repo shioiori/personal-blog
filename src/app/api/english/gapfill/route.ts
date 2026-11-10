@@ -1,7 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser, isPremium, unauthorized } from "@/src/lib/auth";
 import { geminiComplete } from "@/src/lib/ai-complete";
-import { createExercise, ensureGapFillTables, listExercises, normalizeSource } from "@/src/lib/english-gapfill-db";
+import {
+  createExercise,
+  createScript,
+  ensureGapFillTables,
+  findScriptByTranscript,
+  getScriptTranscript,
+  listScriptExerciseContents,
+  listScripts,
+  normalizeSource,
+  updateScriptSource,
+} from "@/src/lib/english-gapfill-db";
 import { fitsWordLimit, isWordLimit, WORD_LIMITS, type WordLimit } from "@/src/lib/gapfill-word-limit";
 import type { GapFillAnswer } from "@/src/declaration/english";
 
@@ -10,11 +20,24 @@ const MAX_INPUT_LENGTH = 30000;
 const MIN_BLANKS = 7;
 const MAX_BLANKS = 10;
 const MAX_TRIES = 2;
+const SIMILARITY_LIMIT = 0.8;
+const MAX_PREVIOUS_IN_PROMPT = 5;
+
+type PreviousExercise = { content: string; answers: GapFillAnswer[] };
 
 const SYSTEM_PROMPT =
   "Bạn là giáo viên ra đề IELTS Listening cẩn thận: chỉ ra đề bám sát đúng nội dung transcript, không bịa thông tin. Luôn trả lời bằng JSON hợp lệ.";
 
-const PROMPT = (input: string, wordLimit: WordLimit) => `Dưới đây là nội dung người dùng dán vào (nằm giữa hai dòng ===). Nó gồm transcript của một bài nghe tiếng Anh, có thể kèm theo một bài điền từ (gap-fill) gốc.
+const PREVIOUS_SECTION = (previous: PreviousExercise[]) =>
+  previous.length === 0
+    ? ""
+    : `CÁC BÀI ĐÃ TẠO TỪ TRANSCRIPT NÀY — bài mới phải KHÁC HẲN: chọn chỗ trống và đáp án khác, diễn đạt câu chữ khác; KHÔNG được trùng từ 80% nội dung hoặc 80% đáp án trở lên với bất kỳ bài nào dưới đây:
+
+${previous.map((p, i) => `--- Bài ${i + 1} ---\n${p.content}\nĐáp án: ${p.answers.map((a) => a.answer).join("; ")}`).join("\n\n")}
+
+`;
+
+const PROMPT = (input: string, wordLimit: WordLimit, previous: PreviousExercise[]) => `Dưới đây là nội dung người dùng dán vào (nằm giữa hai dòng ===). Nó gồm transcript của một bài nghe tiếng Anh, có thể kèm theo một bài điền từ (gap-fill) gốc.
 
 ===
 ${input}
@@ -37,7 +60,7 @@ BƯỚC 3 — TẠO BÀI MỚI dựa trên transcript, trình bày giống đề
 - "content": phần notes hoàn chỉnh bằng tiếng Anh, xuống dòng bằng "\\n", TUYỆT ĐỐI KHÔNG chứa đáp án.
 - "title": tiêu đề ngắn gọn bằng tiếng Anh cho bài.
 
-Trả về CHỈ một JSON object: {"status": "ok", "title": "...", "content": "...", "answers": [{"answer": "...", "alternatives": ["..."]}]} trong đó answers[i] là đáp án của {{i+1}}.`;
+${PREVIOUS_SECTION(previous)}Trả về CHỈ một JSON object: {"status": "ok", "title": "...", "content": "...", "answers": [{"answer": "...", "alternatives": ["..."]}]} trong đó answers[i] là đáp án của {{i+1}}.`;
 
 type ParsedExercise = { title: string; content: string; answers: GapFillAnswer[] };
 
@@ -51,6 +74,36 @@ function appearsInTranscript(answer: GapFillAnswer, transcriptText: string): boo
     const text = toMatchText(candidate);
     return text.trim() !== "" && transcriptText.includes(text);
   });
+}
+
+function contentTrigrams(content: string): Set<string> {
+  const words = toMatchText(content.replace(/\{\{\d+\}\}/g, " ")).trim().split(" ").filter(Boolean);
+  const grams = new Set<string>();
+  for (let i = 0; i + 2 < words.length; i++) grams.add(words.slice(i, i + 3).join(" "));
+  return grams;
+}
+
+function contentSimilarity(a: string, b: string): number {
+  const gramsA = contentTrigrams(a);
+  const gramsB = contentTrigrams(b);
+  if (gramsA.size === 0 || gramsB.size === 0) return 0;
+  const shared = [...gramsA].filter((g) => gramsB.has(g)).length;
+  return (2 * shared) / (gramsA.size + gramsB.size);
+}
+
+function answerOverlap(a: GapFillAnswer[], b: GapFillAnswer[]): number {
+  const setA = new Set(a.map((x) => toMatchText(x.answer)));
+  const setB = new Set(b.map((x) => toMatchText(x.answer)));
+  const shared = [...setA].filter((x) => setB.has(x)).length;
+  return shared / Math.min(setA.size, setB.size);
+}
+
+function isTooSimilar(candidate: PreviousExercise, previous: PreviousExercise[]): boolean {
+  return previous.some(
+    (p) =>
+      contentSimilarity(candidate.content, p.content) >= SIMILARITY_LIMIT ||
+      answerOverlap(candidate.answers, p.answers) >= SIMILARITY_LIMIT
+  );
 }
 
 function parseExercise(raw: string, wordLimit: WordLimit, transcriptText: string): ParsedExercise | "invalid" | null {
@@ -89,7 +142,7 @@ export async function GET() {
   if (!user) return unauthorized();
   try {
     await ensureGapFillTables();
-    return NextResponse.json({ exercises: await listExercises(user.id) });
+    return NextResponse.json({ scripts: await listScripts(user.id) });
   } catch (e) {
     console.error("[GET english/gapfill error]", e);
     return NextResponse.json({ error: "db error" }, { status: 500 });
@@ -101,25 +154,38 @@ export async function POST(req: NextRequest) {
   if (!user) return unauthorized();
   if (!isPremium(user)) return NextResponse.json({ needsPremium: true }, { status: 403 });
 
-  let body: { input?: string; wordLimit?: unknown; source?: unknown };
+  let body: { input?: string; scriptId?: unknown; wordLimit?: unknown; source?: unknown };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "invalid body" }, { status: 400 });
   }
-  const input = body.input?.trim() ?? "";
   const wordLimit = body.wordLimit;
-  if (!input) return NextResponse.json({ error: "input is required" }, { status: 400 });
+  const requestedScriptId = typeof body.scriptId === "number" ? body.scriptId : null;
+  const input = body.input?.trim() ?? "";
   if (!isWordLimit(wordLimit)) return NextResponse.json({ error: "invalid wordLimit" }, { status: 400 });
+  if (requestedScriptId === null && !input) return NextResponse.json({ error: "input is required" }, { status: 400 });
   if (input.length > MAX_INPUT_LENGTH) return NextResponse.json({ tooLong: true }, { status: 400 });
 
   try {
     await ensureGapFillTables();
-    const transcriptText = toMatchText(input);
+    let scriptId = requestedScriptId;
+    let transcript = input;
+    if (requestedScriptId !== null) {
+      const stored = await getScriptTranscript(user.id, requestedScriptId);
+      if (stored === null) return NextResponse.json({ error: "not found" }, { status: 404 });
+      transcript = stored;
+    } else {
+      scriptId = await findScriptByTranscript(user.id, input);
+    }
+
+    const previous = scriptId !== null ? await listScriptExerciseContents(scriptId) : [];
+    const transcriptText = toMatchText(transcript);
+    let tooSimilar = false;
     for (let i = 0; i < MAX_TRIES; i++) {
       const raw = await geminiComplete({
         systemPrompt: SYSTEM_PROMPT,
-        userPrompt: PROMPT(input, wordLimit),
+        userPrompt: PROMPT(transcript, wordLimit, previous.slice(0, MAX_PREVIOUS_IN_PROMPT)),
         maxTokens: 8192,
         temperature: 0.7,
         googleSearch: true,
@@ -127,12 +193,17 @@ export async function POST(req: NextRequest) {
       });
       const result = parseExercise(raw, wordLimit, transcriptText);
       if (result === "invalid") return NextResponse.json({ invalid: true }, { status: 422 });
-      if (result) {
-        const id = await createExercise(user.id, { ...result, transcript: input, wordLimit, source: normalizeSource(body.source) });
-        return NextResponse.json({ id });
+      tooSimilar = result !== null && isTooSimilar(result, previous);
+      if (result && !tooSimilar) {
+        const source = normalizeSource(body.source);
+        if (scriptId === null) scriptId = await createScript(user.id, transcript, source);
+        else if (requestedScriptId === null && source) await updateScriptSource(user.id, scriptId, source);
+        const id = await createExercise(user.id, scriptId, { ...result, wordLimit });
+        return NextResponse.json({ id, scriptId });
       }
-      console.warn("[POST english/gapfill] invalid AI output, retrying:", raw.slice(0, 500));
+      console.warn(`[POST english/gapfill] ${tooSimilar ? "too similar" : "invalid AI output"}, retrying:`, raw.slice(0, 500));
     }
+    if (tooSimilar) return NextResponse.json({ tooSimilar: true }, { status: 409 });
     return NextResponse.json({ error: "generation failed" }, { status: 502 });
   } catch (e) {
     console.error("[POST english/gapfill error]", e);

@@ -1,0 +1,33 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getUserId, unauthorized } from "@/src/lib/auth";
+import { deleteScript, ensureGapFillTables, getScript, normalizeSource, updateScriptSource } from "@/src/lib/english-gapfill-db";
+
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const userId = await getUserId();
+  if (!userId) return unauthorized();
+  await ensureGapFillTables();
+  const { id } = await params;
+  const script = await getScript(userId, parseInt(id, 10));
+  if (!script) return NextResponse.json({ error: "not found" }, { status: 404 });
+  return NextResponse.json({ script });
+}
+
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const userId = await getUserId();
+  if (!userId) return unauthorized();
+  await ensureGapFillTables();
+  const { id } = await params;
+  const { source } = (await req.json()) as { source?: unknown };
+  const saved = normalizeSource(source);
+  await updateScriptSource(userId, parseInt(id, 10), saved);
+  return NextResponse.json({ source: saved });
+}
+
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const userId = await getUserId();
+  if (!userId) return unauthorized();
+  await ensureGapFillTables();
+  const { id } = await params;
+  await deleteScript(userId, parseInt(id, 10));
+  return NextResponse.json({ ok: true });
+}

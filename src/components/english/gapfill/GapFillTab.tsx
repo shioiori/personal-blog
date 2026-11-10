@@ -2,71 +2,73 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
 import { Loader2, Trash2, Wand2 } from "lucide-react";
 import { Button } from "@/src/components/ui/Button";
 import { Textarea } from "@/src/components/ui/Textarea";
 import { Input } from "@/src/components/ui/Input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/Select";
-import { DEFAULT_WORD_LIMIT, WORD_LIMITS, WORD_LIMIT_KEYS, type WordLimit } from "@/src/lib/gapfill-word-limit";
+import { DEFAULT_WORD_LIMIT, type WordLimit } from "@/src/lib/gapfill-word-limit";
 import { GapFillExerciseView } from "@/src/components/english/gapfill/GapFillExercise";
-import type { GapFillExerciseSummary } from "@/src/declaration/english";
+import { GapFillScriptView } from "@/src/components/english/gapfill/GapFillScript";
+import { WordLimitSelect, generateExercise } from "@/src/components/english/gapfill/shared";
+import type { GapFillScriptSummary } from "@/src/declaration/english";
+
+type View =
+  | { kind: "list" }
+  | { kind: "script"; scriptId: number }
+  | { kind: "exercise"; scriptId: number; exerciseId: number };
 
 export function GapFillTab() {
   const t = useTranslations("English.GapFill");
-  const [exercises, setExercises] = useState<GapFillExerciseSummary[]>([]);
+  const [view, setView] = useState<View>({ kind: "list" });
+  const [scripts, setScripts] = useState<GapFillScriptSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [source, setSource] = useState("");
   const [input, setInput] = useState("");
   const [wordLimit, setWordLimit] = useState<WordLimit>(DEFAULT_WORD_LIMIT);
   const [generating, setGenerating] = useState(false);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
 
   const load = useCallback(async () => {
     try {
       const res = await fetch("/api/english/gapfill");
-      if (res.ok) setExercises(((await res.json()) as { exercises: GapFillExerciseSummary[] }).exercises);
+      if (res.ok) setScripts(((await res.json()) as { scripts: GapFillScriptSummary[] }).scripts);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    if (view.kind === "list") void load();
+  }, [view.kind, load]);
 
   async function generate() {
     if (generating || !input.trim()) return;
     setGenerating(true);
-    try {
-      const res = await fetch("/api/english/gapfill", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input, wordLimit, source }),
-      });
-      const data = (await res.json()) as { id?: number; needsPremium?: boolean; invalid?: boolean; tooLong?: boolean };
-      if (!res.ok || !data.id) {
-        toast.error(t(data.needsPremium ? "needsPremium" : data.invalid ? "invalidInput" : data.tooLong ? "tooLong" : "generateFailed"));
-        return;
-      }
-      toast.success(t("generated"));
-      setInput("");
-      setSource("");
-      await load();
-      setSelectedId(data.id);
-    } catch {
-      toast.error(t("generateFailed"));
-    } finally {
-      setGenerating(false);
-    }
+    const result = await generateExercise({ input, wordLimit, source }, t);
+    setGenerating(false);
+    if (!result) return;
+    setInput("");
+    setSource("");
+    setView({ kind: "exercise", scriptId: result.scriptId, exerciseId: result.id });
   }
 
-  async function remove(id: number) {
-    if (!confirm(t("confirmDelete"))) return;
-    await fetch(`/api/english/gapfill/${id}`, { method: "DELETE" });
-    setExercises((list) => list.filter((e) => e.id !== id));
+  async function removeScript(id: number) {
+    if (!confirm(t("confirmDeleteScript"))) return;
+    await fetch(`/api/english/gapfill/scripts/${id}`, { method: "DELETE" });
+    setScripts((list) => list.filter((s) => s.id !== id));
   }
 
-  if (selectedId !== null) {
-    return <GapFillExerciseView id={selectedId} onBack={() => setSelectedId(null)} onChanged={load} />;
+  if (view.kind === "exercise") {
+    return <GapFillExerciseView id={view.exerciseId} onBack={() => setView({ kind: "script", scriptId: view.scriptId })} />;
+  }
+
+  if (view.kind === "script") {
+    return (
+      <GapFillScriptView
+        id={view.scriptId}
+        onBack={() => setView({ kind: "list" })}
+        onOpenExercise={(exerciseId) => setView({ kind: "exercise", scriptId: view.scriptId, exerciseId })}
+      />
+    );
   }
 
   return (
@@ -89,16 +91,7 @@ export function GapFillTab() {
           disabled={generating}
         />
         <div className="flex flex-wrap items-center gap-2">
-          <Select value={wordLimit} onValueChange={(v) => setWordLimit(v as WordLimit)} disabled={generating}>
-            <SelectTrigger className="w-auto max-w-full" aria-label={t("wordLimit")}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {WORD_LIMIT_KEYS.map((key) => (
-                <SelectItem key={key} value={key}>{WORD_LIMITS[key].instruction}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <WordLimitSelect value={wordLimit} onChange={setWordLimit} disabled={generating} />
           <Button onClick={generate} disabled={generating || !input.trim()}>
             {generating ? <Loader2 className="animate-spin" /> : <Wand2 />}
             {generating ? t("generating") : t("generate")}
@@ -107,26 +100,22 @@ export function GapFillTab() {
       </div>
 
       <div className="space-y-2">
-        <h3 className="font-semibold">{t("myExercises")}</h3>
+        <h3 className="font-semibold">{t("myScripts")}</h3>
         {loading ? (
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-        ) : exercises.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t("empty")}</p>
+        ) : scripts.length === 0 ? (
+          <p className="text-sm text-muted-foreground">{t("noScripts")}</p>
         ) : (
           <ul className="divide-y rounded-lg border">
-            {exercises.map((e) => (
-              <li key={e.id} className="flex items-center gap-2 px-4 py-3">
-                <button type="button" className="min-w-0 flex-1 text-left" onClick={() => setSelectedId(e.id)}>
-                  <div className="truncate font-medium hover:underline">{e.title}</div>
-                  {e.source && <div className="truncate text-xs text-muted-foreground">{e.source}</div>}
+            {scripts.map((s) => (
+              <li key={s.id} className="flex items-center gap-2 px-4 py-3">
+                <button type="button" className="min-w-0 flex-1 text-left" onClick={() => setView({ kind: "script", scriptId: s.id })}>
+                  <div className="truncate font-medium hover:underline">{s.source ?? s.preview}</div>
                   <div className="text-xs text-muted-foreground">
-                    {new Date(e.createdAt).toLocaleDateString()} · {t("blanks", { count: e.blankCount })} ·{" "}
-                    {e.attemptCount === 0
-                      ? t("notAttempted")
-                      : `${t("attempts", { count: e.attemptCount })} · ${t("bestScore", { score: e.bestScore ?? 0, total: e.blankCount })}`}
+                    {new Date(s.createdAt).toLocaleDateString()} · {t("exerciseCount", { count: s.exerciseCount })}
                   </div>
                 </button>
-                <Button variant="ghost" size="icon" onClick={() => remove(e.id)} aria-label={t("delete")}>
+                <Button variant="ghost" size="icon" onClick={() => removeScript(s.id)} aria-label={t("delete")}>
                   <Trash2 />
                 </Button>
               </li>

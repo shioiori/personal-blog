@@ -99,15 +99,31 @@ export interface GapFillAttempt {
 export interface GapFillExerciseSummary {
   id: number;
   title: string;
-  source: string | null;
+  wordLimit: WordLimit;
   createdAt: string;
   blankCount: number;
   attemptCount: number;
   bestScore: number | null;
 }
 
+export interface GapFillScriptSummary {
+  id: number;
+  source: string | null;
+  preview: string;
+  createdAt: string;
+  exerciseCount: number;
+}
+
+export interface GapFillScript {
+  id: number;
+  source: string | null;
+  transcript: string;
+  exercises: GapFillExerciseSummary[];
+}
+
 export interface GapFillExercise {
   id: number;
+  scriptId: number;
   title: string;
   source: string | null;
   content: string;
