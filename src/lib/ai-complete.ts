@@ -110,27 +110,41 @@ async function completeWithGemini(opts: AiCompleteOptions): Promise<string> {
   return response.text ?? "{}";
 }
 
+const STRICT_JSON_RULE =
+  "\n\nQuy tắc JSON bắt buộc: output phải parse được bằng JSON.parse chuẩn — mọi key và chuỗi dùng dấu ngoặc kép \"\", TUYỆT ĐỐI KHÔNG có dấu phẩy thừa sau phần tử/thuộc tính cuối cùng trước } hoặc ], không comment, không markdown, không văn bản nào ngoài JSON.";
+
+function repairJson(raw: string): string {
+  try {
+    JSON.parse(raw);
+    return raw;
+  } catch {
+    return raw.replace(/,\s*([}\]])/g, "$1");
+  }
+}
+
 // Throws if neither provider is configured/succeeds — callers already wrap
 // this in their own try/catch and return a graceful empty response.
 export async function aiComplete(opts: AiCompleteOptions): Promise<AiCompleteResult> {
+  const strictOpts = { ...opts, systemPrompt: opts.systemPrompt + STRICT_JSON_RULE };
+
   if (!process.env.GROQ_API_KEY) {
     if (!process.env.GEMINI_API_KEY) throw new Error("GROQ_API_KEY not configured");
     if (!opts.isPremium) throw new PremiumRequiredError();
-    return { raw: await completeWithGemini(opts), provider: "gemini" };
+    return { raw: repairJson(await completeWithGemini(strictOpts)), provider: "gemini" };
   }
 
   if (process.env.GEMINI_API_KEY && (await isGroqExhaustedToday())) {
     if (!opts.isPremium) throw new PremiumRequiredError();
-    return { raw: await completeWithGemini(opts), provider: "gemini" };
+    return { raw: repairJson(await completeWithGemini(strictOpts)), provider: "gemini" };
   }
 
   try {
-    return { raw: await completeWithGroq(opts), provider: "groq" };
+    return { raw: repairJson(await completeWithGroq(strictOpts)), provider: "groq" };
   } catch (e) {
     if (!process.env.GEMINI_API_KEY || !isQuotaOrRateLimitError(e)) throw e;
     console.warn("[ai-complete] Groq quota/rate-limit hit, caching for today and falling back to Gemini:", e);
     await markGroqExhausted();
     if (!opts.isPremium) throw new PremiumRequiredError();
-    return { raw: await completeWithGemini(opts), provider: "gemini" };
+    return { raw: repairJson(await completeWithGemini(strictOpts)), provider: "gemini" };
   }
 }
