@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
@@ -10,6 +10,7 @@ import { toast } from 'sonner'
 import { PlannerTask } from '@/src/declaration/planner'
 import { TaskModal } from '@/src/components/planner/TaskModal'
 import { colorForTask } from '@/src/components/planner/colors'
+import { ColumnResizeHandles, EQUAL_COLUMN_WIDTHS, columnWidthVars } from '@/src/components/planner/ColumnResizeHandles'
 import { useAuth } from '@/src/context/auth'
 
 function toDateStr(date: Date) {
@@ -23,6 +24,8 @@ export default function PlannerPage() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
   const rangeRef = useRef<{ from: string; to: string } | null>(null)
+  const gridRef = useRef<HTMLDivElement>(null)
+  const [columnWidths, setColumnWidths] = useState<number[]>(EQUAL_COLUMN_WIDTHS)
 
   const refetch = useCallback(async () => {
     if (!rangeRef.current) return
@@ -67,11 +70,14 @@ export default function PlannerPage() {
     }
   })
 
-  const tasksForSelectedDate = selectedDate ? tasks.filter((x) => x.date === selectedDate) : []
+  const tasksForSelectedDate = useMemo(
+    () => (selectedDate ? tasks.filter((x) => x.date === selectedDate) : []),
+    [tasks, selectedDate]
+  )
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-4xl p-6">
+      <div className="mx-auto max-w-7xl p-6">
         <h1 className="text-2xl font-bold mb-4">{t('title')}</h1>
 
         {!authLoading && !user && (
@@ -79,7 +85,7 @@ export default function PlannerPage() {
         )}
 
         <div className="w-full overflow-x-auto no-scrollbar planner-calendar">
-          <div className="min-w-[640px]">
+          <div ref={gridRef} className="relative min-w-[640px]" style={columnWidthVars(columnWidths)}>
             <FullCalendar
               plugins={[dayGridPlugin, interactionPlugin]}
               initialView="dayGridMonth"
@@ -132,6 +138,7 @@ export default function PlannerPage() {
               }}
               events={events}
             />
+            <ColumnResizeHandles containerRef={gridRef} widths={columnWidths} onChange={setColumnWidths} />
           </div>
         </div>
       </div>

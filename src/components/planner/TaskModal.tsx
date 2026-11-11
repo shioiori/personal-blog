@@ -33,12 +33,26 @@ export function TaskModal({
   const t = useTranslations('Planner')
   const [rows, setRows] = useState<Row[]>([])
   const [saving, setSaving] = useState(false)
+  const [copiedFrom, setCopiedFrom] = useState<string | null>(null)
 
   useEffect(() => {
-    if (open) {
-      setRows(tasks.map((x) => ({ id: x.id, text: x.text, checked: x.checked })))
+    if (!open) return
+    setRows(tasks.map((x) => ({ id: x.id, text: x.text, checked: x.checked })))
+    setCopiedFrom(null)
+    if (tasks.length > 0 || !date) return
+    let cancelled = false
+    void (async () => {
+      const res = await fetch(`/api/planner/tasks?before=${date}`)
+      if (!res.ok || cancelled) return
+      const previous = (await res.json()) as PlannerTask[]
+      if (cancelled || previous.length === 0) return
+      setRows((prev) => (prev.length === 0 ? previous.map((x) => ({ text: x.text, checked: false })) : prev))
+      setCopiedFrom(previous[0].date)
+    })()
+    return () => {
+      cancelled = true
     }
-  }, [open, tasks])
+  }, [open, tasks, date])
 
   function handleAdd() {
     setRows((prev) => [...prev, { text: '', checked: false }])
@@ -109,6 +123,9 @@ export function TaskModal({
         </DialogHeader>
 
         <div className="space-y-2 py-2 max-h-80 overflow-y-auto">
+          {copiedFrom && visibleRows.length > 0 && (
+            <p className="text-xs text-muted-foreground">{t('copiedFrom', { date: copiedFrom })}</p>
+          )}
           {visibleRows.length === 0 && (
             <p className="text-sm text-muted-foreground">{t('noTasks')}</p>
           )}

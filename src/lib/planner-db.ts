@@ -40,6 +40,16 @@ export async function listTasks(userId: number, from: string, to: string): Promi
   return rows.map(toTask);
 }
 
+export async function listLatestTasksBefore(userId: number, date: string): Promise<PlannerTask[]> {
+  const rows = await sql`
+    SELECT id, date, text, checked FROM planner_tasks
+    WHERE user_id = ${userId}
+      AND date = (SELECT MAX(date) FROM planner_tasks WHERE user_id = ${userId} AND date < ${date})
+    ORDER BY id ASC
+  `;
+  return rows.map(toTask);
+}
+
 export async function createTask(userId: number, date: string, text: string, checked: boolean): Promise<PlannerTask> {
   const rows = await sql`
     INSERT INTO planner_tasks (user_id, date, text, checked)

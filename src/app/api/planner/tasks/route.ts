@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUserId, unauthorized } from "@/src/lib/auth";
-import { ensurePlannerTables, listTasks, createTask } from "@/src/lib/planner-db";
+import { ensurePlannerTables, listTasks, createTask, listLatestTasksBefore } from "@/src/lib/planner-db";
 
 export async function GET(req: NextRequest) {
   const userId = await getUserId();
@@ -8,6 +8,9 @@ export async function GET(req: NextRequest) {
   await ensurePlannerTables();
 
   const { searchParams } = new URL(req.url);
+  const before = searchParams.get("before");
+  if (before) return NextResponse.json(await listLatestTasksBefore(userId, before));
+
   const from = searchParams.get("from");
   const to = searchParams.get("to");
   if (!from || !to) {

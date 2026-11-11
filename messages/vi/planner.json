@@ -7,6 +7,7 @@
         "add": "Thêm",
         "save": "Lưu",
         "cancel": "Hủy",
-        "saveError": "Vui lòng đăng nhập để lưu đầu việc"
+        "saveError": "Vui lòng đăng nhập để lưu đầu việc",
+        "copiedFrom": "Đã chép đầu việc từ ngày {date}. Nhấn Lưu để thêm."
     }
 }
