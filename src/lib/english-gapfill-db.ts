@@ -77,6 +77,14 @@ export const ensureGapFillTables = once(async function ensureGapFillTables() {
     ORDER BY user_id, btrim(regexp_replace(transcript, '[[:space:]]+', ' ', 'g')), (source IS NULL), created_at
   `;
   await attachOrphanExercises();
+  await sql`
+    ALTER TABLE english_gapfill_scripts ADD COLUMN IF NOT EXISTS name TEXT
+  `;
+  await sql`
+    UPDATE english_gapfill_scripts s
+    SET name = (SELECT e.title FROM english_gapfill_exercises e WHERE e.script_id = s.id ORDER BY e.id LIMIT 1)
+    WHERE s.name IS NULL
+  `;
 });
 
 function normalizeAnswer(s: string): string {
@@ -101,11 +109,18 @@ export function normalizeSource(value: unknown): string | null {
   return source || null;
 }
 
+const MAX_NAME_LENGTH = 200;
+
+export function normalizeScriptName(value: unknown): string | null {
+  const name = typeof value === "string" ? value.trim().slice(0, MAX_NAME_LENGTH) : "";
+  return name || null;
+}
+
 // ── Scripts ──────────────────────────────────────────────────────────────────
 
 export async function listScripts(userId: number): Promise<GapFillScriptSummary[]> {
   const rows = await sql`
-    SELECT s.id, s.source, s.created_at, left(btrim(regexp_replace(s.transcript, '[[:space:]]+', ' ', 'g')), 80) AS preview,
+    SELECT s.id, s.name, s.source, s.created_at, left(btrim(regexp_replace(s.transcript, '[[:space:]]+', ' ', 'g')), 80) AS preview,
            COUNT(e.id)::int AS exercise_count
     FROM english_gapfill_scripts s
     LEFT JOIN english_gapfill_exercises e ON e.script_id = s.id
@@ -115,6 +130,7 @@ export async function listScripts(userId: number): Promise<GapFillScriptSummary[
   `;
   return rows.map((r) => ({
     id: r.id as number,
+    name: (r.name as string | null) ?? null,
     source: (r.source as string | null) ?? null,
     preview: r.preview as string,
     createdAt: (r.created_at as Date).toISOString(),
@@ -144,10 +160,11 @@ async function listScriptExercises(scriptId: number): Promise<GapFillExerciseSum
 }
 
 export async function getScript(userId: number, id: number): Promise<GapFillScript | null> {
-  const rows = await sql`SELECT id, source, transcript FROM english_gapfill_scripts WHERE id = ${id} AND user_id = ${userId}`;
+  const rows = await sql`SELECT id, name, source, transcript FROM english_gapfill_scripts WHERE id = ${id} AND user_id = ${userId}`;
   if (!rows[0]) return null;
   return {
     id,
+    name: (rows[0].name as string | null) ?? null,
     source: (rows[0].source as string | null) ?? null,
     transcript: rows[0].transcript as string,
     exercises: await listScriptExercises(id),
@@ -169,11 +186,15 @@ export async function findScriptByTranscript(userId: number, transcript: string)
   return (rows[0]?.id as number | undefined) ?? null;
 }
 
-export async function createScript(userId: number, transcript: string, source: string | null): Promise<number> {
+export async function createScript(userId: number, transcript: string, source: string | null, name: string): Promise<number> {
   const rows = await sql`
-    INSERT INTO english_gapfill_scripts (user_id, transcript, source) VALUES (${userId}, ${transcript}, ${source}) RETURNING id
+    INSERT INTO english_gapfill_scripts (user_id, transcript, source, name) VALUES (${userId}, ${transcript}, ${source}, ${name}) RETURNING id
   `;
   return rows[0].id as number;
+}
+
+export async function updateScriptName(userId: number, id: number, name: string): Promise<void> {
+  await sql`UPDATE english_gapfill_scripts SET name = ${name} WHERE id = ${id} AND user_id = ${userId}`;
 }
 
 export async function updateScriptSource(userId: number, id: number, source: string | null): Promise<void> {

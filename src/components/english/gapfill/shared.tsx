@@ -1,7 +1,11 @@
 "use client";
 
+import { useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import { Loader2, Pencil } from "lucide-react";
+import { Button } from "@/src/components/ui/Button";
+import { Input } from "@/src/components/ui/Input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/Select";
 import { WORD_LIMITS, WORD_LIMIT_KEYS, type WordLimit } from "@/src/lib/gapfill-word-limit";
 
@@ -28,6 +32,70 @@ export function SourceText({ source }: { source: string | null }) {
     return <a href={source} target="_blank" rel="noopener noreferrer" className="truncate underline">{source}</a>;
   }
   return <span className="truncate">{source ?? "—"}</span>;
+}
+
+export function InlineEdit({
+  value,
+  placeholder,
+  editLabel,
+  required,
+  onSave,
+  children,
+}: {
+  value: string | null;
+  placeholder?: string;
+  editLabel: string;
+  required?: boolean;
+  onSave: (value: string) => Promise<boolean>;
+  children: ReactNode;
+}) {
+  const tc = useTranslations("English.Common");
+  const [draft, setDraft] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const invalid = !!required && !draft?.trim();
+
+  async function save() {
+    if (draft === null || saving || invalid) return;
+    setSaving(true);
+    const ok = await onSave(draft);
+    setSaving(false);
+    if (ok) setDraft(null);
+  }
+
+  if (draft === null) {
+    return (
+      <div className="flex min-w-0 items-center gap-1">
+        {children}
+        <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => setDraft(value ?? "")} aria-label={editLabel}>
+          <Pencil />
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <Input
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") void save();
+          if (e.key === "Escape") setDraft(null);
+        }}
+        placeholder={placeholder}
+        maxLength={500}
+        autoFocus
+        className="h-9 max-w-md"
+      />
+      <Button size="sm" onClick={save} disabled={saving || invalid}>
+        {saving && <Loader2 className="animate-spin" />}
+        {tc("save")}
+      </Button>
+      <Button size="sm" variant="ghost" onClick={() => setDraft(null)} disabled={saving}>
+        {tc("cancel")}
+      </Button>
+    </div>
+  );
 }
 
 export async function generateExercise(

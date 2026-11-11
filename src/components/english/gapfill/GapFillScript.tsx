@@ -3,11 +3,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { ChevronDown, ChevronUp, Loader2, Pencil, Trash2, Wand2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Loader2, Trash2, Wand2 } from "lucide-react";
 import { Button } from "@/src/components/ui/Button";
-import { Input } from "@/src/components/ui/Input";
 import { DEFAULT_WORD_LIMIT, WORD_LIMITS, type WordLimit } from "@/src/lib/gapfill-word-limit";
-import { SourceText, WordLimitSelect, generateExercise } from "@/src/components/english/gapfill/shared";
+import { InlineEdit, SourceText, WordLimitSelect, generateExercise } from "@/src/components/english/gapfill/shared";
 import type { GapFillScript } from "@/src/declaration/english";
 
 interface Props {
@@ -18,10 +17,7 @@ interface Props {
 
 export function GapFillScriptView({ id, onBack, onOpenExercise }: Props) {
   const t = useTranslations("English.GapFill");
-  const tc = useTranslations("English.Common");
   const [script, setScript] = useState<GapFillScript | null>(null);
-  const [sourceDraft, setSourceDraft] = useState<string | null>(null);
-  const [savingSource, setSavingSource] = useState(false);
   const [showScript, setShowScript] = useState(false);
   const [wordLimit, setWordLimit] = useState<WordLimit>(DEFAULT_WORD_LIMIT);
   const [generating, setGenerating] = useState(false);
@@ -33,23 +29,20 @@ export function GapFillScriptView({ id, onBack, onOpenExercise }: Props) {
 
   useEffect(() => { void load(); }, [load]);
 
-  async function saveSource() {
-    if (savingSource || sourceDraft === null) return;
-    setSavingSource(true);
+  async function saveField(field: "name" | "source", value: string): Promise<boolean> {
     try {
       const res = await fetch(`/api/english/gapfill/scripts/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ source: sourceDraft }),
+        body: JSON.stringify({ [field]: value }),
       });
       if (!res.ok) throw new Error();
-      const { source } = (await res.json()) as { source: string | null };
-      setScript((s) => (s ? { ...s, source } : s));
-      setSourceDraft(null);
+      const saved = (await res.json()) as Partial<Pick<GapFillScript, "name" | "source">>;
+      setScript((s) => (s ? { ...s, ...saved } : s));
+      return true;
     } catch {
-      toast.error(t("sourceSaveFailed"));
-    } finally {
-      setSavingSource(false);
+      toast.error(t("saveFailed"));
+      return false;
     }
   }
 
@@ -73,38 +66,15 @@ export function GapFillScriptView({ id, onBack, onOpenExercise }: Props) {
     <div className="space-y-6">
       <div className="space-y-1">
         <Button variant="link" className="h-auto p-0" onClick={onBack}>{t("back")}</Button>
-        <h2 className="text-lg font-semibold">{t("script")}</h2>
-        {sourceDraft !== null ? (
-          <div className="flex flex-wrap items-center gap-2">
-            <Input
-              value={sourceDraft}
-              onChange={(e) => setSourceDraft(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") void saveSource();
-                if (e.key === "Escape") setSourceDraft(null);
-              }}
-              placeholder={t("sourcePlaceholder")}
-              maxLength={500}
-              autoFocus
-              className="h-9 max-w-md"
-            />
-            <Button size="sm" onClick={saveSource} disabled={savingSource}>
-              {savingSource && <Loader2 className="animate-spin" />}
-              {tc("save")}
-            </Button>
-            <Button size="sm" variant="ghost" onClick={() => setSourceDraft(null)} disabled={savingSource}>
-              {tc("cancel")}
-            </Button>
-          </div>
-        ) : (
+        <InlineEdit value={script.name} editLabel={t("editName")} required onSave={(v) => saveField("name", v)}>
+          <h2 className="truncate text-lg font-semibold">{script.name ?? t("script")}</h2>
+        </InlineEdit>
+        <InlineEdit value={script.source} placeholder={t("sourcePlaceholder")} editLabel={t("editSource")} onSave={(v) => saveField("source", v)}>
           <p className="flex min-w-0 items-center gap-1 text-sm text-muted-foreground">
             <span className="shrink-0">{t("source")}:</span>
             <SourceText source={script.source} />
-            <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => setSourceDraft(script.source ?? "")} aria-label={t("editSource")}>
-              <Pencil />
-            </Button>
           </p>
-        )}
+        </InlineEdit>
       </div>
 
       <div className="space-y-2">

@@ -110,7 +110,8 @@ export function GapFillTab() {
             {scripts.map((s) => (
               <li key={s.id} className="flex items-center gap-2 px-4 py-3">
                 <button type="button" className="min-w-0 flex-1 text-left" onClick={() => setView({ kind: "script", scriptId: s.id })}>
-                  <div className="truncate font-medium hover:underline">{s.source ?? s.preview}</div>
+                  <div className="truncate font-medium hover:underline">{s.name ?? s.preview}</div>
+                  {s.source && <div className="truncate text-xs text-muted-foreground">{s.source}</div>}
                   <div className="text-xs text-muted-foreground">
                     {new Date(s.createdAt).toLocaleDateString()} · {t("exerciseCount", { count: s.exerciseCount })}
                   </div>

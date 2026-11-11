@@ -178,6 +178,8 @@
             "noExchangeTargets": "Chưa có Pokémon nào có thể tích thêm mảnh."
         },
         "GapFill": {
+            "editName": "Sửa tên",
+            "saveFailed": "Lưu thất bại, vui lòng thử lại.",
             "myScripts": "Script đã lưu",
             "noScripts": "Chưa có script nào.",
             "script": "Script",
@@ -191,7 +193,6 @@
             "source": "Nguồn",
             "sourcePlaceholder": "vd: Cambridge IELTS 18 – Test 2 – Part 4 hoặc link",
             "editSource": "Sửa nguồn",
-            "sourceSaveFailed": "Lưu nguồn thất bại, vui lòng thử lại.",
             "inputLabel": "Transcript (có thể dán kèm bài điền từ gốc)",
             "inputPlaceholder": "Dán transcript bài nghe tiếng Anh vào đây...",
             "generate": "Tạo bài",

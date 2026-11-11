@@ -15,12 +15,27 @@ import { GapFillTab } from '@/src/components/english/gapfill/GapFillTab'
 import { BookOpen, RotateCcw, Upload, Sparkles, PenLine } from 'lucide-react'
 import { EnglishProvider } from '@/src/context/english'
 import { useTranslations } from 'next-intl'
+import { useEffect, useState } from 'react'
+
+const TABS = ['study', 'review', 'import', 'gacha', 'gapfill']
 
 export default function Page() {
   const t = useTranslations('English.Tabs')
+  const [tab, setTab] = useState('study')
+
+  useEffect(() => {
+    const fromHash = window.location.hash.slice(1)
+    if (TABS.includes(fromHash)) setTab(fromHash)
+  }, [])
+
+  function changeTab(value: string) {
+    setTab(value)
+    window.history.replaceState(null, '', `#${value}`)
+  }
+
   return (
     <EnglishProvider>
-      <Tabs defaultValue="study" className="space-y-6">
+      <Tabs value={tab} onValueChange={changeTab} className="space-y-6">
         <div className="flex items-center justify-between gap-2 -mx-4 px-4 sm:mx-0 sm:px-0">
           <div className="overflow-x-auto no-scrollbar">
           <TabsList className="w-max sm:w-fit">

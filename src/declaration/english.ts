@@ -108,6 +108,7 @@ export interface GapFillExerciseSummary {
 
 export interface GapFillScriptSummary {
   id: number;
+  name: string | null;
   source: string | null;
   preview: string;
   createdAt: string;
@@ -116,6 +117,7 @@ export interface GapFillScriptSummary {
 
 export interface GapFillScript {
   id: number;
+  name: string | null;
   source: string | null;
   transcript: string;
   exercises: GapFillExerciseSummary[];
