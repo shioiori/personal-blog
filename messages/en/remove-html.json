@@ -1,0 +1,29 @@
+{
+    "RemoveHtml": {
+        "title": "Remove HTML",
+        "description": "Paste HTML (e.g. a jjwxc chapter copied with the bookmarklet below) to strip tags and decode obfuscated characters.",
+        "bookmarkletTitle": "Install the \"Copy jjwxc chapter\" bookmarklet",
+        "bookmarkletDescription": "Drag this button to your bookmarks bar, then click it on a jjwxc VIP chapter page to copy the chapter's HTML.",
+        "bookmarkletButton": "Copy jjwxc chapter",
+        "pasteLabel": "Paste HTML here",
+        "pastePlaceholder": "Paste HTML content...",
+        "fontLabel": "Font name (auto-detected if present)",
+        "processButton": "Process",
+        "processing": "Processing...",
+        "statusLoadingFont": "Downloading font...",
+        "statusBuildingReference": "Preparing reference glyphs...",
+        "statusBuildingReferenceProgress": "Preparing reference glyphs ({done}/{total})...",
+        "statusMatching": "Matching glyphs...",
+        "resultLabel": "Result",
+        "copyButton": "Copy to clipboard",
+        "copied": "Copied to clipboard",
+        "emptyResult": "No content after stripping HTML",
+        "needFontName": "Couldn't detect the font name - enter it manually to decode the remaining characters",
+        "decodeError": "Couldn't decode the font",
+        "unresolvedTitle": "{count} unresolved character(s)",
+        "unresolvedDescription": "Type the correct character for each one; it will be remembered for next time.",
+        "correctCharPlaceholder": "correct char",
+        "saveFixesButton": "Save & reapply",
+        "fixesSaved": "Saved {count} character(s)"
+    }
+}

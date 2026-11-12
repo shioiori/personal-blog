@@ -1,0 +1,29 @@
+{
+    "RemoveHtml": {
+        "title": "Xoá HTML",
+        "description": "Dán HTML (vd chương jjwxc copy bằng bookmarklet bên dưới) để xoá thẻ HTML và giải mã ký tự bị mã hoá.",
+        "bookmarkletTitle": "Cài bookmarklet \"Copy chương JJWXC\"",
+        "bookmarkletDescription": "Kéo nút này thả lên thanh bookmark, sau đó bấm vào khi đang mở chương VIP trên jjwxc.net để copy HTML chương.",
+        "bookmarkletButton": "Copy chương JJWXC",
+        "pasteLabel": "Dán HTML vào đây",
+        "pastePlaceholder": "Dán nội dung HTML...",
+        "fontLabel": "Tên font (tự nhận diện nếu có)",
+        "processButton": "Xử lý",
+        "processing": "Đang xử lý...",
+        "statusLoadingFont": "Đang tải font...",
+        "statusBuildingReference": "Đang chuẩn bị ký tự tham chiếu...",
+        "statusBuildingReferenceProgress": "Đang chuẩn bị ký tự tham chiếu ({done}/{total})...",
+        "statusMatching": "Đang so khớp ký tự...",
+        "resultLabel": "Kết quả",
+        "copyButton": "Copy vào clipboard",
+        "copied": "Đã copy vào clipboard",
+        "emptyResult": "Không có nội dung sau khi xoá HTML",
+        "needFontName": "Không tìm thấy tên font - nhập tay để giải mã các ký tự còn lại",
+        "decodeError": "Không giải mã được font",
+        "unresolvedTitle": "{count} ký tự chưa giải được",
+        "unresolvedDescription": "Nhập chữ đúng cho từng ký tự; lần sau sẽ tự nhớ.",
+        "correctCharPlaceholder": "chữ đúng",
+        "saveFixesButton": "Lưu & áp dụng lại",
+        "fixesSaved": "Đã lưu {count} ký tự"
+    }
+}

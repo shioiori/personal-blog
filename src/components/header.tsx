@@ -57,7 +57,8 @@ export function Header() {
   ]
 
   const studyNavigation = [
-    { name: t('english'), href: '/english' }
+    { name: t('english'), href: '/english' },
+    { name: t('removeHtml'), href: '/remove-html' }
   ]
 
   const hantuNavigation = [
