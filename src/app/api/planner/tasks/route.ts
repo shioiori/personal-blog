@@ -33,7 +33,9 @@ export async function POST(req: NextRequest) {
   if (!date || !text) {
     return NextResponse.json({ error: "date and text are required" }, { status: 400 });
   }
+  const rawEndDate = body?.endDate as string | undefined;
+  const endDate = rawEndDate && rawEndDate > date ? rawEndDate : null;
 
-  const task = await createTask(userId, date, text, checked);
+  const task = await createTask(userId, date, endDate, text, checked);
   return NextResponse.json(task, { status: 201 });
 }

@@ -11,8 +11,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   const body = await req.json();
   const text = typeof body?.text === "string" ? body.text.trim() : undefined;
   const checked = typeof body?.checked === "boolean" ? body.checked : undefined;
+  const date = typeof body?.date === "string" ? body.date : undefined;
+  const endDate = date && typeof body?.endDate === "string" && body.endDate > date ? body.endDate : null;
 
-  const task = await updateTask(userId, Number(id), { text, checked });
+  const task = await updateTask(userId, Number(id), { text, checked, date, endDate });
   if (!task) return NextResponse.json({ error: "not found" }, { status: 404 });
   return NextResponse.json(task);
 }
