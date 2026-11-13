@@ -1,4 +1,5 @@
 import { sql, once } from "./db";
+import type { ParsedTask } from "./planner-text";
 
 export interface PlannerTask {
   id: number;
@@ -81,4 +82,38 @@ export async function updateTask(
 
 export async function deleteTask(userId: number, id: number): Promise<void> {
   await sql`DELETE FROM planner_tasks WHERE id = ${id} AND user_id = ${userId}`;
+}
+
+export async function syncTasks(userId: number, from: string, to: string, parsed: ParsedTask[]): Promise<void> {
+  const pool = await listTasks(userId, from, to);
+  const sameGroup = (a: ParsedTask, b: ParsedTask) => a.date === b.date && a.endDate === b.endDate;
+  const pairs: [PlannerTask, ParsedTask][] = [];
+  let pending = parsed;
+  for (const match of [
+    (e: PlannerTask, p: ParsedTask) => sameGroup(e, p) && e.text === p.text,
+    (e: PlannerTask, p: ParsedTask) => e.text === p.text,
+    sameGroup
+  ]) {
+    pending = pending.filter((p) => {
+      const i = pool.findIndex((e) => match(e, p));
+      if (i < 0) return true;
+      pairs.push([pool.splice(i, 1)[0], p]);
+      return false;
+    });
+  }
+
+  const queries = [
+    ...pairs
+      .filter(([e, p]) => e.text !== p.text || e.checked !== p.checked || !sameGroup(e, p))
+      .map(([e, p]) => sql`
+        UPDATE planner_tasks SET text = ${p.text}, checked = ${p.checked}, date = ${p.date}, end_date = ${p.endDate}
+        WHERE id = ${e.id} AND user_id = ${userId}
+      `),
+    ...pending.map((p) => sql`
+      INSERT INTO planner_tasks (user_id, date, end_date, text, checked)
+      VALUES (${userId}, ${p.date}, ${p.endDate}, ${p.text}, ${p.checked})
+    `),
+    ...(pool.length ? [sql`DELETE FROM planner_tasks WHERE user_id = ${userId} AND id = ANY(${pool.map((e) => e.id)})`] : [])
+  ];
+  if (queries.length) await sql.transaction(queries);
 }

@@ -3,6 +3,12 @@
         "title": "Kế hoạch",
         "loginRequired": "Vui lòng đăng nhập để sử dụng tính năng này",
         "taskPlaceholder": "Bạn cần làm gì?",
-        "saveError": "Vui lòng đăng nhập để lưu đầu việc"
+        "saveError": "Không lưu được thay đổi, vui lòng thử lại",
+        "export": "Xuất",
+        "import": "Nhập",
+        "importTitle": "Chỉnh sửa đầu việc trong tháng",
+        "importLineError": "Dòng {line} không đúng định dạng",
+        "cancel": "Hủy",
+        "save": "Lưu"
     }
 }

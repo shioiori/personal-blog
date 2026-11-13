@@ -13,8 +13,18 @@ import { colorForTask } from '@/src/components/planner/colors'
 import { SegmentText } from '@/src/components/planner/SegmentText'
 import { ColumnResizeHandles, EQUAL_COLUMN_WIDTHS, columnWidthVars } from '@/src/components/planner/ColumnResizeHandles'
 import { useAuth } from '@/src/context/auth'
+import { Button } from '@/src/components/ui/Button'
+import { Textarea } from '@/src/components/ui/Textarea'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/src/components/ui/Dialog'
+import { formatTasks } from '@/src/lib/planner-text'
 
 const DRAFT_ID = 'draft'
+
+function monthRange(date: Date) {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  return { from: `${y}-${m}-01`, to: `${y}-${m}-${new Date(y, date.getMonth() + 1, 0).getDate()}` }
+}
 
 function toDateStr(date: Date) {
   return date.toISOString().slice(0, 10)
@@ -33,6 +43,9 @@ export default function PlannerPage() {
   const [draft, setDraft] = useState<{ date: string; endDate: string | null } | null>(null)
   const [editingId, setEditingId] = useState<number | null>(null)
   const rangeRef = useRef<{ from: string; to: string } | null>(null)
+  const monthRef = useRef<{ from: string; to: string } | null>(null)
+  const [importText, setImportText] = useState<string | null>(null)
+  const [importing, setImporting] = useState(false)
   const gridRef = useRef<HTMLDivElement>(null)
   const [columnWidths, setColumnWidths] = useState<number[]>(EQUAL_COLUMN_WIDTHS)
   const [segmentEnds, setSegmentEnds] = useState<Record<string, Record<string, number>>>({})
@@ -62,7 +75,40 @@ export default function PlannerPage() {
 
   function handleDatesSet(arg: DatesSetArg) {
     rangeRef.current = { from: toDateStr(arg.start), to: toDateStr(arg.end) }
+    monthRef.current = monthRange(arg.view.currentStart)
     refetch()
+  }
+
+  function monthText() {
+    const month = monthRef.current
+    if (!month) return ''
+    return formatTasks(tasks.filter((x) => x.date <= month.to && (x.endDate ?? x.date) >= month.from))
+  }
+
+  function handleExport() {
+    const url = URL.createObjectURL(new Blob([monthText()], { type: 'text/plain;charset=utf-8' }))
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `planner-${monthRef.current?.from.slice(0, 7)}.txt`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  async function handleImportSave() {
+    if (importText === null || !monthRef.current) return
+    setImporting(true)
+    const res = await fetch('/api/planner/import', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...monthRef.current, text: importText })
+    }).catch(() => Response.error())
+    setImporting(false)
+    if (res.ok) {
+      setImportText(null)
+      return refetch()
+    }
+    const data = await res.json().catch(() => null)
+    toast.error(data?.errorLine ? t('importLineError', { line: data.errorLine }) : t('saveError'))
   }
 
   function startDraft(date: string, endDate: string | null) {
@@ -88,7 +134,7 @@ export default function PlannerPage() {
       method,
       headers: body ? { 'Content-Type': 'application/json' } : undefined,
       body: body ? JSON.stringify(body) : undefined
-    })
+    }).catch(() => Response.error())
     if (!res.ok) toast.error(t('saveError'))
     return res
   }
@@ -124,11 +170,12 @@ export default function PlannerPage() {
     if (cancelled) return
     if (taskId === null) {
       if (!text || !current) return
+      const tempId = -Date.now()
+      setTasks((prev) => [...prev, { id: tempId, ...current, text, checked: false }])
       const res = await request('/api/planner/tasks', 'POST', { ...current, text })
-      if (res.ok) {
-        const created = (await res.json()) as PlannerTask
-        setTasks((prev) => [...prev, created])
-      }
+      if (!res.ok) return setTasks((prev) => prev.filter((x) => x.id !== tempId))
+      const created = (await res.json()) as PlannerTask
+      setTasks((prev) => [...prev.filter((x) => x.id !== tempId && x.id !== created.id), created])
       return
     }
     if (!text) return handleDelete(taskId)
@@ -152,12 +199,13 @@ export default function PlannerPage() {
     }))
     if (draft) items.push({ id: DRAFT_ID, title: '', start: draft.date, endDate: draft.endDate, checked: false })
     return items.map(({ endDate, checked, ...item }) => {
-      const color = colorForTask(item.id)
+      const pending = Number(item.id) < 0
+      const color = colorForTask(pending ? DRAFT_ID : item.id)
       return {
         ...item,
         end: endDate ? addDays(endDate, 1) : undefined,
         allDay: true,
-        editable: item.id !== DRAFT_ID && item.id !== String(editingId),
+        editable: !pending && item.id !== DRAFT_ID && item.id !== String(editingId),
         backgroundColor: 'transparent',
         borderColor: 'transparent',
         extendedProps: { checked, color }
@@ -168,7 +216,40 @@ export default function PlannerPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl p-6">
-        <h1 className="text-2xl font-bold mb-4">{t('title')}</h1>
+        <div className="flex items-center justify-between gap-2 mb-4">
+          <h1 className="text-2xl font-bold">{t('title')}</h1>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" disabled={!user} onClick={handleExport}>
+              {t('export')}
+            </Button>
+            <Button variant="outline" size="sm" disabled={!user} onClick={() => setImportText(monthText())}>
+              {t('import')}
+            </Button>
+          </div>
+        </div>
+
+        <Dialog open={importText !== null} onOpenChange={(open) => !open && setImportText(null)}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>{t('importTitle')}</DialogTitle>
+            </DialogHeader>
+            <Textarea
+              value={importText ?? ''}
+              onChange={(e) => setImportText(e.target.value)}
+              wrap="off"
+              spellCheck={false}
+              className="min-h-[50vh] max-h-[60vh] overflow-auto font-mono text-xs md:text-xs [tab-size:4]"
+            />
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setImportText(null)} disabled={importing}>
+                {t('cancel')}
+              </Button>
+              <Button onClick={handleImportSave} disabled={importing}>
+                {t('save')}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {!authLoading && !user && (
           <p className="text-sm text-muted-foreground mb-4">{t('loginRequired')}</p>
@@ -202,17 +283,19 @@ export default function PlannerPage() {
                 const color = info.event.extendedProps.color as ReturnType<typeof colorForTask>
                 const isDraft = info.event.id === DRAFT_ID
                 const taskId = isDraft ? null : Number(info.event.id)
+                const pending = taskId !== null && taskId < 0
+                const readOnly = taskId === null || pending
                 const editing = (isDraft || taskId === editingId) && info.isStart
                 const segmentKey = `${info.event.id}|${info.event.startStr}|${info.event.endStr}|${info.event.title}`
                 return (
-                  <div className={`group flex items-center gap-1 w-full overflow-hidden cursor-pointer active:cursor-grabbing ${info.isStart ? 'pl-0.5' : ''}`}>
+                  <div className={`group flex items-center gap-1 w-full overflow-hidden cursor-pointer active:cursor-grabbing ${info.isStart ? 'pl-0.5' : ''} ${pending ? 'opacity-60' : ''}`}>
                     {info.isStart && (
                       <input
                         type="checkbox"
                         checked={checked}
-                        disabled={taskId === null}
+                        disabled={readOnly}
                         onClick={(e) => e.stopPropagation()}
-                        onChange={() => taskId !== null && handleToggle(taskId, !checked)}
+                        onChange={() => !readOnly && handleToggle(taskId, !checked)}
                         className="shrink-0 cursor-pointer"
                         style={{
                           WebkitAppearance: 'none',
@@ -253,11 +336,12 @@ export default function PlannerPage() {
                             className={`min-w-0 flex-1 truncate text-xs font-medium ${checked ? 'line-through opacity-70' : ''}`}
                             style={{ color: color.text }}
                             onClick={() => {
+                              if (readOnly) return
                               setDraft(null)
                               setEditingId(taskId)
                             }}
                           />
-                          {taskId !== null && (
+                          {!readOnly && (
                             <button
                               type="button"
                               onClick={(e) => {

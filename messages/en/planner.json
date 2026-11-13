@@ -3,6 +3,12 @@
         "title": "Planner",
         "loginRequired": "Please log in to use the planner",
         "taskPlaceholder": "What do you need to do?",
-        "saveError": "Please log in to save tasks"
+        "saveError": "Couldn't save your changes, please try again",
+        "export": "Export",
+        "import": "Import",
+        "importTitle": "Edit this month's tasks",
+        "importLineError": "Line {line} has an invalid format",
+        "cancel": "Cancel",
+        "save": "Save"
     }
 }
