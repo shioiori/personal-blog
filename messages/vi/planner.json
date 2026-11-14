@@ -6,6 +6,8 @@
         "saveError": "Không lưu được thay đổi, vui lòng thử lại",
         "export": "Xuất",
         "import": "Nhập",
+        "textModeWrap": "Xuống dòng",
+        "textModeTruncate": "Rút gọn (...)",
         "importTitle": "Chỉnh sửa đầu việc trong tháng",
         "importLineError": "Dòng {line} không đúng định dạng",
         "cancel": "Hủy",

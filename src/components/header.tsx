@@ -57,7 +57,10 @@ export function Header() {
   ]
 
   const studyNavigation = [
-    { name: t('english'), href: '/english' },
+    { name: t('english'), href: '/english' }
+  ]
+
+  const utilitiesNavigation = [
     { name: t('removeHtml'), href: '/remove-html' }
   ]
 
@@ -122,6 +125,20 @@ export function Header() {
                   </DropdownMenuPortal>
                 </DropdownMenuSub>
                 {studyNavigation.map((item) => (
+                  <DropdownMenuItem key={item.name} asChild>
+                    <Link href={item.href}>{item.name}</Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary text-muted-foreground outline-none">
+                {t('utilities')}
+                <ChevronDown className="h-3.5 w-3.5" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                {utilitiesNavigation.map((item) => (
                   <DropdownMenuItem key={item.name} asChild>
                     <Link href={item.href}>{item.name}</Link>
                   </DropdownMenuItem>
@@ -270,6 +287,25 @@ export function Header() {
               ))}
 
               {studyNavigation.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors hover:text-primary hover:bg-accent ${
+                    pathname === item.href
+                      ? 'text-primary bg-accent'
+                      : 'text-muted-foreground'
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              ))}
+
+              <div className="px-3 pt-3 pb-1 text-xs font-semibold uppercase text-muted-foreground">
+                {t('utilities')}
+              </div>
+
+              {utilitiesNavigation.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}

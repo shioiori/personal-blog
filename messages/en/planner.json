@@ -6,6 +6,8 @@
         "saveError": "Couldn't save your changes, please try again",
         "export": "Export",
         "import": "Import",
+        "textModeWrap": "Wrap text",
+        "textModeTruncate": "Truncate text",
         "importTitle": "Edit this month's tasks",
         "importLineError": "Line {line} has an invalid format",
         "cancel": "Cancel",

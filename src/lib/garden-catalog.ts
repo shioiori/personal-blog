@@ -44,7 +44,7 @@ export interface FertilizerDef {
 
 export const WITHER_AFTER_DAYS = 10;
 export const HARVEST_INTEREST = 0.1;
-export const TASK_REWARD_PER_DAY = 10;
+export const TASK_REWARD_PER_DAY = 1;
 
 export const CROPS: CropDef[] = [
   { id: "onion", nameKey: "onion", seedPrice: 8, sellPrice: 20, growDays: 8, seedIcon: "/garden/onion-seeds.png", stages: cornucopia(8, 4) },

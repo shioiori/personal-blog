@@ -6,7 +6,7 @@ import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import { DateSelectArg, DatesSetArg, EventChangeArg } from '@fullcalendar/core'
-import { CalendarDays, Sprout, X } from 'lucide-react'
+import { CalendarDays, Sprout, WrapText, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { PlannerTask } from '@/src/declaration/planner'
 import { GardenTab } from '@/src/components/planner/GardenTab'
@@ -51,6 +51,20 @@ export default function PlannerPage() {
   const gridRef = useRef<HTMLDivElement>(null)
   const [columnWidths, setColumnWidths] = useState<number[]>(EQUAL_COLUMN_WIDTHS)
   const [segmentEnds, setSegmentEnds] = useState<Record<string, Record<string, number>>>({})
+  const [textMode, setTextMode] = useState<'truncate' | 'wrap'>('truncate')
+
+  useEffect(() => {
+    const stored = localStorage.getItem('planner-text-mode')
+    if (stored === 'wrap' || stored === 'truncate') setTextMode(stored)
+  }, [])
+
+  const toggleTextMode = useCallback(() => {
+    setTextMode((prev) => {
+      const next = prev === 'wrap' ? 'truncate' : 'wrap'
+      localStorage.setItem('planner-text-mode', next)
+      return next
+    })
+  }, [])
 
   const handleSegmentMeasure = useCallback((segmentKey: string, segmentStart: string, end: number) => {
     setSegmentEnds((prev) =>
@@ -74,6 +88,24 @@ export default function PlannerPage() {
     document.addEventListener('pointerdown', handlePointerDown, true)
     return () => document.removeEventListener('pointerdown', handlePointerDown, true)
   }, [draft, editingId])
+
+  useEffect(() => {
+    if (editingId === null) return
+    const input = document.querySelector<HTMLInputElement>('[data-planner-input]')
+    if (!input) return
+    input.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+    // FullCalendar's interaction plugin preventDefaults mousedown on .fc-event to
+    // suppress native drag/selection, which also blocks the browser's native
+    // click-to-reposition-caret behavior inside this input. Stop it from reaching
+    // that ancestor listener so clicking mid-text still moves the caret.
+    console.log('[planner-debug] attaching stopPropagation listener', input)
+    const stopPropagation = (e: MouseEvent) => {
+      console.log('[planner-debug] mousedown stopPropagation fired')
+      e.stopPropagation()
+    }
+    input.addEventListener('mousedown', stopPropagation)
+    return () => input.removeEventListener('mousedown', stopPropagation)
+  }, [editingId])
 
   function handleDatesSet(arg: DatesSetArg) {
     rangeRef.current = { from: toDateStr(arg.start), to: toDateStr(arg.end) }
@@ -221,6 +253,17 @@ export default function PlannerPage() {
         <div className="flex items-center justify-between gap-2 mb-4">
           <h1 className="text-2xl font-bold">{t('title')}</h1>
           <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={toggleTextMode}
+              title={textMode === 'wrap' ? t('textModeWrap') : t('textModeTruncate')}
+              aria-label={textMode === 'wrap' ? t('textModeWrap') : t('textModeTruncate')}
+              aria-pressed={textMode === 'wrap'}
+              className={`h-9 w-9 ${textMode === 'wrap' ? 'bg-accent text-accent-foreground' : ''}`}
+            >
+              <WrapText className="h-4 w-4" />
+            </Button>
             <Button variant="outline" size="sm" disabled={!user} onClick={handleExport}>
               {t('export')}
             </Button>
@@ -302,8 +345,9 @@ export default function PlannerPage() {
                 const readOnly = taskId === null || pending
                 const editing = (isDraft || taskId === editingId) && info.isStart
                 const segmentKey = `${info.event.id}|${info.event.startStr}|${info.event.endStr}|${info.event.title}`
+                const wrap = textMode === 'wrap'
                 return (
-                  <div className={`group flex items-center gap-1 w-full overflow-hidden cursor-pointer active:cursor-grabbing ${info.isStart ? 'pl-0.5' : ''} ${pending ? 'opacity-60' : ''}`}>
+                  <div className={`group flex items-center gap-1 w-full cursor-pointer active:cursor-grabbing ${info.isStart ? 'pl-0.5' : ''} ${pending ? 'opacity-60' : ''} ${wrap ? 'items-start' : ''} ${wrap ? '' : 'overflow-hidden'}`}>
                     {info.isStart && (
                       <input
                         type="checkbox"
@@ -311,7 +355,7 @@ export default function PlannerPage() {
                         disabled={readOnly}
                         onClick={(e) => e.stopPropagation()}
                         onChange={() => !readOnly && handleToggle(taskId, !checked)}
-                        className="shrink-0 cursor-pointer"
+                        className={`shrink-0 cursor-pointer ${wrap ? 'mt-1' : ''}`}
                         style={{
                           WebkitAppearance: 'none',
                           MozAppearance: 'none',
@@ -340,6 +384,32 @@ export default function PlannerPage() {
                           className="min-w-0 flex-1 bg-transparent text-xs font-medium outline-none"
                           style={{ color: color.text }}
                         />
+                      ) : wrap ? (
+                        <>
+                          <span
+                            className={`min-w-0 flex-1 text-xs font-medium ${checked ? 'line-through opacity-70' : ''}`}
+                            style={{ color: color.text, whiteSpace: 'normal', wordBreak: 'break-word', overflowWrap: 'anywhere' }}
+                            onClick={() => {
+                              if (readOnly) return
+                              setDraft(null)
+                              setEditingId(taskId)
+                            }}
+                          >
+                            {info.isStart ? info.event.title || ' ' : ' '}
+                          </span>
+                          {!readOnly && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDelete(taskId)
+                              }}
+                              className="shrink-0 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          )}
+                        </>
                       ) : (
                         <>
                           <SegmentText
