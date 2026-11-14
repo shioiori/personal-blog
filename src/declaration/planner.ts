@@ -4,4 +4,11 @@ export interface PlannerTask {
   endDate: string | null
   text: string
   checked: boolean
+  categoryId: number | null
+}
+
+export interface PlannerCategory {
+  id: number
+  name: string
+  color: string
 }

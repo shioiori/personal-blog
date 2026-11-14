@@ -9,6 +9,13 @@ export interface PlannerTask {
   endDate: string | null;
   text: string;
   checked: boolean;
+  categoryId: number | null;
+}
+
+export interface PlannerCategory {
+  id: number;
+  name: string;
+  color: string;
 }
 
 export const ensurePlannerTables = once(async function ensurePlannerTables() {
@@ -24,7 +31,36 @@ export const ensurePlannerTables = once(async function ensurePlannerTables() {
   `;
   await sql`ALTER TABLE planner_tasks ADD COLUMN IF NOT EXISTS end_date DATE`;
   await sql`CREATE INDEX IF NOT EXISTS planner_tasks_user_date_idx ON planner_tasks (user_id, date)`;
+  await sql`
+    CREATE TABLE IF NOT EXISTS planner_categories (
+      id         SERIAL PRIMARY KEY,
+      user_id    INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      name       TEXT NOT NULL,
+      color      TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+  await sql`ALTER TABLE planner_tasks ADD COLUMN IF NOT EXISTS category_id INT REFERENCES planner_categories(id) ON DELETE SET NULL`;
 });
+
+export async function listCategories(userId: number): Promise<PlannerCategory[]> {
+  const rows = await sql`
+    SELECT id, name, color FROM planner_categories WHERE user_id = ${userId} ORDER BY id ASC
+  `;
+  return rows.map((r) => ({ id: r.id as number, name: r.name as string, color: r.color as string }));
+}
+
+export async function createCategory(userId: number, name: string, color: string): Promise<PlannerCategory> {
+  const rows = await sql`
+    INSERT INTO planner_categories (user_id, name, color) VALUES (${userId}, ${name}, ${color})
+    RETURNING id, name, color
+  `;
+  return { id: rows[0].id as number, name: rows[0].name as string, color: rows[0].color as string };
+}
+
+export async function deleteCategory(userId: number, id: number): Promise<void> {
+  await sql`DELETE FROM planner_categories WHERE id = ${id} AND user_id = ${userId}`;
+}
 
 /** Garden coins a checked task is worth: a fixed amount per day it spans. */
 export function taskReward(task: { date: string; endDate: string | null; checked: boolean }): number {
@@ -43,7 +79,7 @@ async function payReward(userId: number, delta: number): Promise<void> {
 
 async function getTask(userId: number, id: number): Promise<PlannerTask | null> {
   const rows = await sql`
-    SELECT id, date::text AS date, end_date::text AS end_date, text, checked FROM planner_tasks
+    SELECT id, date::text AS date, end_date::text AS end_date, text, checked, category_id FROM planner_tasks
     WHERE id = ${id} AND user_id = ${userId}
   `;
   return rows[0] ? toTask(rows[0]) : null;
@@ -55,13 +91,14 @@ function toTask(row: Record<string, unknown>): PlannerTask {
     date: row.date as string,
     endDate: row.end_date as string | null,
     text: row.text as string,
-    checked: row.checked as boolean
+    checked: row.checked as boolean,
+    categoryId: (row.category_id as number | null) ?? null
   };
 }
 
 export async function listTasks(userId: number, from: string, to: string): Promise<PlannerTask[]> {
   const rows = await sql`
-    SELECT id, date::text AS date, end_date::text AS end_date, text, checked FROM planner_tasks
+    SELECT id, date::text AS date, end_date::text AS end_date, text, checked, category_id FROM planner_tasks
     WHERE user_id = ${userId} AND date <= ${to} AND COALESCE(end_date, date) >= ${from}
     ORDER BY date ASC, id ASC
   `;
@@ -70,7 +107,7 @@ export async function listTasks(userId: number, from: string, to: string): Promi
 
 export async function listLatestTasksBefore(userId: number, date: string): Promise<PlannerTask[]> {
   const rows = await sql`
-    SELECT id, date::text AS date, end_date::text AS end_date, text, checked FROM planner_tasks
+    SELECT id, date::text AS date, end_date::text AS end_date, text, checked, category_id FROM planner_tasks
     WHERE user_id = ${userId} AND end_date IS NULL
       AND date = (SELECT MAX(date) FROM planner_tasks WHERE user_id = ${userId} AND end_date IS NULL AND date < ${date})
     ORDER BY id ASC
@@ -82,7 +119,7 @@ export async function createTask(userId: number, date: string, endDate: string |
   const rows = await sql`
     INSERT INTO planner_tasks (user_id, date, end_date, text, checked)
     VALUES (${userId}, ${date}, ${endDate}, ${text}, ${checked})
-    RETURNING id, date::text AS date, end_date::text AS end_date, text, checked
+    RETURNING id, date::text AS date, end_date::text AS end_date, text, checked, category_id
   `;
   const task = toTask(rows[0]);
   await payReward(userId, taskReward(task));
@@ -92,19 +129,21 @@ export async function createTask(userId: number, date: string, endDate: string |
 export async function updateTask(
   userId: number,
   id: number,
-  fields: { text?: string; checked?: boolean; date?: string; endDate?: string | null }
+  fields: { text?: string; checked?: boolean; date?: string; endDate?: string | null; categoryId?: number | null }
 ): Promise<PlannerTask | null> {
   const before = await getTask(userId, id);
   if (!before) return null;
   const date = fields.date ?? null;
+  const categoryId = fields.categoryId !== undefined ? fields.categoryId : before.categoryId;
   const rows = await sql`
     UPDATE planner_tasks
     SET text = COALESCE(${fields.text ?? null}, text),
         checked = COALESCE(${fields.checked ?? null}, checked),
         date = COALESCE(${date}::date, date),
-        end_date = CASE WHEN ${date}::date IS NULL THEN end_date ELSE ${fields.endDate ?? null}::date END
+        end_date = CASE WHEN ${date}::date IS NULL THEN end_date ELSE ${fields.endDate ?? null}::date END,
+        category_id = ${categoryId}
     WHERE id = ${id} AND user_id = ${userId}
-    RETURNING id, date::text AS date, end_date::text AS end_date, text, checked
+    RETURNING id, date::text AS date, end_date::text AS end_date, text, checked, category_id
   `;
   const task = rows[0] ? toTask(rows[0]) : null;
   // Ticking pays, unticking takes it back, and moving a checked task re-prices it by its new length.

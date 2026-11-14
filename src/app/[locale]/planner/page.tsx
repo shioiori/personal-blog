@@ -6,11 +6,11 @@ import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import { DateSelectArg, DatesSetArg, EventChangeArg } from '@fullcalendar/core'
-import { CalendarDays, Sprout, WrapText, X } from 'lucide-react'
+import { CalendarDays, Plus, Sprout, WrapText, X } from 'lucide-react'
 import { toast } from 'sonner'
-import { PlannerTask } from '@/src/declaration/planner'
+import { PlannerCategory, PlannerTask } from '@/src/declaration/planner'
 import { GardenTab } from '@/src/components/planner/GardenTab'
-import { colorForTask } from '@/src/components/planner/colors'
+import { CATEGORY_COLORS, colorForTask } from '@/src/components/planner/colors'
 import { SegmentText } from '@/src/components/planner/SegmentText'
 import { ColumnResizeHandles, EQUAL_COLUMN_WIDTHS, columnWidthVars } from '@/src/components/planner/ColumnResizeHandles'
 import { useAuth } from '@/src/context/auth'
@@ -38,6 +38,22 @@ function addDays(dateStr: string, days: number) {
   return toDateStr(date)
 }
 
+let measureContext: CanvasRenderingContext2D | null = null
+
+function charIndexAtX(text: string, x: number, font: string) {
+  measureContext ??= document.createElement('canvas').getContext('2d')
+  if (!measureContext) return text.length
+  measureContext.font = font
+  let low = 0
+  let high = text.length
+  while (low < high) {
+    const mid = Math.ceil((low + high) / 2)
+    if (measureContext.measureText(text.slice(0, mid)).width <= x) low = mid
+    else high = mid - 1
+  }
+  return low
+}
+
 export default function PlannerPage() {
   const t = useTranslations('Planner')
   const { user, loading: authLoading } = useAuth()
@@ -52,11 +68,49 @@ export default function PlannerPage() {
   const [columnWidths, setColumnWidths] = useState<number[]>(EQUAL_COLUMN_WIDTHS)
   const [segmentEnds, setSegmentEnds] = useState<Record<string, Record<string, number>>>({})
   const [textMode, setTextMode] = useState<'truncate' | 'wrap'>('truncate')
+  const [categories, setCategories] = useState<PlannerCategory[]>([])
+  const [newCategoryOpen, setNewCategoryOpen] = useState(false)
+  const [newCategoryName, setNewCategoryName] = useState('')
+  const [newCategoryColor, setNewCategoryColor] = useState(CATEGORY_COLORS[0])
+  const [dragOverTaskId, setDragOverTaskId] = useState<number | null>(null)
 
   useEffect(() => {
     const stored = localStorage.getItem('planner-text-mode')
     if (stored === 'wrap' || stored === 'truncate') setTextMode(stored)
   }, [])
+
+  useEffect(() => {
+    if (!user) return
+    fetch('/api/planner/categories').then(async (res) => {
+      if (res.ok) setCategories(await res.json())
+    })
+  }, [user])
+
+  async function handleCreateCategory() {
+    const name = newCategoryName.trim()
+    if (!name) return
+    const res = await request('/api/planner/categories', 'POST', { name, color: newCategoryColor })
+    if (!res.ok) return
+    const created = (await res.json()) as PlannerCategory
+    setCategories((prev) => [...prev, created])
+    setNewCategoryOpen(false)
+    setNewCategoryName('')
+    setNewCategoryColor(CATEGORY_COLORS[0])
+  }
+
+  async function handleDeleteCategory(categoryId: number) {
+    const res = await request(`/api/planner/categories/${categoryId}`, 'DELETE')
+    if (!res.ok) return
+    setCategories((prev) => prev.filter((c) => c.id !== categoryId))
+    setTasks((prev) => prev.map((t) => (t.categoryId === categoryId ? { ...t, categoryId: null } : t)))
+  }
+
+  async function handleAssignCategory(taskId: number, categoryId: number | null) {
+    const previous = tasks.find((x) => x.id === taskId)?.categoryId ?? null
+    setTasks((prev) => prev.map((x) => (x.id === taskId ? { ...x, categoryId } : x)))
+    const res = await request(`/api/planner/tasks/${taskId}`, 'PUT', { categoryId })
+    if (!res.ok) setTasks((prev) => prev.map((x) => (x.id === taskId ? { ...x, categoryId: previous } : x)))
+  }
 
   const toggleTextMode = useCallback(() => {
     setTextMode((prev) => {
@@ -94,17 +148,6 @@ export default function PlannerPage() {
     const input = document.querySelector<HTMLInputElement>('[data-planner-input]')
     if (!input) return
     input.scrollIntoView({ block: 'nearest', inline: 'nearest' })
-    // FullCalendar's interaction plugin preventDefaults mousedown on .fc-event to
-    // suppress native drag/selection, which also blocks the browser's native
-    // click-to-reposition-caret behavior inside this input. Stop it from reaching
-    // that ancestor listener so clicking mid-text still moves the caret.
-    console.log('[planner-debug] attaching stopPropagation listener', input)
-    const stopPropagation = (e: MouseEvent) => {
-      console.log('[planner-debug] mousedown stopPropagation fired')
-      e.stopPropagation()
-    }
-    input.addEventListener('mousedown', stopPropagation)
-    return () => input.removeEventListener('mousedown', stopPropagation)
   }, [editingId])
 
   function handleDatesSet(arg: DatesSetArg) {
@@ -205,7 +248,7 @@ export default function PlannerPage() {
     if (taskId === null) {
       if (!text || !current) return
       const tempId = -Date.now()
-      setTasks((prev) => [...prev, { id: tempId, ...current, text, checked: false }])
+      setTasks((prev) => [...prev, { id: tempId, ...current, text, checked: false, categoryId: null }])
       const res = await request('/api/planner/tasks', 'POST', { ...current, text })
       if (!res.ok) return setTasks((prev) => prev.filter((x) => x.id !== tempId))
       const created = (await res.json()) as PlannerTask
@@ -229,10 +272,11 @@ export default function PlannerPage() {
       title: task.text,
       start: task.date,
       endDate: task.endDate,
-      checked: task.checked
+      checked: task.checked,
+      categoryId: task.categoryId
     }))
-    if (draft) items.push({ id: DRAFT_ID, title: '', start: draft.date, endDate: draft.endDate, checked: false })
-    return items.map(({ endDate, checked, ...item }) => {
+    if (draft) items.push({ id: DRAFT_ID, title: '', start: draft.date, endDate: draft.endDate, checked: false, categoryId: null })
+    return items.map(({ endDate, checked, categoryId, ...item }) => {
       const pending = Number(item.id) < 0
       const color = colorForTask(pending ? DRAFT_ID : item.id)
       return {
@@ -242,7 +286,7 @@ export default function PlannerPage() {
         editable: !pending && item.id !== DRAFT_ID && item.id !== String(editingId),
         backgroundColor: 'transparent',
         borderColor: 'transparent',
-        extendedProps: { checked, color }
+        extendedProps: { checked, color, categoryId }
       }
     })
   }, [tasks, draft, editingId])
@@ -300,6 +344,49 @@ export default function PlannerPage() {
           <p className="text-sm text-muted-foreground mb-4">{t('loginRequired')}</p>
         )}
 
+        <Dialog open={newCategoryOpen} onOpenChange={setNewCategoryOpen}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>{t('addCategory')}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs text-muted-foreground">{t('categoryName')}</label>
+                <input
+                  autoFocus
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleCreateCategory()}
+                  placeholder={t('categoryNamePlaceholder')}
+                  className="mt-1 w-full rounded-md border bg-background px-2 py-1.5 text-sm outline-none"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">{t('categoryColor')}</label>
+                <div className="mt-1 flex flex-wrap gap-2">
+                  {CATEGORY_COLORS.map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => setNewCategoryColor(color)}
+                      className="h-6 w-6 rounded-full"
+                      style={{ backgroundColor: color, outline: color === newCategoryColor ? '2px solid currentColor' : undefined, outlineOffset: 2 }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setNewCategoryOpen(false)}>
+                {t('cancel')}
+              </Button>
+              <Button onClick={handleCreateCategory} disabled={!newCategoryName.trim()}>
+                {t('save')}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
         <Tabs defaultValue="calendar" className="space-y-4">
           <TabsList>
             <TabsTrigger value="calendar" className="flex items-center gap-2">
@@ -313,6 +400,42 @@ export default function PlannerPage() {
           </TabsList>
 
           <TabsContent value="calendar">
+        {user && (
+          <div className="flex flex-wrap items-center gap-2 mb-3">
+            <span className="text-xs text-muted-foreground">{t('categories')}</span>
+            {categories.map((cat) => (
+              <span
+                key={cat.id}
+                draggable
+                onDragStart={(e) => e.dataTransfer.setData('text/planner-category-id', String(cat.id))}
+                title={cat.name}
+                className="group flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs cursor-grab active:cursor-grabbing"
+              >
+                <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: cat.color }} />
+                {cat.name}
+                <button
+                  type="button"
+                  aria-label={t('deleteCategory')}
+                  onClick={() => handleDeleteCategory(cat.id)}
+                  className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+            ))}
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-6 w-6"
+              title={t('addCategory')}
+              aria-label={t('addCategory')}
+              onClick={() => setNewCategoryOpen(true)}
+            >
+              <Plus className="h-3 w-3" />
+            </Button>
+            {categories.length > 0 && <span className="text-xs text-muted-foreground">{t('dragCategoryHint')}</span>}
+          </div>
+        )}
         <div className="w-full overflow-x-auto no-scrollbar planner-calendar">
           <div
             ref={gridRef}
@@ -339,6 +462,8 @@ export default function PlannerPage() {
               eventContent={(info) => {
                 const checked = info.event.extendedProps.checked as boolean
                 const color = info.event.extendedProps.color as ReturnType<typeof colorForTask>
+                const categoryId = info.event.extendedProps.categoryId as number | null
+                const category = categoryId ? categories.find((c) => c.id === categoryId) : undefined
                 const isDraft = info.event.id === DRAFT_ID
                 const taskId = isDraft ? null : Number(info.event.id)
                 const pending = taskId !== null && taskId < 0
@@ -347,7 +472,9 @@ export default function PlannerPage() {
                 const segmentKey = `${info.event.id}|${info.event.startStr}|${info.event.endStr}|${info.event.title}`
                 const wrap = textMode === 'wrap'
                 return (
-                  <div className={`group flex items-center gap-1 w-full cursor-pointer active:cursor-grabbing ${info.isStart ? 'pl-0.5' : ''} ${pending ? 'opacity-60' : ''} ${wrap ? 'items-start' : ''} ${wrap ? '' : 'overflow-hidden'}`}>
+                  <div
+                    className={`group flex items-center gap-1 w-full cursor-pointer active:cursor-grabbing ${info.isStart ? 'pl-0.5' : ''} ${pending ? 'opacity-60' : ''} ${wrap ? 'items-start' : ''} ${wrap ? '' : 'overflow-hidden'}`}
+                  >
                     {info.isStart && (
                       <input
                         type="checkbox"
@@ -370,9 +497,42 @@ export default function PlannerPage() {
                       />
                     )}
                     <div
-                      className={`flex min-w-0 flex-1 items-center gap-1 px-1.5 py-px ${info.isStart ? 'rounded-l-md' : ''} ${info.isEnd ? 'rounded-r-md' : ''}`}
-                      style={{ backgroundColor: `${color.bar}4D` }}
+                      className="flex min-w-0 flex-1 items-center gap-1 px-1.5 py-px"
+                      style={{
+                        backgroundColor: `${color.bar}4D`,
+                        borderTopLeftRadius: info.isStart ? 6 : 0,
+                        borderBottomLeftRadius: info.isStart ? 6 : 0,
+                        borderTopRightRadius: info.isEnd ? 6 : 0,
+                        borderBottomRightRadius: info.isEnd ? 6 : 0,
+                        boxShadow: dragOverTaskId === taskId && !readOnly ? 'inset 0 0 0 2px currentColor' : undefined
+                      }}
+                      onDragOver={(e) => {
+                        if (readOnly || !e.dataTransfer.types.includes('text/planner-category-id')) return
+                        e.preventDefault()
+                        setDragOverTaskId(taskId)
+                      }}
+                      onDragLeave={() => setDragOverTaskId((prev) => (prev === taskId ? null : prev))}
+                      onDrop={(e) => {
+                        setDragOverTaskId(null)
+                        if (readOnly) return
+                        const dropped = e.dataTransfer.getData('text/planner-category-id')
+                        if (!dropped) return
+                        e.preventDefault()
+                        handleAssignCategory(taskId as number, Number(dropped))
+                      }}
                     >
+                      {info.isStart && category && (
+                        <span
+                          title={category.name}
+                          onClick={(e) => e.stopPropagation()}
+                          onDoubleClick={(e) => {
+                            e.stopPropagation()
+                            if (!readOnly) handleAssignCategory(taskId as number, null)
+                          }}
+                          className="h-2 w-2 shrink-0 rounded-full cursor-pointer"
+                          style={{ backgroundColor: category.color }}
+                        />
+                      )}
                       {editing ? (
                         <input
                           data-planner-input
@@ -381,6 +541,16 @@ export default function PlannerPage() {
                           placeholder={t('taskPlaceholder')}
                           onBlur={(e) => handleCommit(e, taskId)}
                           onKeyDown={handleInputKeyDown}
+                          onMouseDown={(e) => {
+                            // FullCalendar's interaction plugin preventDefaults mousedown on
+                            // .fc-event to suppress native drag/selection, which also blocks the
+                            // browser's native click-to-reposition-caret behavior here. Compute
+                            // and apply the caret position ourselves instead of relying on it.
+                            const input = e.currentTarget
+                            const x = e.clientX - input.getBoundingClientRect().left
+                            const index = charIndexAtX(input.value, x, getComputedStyle(input).font)
+                            requestAnimationFrame(() => input.setSelectionRange(index, index))
+                          }}
                           className="min-w-0 flex-1 bg-transparent text-xs font-medium outline-none"
                           style={{ color: color.text }}
                         />

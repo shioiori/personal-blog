@@ -6,16 +6,31 @@ export interface PlannerColor {
   bg: string
 }
 
-const PASTEL_PALETTE: PlannerColor[] = [
-  { bar: '#C7D2FE', fill: '#E0E7FF', fillChecked: '#C7D2FE', text: '#6366F1', bg: '#EEF2FF' },
-  { bar: '#FBCFE8', fill: '#FCE7F3', fillChecked: '#FBCFE8', text: '#EC4899', bg: '#FDF2F8' },
-  { bar: '#99F6E4', fill: '#CCFBF1', fillChecked: '#99F6E4', text: '#14B8A6', bg: '#F0FDFA' },
-  { bar: '#FDE68A', fill: '#FEF3C7', fillChecked: '#FDE68A', text: '#F59E0B', bg: '#FFFBEB' },
-  { bar: '#BAE6FD', fill: '#E0F2FE', fillChecked: '#BAE6FD', text: '#0EA5E9', bg: '#F0F9FF' },
-  { bar: '#DDD6FE', fill: '#EDE9FE', fillChecked: '#DDD6FE', text: '#8B5CF6', bg: '#F5F3FF' },
-  { bar: '#FECACA', fill: '#FEE2E2', fillChecked: '#FECACA', text: '#F87171', bg: '#FEF2F2' },
-  { bar: '#BBF7D0', fill: '#DCFCE7', fillChecked: '#BBF7D0', text: '#4ADE80', bg: '#F0FDF4' }
-]
+const HUES = [0, 15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180, 195, 210, 225, 240, 255, 270, 285, 300, 315, 330, 345]
+
+function hslToHex(h: number, s: number, l: number): string {
+  s /= 100
+  l /= 100
+  const k = (n: number) => (n + h / 30) % 12
+  const a = s * Math.min(l, 1 - l)
+  const f = (n: number) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)))
+  const toHex = (n: number) =>
+    Math.round(f(n) * 255)
+      .toString(16)
+      .padStart(2, '0')
+  return `#${toHex(0)}${toHex(8)}${toHex(4)}`
+}
+
+const PASTEL_PALETTE: PlannerColor[] = HUES.map((h) => ({
+  bar: hslToHex(h, 70, 80),
+  fill: hslToHex(h, 70, 91),
+  fillChecked: hslToHex(h, 70, 80),
+  text: hslToHex(h, 60, 50),
+  bg: hslToHex(h, 70, 97)
+}))
+
+/** Pastel dot colors for user-created categories, one per hue in the task palette. */
+export const CATEGORY_COLORS: string[] = PASTEL_PALETTE.map((c) => c.bar)
 
 export function colorForTask(id: number | string): PlannerColor {
   const str = String(id)
