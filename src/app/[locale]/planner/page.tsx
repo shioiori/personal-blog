@@ -6,15 +6,17 @@ import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import { DateSelectArg, DatesSetArg, EventChangeArg } from '@fullcalendar/core'
-import { X } from 'lucide-react'
+import { CalendarDays, Sprout, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { PlannerTask } from '@/src/declaration/planner'
+import { GardenTab } from '@/src/components/planner/GardenTab'
 import { colorForTask } from '@/src/components/planner/colors'
 import { SegmentText } from '@/src/components/planner/SegmentText'
 import { ColumnResizeHandles, EQUAL_COLUMN_WIDTHS, columnWidthVars } from '@/src/components/planner/ColumnResizeHandles'
 import { useAuth } from '@/src/context/auth'
 import { Button } from '@/src/components/ui/Button'
 import { Textarea } from '@/src/components/ui/Textarea'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/src/components/ui/Tabs'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/src/components/ui/Dialog'
 import { formatTasks } from '@/src/lib/planner-text'
 
@@ -255,6 +257,19 @@ export default function PlannerPage() {
           <p className="text-sm text-muted-foreground mb-4">{t('loginRequired')}</p>
         )}
 
+        <Tabs defaultValue="calendar" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="calendar" className="flex items-center gap-2">
+              <CalendarDays className="h-4 w-4" />
+              {t('tabCalendar')}
+            </TabsTrigger>
+            <TabsTrigger value="garden" className="flex items-center gap-2">
+              <Sprout className="h-4 w-4" />
+              {t('tabGarden')}
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="calendar">
         <div className="w-full overflow-x-auto no-scrollbar planner-calendar">
           <div
             ref={gridRef}
@@ -364,6 +379,12 @@ export default function PlannerPage() {
             <ColumnResizeHandles containerRef={gridRef} widths={columnWidths} onChange={setColumnWidths} />
           </div>
         </div>
+          </TabsContent>
+
+          <TabsContent value="garden">
+            {user && <GardenTab />}
+          </TabsContent>
+        </Tabs>
       </div>
 
       <style jsx global>{`

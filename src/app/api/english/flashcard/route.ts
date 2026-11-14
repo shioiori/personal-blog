@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ensureEnglishTables, getFlashcardsDueToday, upsertFlashcardGrade } from "@/src/lib/english-db";
-import { ensureGachaTables, recordFlashcardProgress, resetFlashcardProgress } from "@/src/lib/english-gacha-db";
 import { getUserId, unauthorized } from "@/src/lib/auth";
 
 export async function GET(req: NextRequest) {
@@ -32,17 +31,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "not found" }, { status: 404 });
     }
 
-    let ticketAwarded = false;
-    await ensureGachaTables();
-    if (grade === 2 || grade === 3) {
-      ticketAwarded = await recordFlashcardProgress(userId, wordId, grade === 3 ? 2 : 1);
-    } else {
-      // Again or Hard: clear the remembered rank so relearning it back to
-      // Good/Easy earns a ticket again.
-      await resetFlashcardProgress(userId, wordId);
-    }
-
-    return NextResponse.json({ ok: true, ticketAwarded });
+    return NextResponse.json({ ok: true });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     console.error("[POST english/flashcard error]", msg);

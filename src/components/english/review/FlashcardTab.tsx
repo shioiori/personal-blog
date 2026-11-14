@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/src/components/ui/Button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/src/components/ui/Dialog";
-import { Settings, Ticket } from "lucide-react";
+import { Settings } from "lucide-react";
 import type { FlashcardCard } from "@/src/declaration/english";
 import { useFlashcardSettings } from "./useFlashcardSettings";
 import { FlashcardSettingsTab } from "./FlashcardSettingsTab";
@@ -48,7 +48,6 @@ export function FlashcardTab() {
   const [summary, setSummary] = useState<GradeSummary>({ again: 0, hard: 0, good: 0, easy: 0 });
   const [doneSummary, setDoneSummary] = useState<GradeSummary | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [ticketToast, setTicketToast] = useState(false);
   const { words } = useEnglishStudy();
   const { pronounce } = usePronounce();
 
@@ -80,15 +79,7 @@ export function FlashcardTab() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ wordId, grade: g }),
       keepalive: true,
-    })
-      .then((res) => res.json())
-      .then((data: { ticketAwarded?: boolean }) => {
-        if (data.ticketAwarded) {
-          setTicketToast(true);
-          setTimeout(() => setTicketToast(false), 1800);
-        }
-      })
-      .catch(() => {});
+    }).catch(() => {});
   }
 
   function grade(g: 0 | 1 | 2 | 3) {
@@ -181,12 +172,6 @@ export function FlashcardTab() {
 
   return (
     <div className="flex flex-col items-center gap-6 max-w-2xl mx-auto py-8 px-4 relative">
-      {ticketToast && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1.5 bg-primary text-primary-foreground text-sm font-medium px-3 py-1.5 rounded-full shadow-lg animate-in fade-in slide-in-from-top-2">
-          <Ticket className="h-4 w-4" />
-          {t("Review.plusTicket")}
-        </div>
-      )}
       {modeToggle}
       <FlashcardProgress index={index} total={queue.length} />
 
