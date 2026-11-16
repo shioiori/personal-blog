@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent, type FocusEvent, type MouseEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type FocusEvent, type MouseEvent } from 'react'
 import { useTranslations } from 'next-intl'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
@@ -8,7 +8,7 @@ import interactionPlugin from '@fullcalendar/interaction'
 import { DateSelectArg, DatesSetArg, EventChangeArg } from '@fullcalendar/core'
 import { CalendarDays, Plus, Sprout, WrapText, X } from 'lucide-react'
 import { toast } from 'sonner'
-import { PlannerCategory, PlannerTask } from '@/src/declaration/planner'
+import { PlannerCategory, PlannerStatus, PlannerTask } from '@/src/declaration/planner'
 import { GardenTab } from '@/src/components/planner/GardenTab'
 import { CATEGORY_COLORS, colorForTask } from '@/src/components/planner/colors'
 import { SegmentText } from '@/src/components/planner/SegmentText'
@@ -21,6 +21,37 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { formatTasks } from '@/src/lib/planner-text'
 
 const DRAFT_ID = 'draft'
+const SUBTASK_DRAFT_PREFIX = 'subtask-draft-'
+
+function derivedStatus(task: PlannerTask, all: PlannerTask[]): PlannerStatus {
+  const children = all.filter((x) => x.parentId === task.id)
+  if (children.length === 0) return task.status
+  if (children.every((c) => c.status === 'done')) return 'done'
+  if (children.some((c) => c.status === 'done')) return 'partial'
+  return 'undone'
+}
+
+/** A wavy waterline filling the bottom of the icon, used for the "partially done" status. */
+function wavyFill(bar: string) {
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><path d='M0,6.5 Q1.5,5 3,6.5 T6,6.5 T9,6.5 T12,6.5 L12,12 L0,12 Z' fill='${bar}'/></svg>`
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`
+}
+
+function statusCheckboxStyle(bar: string, status: PlannerStatus): CSSProperties {
+  return {
+    WebkitAppearance: 'none',
+    MozAppearance: 'none',
+    appearance: 'none',
+    height: 12,
+    width: 12,
+    borderRadius: 9999,
+    border: `2px solid ${bar}`,
+    backgroundColor: status === 'done' ? bar : 'transparent',
+    backgroundImage: status === 'partial' ? wavyFill(bar) : undefined,
+    backgroundSize: 'cover',
+    margin: 0
+  }
+}
 
 function monthRange(date: Date) {
   const y = date.getFullYear()
@@ -73,6 +104,9 @@ export default function PlannerPage() {
   const [newCategoryName, setNewCategoryName] = useState('')
   const [newCategoryColor, setNewCategoryColor] = useState(CATEGORY_COLORS[0])
   const [dragOverTaskId, setDragOverTaskId] = useState<number | null>(null)
+  const [contextTaskId, setContextTaskId] = useState<number | null>(null)
+  const [contextDate, setContextDate] = useState<string | null>(null)
+  const [subtaskDraftParentId, setSubtaskDraftParentId] = useState<number | null>(null)
 
   useEffect(() => {
     const stored = localStorage.getItem('planner-text-mode')
@@ -134,14 +168,14 @@ export default function PlannerPage() {
   }, [])
 
   useEffect(() => {
-    if (!draft && editingId === null) return
+    if (!draft && editingId === null && subtaskDraftParentId === null) return
     function handlePointerDown(e: PointerEvent) {
       const input = document.querySelector<HTMLInputElement>('[data-planner-input]')
       if (input && !input.contains(e.target as Node)) input.blur()
     }
     document.addEventListener('pointerdown', handlePointerDown, true)
     return () => document.removeEventListener('pointerdown', handlePointerDown, true)
-  }, [draft, editingId])
+  }, [draft, editingId, subtaskDraftParentId])
 
   useEffect(() => {
     if (editingId === null) return
@@ -200,6 +234,15 @@ export default function PlannerPage() {
     if (date) startDraft(date, null)
   }
 
+  function handleDayContextMenu(e: MouseEvent<HTMLDivElement>) {
+    const target = e.target as HTMLElement
+    if (target.closest('.fc-event, .fc-daygrid-more-link, .fc-popover')) return
+    const date = target.closest<HTMLElement>('.fc-daygrid-day')?.dataset.date
+    if (!date) return
+    e.preventDefault()
+    setContextDate(date)
+  }
+
   function handleSelect(arg: DateSelectArg) {
     arg.view.calendar.unselect()
     const endDate = addDays(arg.endStr, -1)
@@ -216,10 +259,52 @@ export default function PlannerPage() {
     return res
   }
 
-  async function handleToggle(taskId: number, checked: boolean) {
-    setTasks((prev) => prev.map((x) => (x.id === taskId ? { ...x, checked } : x)))
-    const res = await request(`/api/planner/tasks/${taskId}`, 'PUT', { checked })
-    if (!res.ok) setTasks((prev) => prev.map((x) => (x.id === taskId ? { ...x, checked: !checked } : x)))
+  async function handleSetStatus(taskId: number, status: PlannerStatus) {
+    const previous = tasks.find((x) => x.id === taskId)?.status
+    if (previous === undefined) return
+    setTasks((prev) => prev.map((x) => (x.id === taskId ? { ...x, status } : x)))
+    const res = await request(`/api/planner/tasks/${taskId}`, 'PUT', { status })
+    if (!res.ok) setTasks((prev) => prev.map((x) => (x.id === taskId ? { ...x, status: previous } : x)))
+  }
+
+  // Plain click only ever flips between done/undone; "partial" is only reachable from the modal.
+  function handleToggle(task: PlannerTask) {
+    handleSetStatus(task.id, task.status === 'done' ? 'undone' : 'done')
+  }
+
+  // Clicking a task that has subtasks toggles all of them together instead of its own (derived) status.
+  async function handleToggleGroup(children: PlannerTask[]) {
+    if (!children.length) return
+    const next: PlannerStatus = children.every((c) => c.status === 'done') ? 'undone' : 'done'
+    const previous = children.map((c) => ({ id: c.id, status: c.status }))
+    const ids = new Set(children.map((c) => c.id))
+    setTasks((prev) => prev.map((x) => (ids.has(x.id) ? { ...x, status: next } : x)))
+    const results = await Promise.all(children.map((c) => request(`/api/planner/tasks/${c.id}`, 'PUT', { status: next })))
+    if (results.some((r) => !r.ok)) {
+      setTasks((prev) => prev.map((x) => {
+        const p = previous.find((pp) => pp.id === x.id)
+        return p ? { ...x, status: p.status } : x
+      }))
+    }
+  }
+
+  async function handleRename(taskId: number, text: string) {
+    setTasks((prev) => prev.map((x) => (x.id === taskId ? { ...x, text } : x)))
+    const res = await request(`/api/planner/tasks/${taskId}`, 'PUT', { text })
+    if (!res.ok) return refetch()
+  }
+
+  async function handleCreateSubtask(parentId: number, rawText: string) {
+    const text = rawText.trim()
+    if (!text) return
+    const parent = tasks.find((x) => x.id === parentId)
+    if (!parent) return
+    const tempId = -Date.now()
+    setTasks((prev) => [...prev, { id: tempId, date: parent.date, endDate: null, text, status: 'undone', categoryId: null, parentId }])
+    const res = await request('/api/planner/tasks', 'POST', { date: parent.date, text, parentId })
+    if (!res.ok) return setTasks((prev) => prev.filter((x) => x.id !== tempId))
+    const created = (await res.json()) as PlannerTask
+    setTasks((prev) => [...prev.filter((x) => x.id !== tempId), created])
   }
 
   async function handleEventChange(arg: EventChangeArg) {
@@ -237,7 +322,7 @@ export default function PlannerPage() {
     if (res.ok) setTasks((prev) => prev.filter((x) => x.id !== taskId))
   }
 
-  async function handleCommit(e: FocusEvent<HTMLInputElement>, taskId: number | null) {
+  async function handleCommit(e: FocusEvent<HTMLInputElement | HTMLTextAreaElement>, taskId: number | null) {
     const input = e.currentTarget
     const cancelled = input.dataset.cancel === '1'
     const text = input.value.trim()
@@ -248,7 +333,7 @@ export default function PlannerPage() {
     if (taskId === null) {
       if (!text || !current) return
       const tempId = -Date.now()
-      setTasks((prev) => [...prev, { id: tempId, ...current, text, checked: false, categoryId: null }])
+      setTasks((prev) => [...prev, { id: tempId, ...current, text, status: 'undone', categoryId: null, parentId: null }])
       const res = await request('/api/planner/tasks', 'POST', { ...current, text })
       if (!res.ok) return setTasks((prev) => prev.filter((x) => x.id !== tempId))
       const created = (await res.json()) as PlannerTask
@@ -261,35 +346,129 @@ export default function PlannerPage() {
     if (res.ok) setTasks((prev) => prev.map((x) => (x.id === taskId ? { ...x, text } : x)))
   }
 
-  function handleInputKeyDown(e: KeyboardEvent<HTMLInputElement>) {
+  function handleSubtaskDraftCommit(e: FocusEvent<HTMLInputElement>, parentId: number) {
+    const input = e.currentTarget
+    const cancelled = input.dataset.cancel === '1'
+    const text = input.value.trim()
+    setSubtaskDraftParentId(null)
+    if (!cancelled && text) handleCreateSubtask(parentId, text)
+  }
+
+  function handleInputKeyDown(e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) {
     if (e.key === 'Escape') e.currentTarget.dataset.cancel = '1'
-    if (e.key === 'Enter' || e.key === 'Escape') e.currentTarget.blur()
+    if (e.key === 'Enter' || e.key === 'Escape') {
+      e.preventDefault()
+      e.currentTarget.blur()
+    }
+  }
+
+  // Renders a task the same way the calendar does: colored pill, status checkbox, inline-editable text.
+  function renderTaskRow(task: PlannerTask, indent: boolean) {
+    const color = colorForTask(task.id)
+    const children = tasks.filter((x) => x.parentId === task.id)
+    const hasChildren = children.length > 0
+    const status: PlannerStatus = hasChildren ? derivedStatus(task, tasks) : task.status
+    const category = task.categoryId ? categories.find((c) => c.id === task.categoryId) : undefined
+    return (
+      <div
+        key={task.id}
+        className="group flex items-center gap-1 rounded-md px-1.5 py-1"
+        style={{ backgroundColor: `${color.bar}4D`, marginLeft: indent ? 16 : undefined }}
+      >
+        <input
+          type="checkbox"
+          checked={status === 'done'}
+          ref={(el) => {
+            if (el) el.indeterminate = status === 'partial'
+          }}
+          onChange={() => (hasChildren ? handleToggleGroup(children) : handleToggle(task))}
+          className="shrink-0 cursor-pointer"
+          style={statusCheckboxStyle(color.bar, status)}
+        />
+        {category && <span className="h-2 w-2 shrink-0 rounded-full" title={category.name} style={{ backgroundColor: category.color }} />}
+        <input
+          key={task.id}
+          defaultValue={task.text}
+          onBlur={(e) => {
+            const text = e.target.value.trim()
+            if (text && text !== task.text) handleRename(task.id, text)
+          }}
+          onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
+          className={`min-w-0 flex-1 bg-transparent text-xs font-medium outline-none ${status === 'done' ? 'line-through opacity-70' : ''}`}
+          style={{ color: color.text }}
+        />
+        {!indent && (
+          <button
+            type="button"
+            title={t('addSubtask')}
+            onClick={() => setSubtaskDraftParentId(task.id)}
+            className="shrink-0 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground"
+          >
+            <Plus className="h-3 w-3" />
+          </button>
+        )}
+        <button
+          type="button"
+          aria-label={t('deleteTask')}
+          onClick={() => handleDelete(task.id)}
+          className="shrink-0 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive"
+        >
+          <X className="h-3 w-3" />
+        </button>
+      </div>
+    )
+  }
+
+  function renderTaskGroup(task: PlannerTask) {
+    const children = tasks.filter((x) => x.parentId === task.id).sort((a, b) => a.id - b.id)
+    return (
+      <div key={task.id} className="space-y-1">
+        {renderTaskRow(task, false)}
+        {children.map((child) => renderTaskRow(child, true))}
+        {subtaskDraftParentId === task.id && (
+          <div className="flex items-center gap-1 rounded-md px-1.5 py-1" style={{ marginLeft: 16 }}>
+            <span className="shrink-0" style={{ height: 12, width: 12 }} />
+            <input
+              data-planner-input
+              ref={(el) => {
+                if (el) setTimeout(() => el.focus(), 0)
+              }}
+              placeholder={t('addSubtaskPlaceholder')}
+              onBlur={(e) => handleSubtaskDraftCommit(e, task.id)}
+              onKeyDown={handleInputKeyDown}
+              className="min-w-0 flex-1 bg-transparent text-xs font-medium outline-none"
+            />
+          </div>
+        )}
+      </div>
+    )
   }
 
   const events = useMemo(() => {
-    const items = tasks.map((task) => ({
-      id: String(task.id),
-      title: task.text,
-      start: task.date,
-      endDate: task.endDate,
-      checked: task.checked,
-      categoryId: task.categoryId
-    }))
-    if (draft) items.push({ id: DRAFT_ID, title: '', start: draft.date, endDate: draft.endDate, checked: false, categoryId: null })
-    return items.map(({ endDate, checked, categoryId, ...item }) => {
-      const pending = Number(item.id) < 0
-      const color = colorForTask(pending ? DRAFT_ID : item.id)
+    const items: { id: string; title: string; start: string; end?: string }[] = []
+    for (const task of tasks.filter((t) => t.parentId === null)) {
+      items.push({ id: String(task.id), title: task.text, start: task.date, end: task.endDate ? addDays(task.endDate, 1) : undefined })
+      for (const child of tasks.filter((t) => t.parentId === task.id).sort((a, b) => a.id - b.id)) {
+        items.push({ id: String(child.id), title: child.text, start: child.date })
+      }
+      if (subtaskDraftParentId === task.id) items.push({ id: `${SUBTASK_DRAFT_PREFIX}${task.id}`, title: '', start: task.date })
+    }
+    if (draft) items.push({ id: DRAFT_ID, title: '', start: draft.date, end: draft.endDate ? addDays(draft.endDate, 1) : undefined })
+    return items.map((item, order) => {
+      const isSpecial = item.id === DRAFT_ID || item.id.startsWith(SUBTASK_DRAFT_PREFIX)
+      const taskId = isSpecial ? null : Number(item.id)
+      const task = taskId !== null ? tasks.find((x) => x.id === taskId) : undefined
+      const pending = taskId !== null && taskId < 0
       return {
         ...item,
-        end: endDate ? addDays(endDate, 1) : undefined,
         allDay: true,
-        editable: !pending && item.id !== DRAFT_ID && item.id !== String(editingId),
+        editable: !pending && !!task && task.parentId === null && item.id !== String(editingId),
         backgroundColor: 'transparent',
         borderColor: 'transparent',
-        extendedProps: { checked, color, categoryId }
+        extendedProps: { order }
       }
     })
-  }, [tasks, draft, editingId])
+  }, [tasks, draft, editingId, subtaskDraftParentId])
 
   return (
     <div className="min-h-screen bg-background">
@@ -387,6 +566,63 @@ export default function PlannerPage() {
           </DialogContent>
         </Dialog>
 
+        <Dialog
+          open={contextTaskId !== null}
+          onOpenChange={(open) => {
+            if (open) return
+            setContextTaskId(null)
+            setSubtaskDraftParentId(null)
+          }}
+        >
+          <DialogContent className="max-w-md">
+            {(() => {
+              const contextTask = tasks.find((x) => x.id === contextTaskId)
+              if (!contextTask) return null
+              return (
+                <>
+                  <DialogHeader>
+                    <DialogTitle>{t('taskDetails')}</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-1">{renderTaskGroup(contextTask)}</div>
+                  <DialogFooter>
+                    <Button onClick={() => setContextTaskId(null)}>{t('close')}</Button>
+                  </DialogFooter>
+                </>
+              )
+            })()}
+          </DialogContent>
+        </Dialog>
+
+        <Dialog
+          open={contextDate !== null}
+          onOpenChange={(open) => {
+            if (open) return
+            setContextDate(null)
+            setSubtaskDraftParentId(null)
+          }}
+        >
+          <DialogContent className="max-w-md">
+            {contextDate && (
+              <>
+                <DialogHeader>
+                  <DialogTitle>{contextDate}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-1 max-h-[60vh] overflow-auto">
+                  {tasks
+                    .filter((t) => t.parentId === null && t.date <= contextDate && (t.endDate ?? t.date) >= contextDate)
+                    .map((task) => renderTaskGroup(task))}
+                  {tasks.filter((t) => t.parentId === null && t.date <= contextDate && (t.endDate ?? t.date) >= contextDate).length === 0 && (
+                    <p className="text-sm text-muted-foreground">{t('noTasks')}</p>
+                  )}
+                </div>
+                <DialogFooter>
+                  <Button onClick={() => setContextDate(null)}>{t('close')}</Button>
+                </DialogFooter>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
+
         <Tabs defaultValue="calendar" className="space-y-4">
           <TabsList>
             <TabsTrigger value="calendar" className="flex items-center gap-2">
@@ -442,6 +678,7 @@ export default function PlannerPage() {
             className="relative min-w-[640px]"
             style={columnWidthVars(columnWidths)}
             onDoubleClick={handleDoubleClick}
+            onContextMenu={handleDayContextMenu}
           >
             <FullCalendar
               plugins={[dayGridPlugin, interactionPlugin]}
@@ -454,46 +691,58 @@ export default function PlannerPage() {
               height="auto"
               selectable
               editable
+              eventOrder={(a, b) => ((a as { extendedProps: { order: number } }).extendedProps.order - (b as { extendedProps: { order: number } }).extendedProps.order)}
               select={handleSelect}
               eventChange={handleEventChange}
               eventDragStart={() => gridRef.current?.classList.add('planner-dragging')}
               eventDragStop={() => gridRef.current?.classList.remove('planner-dragging')}
               datesSet={handleDatesSet}
               eventContent={(info) => {
-                const checked = info.event.extendedProps.checked as boolean
-                const color = info.event.extendedProps.color as ReturnType<typeof colorForTask>
-                const categoryId = info.event.extendedProps.categoryId as number | null
-                const category = categoryId ? categories.find((c) => c.id === categoryId) : undefined
                 const isDraft = info.event.id === DRAFT_ID
-                const taskId = isDraft ? null : Number(info.event.id)
+                const isSubtaskDraft = info.event.id.startsWith(SUBTASK_DRAFT_PREFIX)
+                const subtaskDraftParent = isSubtaskDraft ? Number(info.event.id.slice(SUBTASK_DRAFT_PREFIX.length)) : null
+                const taskId = isDraft || isSubtaskDraft ? null : Number(info.event.id)
+                const task = taskId !== null ? tasks.find((x) => x.id === taskId) : undefined
                 const pending = taskId !== null && taskId < 0
                 const readOnly = taskId === null || pending
+                const isSubtask = !!task?.parentId
+                const children = task && !task.parentId ? tasks.filter((x) => x.parentId === task.id) : []
+                const hasChildren = children.length > 0
+                const status: PlannerStatus = task ? (hasChildren ? derivedStatus(task, tasks) : task.status) : 'undone'
+                const color = colorForTask(pending ? DRAFT_ID : info.event.id)
+                const categoryId = task?.categoryId ?? null
+                const category = categoryId ? categories.find((c) => c.id === categoryId) : undefined
                 const editing = (isDraft || taskId === editingId) && info.isStart
                 const segmentKey = `${info.event.id}|${info.event.startStr}|${info.event.endStr}|${info.event.title}`
                 const wrap = textMode === 'wrap'
                 return (
                   <div
                     className={`group flex items-center gap-1 w-full cursor-pointer active:cursor-grabbing ${info.isStart ? 'pl-0.5' : ''} ${pending ? 'opacity-60' : ''} ${wrap ? 'items-start' : ''} ${wrap ? '' : 'overflow-hidden'}`}
+                    style={{ paddingLeft: isSubtask || isSubtaskDraft ? 16 : undefined }}
+                    onContextMenu={(e) => {
+                      if (readOnly || isDraft || isSubtaskDraft) return
+                      e.preventDefault()
+                      e.stopPropagation()
+                      setContextTaskId(taskId)
+                    }}
                   >
-                    {info.isStart && (
+                    {info.isStart && isSubtaskDraft && <span className="shrink-0" style={{ height: 12, width: 12 }} />}
+                    {info.isStart && !isSubtaskDraft && (
                       <input
                         type="checkbox"
-                        checked={checked}
+                        checked={status === 'done'}
+                        ref={(el) => {
+                          if (el) el.indeterminate = status === 'partial'
+                        }}
                         disabled={readOnly}
                         onClick={(e) => e.stopPropagation()}
-                        onChange={() => !readOnly && handleToggle(taskId, !checked)}
-                        className={`shrink-0 cursor-pointer ${wrap ? 'mt-1' : ''}`}
-                        style={{
-                          WebkitAppearance: 'none',
-                          MozAppearance: 'none',
-                          appearance: 'none',
-                          height: 12,
-                          width: 12,
-                          borderRadius: 9999,
-                          border: `2px solid ${color.bar}`,
-                          backgroundColor: checked ? `${color.bar}B3` : 'transparent',
-                          margin: 0
+                        onChange={() => {
+                          if (readOnly || !task) return
+                          if (hasChildren) handleToggleGroup(children)
+                          else handleToggle(task)
                         }}
+                        className={`shrink-0 cursor-pointer ${wrap ? 'mt-1' : ''}`}
+                        style={statusCheckboxStyle(color.bar, status)}
                       />
                     )}
                     <div
@@ -507,14 +756,14 @@ export default function PlannerPage() {
                         boxShadow: dragOverTaskId === taskId && !readOnly ? 'inset 0 0 0 2px currentColor' : undefined
                       }}
                       onDragOver={(e) => {
-                        if (readOnly || !e.dataTransfer.types.includes('text/planner-category-id')) return
+                        if (readOnly || isSubtask || !e.dataTransfer.types.includes('text/planner-category-id')) return
                         e.preventDefault()
                         setDragOverTaskId(taskId)
                       }}
                       onDragLeave={() => setDragOverTaskId((prev) => (prev === taskId ? null : prev))}
                       onDrop={(e) => {
                         setDragOverTaskId(null)
-                        if (readOnly) return
+                        if (readOnly || isSubtask) return
                         const dropped = e.dataTransfer.getData('text/planner-category-id')
                         if (!dropped) return
                         e.preventDefault()
@@ -533,7 +782,39 @@ export default function PlannerPage() {
                           style={{ backgroundColor: category.color }}
                         />
                       )}
-                      {editing ? (
+                      {isSubtaskDraft ? (
+                        <input
+                          data-planner-input
+                          autoFocus
+                          placeholder={t('addSubtaskPlaceholder')}
+                          onBlur={(e) => handleSubtaskDraftCommit(e, subtaskDraftParent as number)}
+                          onKeyDown={handleInputKeyDown}
+                          className="min-w-0 flex-1 bg-transparent text-xs font-medium outline-none"
+                          style={{ color: color.text }}
+                        />
+                      ) : editing && wrap ? (
+                        <textarea
+                          data-planner-input
+                          autoFocus
+                          rows={1}
+                          defaultValue={info.event.title}
+                          placeholder={t('taskPlaceholder')}
+                          onBlur={(e) => handleCommit(e, taskId)}
+                          onKeyDown={handleInputKeyDown}
+                          onFocus={(e) => {
+                            const el = e.currentTarget
+                            el.style.height = 'auto'
+                            el.style.height = `${el.scrollHeight}px`
+                          }}
+                          onInput={(e) => {
+                            const el = e.currentTarget
+                            el.style.height = 'auto'
+                            el.style.height = `${el.scrollHeight}px`
+                          }}
+                          className="min-w-0 flex-1 resize-none bg-transparent text-xs font-medium outline-none"
+                          style={{ color: color.text, whiteSpace: 'normal', wordBreak: 'break-word', overflowWrap: 'anywhere' }}
+                        />
+                      ) : editing ? (
                         <input
                           data-planner-input
                           autoFocus
@@ -557,7 +838,7 @@ export default function PlannerPage() {
                       ) : wrap ? (
                         <>
                           <span
-                            className={`min-w-0 flex-1 text-xs font-medium ${checked ? 'line-through opacity-70' : ''}`}
+                            className={`min-w-0 flex-1 text-xs font-medium ${status === 'done' ? 'line-through opacity-70' : status === 'partial' ? 'opacity-70' : ''}`}
                             style={{ color: color.text, whiteSpace: 'normal', wordBreak: 'break-word', overflowWrap: 'anywhere' }}
                             onClick={() => {
                               if (readOnly) return
@@ -567,6 +848,19 @@ export default function PlannerPage() {
                           >
                             {info.isStart ? info.event.title || ' ' : ' '}
                           </span>
+                          {!readOnly && !isSubtask && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setSubtaskDraftParentId(taskId)
+                              }}
+                              title={t('addSubtask')}
+                              className="shrink-0 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground"
+                            >
+                              <Plus className="h-3 w-3" />
+                            </button>
+                          )}
                           {!readOnly && (
                             <button
                               type="button"
@@ -588,7 +882,7 @@ export default function PlannerPage() {
                             ends={segmentEnds[segmentKey]}
                             isEnd={info.isEnd}
                             onMeasure={handleSegmentMeasure}
-                            className={`min-w-0 flex-1 truncate text-xs font-medium ${checked ? 'line-through opacity-70' : ''}`}
+                            className={`min-w-0 flex-1 truncate text-xs font-medium ${status === 'done' ? 'line-through opacity-70' : status === 'partial' ? 'opacity-70' : ''}`}
                             style={{ color: color.text }}
                             onClick={() => {
                               if (readOnly) return
@@ -596,6 +890,19 @@ export default function PlannerPage() {
                               setEditingId(taskId)
                             }}
                           />
+                          {!readOnly && !isSubtask && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setSubtaskDraftParentId(taskId)
+                              }}
+                              title={t('addSubtask')}
+                              className="shrink-0 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground"
+                            >
+                              <Plus className="h-3 w-3" />
+                            </button>
+                          )}
                           {!readOnly && (
                             <button
                               type="button"

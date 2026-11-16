@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUserId, unauthorized } from "@/src/lib/auth";
-import { ensurePlannerTables, listTasks, createTask, listLatestTasksBefore } from "@/src/lib/planner-db";
+import { ensurePlannerTables, listTasks, createTask, listLatestTasksBefore, type PlannerStatus } from "@/src/lib/planner-db";
 
 export async function GET(req: NextRequest) {
   const userId = await getUserId();
@@ -29,13 +29,18 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const date = body?.date as string | undefined;
   const text = (body?.text as string | undefined)?.trim();
-  const checked = !!body?.checked;
+  const status: PlannerStatus = body?.status === "done" || body?.status === "partial" ? body.status : "undone";
+  const parentId = typeof body?.parentId === "number" ? body.parentId : null;
   if (!date || !text) {
     return NextResponse.json({ error: "date and text are required" }, { status: 400 });
   }
   const rawEndDate = body?.endDate as string | undefined;
   const endDate = rawEndDate && rawEndDate > date ? rawEndDate : null;
 
-  const task = await createTask(userId, date, endDate, text, checked);
-  return NextResponse.json(task, { status: 201 });
+  try {
+    const task = await createTask(userId, date, endDate, text, status, parentId);
+    return NextResponse.json(task, { status: 201 });
+  } catch {
+    return NextResponse.json({ error: "invalid parent" }, { status: 400 });
+  }
 }

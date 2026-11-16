@@ -1,10 +1,13 @@
+export type PlannerStatus = 'undone' | 'partial' | 'done'
+
 export interface PlannerTask {
   id: number
   date: string
   endDate: string | null
   text: string
-  checked: boolean
+  status: PlannerStatus
   categoryId: number | null
+  parentId: number | null
 }
 
 export interface PlannerCategory {

@@ -1,9 +1,9 @@
 import type { PlannerTask } from '@/src/declaration/planner'
 
-export type ParsedTask = Pick<PlannerTask, 'date' | 'endDate' | 'text' | 'checked'>
+export type ParsedTask = Pick<PlannerTask, 'date' | 'endDate' | 'text' | 'status'>
 
 const HEADER = /^(\d{2})\/(\d{2})\/(\d{4})(?:\s*-\s*(\d{2})\/(\d{2})\/(\d{4}))?$/
-const ITEM = /^\s*-\s*(\[[xX]\]\s*)?(.*\S)\s*$/
+const ITEM = /^\s*-\s*(\[[xX~]\]\s*)?(.*\S)\s*$/
 
 function toIso(d: string, m: string, y: string) {
   const iso = `${y}-${m}-${d}`
@@ -22,7 +22,9 @@ export function formatTasks(tasks: ParsedTask[]) {
     const key = task.endDate ? `${toDisplay(task.date)} - ${toDisplay(task.endDate)}` : toDisplay(task.date)
     groups.set(key, [...(groups.get(key) ?? []), task])
   }
-  return [...groups].map(([header, items]) => [header, ...items.map((x) => `\t- ${x.checked ? '[x] ' : ''}${x.text}`)].join('\n')).join('\n')
+  return [...groups]
+    .map(([header, items]) => [header, ...items.map((x) => `\t- ${x.status === 'done' ? '[x] ' : x.status === 'partial' ? '[~] ' : ''}${x.text}`)].join('\n'))
+    .join('\n')
 }
 
 export function parseTasks(text: string): { tasks: ParsedTask[] } | { errorLine: number } {
@@ -42,7 +44,9 @@ export function parseTasks(text: string): { tasks: ParsedTask[] } | { errorLine:
     }
     const item = line.match(ITEM)
     if (!item || !group) return { errorLine: i + 1 }
-    tasks.push({ ...group, text: item[2], checked: !!item[1] })
+    const marker = item[1]?.trim().toLowerCase()
+    const status = marker === '[x]' ? 'done' : marker === '[~]' ? 'partial' : 'undone'
+    tasks.push({ ...group, text: item[2], status })
   }
   return { tasks }
 }
