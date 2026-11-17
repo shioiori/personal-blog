@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, 
 import { useTranslations } from 'next-intl'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
-import interactionPlugin from '@fullcalendar/interaction'
+import interactionPlugin, { EventDragStopArg } from '@fullcalendar/interaction'
 import { DateSelectArg, DatesSetArg, EventChangeArg } from '@fullcalendar/core'
 import { CalendarDays, Plus, Sprout, WrapText, X } from 'lucide-react'
 import { toast } from 'sonner'
@@ -67,6 +67,21 @@ function addDays(dateStr: string, days: number) {
   const date = new Date(`${dateStr}T00:00:00Z`)
   date.setUTCDate(date.getUTCDate() + days)
   return toDateStr(date)
+}
+
+function byOrder(a: PlannerTask, b: PlannerTask) {
+  return a.position - b.position || a.date.localeCompare(b.date) || a.id - b.id
+}
+
+function rowsAtColumn(row: Element, x: number) {
+  return [...row.querySelectorAll<HTMLElement>('[data-task-id]')]
+    .filter((el) => !el.closest('.fc-event-mirror'))
+    .map((el) => {
+      const rect = el.getBoundingClientRect()
+      return { id: Number(el.dataset.taskId), left: rect.left, right: rect.right, midY: rect.top + rect.height / 2 }
+    })
+    .filter((r) => r.left <= x && x <= r.right)
+    .sort((a, b) => a.midY - b.midY)
 }
 
 let measureContext: CanvasRenderingContext2D | null = null
@@ -193,7 +208,7 @@ export default function PlannerPage() {
   function monthText() {
     const month = monthRef.current
     if (!month) return ''
-    return formatTasks(tasks.filter((x) => x.date <= month.to && (x.endDate ?? x.date) >= month.from))
+    return formatTasks(tasks.filter((x) => x.date <= month.to && (x.endDate ?? x.date) >= month.from).sort(byOrder))
   }
 
   function handleExport() {
@@ -300,7 +315,10 @@ export default function PlannerPage() {
     const parent = tasks.find((x) => x.id === parentId)
     if (!parent) return
     const tempId = -Date.now()
-    setTasks((prev) => [...prev, { id: tempId, date: parent.date, endDate: null, text, status: 'undone', categoryId: null, parentId }])
+    setTasks((prev) => [
+      ...prev,
+      { id: tempId, date: parent.date, endDate: null, text, status: 'undone', categoryId: null, parentId, position: Number.MAX_SAFE_INTEGER }
+    ])
     const res = await request('/api/planner/tasks', 'POST', { date: parent.date, text, parentId })
     if (!res.ok) return setTasks((prev) => prev.filter((x) => x.id !== tempId))
     const created = (await res.json()) as PlannerTask
@@ -312,9 +330,37 @@ export default function PlannerPage() {
     const date = arg.event.startStr
     const lastDay = arg.event.endStr ? addDays(arg.event.endStr, -1) : date
     const endDate = lastDay > date ? lastDay : null
+    setTasks((prev) => prev.map((x) => (x.id === taskId ? { ...x, date, endDate } : x.parentId === taskId ? { ...x, date } : x)))
     const res = await request(`/api/planner/tasks/${taskId}`, 'PUT', { date, endDate })
-    if (!res.ok) return arg.revert()
-    setTasks((prev) => prev.map((x) => (x.id === taskId ? { ...x, date, endDate } : x)))
+    if (!res.ok) refetch()
+  }
+
+  async function handleReorder(ids: number[]) {
+    const positions = new Map(ids.map((id, i) => [id, i + 1]))
+    setTasks((prev) => prev.map((x) => {
+      const position = positions.get(x.id)
+      return position === undefined ? x : { ...x, position }
+    }))
+    const res = await request('/api/planner/tasks/reorder', 'PUT', { ids })
+    if (!res.ok) refetch()
+  }
+
+  function handleEventDragStop(arg: EventDragStopArg) {
+    gridRef.current?.classList.remove('planner-dragging')
+    const { clientX: x, clientY: y } = arg.jsEvent
+    const task = tasks.find((t) => t.id === Number(arg.event.id))
+    const row = document.elementsFromPoint(x, y).find((el) => el.matches('.fc-daygrid-day'))?.closest('tr')
+    if (!task || !row) return
+    const current = tasks.filter((t) => t.parentId === task.parentId && t.id > 0).sort(byOrder)
+    const others = current.filter((t) => t.id !== task.id)
+    const visible = rowsAtColumn(row, x).filter((r) => others.some((t) => t.id === r.id))
+    const index = visible.filter((r) => r.midY < y).length
+    const anchor = visible[index] ?? visible[index - 1]
+    if (!anchor) return
+    const at = others.findIndex((t) => t.id === anchor.id) + (visible[index] ? 0 : 1)
+    const ordered = [...others.slice(0, at), task, ...others.slice(at)]
+    if (ordered.every((t, i) => t.id === current[i].id)) return
+    handleReorder(ordered.map((t) => t.id))
   }
 
   async function handleDelete(taskId: number) {
@@ -333,7 +379,10 @@ export default function PlannerPage() {
     if (taskId === null) {
       if (!text || !current) return
       const tempId = -Date.now()
-      setTasks((prev) => [...prev, { id: tempId, ...current, text, status: 'undone', categoryId: null, parentId: null }])
+      setTasks((prev) => [
+        ...prev,
+        { id: tempId, ...current, text, status: 'undone', categoryId: null, parentId: null, position: Number.MAX_SAFE_INTEGER }
+      ])
       const res = await request('/api/planner/tasks', 'POST', { ...current, text })
       if (!res.ok) return setTasks((prev) => prev.filter((x) => x.id !== tempId))
       const created = (await res.json()) as PlannerTask
@@ -420,7 +469,7 @@ export default function PlannerPage() {
   }
 
   function renderTaskGroup(task: PlannerTask) {
-    const children = tasks.filter((x) => x.parentId === task.id).sort((a, b) => a.id - b.id)
+    const children = tasks.filter((x) => x.parentId === task.id).sort(byOrder)
     return (
       <div key={task.id} className="space-y-1">
         {renderTaskRow(task, false)}
@@ -446,9 +495,9 @@ export default function PlannerPage() {
 
   const events = useMemo(() => {
     const items: { id: string; title: string; start: string; end?: string }[] = []
-    for (const task of tasks.filter((t) => t.parentId === null)) {
+    for (const task of tasks.filter((t) => t.parentId === null).sort(byOrder)) {
       items.push({ id: String(task.id), title: task.text, start: task.date, end: task.endDate ? addDays(task.endDate, 1) : undefined })
-      for (const child of tasks.filter((t) => t.parentId === task.id).sort((a, b) => a.id - b.id)) {
+      for (const child of tasks.filter((t) => t.parentId === task.id).sort(byOrder)) {
         items.push({ id: String(child.id), title: child.text, start: child.date })
       }
       if (subtaskDraftParentId === task.id) items.push({ id: `${SUBTASK_DRAFT_PREFIX}${task.id}`, title: '', start: task.date })
@@ -462,7 +511,8 @@ export default function PlannerPage() {
       return {
         ...item,
         allDay: true,
-        editable: !pending && !!task && task.parentId === null && item.id !== String(editingId),
+        editable: !pending && !!task && item.id !== String(editingId),
+        durationEditable: !!task && task.parentId === null,
         backgroundColor: 'transparent',
         borderColor: 'transparent',
         extendedProps: { order }
@@ -610,6 +660,7 @@ export default function PlannerPage() {
                 <div className="space-y-1 max-h-[60vh] overflow-auto">
                   {tasks
                     .filter((t) => t.parentId === null && t.date <= contextDate && (t.endDate ?? t.date) >= contextDate)
+                    .sort(byOrder)
                     .map((task) => renderTaskGroup(task))}
                   {tasks.filter((t) => t.parentId === null && t.date <= contextDate && (t.endDate ?? t.date) >= contextDate).length === 0 && (
                     <p className="text-sm text-muted-foreground">{t('noTasks')}</p>
@@ -694,8 +745,12 @@ export default function PlannerPage() {
               eventOrder={(a, b) => ((a as { extendedProps: { order: number } }).extendedProps.order - (b as { extendedProps: { order: number } }).extendedProps.order)}
               select={handleSelect}
               eventChange={handleEventChange}
+              eventAllow={(span, moving) => {
+                const task = tasks.find((x) => x.id === Number(moving?.id))
+                return !task?.parentId || span.startStr === moving?.startStr
+              }}
               eventDragStart={() => gridRef.current?.classList.add('planner-dragging')}
-              eventDragStop={() => gridRef.current?.classList.remove('planner-dragging')}
+              eventDragStop={handleEventDragStop}
               datesSet={handleDatesSet}
               eventContent={(info) => {
                 const isDraft = info.event.id === DRAFT_ID
@@ -717,6 +772,7 @@ export default function PlannerPage() {
                 const wrap = textMode === 'wrap'
                 return (
                   <div
+                    data-task-id={task?.id}
                     className={`group flex items-center gap-1 w-full cursor-pointer active:cursor-grabbing ${info.isStart ? 'pl-0.5' : ''} ${pending ? 'opacity-60' : ''} ${wrap ? 'items-start' : ''} ${wrap ? '' : 'overflow-hidden'}`}
                     style={{ paddingLeft: isSubtask || isSubtaskDraft ? 16 : undefined }}
                     onContextMenu={(e) => {

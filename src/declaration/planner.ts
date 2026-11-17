@@ -8,6 +8,7 @@ export interface PlannerTask {
   status: PlannerStatus
   categoryId: number | null
   parentId: number | null
+  position: number
 }
 
 export interface PlannerCategory {

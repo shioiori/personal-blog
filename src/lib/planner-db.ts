@@ -13,6 +13,7 @@ export interface PlannerTask {
   status: PlannerStatus;
   categoryId: number | null;
   parentId: number | null;
+  position: number;
 }
 
 export interface PlannerCategory {
@@ -47,6 +48,7 @@ export const ensurePlannerTables = once(async function ensurePlannerTables() {
   await sql`ALTER TABLE planner_tasks ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'undone'`;
   await sql`ALTER TABLE planner_tasks ADD COLUMN IF NOT EXISTS parent_id INT REFERENCES planner_tasks(id) ON DELETE CASCADE`;
   await sql`CREATE INDEX IF NOT EXISTS planner_tasks_parent_idx ON planner_tasks (parent_id)`;
+  await sql`ALTER TABLE planner_tasks ADD COLUMN IF NOT EXISTS position INT NOT NULL DEFAULT 0`;
   // One-time migration off the old `checked` boolean, kept idempotent via IF EXISTS checks.
   await sql`
     DO $$
@@ -95,7 +97,7 @@ async function payReward(userId: number, delta: number): Promise<void> {
 
 async function getTask(userId: number, id: number): Promise<PlannerTask | null> {
   const rows = await sql`
-    SELECT id, date::text AS date, end_date::text AS end_date, text, status, category_id, parent_id FROM planner_tasks
+    SELECT id, date::text AS date, end_date::text AS end_date, text, status, category_id, parent_id, position FROM planner_tasks
     WHERE id = ${id} AND user_id = ${userId}
   `;
   return rows[0] ? toTask(rows[0]) : null;
@@ -109,25 +111,26 @@ function toTask(row: Record<string, unknown>): PlannerTask {
     text: row.text as string,
     status: row.status as PlannerStatus,
     categoryId: (row.category_id as number | null) ?? null,
-    parentId: (row.parent_id as number | null) ?? null
+    parentId: (row.parent_id as number | null) ?? null,
+    position: row.position as number
   };
 }
 
 export async function listTasks(userId: number, from: string, to: string): Promise<PlannerTask[]> {
   const rows = await sql`
-    SELECT id, date::text AS date, end_date::text AS end_date, text, status, category_id, parent_id FROM planner_tasks
+    SELECT id, date::text AS date, end_date::text AS end_date, text, status, category_id, parent_id, position FROM planner_tasks
     WHERE user_id = ${userId} AND date <= ${to} AND COALESCE(end_date, date) >= ${from}
-    ORDER BY date ASC, id ASC
+    ORDER BY position ASC, date ASC, id ASC
   `;
   return rows.map(toTask);
 }
 
 export async function listLatestTasksBefore(userId: number, date: string): Promise<PlannerTask[]> {
   const rows = await sql`
-    SELECT id, date::text AS date, end_date::text AS end_date, text, status, category_id, parent_id FROM planner_tasks
+    SELECT id, date::text AS date, end_date::text AS end_date, text, status, category_id, parent_id, position FROM planner_tasks
     WHERE user_id = ${userId} AND end_date IS NULL
       AND date = (SELECT MAX(date) FROM planner_tasks WHERE user_id = ${userId} AND end_date IS NULL AND date < ${date})
-    ORDER BY id ASC
+    ORDER BY position ASC, id ASC
   `;
   return rows.map(toTask);
 }
@@ -149,9 +152,12 @@ export async function createTask(
   const taskDate = parent ? parent.date : date;
   const taskEndDate = parent ? null : endDate;
   const rows = await sql`
-    INSERT INTO planner_tasks (user_id, date, end_date, text, status, parent_id)
-    VALUES (${userId}, ${taskDate}, ${taskEndDate}, ${text}, ${status}, ${parentId})
-    RETURNING id, date::text AS date, end_date::text AS end_date, text, status, category_id, parent_id
+    INSERT INTO planner_tasks (user_id, date, end_date, text, status, parent_id, position)
+    VALUES (
+      ${userId}, ${taskDate}, ${taskEndDate}, ${text}, ${status}, ${parentId},
+      COALESCE((SELECT MAX(position) + 1 FROM planner_tasks WHERE user_id = ${userId}), 0)
+    )
+    RETURNING id, date::text AS date, end_date::text AS end_date, text, status, category_id, parent_id, position
   `;
   const task = toTask(rows[0]);
   await payReward(userId, taskReward(task));
@@ -177,9 +183,12 @@ export async function updateTask(
         end_date = CASE WHEN ${date}::date IS NULL THEN end_date ELSE ${fields.endDate ?? null}::date END,
         category_id = ${categoryId}
     WHERE id = ${id} AND user_id = ${userId}
-    RETURNING id, date::text AS date, end_date::text AS end_date, text, status, category_id, parent_id
+    RETURNING id, date::text AS date, end_date::text AS end_date, text, status, category_id, parent_id, position
   `;
   const task = rows[0] ? toTask(rows[0]) : null;
+  if (task && task.parentId === null && task.date !== before.date) {
+    await sql`UPDATE planner_tasks SET date = ${task.date} WHERE parent_id = ${id} AND user_id = ${userId}`;
+  }
   // Status changes pay/claw back the reward; moving a done task re-prices it by its new length.
   if (task) await payReward(userId, taskReward(task) - taskReward(before));
   return task;
@@ -202,8 +211,17 @@ export async function deleteTask(userId: number, id: number): Promise<void> {
   await payReward(userId, refund);
 }
 
+export async function reorderTasks(userId: number, ids: number[]): Promise<void> {
+  await sql`
+    UPDATE planner_tasks t SET position = o.ord
+    FROM unnest(${ids}::int[]) WITH ORDINALITY AS o(id, ord)
+    WHERE t.id = o.id AND t.user_id = ${userId}
+  `;
+}
+
 export async function syncTasks(userId: number, from: string, to: string, parsed: ParsedTask[]): Promise<void> {
   const pool = (await listTasks(userId, from, to)).filter((t) => t.parentId === null);
+  const order = new Map(parsed.map((p, i) => [p, i]));
   // The range is replaced wholesale, so the wallet changes by (rewards after) - (rewards before).
   const rewardDelta =
     parsed.reduce((sum, p) => sum + taskReward(p), 0) - pool.reduce((sum, e) => sum + taskReward(e), 0);
@@ -225,14 +243,15 @@ export async function syncTasks(userId: number, from: string, to: string, parsed
 
   const queries = [
     ...pairs
-      .filter(([e, p]) => e.text !== p.text || e.status !== p.status || !sameGroup(e, p))
+      .filter(([e, p]) => e.text !== p.text || e.status !== p.status || !sameGroup(e, p) || e.position !== order.get(p))
       .map(([e, p]) => sql`
-        UPDATE planner_tasks SET text = ${p.text}, status = ${p.status}, date = ${p.date}, end_date = ${p.endDate}
+        UPDATE planner_tasks
+        SET text = ${p.text}, status = ${p.status}, date = ${p.date}, end_date = ${p.endDate}, position = ${order.get(p)}
         WHERE id = ${e.id} AND user_id = ${userId}
       `),
     ...pending.map((p) => sql`
-      INSERT INTO planner_tasks (user_id, date, end_date, text, status)
-      VALUES (${userId}, ${p.date}, ${p.endDate}, ${p.text}, ${p.status})
+      INSERT INTO planner_tasks (user_id, date, end_date, text, status, position)
+      VALUES (${userId}, ${p.date}, ${p.endDate}, ${p.text}, ${p.status}, ${order.get(p)})
     `),
     // Deleting a replaced top-level task also drops its subtasks via ON DELETE CASCADE.
     ...(pool.length ? [sql`DELETE FROM planner_tasks WHERE user_id = ${userId} AND id = ANY(${pool.map((e) => e.id)})`] : [])
