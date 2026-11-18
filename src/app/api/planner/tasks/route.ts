@@ -31,6 +31,8 @@ export async function POST(req: NextRequest) {
   const text = (body?.text as string | undefined)?.trim();
   const status: PlannerStatus = body?.status === "done" || body?.status === "partial" ? body.status : "undone";
   const parentId = typeof body?.parentId === "number" ? body.parentId : null;
+  const categoryId = typeof body?.categoryId === "number" ? body.categoryId : null;
+  const notes = typeof body?.notes === "string" ? body.notes : "";
   if (!date || !text) {
     return NextResponse.json({ error: "date and text are required" }, { status: 400 });
   }
@@ -38,7 +40,7 @@ export async function POST(req: NextRequest) {
   const endDate = rawEndDate && rawEndDate > date ? rawEndDate : null;
 
   try {
-    const task = await createTask(userId, date, endDate, text, status, parentId);
+    const task = await createTask(userId, date, endDate, text, status, parentId, categoryId, notes);
     return NextResponse.json(task, { status: 201 });
   } catch {
     return NextResponse.json({ error: "invalid parent" }, { status: 400 });

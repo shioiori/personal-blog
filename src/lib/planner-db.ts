@@ -160,7 +160,9 @@ export async function createTask(
   endDate: string | null,
   text: string,
   status: PlannerStatus,
-  parentId: number | null = null
+  parentId: number | null = null,
+  categoryId: number | null = null,
+  notes = ""
 ): Promise<PlannerTask> {
   let parent: PlannerTask | null = null;
   if (parentId !== null) {
@@ -171,9 +173,9 @@ export async function createTask(
   const taskDate = parent ? parent.date : date;
   const taskEndDate = parent ? null : endDate;
   const rows = await sql`
-    INSERT INTO planner_tasks (user_id, date, end_date, text, status, parent_id, position)
+    INSERT INTO planner_tasks (user_id, date, end_date, text, status, parent_id, category_id, notes, position)
     VALUES (
-      ${userId}, ${taskDate}, ${taskEndDate}, ${text}, ${status}, ${parentId},
+      ${userId}, ${taskDate}, ${taskEndDate}, ${text}, ${status}, ${parentId}, ${parent ? null : categoryId}, ${notes},
       COALESCE((SELECT MAX(position) + 1 FROM planner_tasks WHERE user_id = ${userId}), 0)
     )
     RETURNING id, date::text AS date, end_date::text AS end_date, text, status, category_id, parent_id, position, notes
@@ -187,14 +189,28 @@ export async function createTask(
 export async function updateTask(
   userId: number,
   id: number,
-  fields: { text?: string; status?: PlannerStatus; date?: string; endDate?: string | null; categoryId?: number | null; notes?: string }
+  fields: {
+    text?: string;
+    status?: PlannerStatus;
+    date?: string;
+    endDate?: string | null;
+    categoryId?: number | null;
+    notes?: string;
+    parentId?: number | null;
+  }
 ): Promise<PlannerTask | null> {
   const before = await getTask(userId, id);
   if (!before) return null;
+  const parentId = fields.parentId !== undefined ? fields.parentId : before.parentId;
+  let parent: PlannerTask | null = null;
+  if (parentId !== null && parentId !== before.parentId) {
+    parent = await getTask(userId, parentId);
+    const children = await sql`SELECT 1 FROM planner_tasks WHERE parent_id = ${id} AND user_id = ${userId} LIMIT 1`;
+    if (!parent || parent.parentId !== null || parent.id === id || children.length) throw new Error("invalid parent");
+  }
   // A task with children can't move/resize independently of its parent and shouldn't gain a category.
-  const date = before.parentId === null ? fields.date ?? null : null;
-  const categoryId =
-    before.parentId !== null ? null : fields.categoryId !== undefined ? fields.categoryId : before.categoryId;
+  const date = parentId === null ? fields.date ?? null : parent?.date ?? null;
+  const categoryId = parentId !== null ? null : fields.categoryId !== undefined ? fields.categoryId : before.categoryId;
   const rows = await sql`
     UPDATE planner_tasks
     SET text = COALESCE(${fields.text ?? null}, text),
@@ -202,6 +218,7 @@ export async function updateTask(
         date = COALESCE(${date}::date, date),
         end_date = CASE WHEN ${date}::date IS NULL THEN end_date ELSE ${fields.endDate ?? null}::date END,
         category_id = ${categoryId},
+        parent_id = ${parentId},
         notes = COALESCE(${fields.notes ?? null}, notes)
     WHERE id = ${id} AND user_id = ${userId}
     RETURNING id, date::text AS date, end_date::text AS end_date, text, status, category_id, parent_id, position, notes
@@ -212,7 +229,10 @@ export async function updateTask(
   }
   // Status changes pay/claw back the reward; moving a done task re-prices it by its new length.
   if (task) await payReward(userId, taskReward(task) - taskReward(before));
-  if (task?.parentId && task.status !== before.status) await syncParentStatus(userId, task.parentId);
+  if (task?.parentId && (task.status !== before.status || task.parentId !== before.parentId)) {
+    await syncParentStatus(userId, task.parentId);
+  }
+  if (task && before.parentId && before.parentId !== task.parentId) await syncParentStatus(userId, before.parentId);
   return task;
 }
 

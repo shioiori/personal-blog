@@ -17,8 +17,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   const categoryId =
     body?.categoryId === null ? null : typeof body?.categoryId === "number" ? body.categoryId : undefined;
   const notes = typeof body?.notes === "string" ? body.notes : undefined;
+  const parentId = body?.parentId === null ? null : typeof body?.parentId === "number" ? body.parentId : undefined;
 
-  const task = await updateTask(userId, Number(id), { text, status, date, endDate, categoryId, notes });
+  const task = await updateTask(userId, Number(id), { text, status, date, endDate, categoryId, notes, parentId }).catch(() => undefined);
+  if (task === undefined) return NextResponse.json({ error: "invalid parent" }, { status: 400 });
   if (!task) return NextResponse.json({ error: "not found" }, { status: 404 });
   return NextResponse.json(task);
 }
