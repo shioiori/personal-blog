@@ -9,6 +9,7 @@ export interface PlannerTask {
   categoryId: number | null
   parentId: number | null
   position: number
+  notes: string
 }
 
 export interface PlannerCategory {
