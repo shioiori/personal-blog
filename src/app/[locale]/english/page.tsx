@@ -11,12 +11,13 @@ import {
   TabsTrigger
 } from '@/src/components/ui/Tabs'
 import { GapFillTab } from '@/src/components/english/gapfill/GapFillTab'
-import { BookOpen, RotateCcw, Upload, PenLine } from 'lucide-react'
+import { WritingTab } from '@/src/components/english/writing/WritingTab'
+import { BookOpen, RotateCcw, Upload, PenLine, NotebookPen } from 'lucide-react'
 import { EnglishProvider } from '@/src/context/english'
 import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
 
-const TABS = ['study', 'review', 'import', 'gacha', 'gapfill']
+const TABS = ['study', 'review', 'writing', 'import', 'gacha', 'gapfill']
 
 export default function Page() {
   const t = useTranslations('English.Tabs')
@@ -46,6 +47,10 @@ export default function Page() {
               <RotateCcw className="h-4 w-4" />
               {t('review')}
             </TabsTrigger>
+            <TabsTrigger value="writing" className="flex items-center gap-2 whitespace-nowrap">
+              <NotebookPen className="h-4 w-4" />
+              {t('writing')}
+            </TabsTrigger>
             <TabsTrigger value="import" className="flex items-center gap-2 whitespace-nowrap">
               <Upload className="h-4 w-4" />
               {t('import')}
@@ -65,6 +70,10 @@ export default function Page() {
 
         <TabsContent value="review">
           <FlashcardTab />
+        </TabsContent>
+
+        <TabsContent value="writing">
+          <WritingTab />
         </TabsContent>
 
         <TabsContent value="import">

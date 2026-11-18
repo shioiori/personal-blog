@@ -43,6 +43,22 @@ export interface FlashcardCard {
   senses: EnglishSense[];
 }
 
+export interface WritingCard {
+  wordId: number;
+  word: string;
+  meaningVi: string;
+  example: string;
+}
+
+export type WritingGrade = 0 | 1 | 2 | 3;
+
+export interface WritingCheckResult {
+  usedWord: boolean;
+  correctWord: boolean;
+  correctContext: boolean;
+  feedback: string;
+}
+
 export interface ImportSenseInput {
   phonetic?: string;
   partOfSpeech?: string;

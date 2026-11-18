@@ -4,6 +4,7 @@
             "study": "Học từ",
             "groups": "Nhóm từ",
             "review": "Ôn tập",
+            "writing": "Writing learning",
             "import": "Import",
             "refresh": "Làm mới dữ liệu",
             "gapfill": "Điền từ"
@@ -116,6 +117,24 @@
             "manage": "Quản lý từ trong lặp lại ngắt quãng",
             "ungrouped": "Chưa phân loại",
             "toggleAll": "Bật/tắt tất cả ({count})"
+        },
+        "Writing": {
+            "needsPremium": "Writing learning dùng AI để chấm câu, chỉ dành cho tài khoản Premium.",
+            "noDueHint": "Thêm từ có nghĩa tiếng Việt hoặc quay lại vào ngày mai.",
+            "dontRemember": "Không nhớ",
+            "remember": "Nhớ",
+            "writeSentenceHint": "Đặt một câu có dùng từ này:",
+            "sentencePlaceholder": "Viết câu của bạn...",
+            "voiceStart": "Nói",
+            "voiceListening": "Đang nghe...",
+            "submit": "Gửi",
+            "checking": "Đang chấm...",
+            "continue": "Tiếp tục",
+            "perfectSentence": "Tốt lắm! Câu của bạn chính xác.",
+            "answerWas": "Từ cần nhớ là:",
+            "inputMode": "Cách trả lời",
+            "inputModeType": "Gõ",
+            "inputModeVoice": "Nói"
         },
         "Chart": {
             "today": "Hôm nay",

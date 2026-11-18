@@ -10,13 +10,14 @@ interface ForecastDay {
   count: number;
 }
 
-export function DueForecastChart() {
+export function DueForecastChart({ endpoint = "/api/english/flashcard/forecast" }: { endpoint?: string }) {
   const t = useTranslations("English");
   const [days, setDays] = useState<ForecastDay[] | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/english/flashcard/forecast")
+    setDays(null);
+    fetch(endpoint)
       .then((res) => res.json())
       .then((data: { days: ForecastDay[] }) => {
         if (!cancelled) setDays(data.days);
@@ -27,7 +28,7 @@ export function DueForecastChart() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [endpoint]);
 
   if (days === null) {
     return <div className="h-40 flex items-center justify-center text-sm text-muted-foreground">{t("Chart.loading")}</div>;

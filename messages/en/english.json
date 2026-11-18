@@ -4,6 +4,7 @@
             "study": "Words",
             "groups": "Groups",
             "review": "Review",
+            "writing": "Writing learning",
             "import": "Import",
             "refresh": "Refresh data",
             "gapfill": "Gap-fill"
@@ -116,6 +117,24 @@
             "manage": "Manage words in spaced repetition",
             "ungrouped": "Uncategorized",
             "toggleAll": "Toggle all ({count})"
+        },
+        "Writing": {
+            "needsPremium": "Writing learning uses AI to grade your sentences — Premium accounts only.",
+            "noDueHint": "Add words with a Vietnamese meaning or come back tomorrow.",
+            "dontRemember": "Don't remember",
+            "remember": "Remember",
+            "writeSentenceHint": "Write a sentence using this word:",
+            "sentencePlaceholder": "Write your sentence...",
+            "voiceStart": "Speak",
+            "voiceListening": "Listening...",
+            "submit": "Submit",
+            "checking": "Checking...",
+            "continue": "Continue",
+            "perfectSentence": "Great! Your sentence is correct.",
+            "answerWas": "The word was:",
+            "inputMode": "Answer method",
+            "inputModeType": "Type",
+            "inputModeVoice": "Voice"
         },
         "Chart": {
             "today": "Today",
