@@ -40,5 +40,9 @@
         "title": "Tìm kiếm",
         "searchPlaceholder": "Nhập từ khóa để tìm kiếm bài viết",
         "noResult": "Không tìm thấy bài viết nào"
+    },
+    "Split": {
+        "dragHint": "Kéo sang trái/phải để chia màn hình",
+        "exitHint": "Nhấn Esc để thoát chia màn hình"
     }
 }

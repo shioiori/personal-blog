@@ -3,6 +3,7 @@ import { Header } from "../../components/header";
 import { Providers } from "@/src/context/providers";
 import { FloatingMusicBox } from "@/src/components/music/FloatingMusicBox";
 import { Toaster } from "@/src/components/ui/Sonner";
+import { SplitScreen } from "@/src/components/split/SplitScreen";
 import { Language } from "@/src/components/enums";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -26,13 +27,14 @@ export default async function RootLayout({
     <html lang={locale}>
       <body className={`${inter.className} ${notoSerifSC.variable}`}>
         <Providers locale={locale}>
-          <div className="min-h-screen bg-background px-0 sm:px-4 md:px-16">
-            <Header />
-            <div className="mx-auto flex items-center justify-center">
-              <div className="container px-4 py-8 max-w-full overflow-x-hidden">{children}</div>
+          <SplitScreen topOnly={<FloatingMusicBox />}>
+            <div className="min-h-screen bg-background px-0 sm:px-4 md:px-16">
+              <Header />
+              <div className="mx-auto flex items-center justify-center">
+                <div className="container px-4 py-8 max-w-full overflow-x-hidden">{children}</div>
+              </div>
             </div>
-          </div>
-          <FloatingMusicBox />
+          </SplitScreen>
           <Toaster />
         </Providers>
       </body>

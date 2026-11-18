@@ -40,5 +40,9 @@
         "title": "Search",
         "searchPlaceholder": "Enter keywords to search posts",
         "noResult": "No posts found"
+    },
+    "Split": {
+        "dragHint": "Drag left/right to split the screen",
+        "exitHint": "Press Esc to exit split screen"
     }
 }
