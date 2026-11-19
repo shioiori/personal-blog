@@ -132,8 +132,7 @@ export function WritingTab() {
       }
       const data = (await res.json()) as WritingCheckResult;
       setResult(data);
-      const grade = data.usedWord && data.correctWord && data.correctContext ? 3 : data.usedWord && data.correctWord ? 2 : data.usedWord ? 1 : 0;
-      recordSummary(grade as 0 | 1 | 2 | 3);
+      recordSummary(data.grade);
       setPhase("feedback");
     } catch {
       setPhase("writing");
