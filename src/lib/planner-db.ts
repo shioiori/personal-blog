@@ -1,5 +1,6 @@
 import { sql, once } from "./db";
 import { deriveStatus, type ParsedTask } from "./planner-text";
+import { fitChildRange, isWithin, type DateRange } from "./planner-range";
 import { adjustBalance, ensureGardenTables } from "./garden-db";
 import { TASK_REWARD_PER_DAY } from "./garden-catalog";
 
@@ -51,6 +52,23 @@ export const ensurePlannerTables = once(async function ensurePlannerTables() {
   await sql`CREATE INDEX IF NOT EXISTS planner_tasks_parent_idx ON planner_tasks (parent_id)`;
   await sql`ALTER TABLE planner_tasks ADD COLUMN IF NOT EXISTS position INT NOT NULL DEFAULT 0`;
   await sql`ALTER TABLE planner_tasks ADD COLUMN IF NOT EXISTS notes TEXT NOT NULL DEFAULT ''`;
+  await sql`CREATE TABLE IF NOT EXISTS planner_migrations (name TEXT PRIMARY KEY)`;
+  const widened = await sql`
+    WITH marker AS (
+      INSERT INTO planner_migrations (name) VALUES ('subtask-ranges') ON CONFLICT DO NOTHING RETURNING name
+    )
+    UPDATE planner_tasks c SET end_date = p.end_date
+    FROM planner_tasks p, marker
+    WHERE c.parent_id = p.id AND p.end_date IS NOT NULL AND c.end_date IS NULL AND c.date = p.date
+    RETURNING c.user_id, c.date::text AS date, c.end_date::text AS end_date, c.status
+  `;
+  const bonus = new Map<number, number>();
+  for (const r of widened) {
+    const base = { date: r.date as string, status: r.status as PlannerStatus };
+    const delta = taskReward({ ...base, endDate: r.end_date as string }) - taskReward({ ...base, endDate: null });
+    bonus.set(r.user_id as number, (bonus.get(r.user_id as number) ?? 0) + delta);
+  }
+  for (const [userId, delta] of bonus) await payReward(userId, delta);
   // One-time migration off the old `checked` boolean, kept idempotent via IF EXISTS checks.
   await sql`
     DO $$
@@ -169,9 +187,8 @@ export async function createTask(
     parent = await getTask(userId, parentId);
     if (!parent || parent.parentId !== null) throw new Error("invalid parent");
   }
-  // Subtasks always track their parent's start date and have no range of their own.
   const taskDate = parent ? parent.date : date;
-  const taskEndDate = parent ? null : endDate;
+  const taskEndDate = parent ? parent.endDate : endDate;
   const rows = await sql`
     INSERT INTO planner_tasks (user_id, date, end_date, text, status, parent_id, category_id, notes, position)
     VALUES (
@@ -202,21 +219,22 @@ export async function updateTask(
   const before = await getTask(userId, id);
   if (!before) return null;
   const parentId = fields.parentId !== undefined ? fields.parentId : before.parentId;
-  let parent: PlannerTask | null = null;
-  if (parentId !== null && parentId !== before.parentId) {
-    parent = await getTask(userId, parentId);
+  const nesting = parentId !== null && parentId !== before.parentId;
+  const parent = parentId !== null && (nesting || fields.date) ? await getTask(userId, parentId) : null;
+  if (nesting) {
     const children = await sql`SELECT 1 FROM planner_tasks WHERE parent_id = ${id} AND user_id = ${userId} LIMIT 1`;
     if (!parent || parent.parentId !== null || parent.id === id || children.length) throw new Error("invalid parent");
   }
-  // A task with children can't move/resize independently of its parent and shouldn't gain a category.
-  const date = parentId === null ? fields.date ?? null : parent?.date ?? null;
+  const range: DateRange | null =
+    nesting && parent ? { date: parent.date, endDate: parent.endDate } : fields.date ? { date: fields.date, endDate: fields.endDate ?? null } : null;
+  if (range && parent && !isWithin(range, parent)) throw new Error("invalid range");
   const categoryId = parentId !== null ? null : fields.categoryId !== undefined ? fields.categoryId : before.categoryId;
   const rows = await sql`
     UPDATE planner_tasks
     SET text = COALESCE(${fields.text ?? null}, text),
         status = COALESCE(${fields.status ?? null}, status),
-        date = COALESCE(${date}::date, date),
-        end_date = CASE WHEN ${date}::date IS NULL THEN end_date ELSE ${fields.endDate ?? null}::date END,
+        date = COALESCE(${range?.date ?? null}::date, date),
+        end_date = CASE WHEN ${range?.date ?? null}::date IS NULL THEN end_date ELSE ${range?.endDate ?? null}::date END,
         category_id = ${categoryId},
         parent_id = ${parentId},
         notes = COALESCE(${fields.notes ?? null}, notes)
@@ -224,8 +242,8 @@ export async function updateTask(
     RETURNING id, date::text AS date, end_date::text AS end_date, text, status, category_id, parent_id, position, notes
   `;
   const task = rows[0] ? toTask(rows[0]) : null;
-  if (task && task.parentId === null && task.date !== before.date) {
-    await sql`UPDATE planner_tasks SET date = ${task.date} WHERE parent_id = ${id} AND user_id = ${userId}`;
+  if (task && task.parentId === null && (task.date !== before.date || task.endDate !== before.endDate)) {
+    await fitChildren(userId, id, before, task);
   }
   // Status changes pay/claw back the reward; moving a done task re-prices it by its new length.
   if (task) await payReward(userId, taskReward(task) - taskReward(before));
@@ -234,6 +252,26 @@ export async function updateTask(
   }
   if (task && before.parentId && before.parentId !== task.parentId) await syncParentStatus(userId, before.parentId);
   return task;
+}
+
+async function fitChildren(userId: number, parentId: number, before: DateRange, after: DateRange): Promise<void> {
+  const rows = await sql`
+    SELECT id, date::text AS date, end_date::text AS end_date, text, status, category_id, parent_id, position, notes FROM planner_tasks
+    WHERE parent_id = ${parentId} AND user_id = ${userId}
+  `;
+  const changes = rows
+    .map(toTask)
+    .map((c) => [c, { ...c, ...fitChildRange(c, before, after) }] as const)
+    .filter(([c, next]) => c.date !== next.date || c.endDate !== next.endDate);
+  if (!changes.length) return;
+  const moved = changes.map(([, next]) => next);
+  await sql`
+    UPDATE planner_tasks t SET date = u.date, end_date = u.end_date
+    FROM unnest(${moved.map((c) => c.id)}::int[], ${moved.map((c) => c.date)}::date[], ${moved.map((c) => c.endDate)}::date[])
+      AS u(id, date, end_date)
+    WHERE t.id = u.id AND t.user_id = ${userId}
+  `;
+  await payReward(userId, changes.reduce((sum, [c, next]) => sum + taskReward(next) - taskReward(c), 0));
 }
 
 export async function deleteTask(userId: number, id: number): Promise<void> {
@@ -270,16 +308,24 @@ export async function syncTasks(userId: number, from: string, to: string, parsed
   // The range is replaced wholesale, so the wallet changes by (rewards after) - (rewards before).
   const rewardDelta =
     parsed.reduce(
-      (sum, p) => sum + taskReward(p) + p.subtasks.reduce((s, c) => s + taskReward({ date: p.date, endDate: null, status: c.status }), 0),
+      (sum, p) => sum + taskReward(p) + p.subtasks.reduce((s, c) => s + taskReward(c), 0),
       0
     ) - existing.reduce((sum, e) => sum + taskReward(e), 0);
   const sameGroup = (a: { date: string; endDate: string | null }, b: { date: string; endDate: string | null }) =>
     a.date === b.date && a.endDate === b.endDate;
   const sameSubtasks = (e: PlannerTask, p: ParsedTask) => {
     const current = childrenOf(e.id);
-    return current.length === p.subtasks.length && current.every((c, i) => c.text === p.subtasks[i].text && c.status === p.subtasks[i].status);
+    return current.length === p.subtasks.length && current.every((c, i) => {
+      const s = p.subtasks[i];
+      return c.text === s.text && c.status === s.status && c.date === s.date && c.endDate === s.endDate;
+    });
   };
-  const subtaskColumns = (p: ParsedTask) => [p.subtasks.map((s) => s.text), p.subtasks.map((s) => s.status)];
+  const subtaskColumns = (p: ParsedTask) => [
+    p.subtasks.map((s) => s.text),
+    p.subtasks.map((s) => s.status),
+    p.subtasks.map((s) => s.date),
+    p.subtasks.map((s) => s.endDate)
+  ];
   const pairs: [PlannerTask, ParsedTask][] = [];
   let pending = parsed;
   for (const match of [
@@ -304,29 +350,31 @@ export async function syncTasks(userId: number, from: string, to: string, parsed
         WHERE id = ${e.id} AND user_id = ${userId}
       `),
     ...pairs
-      .filter(([e, p]) => e.date !== p.date || !sameSubtasks(e, p))
+      .filter(([e, p]) => !sameSubtasks(e, p))
       .flatMap(([e, p]) => {
-        const [texts, statuses] = subtaskColumns(p);
+        const [texts, statuses, dates, ends] = subtaskColumns(p);
         return [
           sql`DELETE FROM planner_tasks WHERE parent_id = ${e.id} AND user_id = ${userId}`,
           sql`
-            INSERT INTO planner_tasks (user_id, date, text, status, parent_id, position)
-            SELECT ${userId}, ${p.date}, c.text, c.status, ${e.id}, c.ord
-            FROM unnest(${texts}::text[], ${statuses}::text[]) WITH ORDINALITY AS c(text, status, ord)
+            INSERT INTO planner_tasks (user_id, date, end_date, text, status, parent_id, position)
+            SELECT ${userId}, c.date, c.end_date, c.text, c.status, ${e.id}, c.ord
+            FROM unnest(${texts}::text[], ${statuses}::text[], ${dates}::date[], ${ends}::date[])
+              WITH ORDINALITY AS c(text, status, date, end_date, ord)
           `
         ];
       }),
     ...pending.map((p) => {
-      const [texts, statuses] = subtaskColumns(p);
+      const [texts, statuses, dates, ends] = subtaskColumns(p);
       return sql`
         WITH parent AS (
           INSERT INTO planner_tasks (user_id, date, end_date, text, status, position)
           VALUES (${userId}, ${p.date}, ${p.endDate}, ${p.text}, ${p.status}, ${order.get(p)})
           RETURNING id
         )
-        INSERT INTO planner_tasks (user_id, date, text, status, parent_id, position)
-        SELECT ${userId}, ${p.date}, c.text, c.status, parent.id, c.ord
-        FROM parent, unnest(${texts}::text[], ${statuses}::text[]) WITH ORDINALITY AS c(text, status, ord)
+        INSERT INTO planner_tasks (user_id, date, end_date, text, status, parent_id, position)
+        SELECT ${userId}, c.date, c.end_date, c.text, c.status, parent.id, c.ord
+        FROM parent, unnest(${texts}::text[], ${statuses}::text[], ${dates}::date[], ${ends}::date[])
+          WITH ORDINALITY AS c(text, status, date, end_date, ord)
       `;
     }),
     // Deleting a replaced top-level task also drops its subtasks via ON DELETE CASCADE.

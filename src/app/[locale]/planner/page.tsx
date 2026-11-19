@@ -1,18 +1,19 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type FocusEvent, type MouseEvent } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type FocusEvent, type MouseEvent } from 'react'
 import { useTranslations } from 'next-intl'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin, { EventDragStartArg, EventDragStopArg } from '@fullcalendar/interaction'
-import { DateSelectArg, DatesSetArg, EventChangeArg } from '@fullcalendar/core'
-import { CalendarDays, Copy, Maximize2, MessageSquareText, Minimize2, Plus, Sprout, WrapText, X } from 'lucide-react'
+import { DateSelectArg, DatesSetArg, EventChangeArg, EventContentArg } from '@fullcalendar/core'
+import { CalendarDays, Maximize2, MessageSquareText, Minimize2, Plus, Sprout, WrapText, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { PlannerCategory, PlannerStatus, PlannerTask } from '@/src/declaration/planner'
 import { GardenTab } from '@/src/components/planner/GardenTab'
 import { CATEGORY_COLORS, colorForTask } from '@/src/components/planner/colors'
-import { SegmentText } from '@/src/components/planner/SegmentText'
+import { DRAFT_ID, SUBTASK_DRAFT_PREFIX, TaskPill, statusCheckboxStyle, type PillActions } from '@/src/components/planner/TaskPill'
 import { ColumnResizeHandles, EQUAL_COLUMN_WIDTHS, columnWidthVars } from '@/src/components/planner/ColumnResizeHandles'
+import { SubtaskSlot, dayCellAt } from '@/src/components/planner/SubtaskSlot'
 import { useAuth } from '@/src/context/auth'
 import { Button } from '@/src/components/ui/Button'
 import { Textarea } from '@/src/components/ui/Textarea'
@@ -21,56 +22,47 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/src/components/ui/Too
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/src/components/ui/Dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/src/components/ui/DropdownMenu'
 import { deriveStatus, formatTasks } from '@/src/lib/planner-text'
+import { addDays, dayDiff, fitChildRange, isWithin, rangeEnd, shiftRange, type DateRange } from '@/src/lib/planner-range'
 
-const DRAFT_ID = 'draft'
-const SUBTASK_DRAFT_PREFIX = 'subtask-draft-'
 const STATUSES: PlannerStatus[] = ['undone', 'partial', 'done']
+const PLUGINS = [dayGridPlugin, interactionPlugin]
+const HEADER_TOOLBAR = { left: 'prev,next today', center: 'title', right: '' }
+const NO_CHILDREN: PlannerTask[] = []
 
-function derivedStatus(task: PlannerTask, all: PlannerTask[]): PlannerStatus {
-  const children = all.filter((x) => x.parentId === task.id)
-  return children.length ? deriveStatus(children) : task.status
+function byEventOrder(a: unknown, b: unknown) {
+  return (a as { extendedProps: { order: number } }).extendedProps.order - (b as { extendedProps: { order: number } }).extendedProps.order
 }
 
-function DateRangeFields({ date, endDate, onCommit }: { date: string; endDate: string | null; onCommit: (date: string, endDate: string | null) => void }) {
-  const [start, setStart] = useState(date)
-  const [end, setEnd] = useState(endDate ?? date)
-  const invalid = !start || !end || start > end
-  const className = `rounded-md border bg-background px-2 py-1 text-sm outline-none ${invalid ? 'border-destructive text-destructive' : ''}`
+type EditableFields = Partial<Pick<PlannerTask, 'text' | 'date' | 'endDate' | 'notes'>>
 
-  function commit() {
-    const nextEnd = end > start ? end : null
-    if (!invalid && (start !== date || nextEnd !== endDate)) onCommit(start, nextEnd)
+function DateRangeFields({
+  start,
+  end,
+  bounds,
+  invalid,
+  onChange
+}: {
+  start: string
+  end: string
+  bounds?: DateRange
+  invalid: boolean
+  onChange: (start: string, end: string) => void
+}) {
+  const inputProps = {
+    type: 'date',
+    min: bounds?.date,
+    max: bounds && rangeEnd(bounds),
+    'aria-invalid': invalid,
+    className: `rounded-md border bg-background px-2 py-1 text-sm outline-none ${invalid ? 'border-destructive text-destructive' : ''}`
   }
 
   return (
     <div className="flex items-center gap-2">
-      <input type="date" value={start} aria-invalid={invalid} onChange={(e) => setStart(e.target.value)} onBlur={commit} className={className} />
+      <input {...inputProps} value={start} onChange={(e) => onChange(e.target.value, end)} />
       <span className="text-muted-foreground">–</span>
-      <input type="date" value={end} aria-invalid={invalid} onChange={(e) => setEnd(e.target.value)} onBlur={commit} className={className} />
+      <input {...inputProps} value={end} onChange={(e) => onChange(start, e.target.value)} />
     </div>
   )
-}
-
-/** A wavy waterline filling the bottom of the icon, used for the "partially done" status. */
-function wavyFill(bar: string) {
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><path d='M0,6.5 Q1.5,5 3,6.5 T6,6.5 T9,6.5 T12,6.5 L12,12 L0,12 Z' fill='${bar}'/></svg>`
-  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`
-}
-
-function statusCheckboxStyle(bar: string, status: PlannerStatus): CSSProperties {
-  return {
-    WebkitAppearance: 'none',
-    MozAppearance: 'none',
-    appearance: 'none',
-    height: 12,
-    width: 12,
-    borderRadius: 9999,
-    border: `2px solid ${bar}`,
-    backgroundColor: status === 'done' ? bar : 'transparent',
-    backgroundImage: status === 'partial' ? wavyFill(bar) : undefined,
-    backgroundSize: 'cover',
-    margin: 0
-  }
 }
 
 function monthRange(date: Date) {
@@ -81,12 +73,6 @@ function monthRange(date: Date) {
 
 function toDateStr(date: Date) {
   return date.toISOString().slice(0, 10)
-}
-
-function addDays(dateStr: string, days: number) {
-  const date = new Date(`${dateStr}T00:00:00Z`)
-  date.setUTCDate(date.getUTCDate() + days)
-  return toDateStr(date)
 }
 
 function byOrder(a: PlannerTask, b: PlannerTask) {
@@ -102,22 +88,6 @@ function rowsAtColumn(row: Element, x: number) {
     })
     .filter((r) => r.left <= x && x <= r.right)
     .sort((a, b) => a.midY - b.midY)
-}
-
-let measureContext: CanvasRenderingContext2D | null = null
-
-function charIndexAtX(text: string, x: number, font: string) {
-  measureContext ??= document.createElement('canvas').getContext('2d')
-  if (!measureContext) return text.length
-  measureContext.font = font
-  let low = 0
-  let high = text.length
-  while (low < high) {
-    const mid = Math.ceil((low + high) / 2)
-    if (measureContext.measureText(text.slice(0, mid)).width <= x) low = mid
-    else high = mid - 1
-  }
-  return low
 }
 
 export default function PlannerPage() {
@@ -143,12 +113,36 @@ export default function PlannerPage() {
   const [dragging, setDragging] = useState(false)
   const [contextTaskId, setContextTaskId] = useState<number | null>(null)
   const [peekMode, setPeekMode] = useState(false)
+  const [pageEdits, setPageEdits] = useState<{ taskId: number; text?: string; start?: string; end?: string; notes?: string } | null>(null)
   const [contextDate, setContextDate] = useState<string | null>(null)
   const [subtaskDraftParentId, setSubtaskDraftParentId] = useState<number | null>(null)
   const [copied, setCopied] = useState<(Pick<PlannerTask, 'text' | 'categoryId' | 'notes'> & { days: number }) | null>(null)
   const [dayMenu, setDayMenu] = useState<{ date: string; x: number; y: number } | null>(null)
   const reparentedRef = useRef<number | null>(null)
   const stopDragTrackingRef = useRef<(() => void) | null>(null)
+  const grabDateRef = useRef<string | null>(null)
+  const actionsRef = useRef<PillActions | null>(null)
+  const [hoverTip, setHoverTip] = useState<{ id: number; rect: DOMRect } | null>(null)
+  const [groupFrames, setGroupFrames] = useState<{ left: number; top: number; width: number; height: number }[]>([])
+
+  const tasksRef = useRef(tasks)
+  tasksRef.current = tasks
+  const taskById = useMemo(() => new Map(tasks.map((x) => [x.id, x])), [tasks])
+  const childrenByParent = useMemo(() => {
+    const map = new Map<number, PlannerTask[]>()
+    for (const x of [...tasks].sort(byOrder)) {
+      if (x.parentId === null) continue
+      const list = map.get(x.parentId)
+      if (list) list.push(x)
+      else map.set(x.parentId, [x])
+    }
+    return map
+  }, [tasks])
+
+  function statusOf(task: PlannerTask) {
+    const children = childrenByParent.get(task.id)
+    return children?.length ? deriveStatus(children) : task.status
+  }
 
   useEffect(() => {
     const stored = localStorage.getItem('planner-text-mode')
@@ -182,11 +176,11 @@ export default function PlannerPage() {
     setTasks((prev) => prev.map((t) => (t.categoryId === categoryId ? { ...t, categoryId: null } : t)))
   }
 
-  async function handleAssignCategory(taskId: number, categoryId: number | null) {
-    const previous = tasks.find((x) => x.id === taskId)?.categoryId ?? null
-    setTasks((prev) => prev.map((x) => (x.id === taskId ? { ...x, categoryId } : x)))
-    const res = await request(`/api/planner/tasks/${taskId}`, 'PUT', { categoryId })
-    if (!res.ok) setTasks((prev) => prev.map((x) => (x.id === taskId ? { ...x, categoryId: previous } : x)))
+  function handleAssignCategory(taskId: number, categoryId: number | null) {
+    mutateTasks(
+      (list) => list.map((x) => (x.id === taskId ? { ...x, categoryId } : x)),
+      () => isOk(request(`/api/planner/tasks/${taskId}`, 'PUT', { categoryId }))
+    )
   }
 
   const toggleTextMode = useCallback(() => {
@@ -247,7 +241,7 @@ export default function PlannerPage() {
       tasks
         .filter((x) => x.parentId === null && x.date <= month.to && (x.endDate ?? x.date) >= month.from)
         .sort(byOrder)
-        .map((x) => ({ ...x, status: derivedStatus(x, tasks), subtasks: tasks.filter((c) => c.parentId === x.id).sort(byOrder) }))
+        .map((x) => ({ ...x, status: statusOf(x), subtasks: childrenByParent.get(x.id) ?? NO_CHILDREN }))
     )
   }
 
@@ -314,12 +308,32 @@ export default function PlannerPage() {
     return res
   }
 
-  async function handleSetStatus(taskId: number, status: PlannerStatus) {
-    const previous = tasks.find((x) => x.id === taskId)?.status
-    if (previous === undefined) return
-    setTasks((prev) => prev.map((x) => (x.id === taskId ? { ...x, status } : x)))
-    const res = await request(`/api/planner/tasks/${taskId}`, 'PUT', { status })
-    if (!res.ok) setTasks((prev) => prev.map((x) => (x.id === taskId ? { ...x, status: previous } : x)))
+  function isOk(res: Promise<Response>) {
+    return res.then((r) => r.ok)
+  }
+
+  async function mutateTasks(update: (list: PlannerTask[]) => PlannerTask[], send: () => Promise<boolean>) {
+    const current = tasksRef.current
+    const before = new Map(current.map((x) => [x.id, x]))
+    const next = update(current)
+    const nextIds = new Set(next.map((x) => x.id))
+    const touched = new Set([
+      ...next.filter((x) => before.get(x.id) !== x).map((x) => x.id),
+      ...current.filter((x) => !nextIds.has(x.id)).map((x) => x.id)
+    ])
+    setTasks((prev) => update(prev))
+    const ok = await send()
+    if (!ok) {
+      setTasks((prev) => [...prev.filter((x) => !touched.has(x.id)), ...[...touched].flatMap((id) => before.get(id) ?? [])])
+    }
+    return ok
+  }
+
+  function handleSetStatus(taskId: number, status: PlannerStatus) {
+    mutateTasks(
+      (list) => list.map((x) => (x.id === taskId ? { ...x, status } : x)),
+      () => isOk(request(`/api/planner/tasks/${taskId}`, 'PUT', { status }))
+    )
   }
 
   // Plain click only ever flips between done/undone; "partial" is only reachable from the modal.
@@ -328,32 +342,32 @@ export default function PlannerPage() {
   }
 
   // Clicking a task that has subtasks toggles all of them together instead of its own (derived) status.
-  async function handleToggleGroup(children: PlannerTask[]) {
+  function handleToggleGroup(children: PlannerTask[]) {
     if (!children.length) return
     const next: PlannerStatus = children.every((c) => c.status === 'done') ? 'undone' : 'done'
-    const previous = children.map((c) => ({ id: c.id, status: c.status }))
     const ids = new Set(children.map((c) => c.id))
-    setTasks((prev) => prev.map((x) => (ids.has(x.id) ? { ...x, status: next } : x)))
-    const results: Response[] = []
-    for (const c of children) results.push(await request(`/api/planner/tasks/${c.id}`, 'PUT', { status: next }))
-    if (results.some((r) => !r.ok)) {
-      setTasks((prev) => prev.map((x) => {
-        const p = previous.find((pp) => pp.id === x.id)
-        return p ? { ...x, status: p.status } : x
-      }))
-    }
+    mutateTasks(
+      (list) => list.map((x) => (ids.has(x.id) ? { ...x, status: next } : x)),
+      async () => {
+        let ok = true
+        for (const c of children) ok = (await isOk(request(`/api/planner/tasks/${c.id}`, 'PUT', { status: next }))) && ok
+        return ok
+      }
+    )
   }
 
-  async function handleRename(taskId: number, text: string) {
-    setTasks((prev) => prev.map((x) => (x.id === taskId ? { ...x, text } : x)))
-    const res = await request(`/api/planner/tasks/${taskId}`, 'PUT', { text })
-    if (!res.ok) return refetch()
-  }
-
-  async function handleUpdateNotes(taskId: number, notes: string) {
-    setTasks((prev) => prev.map((x) => (x.id === taskId ? { ...x, notes } : x)))
-    const res = await request(`/api/planner/tasks/${taskId}`, 'PUT', { notes })
-    if (!res.ok) refetch()
+  function handleUpdateTask(taskId: number, fields: EditableFields) {
+    const before = taskById.get(taskId)
+    if (!before) return
+    const after = { ...before, ...fields }
+    const moved = after.date !== before.date || after.endDate !== before.endDate
+    mutateTasks(
+      (list) =>
+        list.map((x) =>
+          x.id === taskId ? { ...x, ...fields } : moved && x.parentId === taskId ? { ...x, ...fitChildRange(x, before, after) } : x
+        ),
+      () => isOk(request(`/api/planner/tasks/${taskId}`, 'PUT', fields))
+    )
   }
 
   async function createTaskOptimistic(fields: Pick<PlannerTask, 'date' | 'endDate' | 'text' | 'categoryId' | 'parentId' | 'notes'>) {
@@ -368,12 +382,11 @@ export default function PlannerPage() {
   function handleCreateSubtask(parentId: number, rawText: string) {
     const text = rawText.trim()
     const parent = tasks.find((x) => x.id === parentId)
-    if (text && parent) createTaskOptimistic({ date: parent.date, endDate: null, text, categoryId: null, parentId, notes: '' })
+    if (text && parent) createTaskOptimistic({ date: parent.date, endDate: parent.endDate, text, categoryId: null, parentId, notes: '' })
   }
 
   function handleCopy(task: PlannerTask) {
-    const days = task.endDate ? (Date.parse(task.endDate) - Date.parse(task.date)) / 86400000 : 0
-    setCopied({ text: task.text, categoryId: task.categoryId, notes: task.notes, days })
+    setCopied({ text: task.text, categoryId: task.categoryId, notes: task.notes, days: dayDiff(task.date, rangeEnd(task)) })
     toast.success(t('copied'))
   }
 
@@ -383,14 +396,14 @@ export default function PlannerPage() {
     createTaskOptimistic({ ...fields, date, endDate: days ? addDays(date, days) : null, parentId: null })
   }
 
-  async function handleSetParent(task: PlannerTask, parentId: number | null, date: string, order: number[]) {
+  async function handleSetParent(task: PlannerTask, parent: PlannerTask | null, range: DateRange, order: number[]) {
+    const parentId = parent?.id ?? null
     reparentedRef.current = task.id
-    setTasks((prev) =>
-      prev.map((x) => (x.id === task.id ? { ...x, parentId, date, endDate: null, categoryId: parentId === null ? x.categoryId : null } : x))
+    const ok = await mutateTasks(
+      (list) => list.map((x) => (x.id === task.id ? { ...x, ...range, parentId, categoryId: parent ? null : x.categoryId } : x)),
+      () => isOk(request(`/api/planner/tasks/${task.id}`, 'PUT', { parentId, ...range }))
     )
-    const res = await request(`/api/planner/tasks/${task.id}`, 'PUT', { parentId, date })
-    if (!res.ok) return refetch()
-    handleReorder(order)
+    if (ok) handleReorder(order)
   }
 
   function nestTargetAt(x: number, y: number, task: PlannerTask) {
@@ -408,33 +421,34 @@ export default function PlannerPage() {
     return null
   }
 
-  async function handleMoveTask(taskId: number, date: string, endDate: string | null) {
-    setTasks((prev) => prev.map((x) => (x.id === taskId ? { ...x, date, endDate } : x.parentId === taskId ? { ...x, date } : x)))
-    const res = await request(`/api/planner/tasks/${taskId}`, 'PUT', { date, endDate })
-    if (!res.ok) refetch()
-  }
-
   function handleEventChange(arg: EventChangeArg) {
     const id = Number(arg.event.id)
-    if (reparentedRef.current === id || tasks.find((x) => x.id === id)?.parentId) return arg.revert()
+    const task = taskById.get(id)
+    const parent = task?.parentId ? taskById.get(task.parentId) : undefined
     const date = arg.event.startStr
     const lastDay = arg.event.endStr ? addDays(arg.event.endStr, -1) : date
-    handleMoveTask(Number(arg.event.id), date, lastDay > date ? lastDay : null)
+    const range =
+      task && parent ? shiftRange(task, dayDiff(arg.oldEvent.startStr, date)) : { date, endDate: lastDay > date ? lastDay : null }
+    if (reparentedRef.current === id || (parent && !isWithin(range, parent))) return arg.revert()
+    handleUpdateTask(id, range)
   }
 
-  async function handleReorder(ids: number[]) {
+  function handleReorder(ids: number[]) {
     const positions = new Map(ids.map((id, i) => [id, i + 1]))
-    setTasks((prev) => prev.map((x) => {
-      const position = positions.get(x.id)
-      return position === undefined ? x : { ...x, position }
-    }))
-    const res = await request('/api/planner/tasks/reorder', 'PUT', { ids })
-    if (!res.ok) refetch()
+    mutateTasks(
+      (list) =>
+        list.map((x) => {
+          const position = positions.get(x.id)
+          return position === undefined || position === x.position ? x : { ...x, position }
+        }),
+      () => isOk(request('/api/planner/tasks/reorder', 'PUT', { ids }))
+    )
   }
 
   function handleEventDragStart(arg: EventDragStartArg) {
     setDragging(true)
     reparentedRef.current = null
+    grabDateRef.current = dayCellAt(arg.jsEvent.clientX, arg.jsEvent.clientY)?.dataset.date ?? null
     const task = tasks.find((t) => t.id === Number(arg.event.id))
     if (!task) return
     const handleMove = (e: PointerEvent) => setDragOverTaskId(nestTargetAt(e.clientX, e.clientY, task)?.id ?? null)
@@ -451,15 +465,21 @@ export default function PlannerPage() {
     if (!task) return
     const childrenOf = (parentId: number | null) => tasks.filter((t) => t.parentId === parentId && t.id > 0).sort(byOrder)
     const target = nestTargetAt(x, y, task)
-    if (target) return handleSetParent(task, target.id, target.date, [...childrenOf(target.id), task].map((t) => t.id))
-    const cell = document.elementsFromPoint(x, y).find((el): el is HTMLElement => el.matches('.fc-daygrid-day'))
+    if (target) {
+      const range = { date: target.date, endDate: target.endDate }
+      return handleSetParent(task, target, range, [...childrenOf(target.id), task].map((t) => t.id))
+    }
+    const cell = dayCellAt(x, y)
     const row = cell?.closest('tr')
     if (!cell?.dataset.date || !row) return
+    const parent = tasks.find((t) => t.id === task.parentId)
+    const delta = grabDateRef.current ? dayDiff(grabDateRef.current, cell.dataset.date) : 0
+    const moved = shiftRange(task, delta)
     const columnRows = rowsAtColumn(row, x)
     const group = columnRows.filter((r) => r.id === task.parentId || childrenOf(task.parentId).some((t) => t.id === r.id))
-    const leaving =
-      task.parentId !== null &&
-      !(cell.dataset.date === task.date && group.length > 0 && y >= group[0].top && y <= group[group.length - 1].bottom)
+    const insideGroup = group.length > 0 && y >= group[0].top && y <= group[group.length - 1].bottom
+    const leaving = !!parent && (delta ? !isWithin(moved, parent) : !insideGroup)
+    if (parent && delta && !leaving) return
     const current = childrenOf(leaving ? null : task.parentId)
     const others = current.filter((t) => t.id !== task.id)
     const visible = columnRows.filter((r) => others.some((t) => t.id === r.id))
@@ -467,17 +487,18 @@ export default function PlannerPage() {
     const anchor = visible[index] ?? visible[index - 1]
     const at = anchor ? others.findIndex((t) => t.id === anchor.id) + (visible[index] ? 0 : 1) : others.length
     const ordered = [...others.slice(0, at), task, ...others.slice(at)].map((t) => t.id)
-    if (leaving) return handleSetParent(task, null, cell.dataset.date, ordered)
+    if (leaving) return handleSetParent(task, null, moved, ordered)
     if (!anchor || ordered.every((id, i) => id === current[i].id)) return
     handleReorder(ordered)
   }
 
   async function handleDelete(taskId: number) {
-    const isSubtask = !!tasks.find((x) => x.id === taskId)?.parentId
-    const res = await request(`/api/planner/tasks/${taskId}`, 'DELETE')
-    if (!res.ok) return
-    setTasks((prev) => prev.filter((x) => x.id !== taskId))
-    if (isSubtask) refetch()
+    const isSubtask = !!taskById.get(taskId)?.parentId
+    const ok = await mutateTasks(
+      (list) => list.filter((x) => x.id !== taskId && x.parentId !== taskId),
+      () => isOk(request(`/api/planner/tasks/${taskId}`, 'DELETE'))
+    )
+    if (ok && isSubtask) refetch()
   }
 
   async function handleCommit(e: FocusEvent<HTMLInputElement | HTMLTextAreaElement>, taskId: number | null) {
@@ -493,9 +514,7 @@ export default function PlannerPage() {
       return
     }
     if (!text) return handleDelete(taskId)
-    if (text === tasks.find((x) => x.id === taskId)?.text) return
-    const res = await request(`/api/planner/tasks/${taskId}`, 'PUT', { text })
-    if (res.ok) setTasks((prev) => prev.map((x) => (x.id === taskId ? { ...x, text } : x)))
+    if (text !== taskById.get(taskId)?.text) handleUpdateTask(taskId, { text })
   }
 
   function handleSubtaskDraftCommit(e: FocusEvent<HTMLInputElement>, parentId: number) {
@@ -517,9 +536,9 @@ export default function PlannerPage() {
   // Renders a task the same way the calendar does: colored pill, status checkbox, inline-editable text.
   function renderTaskRow(task: PlannerTask, indent: boolean, asLink = false) {
     const color = colorForTask(task.id)
-    const children = tasks.filter((x) => x.parentId === task.id)
+    const children = childrenByParent.get(task.id) ?? NO_CHILDREN
     const hasChildren = children.length > 0
-    const status: PlannerStatus = hasChildren ? derivedStatus(task, tasks) : task.status
+    const status = statusOf(task)
     const category = task.categoryId ? categories.find((c) => c.id === task.categoryId) : undefined
     return (
       <div
@@ -541,7 +560,10 @@ export default function PlannerPage() {
         {asLink ? (
           <button
             type="button"
-            onClick={() => setContextTaskId(task.id)}
+            onClick={() => {
+              setPageEdits(null)
+              setContextTaskId(task.id)
+            }}
             className={`min-w-0 flex-1 truncate text-left text-xs font-medium underline-offset-2 hover:underline ${status === 'done' ? 'line-through opacity-70' : ''}`}
             style={{ color: color.text }}
           >
@@ -553,7 +575,7 @@ export default function PlannerPage() {
             defaultValue={task.text}
             onBlur={(e) => {
               const text = e.target.value.trim()
-              if (text && text !== task.text) handleRename(task.id, text)
+              if (text && text !== task.text) handleUpdateTask(task.id, { text })
             }}
             onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
             className={`min-w-0 flex-1 bg-transparent text-xs font-medium outline-none ${status === 'done' ? 'line-through opacity-70' : ''}`}
@@ -594,7 +616,7 @@ export default function PlannerPage() {
   function renderSubtasks(task: PlannerTask, asLink = false) {
     return (
       <>
-        {tasks.filter((x) => x.parentId === task.id).sort(byOrder).map((child) => renderTaskRow(child, true, asLink))}
+        {(childrenByParent.get(task.id) ?? NO_CHILDREN).map((child) => renderTaskRow(child, true, asLink))}
         {subtaskDraftParentId === task.id && (
           <div className="flex items-center gap-1 rounded-md px-1.5 py-1" style={{ marginLeft: 16 }}>
             <span className="shrink-0" style={{ height: 12, width: 12 }} />
@@ -614,44 +636,74 @@ export default function PlannerPage() {
     )
   }
 
+  function closeTaskModal() {
+    ;(document.activeElement as HTMLElement | null)?.blur()
+    setContextTaskId(null)
+    setSubtaskDraftParentId(null)
+    setPeekMode(false)
+    setPageEdits(null)
+  }
+
   function renderTaskPage(task: PlannerTask) {
-    const status = derivedStatus(task, tasks)
+    const status = statusOf(task)
     const hasChildren = tasks.some((x) => x.parentId === task.id)
     const isTopLevel = task.parentId === null
+    const parent = task.parentId !== null ? taskById.get(task.parentId) : undefined
+    const edits = pageEdits?.taskId === task.id ? pageEdits : null
+    const form = {
+      text: edits?.text ?? task.text,
+      start: edits?.start ?? task.date,
+      end: edits?.end ?? rangeEnd(task),
+      notes: edits?.notes ?? task.notes
+    }
+    const datesInvalid =
+      !form.start || !form.end || form.start > form.end || (!!parent && !isWithin({ date: form.start, endDate: form.end }, parent))
+    const changes: EditableFields = {}
+    if (form.text.trim() && form.text.trim() !== task.text) changes.text = form.text.trim()
+    if (form.start !== task.date || form.end !== rangeEnd(task)) {
+      changes.date = form.start
+      changes.endDate = form.end > form.start ? form.end : null
+    }
+    if (form.notes !== task.notes) changes.notes = form.notes
+    const canSave = Object.keys(changes).length > 0 && !datesInvalid
+    const edit = (patch: Omit<NonNullable<typeof pageEdits>, 'taskId'>) =>
+      setPageEdits((prev) => ({ ...(prev?.taskId === task.id ? prev : {}), ...patch, taskId: task.id }))
+    const save = () => {
+      if (!canSave) return
+      handleUpdateTask(task.id, changes)
+      closeTaskModal()
+    }
     return (
-      <div className="flex flex-1 flex-col gap-6 overflow-y-auto px-10 pb-10 pt-12">
+      <>
+      <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-10 pb-10 pt-12">
         <button
           type="button"
           title={t('viewCompact')}
           aria-label={t('viewCompact')}
-          onClick={() => setPeekMode(false)}
+          onClick={() => {
+            setPageEdits(null)
+            setPeekMode(false)
+          }}
           className="absolute right-12 top-4 rounded-sm opacity-70 hover:opacity-100"
         >
           <Minimize2 className="h-4 w-4" />
         </button>
         <DialogTitle className="sr-only">{t('taskDetails')}</DialogTitle>
         <input
-          key={task.id}
-          defaultValue={task.text}
-          onBlur={(e) => {
-            const text = e.target.value.trim()
-            if (text && text !== task.text) handleRename(task.id, text)
-          }}
-          onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
+          value={form.text}
+          onChange={(e) => edit({ text: e.target.value })}
+          onKeyDown={(e) => e.key === 'Enter' && save()}
           className={`w-full bg-transparent text-3xl font-bold outline-none ${status === 'done' ? 'line-through opacity-70' : ''}`}
         />
         <div className="grid grid-cols-[8rem_1fr] items-center gap-x-4 gap-y-3 text-sm">
-          {isTopLevel && (
-            <>
-              <span className="text-muted-foreground">{t('dates')}</span>
-              <DateRangeFields
-                key={`${task.id}|${task.date}|${task.endDate}`}
-                date={task.date}
-                endDate={task.endDate}
-                onCommit={(date, endDate) => handleMoveTask(task.id, date, endDate)}
-              />
-            </>
-          )}
+          <span className="text-muted-foreground">{t('dates')}</span>
+          <DateRangeFields
+            start={form.start}
+            end={form.end}
+            bounds={parent}
+            invalid={datesInvalid}
+            onChange={(start, end) => edit({ start, end })}
+          />
           <span className="text-muted-foreground">{t('status')}</span>
           {hasChildren ? (
             <span title={t('statusFromSubtasks')} className="border border-transparent px-2 py-1">
@@ -689,10 +741,9 @@ export default function PlannerPage() {
           )}
         </div>
         <Textarea
-          key={`notes-${task.id}`}
-          defaultValue={task.notes}
+          value={form.notes}
           placeholder={t('notesPlaceholder')}
-          onBlur={(e) => e.target.value !== task.notes && handleUpdateNotes(task.id, e.target.value)}
+          onChange={(e) => edit({ notes: e.target.value })}
           className="min-h-32 resize-none border-none px-0 shadow-none focus-visible:ring-0"
         />
         {isTopLevel && (
@@ -713,24 +764,35 @@ export default function PlannerPage() {
           </div>
         )}
       </div>
+      <div className="flex justify-end border-t px-10 py-3">
+        <Button size="sm" disabled={!canSave} onClick={save}>
+          {t('save')}
+        </Button>
+      </div>
+      </>
     )
   }
 
   const events = useMemo(() => {
-    const items: { id: string; title: string; start: string; end?: string }[] = []
+    const items: { id: string; title: string; start: string; end?: string; classNames?: string[] }[] = []
+    const span = (x: DateRange) => ({ start: x.date, end: x.endDate ? addDays(x.endDate, 1) : undefined })
     for (const task of tasks.filter((t) => t.parentId === null).sort(byOrder)) {
-      items.push({ id: String(task.id), title: task.text, start: task.date, end: task.endDate ? addDays(task.endDate, 1) : undefined })
-      for (const child of tasks.filter((t) => t.parentId === task.id).sort(byOrder)) {
-        items.push({ id: String(child.id), title: child.text, start: child.date })
-      }
-      if (subtaskDraftParentId === task.id) items.push({ id: `${SUBTASK_DRAFT_PREFIX}${task.id}`, title: '', start: task.date })
+      const groupSpan = span(task)
+      items.push(
+        { id: String(task.id), title: task.text, ...groupSpan },
+        ...(childrenByParent.get(task.id) ?? NO_CHILDREN).map((c) => ({
+          id: String(c.id),
+          title: c.text,
+          ...groupSpan,
+          classNames: ['planner-subtask-event']
+        }))
+      )
+      if (subtaskDraftParentId === task.id) items.push({ id: `${SUBTASK_DRAFT_PREFIX}${task.id}`, title: '', ...groupSpan })
     }
-    if (draft) items.push({ id: DRAFT_ID, title: '', start: draft.date, end: draft.endDate ? addDays(draft.endDate, 1) : undefined })
+    if (draft) items.push({ id: DRAFT_ID, title: '', ...span(draft) })
     return items.map((item, order) => {
-      const isSpecial = item.id === DRAFT_ID || item.id.startsWith(SUBTASK_DRAFT_PREFIX)
-      const taskId = isSpecial ? null : Number(item.id)
-      const task = taskId !== null ? tasks.find((x) => x.id === taskId) : undefined
-      const pending = taskId !== null && taskId < 0
+      const task = taskById.get(Number(item.id))
+      const pending = !!task && task.id < 0
       return {
         ...item,
         allDay: true,
@@ -741,7 +803,154 @@ export default function PlannerPage() {
         extendedProps: { order }
       }
     })
-  }, [tasks, draft, editingId, subtaskDraftParentId])
+  }, [tasks, taskById, childrenByParent, draft, editingId, subtaskDraftParentId])
+
+  actionsRef.current = {
+    copy: handleCopy,
+    addSubtask: setSubtaskDraftParentId,
+    remove: handleDelete,
+    resize: (task, days) => handleUpdateTask(task.id, { date: task.date, endDate: days ? addDays(task.date, days) : null }),
+    open: setContextTaskId,
+    toggle: (task) => {
+      const children = childrenByParent.get(task.id)
+      if (children?.length) handleToggleGroup(children)
+      else handleToggle(task)
+    },
+    assignCategory: handleAssignCategory,
+    setDragOver: setDragOverTaskId,
+    startEdit: (taskId) => {
+      setDraft(null)
+      setEditingId(taskId)
+    },
+    commit: handleCommit,
+    commitSubtaskDraft: handleSubtaskDraftCommit,
+    inputKeyDown: handleInputKeyDown
+  }
+
+  const calendarHandlersRef = useRef({ handleSelect, handleEventChange, handleEventDragStart, handleEventDragStop, handleDatesSet })
+  calendarHandlersRef.current = { handleSelect, handleEventChange, handleEventDragStart, handleEventDragStop, handleDatesSet }
+  const calendarHandlers = useMemo(
+    () => ({
+      select: (arg: DateSelectArg) => calendarHandlersRef.current.handleSelect(arg),
+      eventChange: (arg: EventChangeArg) => calendarHandlersRef.current.handleEventChange(arg),
+      eventDragStart: (arg: EventDragStartArg) => calendarHandlersRef.current.handleEventDragStart(arg),
+      eventDragStop: (arg: EventDragStopArg) => calendarHandlersRef.current.handleEventDragStop(arg),
+      datesSet: (arg: DatesSetArg) => calendarHandlersRef.current.handleDatesSet(arg)
+    }),
+    []
+  )
+
+  const renderEvent = useCallback(
+    (info: EventContentArg) => {
+      const id = info.event.id
+      const isDraft = id === DRAFT_ID
+      const task = taskById.get(Number(id))
+      const children = task && task.parentId === null ? childrenByParent.get(task.id) : undefined
+      const segmentKey = `${id}|${info.event.startStr}|${info.event.endStr}|${info.event.title}`
+      const parent = task?.parentId ? taskById.get(task.parentId) : undefined
+      const pill = (isStart: boolean, isEnd: boolean) => (
+        <TaskPill
+          eventId={id}
+          title={info.event.title}
+          isStart={isStart}
+          isEnd={isEnd}
+          segmentKey={segmentKey}
+          task={task}
+          status={task ? (children?.length ? deriveStatus(children) : task.status) : 'undone'}
+          category={task?.categoryId ? categories.find((c) => c.id === task.categoryId) : undefined}
+          editing={(isDraft || (!!task && task.id === editingId)) && isStart}
+          wrap={textMode === 'wrap'}
+          highlighted={!!task && task.id === dragOverTaskId}
+          segmentEnds={segmentEnds[segmentKey]}
+          onMeasure={handleSegmentMeasure}
+          actions={actionsRef}
+        />
+      )
+      if (!task || !parent) return pill(info.isStart, info.isEnd)
+      return (
+        <SubtaskSlot
+          spanStart={info.event.startStr}
+          offset={dayDiff(parent.date, task.date)}
+          length={dayDiff(task.date, rangeEnd(task))}
+          maxLength={dayDiff(task.date, rangeEnd(parent))}
+          resizable={task.id > 0}
+          onResize={(days) => actionsRef.current?.resize(task, days)}
+        >
+          {({ isStart, isEnd }) => pill(isStart, isEnd)}
+        </SubtaskSlot>
+      )
+    },
+    [taskById, childrenByParent, categories, editingId, textMode, dragOverTaskId, segmentEnds, handleSegmentMeasure]
+  )
+
+  const calendar = useMemo(
+    () => (
+      <FullCalendar
+        plugins={PLUGINS}
+        initialView="dayGridMonth"
+        headerToolbar={HEADER_TOOLBAR}
+        height="auto"
+        selectable
+        editable
+        eventOrder={byEventOrder}
+        {...calendarHandlers}
+        eventContent={renderEvent}
+        events={events}
+      />
+    ),
+    [calendarHandlers, renderEvent, events]
+  )
+
+  useEffect(() => {
+    if (!hoverTip) return
+    const hide = () => setHoverTip(null)
+    window.addEventListener('scroll', hide, true)
+    return () => window.removeEventListener('scroll', hide, true)
+  }, [hoverTip])
+
+  function handleGridMouseOver(e: MouseEvent<HTMLDivElement>) {
+    const pill = (e.target as HTMLElement).closest<HTMLElement>('[data-task-id]')
+    const id = pill?.dataset.taskId && !pill.closest('.fc-event-mirror') ? Number(pill.dataset.taskId) : null
+    setHoverTip((prev) => (prev?.id === id ? prev : id === null ? null : { id, rect: (pill as HTMLElement).getBoundingClientRect() }))
+  }
+
+  const hoverTask =
+    hoverTip && !dragging && hoverTip.id !== editingId && contextTaskId === null && contextDate === null && !dayMenu
+      ? taskById.get(hoverTip.id)
+      : undefined
+  const tipTask = showTooltip ? hoverTask : undefined
+  const hoverGroupId = hoverTask ? hoverTask.parentId ?? hoverTask.id : null
+  const frameGroupId = hoverGroupId !== null && childrenByParent.get(hoverGroupId)?.length ? hoverGroupId : null
+
+  useLayoutEffect(() => {
+    const grid = gridRef.current
+    if (frameGroupId === null || !grid) return setGroupFrames([])
+    const ids = new Set([frameGroupId, ...(childrenByParent.get(frameGroupId) ?? NO_CHILDREN).map((c) => c.id)].map(String))
+    function measure() {
+      const box = (grid as HTMLDivElement).getBoundingClientRect()
+      const rows = new Map<Element, DOMRect[]>()
+      ;(grid as HTMLDivElement).querySelectorAll<HTMLElement>('[data-task-id]').forEach((el) => {
+        const row = el.closest('tr')
+        if (!row || !ids.has(el.dataset.taskId ?? '') || el.closest('.fc-event-mirror')) return
+        rows.set(row, [...(rows.get(row) ?? []), el.getBoundingClientRect()])
+      })
+      setGroupFrames(
+        [...rows.values()].map((rects) => {
+          const left = Math.min(...rects.map((r) => r.left))
+          const top = Math.min(...rects.map((r) => r.top))
+          return {
+            left: left - box.left - 2,
+            top: top - box.top - 2,
+            width: Math.max(...rects.map((r) => r.right)) - left + 4,
+            height: Math.max(...rects.map((r) => r.bottom)) - top + 4
+          }
+        })
+      )
+    }
+    measure()
+    const frame = requestAnimationFrame(measure)
+    return () => cancelAnimationFrame(frame)
+  }, [frameGroupId, childrenByParent, columnWidths, textMode])
 
   return (
     <div className="min-h-screen bg-background">
@@ -866,17 +1075,13 @@ export default function PlannerPage() {
         <Dialog
           open={contextTaskId !== null}
           onOpenChange={(open) => {
-            if (open) return
-            ;(document.activeElement as HTMLElement | null)?.blur()
-            setContextTaskId(null)
-            setSubtaskDraftParentId(null)
-            setPeekMode(false)
+            if (!open) closeTaskModal()
           }}
         >
           {(() => {
-            const contextTask = tasks.find((x) => x.id === contextTaskId)
+            const contextTask = contextTaskId !== null ? taskById.get(contextTaskId) : undefined
             return (
-              <DialogContent aria-describedby={undefined} className={peekMode ? 'h-[85dvh] max-w-3xl p-0' : 'max-w-md'}>
+              <DialogContent aria-describedby={undefined} className={peekMode ? 'h-[85dvh] max-w-3xl gap-0 p-0' : 'max-w-md'}>
                 {contextTask && peekMode && renderTaskPage(contextTask)}
                 {contextTask && !peekMode && (
                   <>
@@ -997,251 +1202,32 @@ export default function PlannerPage() {
             style={columnWidthVars(columnWidths)}
             onDoubleClick={handleDoubleClick}
             onContextMenu={handleDayContextMenu}
+            onMouseOver={handleGridMouseOver}
+            onMouseLeave={() => setHoverTip(null)}
           >
-            <FullCalendar
-              plugins={[dayGridPlugin, interactionPlugin]}
-              initialView="dayGridMonth"
-              headerToolbar={{
-                left: 'prev,next today',
-                center: 'title',
-                right: ''
-              }}
-              height="auto"
-              selectable
-              editable
-              eventOrder={(a, b) => ((a as { extendedProps: { order: number } }).extendedProps.order - (b as { extendedProps: { order: number } }).extendedProps.order)}
-              select={handleSelect}
-              eventChange={handleEventChange}
-              eventDragStart={handleEventDragStart}
-              eventDragStop={handleEventDragStop}
-              datesSet={handleDatesSet}
-              eventContent={(info) => {
-                const isDraft = info.event.id === DRAFT_ID
-                const isSubtaskDraft = info.event.id.startsWith(SUBTASK_DRAFT_PREFIX)
-                const subtaskDraftParent = isSubtaskDraft ? Number(info.event.id.slice(SUBTASK_DRAFT_PREFIX.length)) : null
-                const taskId = isDraft || isSubtaskDraft ? null : Number(info.event.id)
-                const task = taskId !== null ? tasks.find((x) => x.id === taskId) : undefined
-                const pending = taskId !== null && taskId < 0
-                const readOnly = taskId === null || pending
-                const isSubtask = !!task?.parentId
-                const children = task && !task.parentId ? tasks.filter((x) => x.parentId === task.id) : []
-                const hasChildren = children.length > 0
-                const status: PlannerStatus = task ? (hasChildren ? derivedStatus(task, tasks) : task.status) : 'undone'
-                const color = colorForTask(pending ? DRAFT_ID : info.event.id)
-                const categoryId = task?.categoryId ?? null
-                const category = categoryId ? categories.find((c) => c.id === categoryId) : undefined
-                const editing = (isDraft || taskId === editingId) && info.isStart
-                const segmentKey = `${info.event.id}|${info.event.startStr}|${info.event.endStr}|${info.event.title}`
-                const wrap = textMode === 'wrap'
-                const actions = !readOnly && task && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleCopy(task)
-                      }}
-                      title={t('copyTask')}
-                      className="shrink-0 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground"
-                    >
-                      <Copy className="h-3 w-3" />
-                    </button>
-                    {!isSubtask && (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setSubtaskDraftParentId(task.id)
-                        }}
-                        title={t('addSubtask')}
-                        className="shrink-0 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground"
-                      >
-                        <Plus className="h-3 w-3" />
-                      </button>
-                    )}
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleDelete(task.id)
-                      }}
-                      className="shrink-0 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </>
-                )
-                const content = (
-                  <div
-                    data-task-id={task?.id}
-                    className={`group flex items-center gap-1 w-full cursor-pointer active:cursor-grabbing ${info.isStart ? 'pl-0.5' : ''} ${pending ? 'opacity-60' : ''} ${wrap ? 'items-start' : ''} ${wrap ? '' : 'overflow-hidden'}`}
-                    style={{ paddingLeft: isSubtask || isSubtaskDraft ? 16 : undefined }}
-                    onContextMenu={(e) => {
-                      if (readOnly || isDraft || isSubtaskDraft) return
-                      e.preventDefault()
-                      e.stopPropagation()
-                      setContextTaskId(taskId)
-                    }}
-                  >
-                    {info.isStart && isSubtaskDraft && <span className="shrink-0" style={{ height: 12, width: 12 }} />}
-                    {info.isStart && !isSubtaskDraft && (
-                      <input
-                        type="checkbox"
-                        checked={status === 'done'}
-                        ref={(el) => {
-                          if (el) el.indeterminate = status === 'partial'
-                        }}
-                        disabled={readOnly}
-                        onClick={(e) => e.stopPropagation()}
-                        onChange={() => {
-                          if (readOnly || !task) return
-                          if (hasChildren) handleToggleGroup(children)
-                          else handleToggle(task)
-                        }}
-                        className={`shrink-0 cursor-pointer ${wrap ? 'mt-1' : ''}`}
-                        style={statusCheckboxStyle(color.bar, status)}
-                      />
-                    )}
-                    <div
-                      className="flex min-w-0 flex-1 items-center gap-1 px-1.5 py-px"
-                      style={{
-                        backgroundColor: `${color.bar}4D`,
-                        borderTopLeftRadius: info.isStart ? 6 : 0,
-                        borderBottomLeftRadius: info.isStart ? 6 : 0,
-                        borderTopRightRadius: info.isEnd ? 6 : 0,
-                        borderBottomRightRadius: info.isEnd ? 6 : 0,
-                        boxShadow: dragOverTaskId === taskId && !readOnly ? 'inset 0 0 0 2px currentColor' : undefined
-                      }}
-                      onDragOver={(e) => {
-                        if (readOnly || isSubtask || !e.dataTransfer.types.includes('text/planner-category-id')) return
-                        e.preventDefault()
-                        setDragOverTaskId(taskId)
-                      }}
-                      onDragLeave={() => setDragOverTaskId((prev) => (prev === taskId ? null : prev))}
-                      onDrop={(e) => {
-                        setDragOverTaskId(null)
-                        if (readOnly || isSubtask) return
-                        const dropped = e.dataTransfer.getData('text/planner-category-id')
-                        if (!dropped) return
-                        e.preventDefault()
-                        handleAssignCategory(taskId as number, Number(dropped))
-                      }}
-                    >
-                      {info.isStart && category && (
-                        <span
-                          title={category.name}
-                          onClick={(e) => e.stopPropagation()}
-                          onDoubleClick={(e) => {
-                            e.stopPropagation()
-                            if (!readOnly) handleAssignCategory(taskId as number, null)
-                          }}
-                          className="h-2 w-2 shrink-0 rounded-full cursor-pointer"
-                          style={{ backgroundColor: category.color }}
-                        />
-                      )}
-                      {isSubtaskDraft ? (
-                        <input
-                          data-planner-input
-                          autoFocus
-                          placeholder={t('addSubtaskPlaceholder')}
-                          onBlur={(e) => handleSubtaskDraftCommit(e, subtaskDraftParent as number)}
-                          onKeyDown={handleInputKeyDown}
-                          className="min-w-0 flex-1 bg-transparent text-xs font-medium outline-none"
-                          style={{ color: color.text }}
-                        />
-                      ) : editing && wrap ? (
-                        <textarea
-                          data-planner-input
-                          autoFocus
-                          rows={1}
-                          defaultValue={info.event.title}
-                          placeholder={t('taskPlaceholder')}
-                          onBlur={(e) => handleCommit(e, taskId)}
-                          onKeyDown={handleInputKeyDown}
-                          onFocus={(e) => {
-                            const el = e.currentTarget
-                            el.style.height = 'auto'
-                            el.style.height = `${el.scrollHeight}px`
-                          }}
-                          onInput={(e) => {
-                            const el = e.currentTarget
-                            el.style.height = 'auto'
-                            el.style.height = `${el.scrollHeight}px`
-                          }}
-                          className="min-w-0 flex-1 resize-none bg-transparent text-xs font-medium outline-none"
-                          style={{ color: color.text, whiteSpace: 'normal', wordBreak: 'break-word', overflowWrap: 'anywhere' }}
-                        />
-                      ) : editing ? (
-                        <input
-                          data-planner-input
-                          autoFocus
-                          defaultValue={info.event.title}
-                          placeholder={t('taskPlaceholder')}
-                          onBlur={(e) => handleCommit(e, taskId)}
-                          onKeyDown={handleInputKeyDown}
-                          onMouseDown={(e) => {
-                            // FullCalendar's interaction plugin preventDefaults mousedown on
-                            // .fc-event to suppress native drag/selection, which also blocks the
-                            // browser's native click-to-reposition-caret behavior here. Compute
-                            // and apply the caret position ourselves instead of relying on it.
-                            const input = e.currentTarget
-                            const x = e.clientX - input.getBoundingClientRect().left
-                            const index = charIndexAtX(input.value, x, getComputedStyle(input).font)
-                            requestAnimationFrame(() => input.setSelectionRange(index, index))
-                          }}
-                          className="min-w-0 flex-1 bg-transparent text-xs font-medium outline-none"
-                          style={{ color: color.text }}
-                        />
-                      ) : wrap ? (
-                        <>
-                          <span
-                            className={`min-w-0 flex-1 text-xs font-medium ${status === 'done' ? 'line-through opacity-70' : status === 'partial' ? 'opacity-70' : ''}`}
-                            style={{ color: color.text, whiteSpace: 'normal', wordBreak: 'break-word', overflowWrap: 'anywhere' }}
-                            onClick={() => {
-                              if (readOnly) return
-                              setDraft(null)
-                              setEditingId(taskId)
-                            }}
-                          >
-                            {info.isStart ? info.event.title || ' ' : ' '}
-                          </span>
-                          {actions}
-                        </>
-                      ) : (
-                        <>
-                          <SegmentText
-                            text={info.event.title}
-                            segmentKey={segmentKey}
-                            ends={segmentEnds[segmentKey]}
-                            isEnd={info.isEnd}
-                            onMeasure={handleSegmentMeasure}
-                            className={`min-w-0 flex-1 truncate text-xs font-medium ${status === 'done' ? 'line-through opacity-70' : status === 'partial' ? 'opacity-70' : ''}`}
-                            style={{ color: color.text }}
-                            onClick={() => {
-                              if (readOnly) return
-                              setDraft(null)
-                              setEditingId(taskId)
-                            }}
-                          />
-                          {actions}
-                        </>
-                      )}
-                    </div>
-                  </div>
-                )
-                if (!task || editing || !showTooltip || dragging) return content
-                return (
-                  <Tooltip>
-                    <TooltipTrigger asChild>{content}</TooltipTrigger>
-                    <TooltipContent side="top" className="max-w-xs whitespace-normal break-words">
-                      {task.text}
-                    </TooltipContent>
-                  </Tooltip>
-                )
-              }}
-              events={events}
-            />
+            {calendar}
             <ColumnResizeHandles containerRef={gridRef} widths={columnWidths} onChange={setColumnWidths} />
+            {frameGroupId !== null &&
+              groupFrames.map((frame, i) => (
+                <div
+                  key={i}
+                  className="pointer-events-none absolute z-[5] rounded-lg"
+                  style={{ ...frame, border: `1.5px solid ${colorForTask(frameGroupId).bar}` }}
+                />
+              ))}
+            {tipTask && hoverTip && (
+              <Tooltip key={hoverTip.id} open>
+                <TooltipTrigger asChild>
+                  <span
+                    className="pointer-events-none fixed"
+                    style={{ left: hoverTip.rect.left, top: hoverTip.rect.top, width: hoverTip.rect.width, height: hoverTip.rect.height }}
+                  />
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs whitespace-normal break-words">
+                  {tipTask.text}
+                </TooltipContent>
+              </Tooltip>
+            )}
           </div>
         </div>
           </TabsContent>
@@ -1286,8 +1272,12 @@ export default function PlannerPage() {
         .planner-calendar .fc-daygrid-event {
           margin-top: 2px;
         }
-        .planner-calendar .fc-daygrid-bg-harness {
+        .planner-calendar .fc-daygrid-bg-harness,
+        .planner-calendar .planner-subtask-event {
           pointer-events: none;
+        }
+        .planner-calendar .planner-subtask-event [data-subtask-visible] {
+          pointer-events: auto;
         }
         .planner-dragging,
         .planner-dragging * {
