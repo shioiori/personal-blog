@@ -131,6 +131,7 @@
             "checking": "Đang chấm...",
             "continue": "Tiếp tục",
             "perfectSentence": "Tốt lắm! Câu của bạn chính xác.",
+            "aiGrade": "AI chấm: {grade, select, 0 {Quên} 1 {Khó} 2 {Tốt} other {Dễ}}",
             "answerWas": "Từ cần nhớ là:",
             "inputMode": "Cách trả lời",
             "inputModeType": "Gõ",

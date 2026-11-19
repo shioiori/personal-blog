@@ -16,8 +16,8 @@ Học viên vừa đặt câu sau để chứng tỏ họ nhớ và dùng đư�
 "${sentence}"
 
 Hãy đánh giá theo đúng 3 tiêu chí sau:
-1. "usedWord": câu có thực sự dùng từ/cụm từ "${word}" (hoặc biến thể ngữ pháp hợp lệ của nó, ví dụ số nhiều, chia động từ) không?
-2. "correctWord": từ dùng trong câu có đúng là từ đang hỏi không (không bị nhầm với từ khác viết gần giống, không sai chính tả nghiêm trọng)?
+1. "usedWord": câu có dùng từ/cụm từ "${word}" không? MỌI dạng biến đổi ngữ pháp của từ đều tính là ĐÃ DÙNG từ này: số nhiều (facility → facilities, child → children), chia động từ (go → goes/went/gone/going), so sánh hơn/nhất (big → bigger/biggest), sở hữu cách ('s), cụm từ có chia động từ hoặc thay đại từ bên trong (take care of → took care of them).
+2. "correctWord": từ dùng trong câu có đúng là từ đang hỏi không (không bị nhầm với từ khác viết gần giống, không sai chính tả nghiêm trọng)? Dạng biến đổi ngữ pháp ở tiêu chí 1 là ĐÚNG từ, không bị tính là sai.
 3. "correctContext": từ có được dùng ĐÚNG NGỮ CẢNH, đúng sắc thái nghĩa, đúng loại từ, đúng cấu trúc ngữ pháp thường đi kèm của từ đó không? (nhiều từ chỉ dùng được trong một số ngữ cảnh/cấu trúc nhất định — nếu câu dùng sai sắc thái, sai ngữ cảnh dù đúng từ thì tiêu chí này KHÔNG đạt).
 
 Dựa trên 3 tiêu chí trên, đánh giá "grade" — mức độ học viên THỰC SỰ NHỚ VÀ DÙNG ĐÚNG từ này — chọn đúng một trong 4 giá trị:
@@ -26,7 +26,7 @@ Dựa trên 3 tiêu chí trên, đánh giá "grade" — mức độ học viên 
 - "good": dùng đúng từ, đúng ngữ cảnh cơ bản, có thể còn vài lỗi nhỏ không đáng kể.
 - "easy": dùng đúng từ, đúng ngữ cảnh, câu tự nhiên, trôi chảy như người bản ngữ.
 
-"feedback": CHỈ viết góp ý bằng tiếng Việt, ngắn gọn (1-2 câu), khi có ÍT NHẤT MỘT trong 3 tiêu chí usedWord/correctWord/correctContext không đạt (false) — giải thích ngắn gọn vì sao và gợi ý sửa. Nếu CẢ 3 tiêu chí đều đạt (true), để "feedback" là chuỗi rỗng "".
+"feedback": CHỈ viết góp ý bằng tiếng Việt khi có ÍT NHẤT MỘT trong 3 tiêu chí usedWord/correctWord/correctContext không đạt (false). Góp ý phải cụ thể, tối đa 3 câu, gồm: (1) loại lỗi: chưa dùng từ / viết sai từ / dùng sai ngữ cảnh / sai ngữ pháp; (2) trích nguyên văn phần bị sai trong câu và giải thích ngắn vì sao sai; (3) câu đã sửa. Không dùng cách nói mơ hồ như "chưa dùng đúng từ". Nếu CẢ 3 tiêu chí đều đạt (true), để "feedback" là chuỗi rỗng "".
 
 Trả về CHỈ một JSON object: {"usedWord": true/false, "correctWord": true/false, "correctContext": true/false, "grade": "forget"|"hard"|"good"|"easy", "feedback": "..."}`;
 
@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
 
     await upsertWritingGrade(user.id, wordId, grade);
 
-    return NextResponse.json({ usedWord, correctWord, correctContext, feedback });
+    return NextResponse.json({ usedWord, correctWord, correctContext, grade, feedback });
   } catch (e) {
     if (e instanceof PremiumRequiredError) return NextResponse.json({ needsPremium: true }, { status: 403 });
     console.error("[POST english/writing/check error]", e);

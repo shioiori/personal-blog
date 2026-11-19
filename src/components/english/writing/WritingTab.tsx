@@ -21,6 +21,7 @@ interface GradeSummary {
 }
 
 const GRADE_KEYS = ["again", "hard", "good", "easy"] as const;
+const GRADE_COLORS = ["text-red-500", "text-orange-500", "text-green-600", "text-blue-500"] as const;
 
 function SummaryScreen({ summary, onRestart }: { summary: GradeSummary; onRestart: () => void }) {
   const t = useTranslations("English");
@@ -296,6 +297,7 @@ export function WritingTab() {
         {phase === "feedback" && result && (
           <div className="w-full flex flex-col items-center gap-4 mt-2">
             <p className="text-sm italic text-muted-foreground text-center">&ldquo;{sentence}&rdquo;</p>
+            <p className={`text-sm font-semibold ${GRADE_COLORS[result.grade]}`}>{t("Writing.aiGrade", { grade: String(result.grade) })}</p>
             {result.feedback ? (
               <p className="text-sm text-center bg-muted rounded-lg px-4 py-3">{result.feedback}</p>
             ) : (

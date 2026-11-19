@@ -56,6 +56,7 @@ export interface WritingCheckResult {
   usedWord: boolean;
   correctWord: boolean;
   correctContext: boolean;
+  grade: 0 | 1 | 2 | 3;
   feedback: string;
 }
 

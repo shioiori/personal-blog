@@ -131,6 +131,7 @@
             "checking": "Checking...",
             "continue": "Continue",
             "perfectSentence": "Great! Your sentence is correct.",
+            "aiGrade": "AI grade: {grade, select, 0 {Forget} 1 {Hard} 2 {Good} other {Easy}}",
             "answerWas": "The word was:",
             "inputMode": "Answer method",
             "inputModeType": "Type",
