@@ -6,6 +6,7 @@ import { Copy, Plus, X } from 'lucide-react'
 import { PlannerCategory, PlannerStatus, PlannerTask } from '@/src/declaration/planner'
 import { colorForTask } from '@/src/components/planner/colors'
 import { SegmentText } from '@/src/components/planner/SegmentText'
+import type { SlotLayout } from '@/src/components/planner/SubtaskSlot'
 
 export const DRAFT_ID = 'draft'
 export const SUBTASK_DRAFT_PREFIX = 'subtask-draft-'
@@ -57,7 +58,6 @@ export interface PillActions {
   copy: (task: PlannerTask) => void
   addSubtask: (taskId: number) => void
   remove: (taskId: number) => void
-  resize: (task: PlannerTask, days: number) => void
   open: (taskId: number) => void
   toggle: (task: PlannerTask) => void
   assignCategory: (taskId: number, categoryId: number | null) => void
@@ -83,6 +83,7 @@ interface Props {
   segmentEnds: Record<string, number> | undefined
   onMeasure: (segmentKey: string, segmentStart: string, end: number) => void
   actions: RefObject<PillActions | null>
+  slot?: SlotLayout
 }
 
 export const TaskPill = memo(function TaskPill({
@@ -99,7 +100,8 @@ export const TaskPill = memo(function TaskPill({
   highlighted,
   segmentEnds,
   onMeasure,
-  actions
+  actions,
+  slot
 }: Props) {
   const t = useTranslations('Planner')
   const isSubtaskDraft = eventId.startsWith(SUBTASK_DRAFT_PREFIX)
@@ -184,9 +186,12 @@ export const TaskPill = memo(function TaskPill({
         />
       )}
       <div
+        data-pill-bg
         className="flex min-w-0 flex-1 items-center gap-1 px-1.5 py-px"
         style={{
           backgroundColor: `${color.bar}4D`,
+          ...slot?.background,
+          paddingLeft: slot?.textInset ? slot.textInset + 6 : undefined,
           borderTopLeftRadius: isStart ? 6 : 0,
           borderBottomLeftRadius: isStart ? 6 : 0,
           borderTopRightRadius: isEnd ? 6 : 0,
@@ -272,22 +277,28 @@ export const TaskPill = memo(function TaskPill({
               style={{ color: color.text, whiteSpace: 'normal', wordBreak: 'break-word', overflowWrap: 'anywhere' }}
               onClick={startEdit}
             >
-              {isStart ? title || ' ' : ' '}
+              {(slot?.titleStart ?? isStart) ? title || ' ' : ' '}
             </span>
             {buttons}
           </>
         ) : (
           <>
-            <SegmentText
-              text={title}
-              segmentKey={segmentKey}
-              ends={segmentEnds}
-              isEnd={isEnd}
-              onMeasure={onMeasure}
-              className={`min-w-0 flex-1 truncate text-xs font-medium ${textClass}`}
-              style={{ color: color.text }}
-              onClick={startEdit}
-            />
+            {slot?.textInset === null ? (
+              <span className="min-w-0 flex-1 text-xs" onClick={startEdit}>
+                {' '}
+              </span>
+            ) : (
+              <SegmentText
+                text={title}
+                segmentKey={segmentKey}
+                ends={segmentEnds}
+                isEnd={isEnd}
+                onMeasure={onMeasure}
+                className={`min-w-0 flex-1 truncate text-xs font-medium ${textClass}`}
+                style={{ color: color.text }}
+                onClick={startEdit}
+              />
+            )}
             {buttons}
           </>
         )}

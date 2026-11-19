@@ -13,7 +13,7 @@ import { GardenTab } from '@/src/components/planner/GardenTab'
 import { CATEGORY_COLORS, colorForTask } from '@/src/components/planner/colors'
 import { DRAFT_ID, SUBTASK_DRAFT_PREFIX, TaskPill, statusCheckboxStyle, type PillActions } from '@/src/components/planner/TaskPill'
 import { ColumnResizeHandles, EQUAL_COLUMN_WIDTHS, columnWidthVars } from '@/src/components/planner/ColumnResizeHandles'
-import { SubtaskSlot, dayCellAt } from '@/src/components/planner/SubtaskSlot'
+import { SubtaskSlot, dayCellAt, type SlotLayout } from '@/src/components/planner/SubtaskSlot'
 import { useAuth } from '@/src/context/auth'
 import { Button } from '@/src/components/ui/Button'
 import { Textarea } from '@/src/components/ui/Textarea'
@@ -28,6 +28,7 @@ const STATUSES: PlannerStatus[] = ['undone', 'partial', 'done']
 const PLUGINS = [dayGridPlugin, interactionPlugin]
 const HEADER_TOOLBAR = { left: 'prev,next today', center: 'title', right: '' }
 const NO_CHILDREN: PlannerTask[] = []
+const SHOW_GROUP_FRAME = false
 
 function byEventOrder(a: unknown, b: unknown) {
   return (a as { extendedProps: { order: number } }).extendedProps.order - (b as { extendedProps: { order: number } }).extendedProps.order
@@ -774,18 +775,13 @@ export default function PlannerPage() {
   }
 
   const events = useMemo(() => {
-    const items: { id: string; title: string; start: string; end?: string; classNames?: string[] }[] = []
+    const items: { id: string; title: string; start: string; end?: string }[] = []
     const span = (x: DateRange) => ({ start: x.date, end: x.endDate ? addDays(x.endDate, 1) : undefined })
     for (const task of tasks.filter((t) => t.parentId === null).sort(byOrder)) {
       const groupSpan = span(task)
       items.push(
         { id: String(task.id), title: task.text, ...groupSpan },
-        ...(childrenByParent.get(task.id) ?? NO_CHILDREN).map((c) => ({
-          id: String(c.id),
-          title: c.text,
-          ...groupSpan,
-          classNames: ['planner-subtask-event']
-        }))
+        ...(childrenByParent.get(task.id) ?? NO_CHILDREN).map((c) => ({ id: String(c.id), title: c.text, ...groupSpan }))
       )
       if (subtaskDraftParentId === task.id) items.push({ id: `${SUBTASK_DRAFT_PREFIX}${task.id}`, title: '', ...groupSpan })
     }
@@ -809,7 +805,6 @@ export default function PlannerPage() {
     copy: handleCopy,
     addSubtask: setSubtaskDraftParentId,
     remove: handleDelete,
-    resize: (task, days) => handleUpdateTask(task.id, { date: task.date, endDate: days ? addDays(task.date, days) : null }),
     open: setContextTaskId,
     toggle: (task) => {
       const children = childrenByParent.get(task.id)
@@ -848,35 +843,34 @@ export default function PlannerPage() {
       const children = task && task.parentId === null ? childrenByParent.get(task.id) : undefined
       const segmentKey = `${id}|${info.event.startStr}|${info.event.endStr}|${info.event.title}`
       const parent = task?.parentId ? taskById.get(task.parentId) : undefined
-      const pill = (isStart: boolean, isEnd: boolean) => (
+      const pill = (slot?: SlotLayout) => (
         <TaskPill
           eventId={id}
           title={info.event.title}
-          isStart={isStart}
-          isEnd={isEnd}
+          isStart={info.isStart}
+          isEnd={info.isEnd}
           segmentKey={segmentKey}
           task={task}
           status={task ? (children?.length ? deriveStatus(children) : task.status) : 'undone'}
           category={task?.categoryId ? categories.find((c) => c.id === task.categoryId) : undefined}
-          editing={(isDraft || (!!task && task.id === editingId)) && isStart}
+          editing={(isDraft || (!!task && task.id === editingId)) && info.isStart}
           wrap={textMode === 'wrap'}
           highlighted={!!task && task.id === dragOverTaskId}
           segmentEnds={segmentEnds[segmentKey]}
           onMeasure={handleSegmentMeasure}
           actions={actionsRef}
+          slot={slot}
         />
       )
-      if (!task || !parent) return pill(info.isStart, info.isEnd)
+      if (!task || !parent) return pill()
       return (
         <SubtaskSlot
           spanStart={info.event.startStr}
           offset={dayDiff(parent.date, task.date)}
           length={dayDiff(task.date, rangeEnd(task))}
-          maxLength={dayDiff(task.date, rangeEnd(parent))}
-          resizable={task.id > 0}
-          onResize={(days) => actionsRef.current?.resize(task, days)}
+          color={`${colorForTask(id).bar}4D`}
         >
-          {({ isStart, isEnd }) => pill(isStart, isEnd)}
+          {pill}
         </SubtaskSlot>
       )
     },
@@ -920,7 +914,8 @@ export default function PlannerPage() {
       : undefined
   const tipTask = showTooltip ? hoverTask : undefined
   const hoverGroupId = hoverTask ? hoverTask.parentId ?? hoverTask.id : null
-  const frameGroupId = hoverGroupId !== null && childrenByParent.get(hoverGroupId)?.length ? hoverGroupId : null
+  const frameGroupId =
+    SHOW_GROUP_FRAME && hoverGroupId !== null && childrenByParent.get(hoverGroupId)?.length ? hoverGroupId : null
 
   useLayoutEffect(() => {
     const grid = gridRef.current
@@ -1272,12 +1267,8 @@ export default function PlannerPage() {
         .planner-calendar .fc-daygrid-event {
           margin-top: 2px;
         }
-        .planner-calendar .fc-daygrid-bg-harness,
-        .planner-calendar .planner-subtask-event {
+        .planner-calendar .fc-daygrid-bg-harness {
           pointer-events: none;
-        }
-        .planner-calendar .planner-subtask-event [data-subtask-visible] {
-          pointer-events: auto;
         }
         .planner-dragging,
         .planner-dragging * {
