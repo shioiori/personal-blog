@@ -6,7 +6,7 @@ import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin, { EventDragStartArg, EventDragStopArg } from '@fullcalendar/interaction'
 import { DateSelectArg, DatesSetArg, EventChangeArg, EventContentArg } from '@fullcalendar/core'
-import { CalendarDays, Maximize2, MessageSquareText, Minimize2, Plus, Sprout, WrapText, X } from 'lucide-react'
+import { CalendarDays, Maximize2, MessageSquareText, Plus, Sprout, WrapText, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { PlannerCategory, PlannerStatus, PlannerTask } from '@/src/declaration/planner'
 import { GardenTab } from '@/src/components/planner/GardenTab'
@@ -113,7 +113,7 @@ export default function PlannerPage() {
   const [dragOverTaskId, setDragOverTaskId] = useState<number | null>(null)
   const [dragging, setDragging] = useState(false)
   const [contextTaskId, setContextTaskId] = useState<number | null>(null)
-  const [peekMode, setPeekMode] = useState(false)
+  const [detailMode, setDetailMode] = useState(false)
   const [pageEdits, setPageEdits] = useState<{ taskId: number; text?: string; start?: string; end?: string; notes?: string } | null>(null)
   const [contextDate, setContextDate] = useState<string | null>(null)
   const [subtaskDraftParentId, setSubtaskDraftParentId] = useState<number | null>(null)
@@ -149,6 +149,7 @@ export default function PlannerPage() {
     const stored = localStorage.getItem('planner-text-mode')
     if (stored === 'wrap' || stored === 'truncate') setTextMode(stored)
     setShowTooltip(localStorage.getItem('planner-tooltip') !== 'off')
+    setDetailMode(localStorage.getItem('planner-detail-mode') === 'on')
   }, [])
 
   useEffect(() => {
@@ -195,6 +196,13 @@ export default function PlannerPage() {
   const toggleTooltip = useCallback(() => {
     setShowTooltip((prev) => {
       localStorage.setItem('planner-tooltip', prev ? 'off' : 'on')
+      return !prev
+    })
+  }, [])
+
+  const toggleDetailMode = useCallback(() => {
+    setDetailMode((prev) => {
+      localStorage.setItem('planner-detail-mode', prev ? 'off' : 'on')
       return !prev
     })
   }, [])
@@ -641,7 +649,6 @@ export default function PlannerPage() {
     ;(document.activeElement as HTMLElement | null)?.blur()
     setContextTaskId(null)
     setSubtaskDraftParentId(null)
-    setPeekMode(false)
     setPageEdits(null)
   }
 
@@ -677,18 +684,6 @@ export default function PlannerPage() {
     return (
       <>
       <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-10 pb-10 pt-12">
-        <button
-          type="button"
-          title={t('viewCompact')}
-          aria-label={t('viewCompact')}
-          onClick={() => {
-            setPageEdits(null)
-            setPeekMode(false)
-          }}
-          className="absolute right-12 top-4 rounded-sm opacity-70 hover:opacity-100"
-        >
-          <Minimize2 className="h-4 w-4" />
-        </button>
         <DialogTitle className="sr-only">{t('taskDetails')}</DialogTitle>
         <input
           value={form.text}
@@ -975,6 +970,17 @@ export default function PlannerPage() {
             >
               <MessageSquareText className="h-4 w-4" />
             </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={toggleDetailMode}
+              title={t('detailMode')}
+              aria-label={t('detailMode')}
+              aria-pressed={detailMode}
+              className={`h-9 w-9 ${detailMode ? 'bg-accent text-accent-foreground' : ''}`}
+            >
+              <Maximize2 className="h-4 w-4" />
+            </Button>
             <Button variant="outline" size="sm" disabled={!user} onClick={handleExport}>
               {t('export')}
             </Button>
@@ -1076,21 +1082,12 @@ export default function PlannerPage() {
           {(() => {
             const contextTask = contextTaskId !== null ? taskById.get(contextTaskId) : undefined
             return (
-              <DialogContent aria-describedby={undefined} className={peekMode ? 'h-[85dvh] max-w-3xl gap-0 p-0' : 'max-w-md'}>
-                {contextTask && peekMode && renderTaskPage(contextTask)}
-                {contextTask && !peekMode && (
+              <DialogContent aria-describedby={undefined} className={detailMode ? 'h-[85dvh] max-w-3xl gap-0 p-0' : 'max-w-md'}>
+                {contextTask && detailMode && renderTaskPage(contextTask)}
+                {contextTask && !detailMode && (
                   <>
-                    <DialogHeader className="flex-row items-center gap-2 space-y-0 pr-8">
+                    <DialogHeader>
                       <DialogTitle>{t('taskDetails')}</DialogTitle>
-                      <button
-                        type="button"
-                        title={t('viewPage')}
-                        aria-label={t('viewPage')}
-                        onClick={() => setPeekMode(true)}
-                        className="rounded-sm text-muted-foreground hover:text-foreground"
-                      >
-                        <Maximize2 className="h-4 w-4" />
-                      </button>
                     </DialogHeader>
                     <div className="space-y-1">{renderTaskGroup(contextTask)}</div>
                   </>
