@@ -199,21 +199,21 @@ export const TaskPill = memo(function TaskPill({
           boxShadow: highlighted && !readOnly ? 'inset 0 0 0 2px currentColor' : undefined
         }}
         onDragOver={(e) => {
-          if (readOnly || isSubtask || !e.dataTransfer.types.includes('text/planner-category-id')) return
+          if (readOnly || !e.dataTransfer.types.includes('text/planner-category-id')) return
           e.preventDefault()
           act().setDragOver(task.id)
         }}
         onDragLeave={() => act().setDragOver((prev) => (prev === taskId ? null : prev))}
         onDrop={(e) => {
           act().setDragOver(null)
-          if (readOnly || isSubtask) return
+          if (readOnly) return
           const dropped = e.dataTransfer.getData('text/planner-category-id')
           if (!dropped) return
           e.preventDefault()
           act().assignCategory(task.id, Number(dropped))
         }}
       >
-        {isStart && category && (
+        {(slot?.titleStart ?? isStart) && category && (
           <span
             title={category.name}
             onClick={(e) => e.stopPropagation()}

@@ -69,6 +69,14 @@ export const ensurePlannerTables = once(async function ensurePlannerTables() {
     bonus.set(r.user_id as number, (bonus.get(r.user_id as number) ?? 0) + delta);
   }
   for (const [userId, delta] of bonus) await payReward(userId, delta);
+  await sql`
+    WITH marker AS (
+      INSERT INTO planner_migrations (name) VALUES ('subtask-categories') ON CONFLICT DO NOTHING RETURNING name
+    )
+    UPDATE planner_tasks c SET category_id = p.category_id
+    FROM planner_tasks p, marker
+    WHERE c.parent_id = p.id AND c.category_id IS NULL AND p.category_id IS NOT NULL
+  `;
   // One-time migration off the old `checked` boolean, kept idempotent via IF EXISTS checks.
   await sql`
     DO $$
@@ -192,7 +200,7 @@ export async function createTask(
   const rows = await sql`
     INSERT INTO planner_tasks (user_id, date, end_date, text, status, parent_id, category_id, notes, position)
     VALUES (
-      ${userId}, ${taskDate}, ${taskEndDate}, ${text}, ${status}, ${parentId}, ${parent ? null : categoryId}, ${notes},
+      ${userId}, ${taskDate}, ${taskEndDate}, ${text}, ${status}, ${parentId}, ${parent ? categoryId ?? parent.categoryId : categoryId}, ${notes},
       COALESCE((SELECT MAX(position) + 1 FROM planner_tasks WHERE user_id = ${userId}), 0)
     )
     RETURNING id, date::text AS date, end_date::text AS end_date, text, status, category_id, parent_id, position, notes
@@ -228,7 +236,8 @@ export async function updateTask(
   const range: DateRange | null =
     nesting && parent ? { date: parent.date, endDate: parent.endDate } : fields.date ? { date: fields.date, endDate: fields.endDate ?? null } : null;
   if (range && parent && !isWithin(range, parent)) throw new Error("invalid range");
-  const categoryId = parentId !== null ? null : fields.categoryId !== undefined ? fields.categoryId : before.categoryId;
+  const categoryId =
+    fields.categoryId !== undefined ? fields.categoryId : nesting && parent ? parent.categoryId : before.categoryId;
   const rows = await sql`
     UPDATE planner_tasks
     SET text = COALESCE(${fields.text ?? null}, text),
@@ -244,6 +253,12 @@ export async function updateTask(
   const task = rows[0] ? toTask(rows[0]) : null;
   if (task && task.parentId === null && (task.date !== before.date || task.endDate !== before.endDate)) {
     await fitChildren(userId, id, before, task);
+  }
+  if (task && task.parentId === null && task.categoryId !== before.categoryId) {
+    await sql`
+      UPDATE planner_tasks SET category_id = ${task.categoryId}
+      WHERE parent_id = ${id} AND user_id = ${userId} AND (category_id IS NULL OR category_id = ${before.categoryId}::int)
+    `;
   }
   // Status changes pay/claw back the reward; moving a done task re-prices it by its new length.
   if (task) await payReward(userId, taskReward(task) - taskReward(before));
@@ -356,8 +371,8 @@ export async function syncTasks(userId: number, from: string, to: string, parsed
         return [
           sql`DELETE FROM planner_tasks WHERE parent_id = ${e.id} AND user_id = ${userId}`,
           sql`
-            INSERT INTO planner_tasks (user_id, date, end_date, text, status, parent_id, position)
-            SELECT ${userId}, c.date, c.end_date, c.text, c.status, ${e.id}, c.ord
+            INSERT INTO planner_tasks (user_id, date, end_date, text, status, parent_id, category_id, position)
+            SELECT ${userId}, c.date, c.end_date, c.text, c.status, ${e.id}, ${e.categoryId}::int, c.ord
             FROM unnest(${texts}::text[], ${statuses}::text[], ${dates}::date[], ${ends}::date[])
               WITH ORDINALITY AS c(text, status, date, end_date, ord)
           `

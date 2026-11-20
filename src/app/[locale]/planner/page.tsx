@@ -179,8 +179,12 @@ export default function PlannerPage() {
   }
 
   function handleAssignCategory(taskId: number, categoryId: number | null) {
+    const previous = taskById.get(taskId)?.categoryId ?? null
     mutateTasks(
-      (list) => list.map((x) => (x.id === taskId ? { ...x, categoryId } : x)),
+      (list) =>
+        list.map((x) =>
+          x.id === taskId || (x.parentId === taskId && (x.categoryId === null || x.categoryId === previous)) ? { ...x, categoryId } : x
+        ),
       () => isOk(request(`/api/planner/tasks/${taskId}`, 'PUT', { categoryId }))
     )
   }
@@ -391,7 +395,7 @@ export default function PlannerPage() {
   function handleCreateSubtask(parentId: number, rawText: string) {
     const text = rawText.trim()
     const parent = tasks.find((x) => x.id === parentId)
-    if (text && parent) createTaskOptimistic({ date: parent.date, endDate: parent.endDate, text, categoryId: null, parentId, notes: '' })
+    if (text && parent) createTaskOptimistic({ date: parent.date, endDate: parent.endDate, text, categoryId: parent.categoryId, parentId, notes: '' })
   }
 
   function handleCopy(task: PlannerTask) {
@@ -409,7 +413,7 @@ export default function PlannerPage() {
     const parentId = parent?.id ?? null
     reparentedRef.current = task.id
     const ok = await mutateTasks(
-      (list) => list.map((x) => (x.id === task.id ? { ...x, ...range, parentId, categoryId: parent ? null : x.categoryId } : x)),
+      (list) => list.map((x) => (x.id === task.id ? { ...x, ...range, parentId, categoryId: parent ? parent.categoryId : x.categoryId } : x)),
       () => isOk(request(`/api/planner/tasks/${task.id}`, 'PUT', { parentId, ...range }))
     )
     if (ok) handleReorder(order)
@@ -718,23 +722,19 @@ export default function PlannerPage() {
               ))}
             </select>
           )}
-          {isTopLevel && (
-            <>
-              <span className="text-muted-foreground">{t('category')}</span>
-              <select
-                value={task.categoryId ?? ''}
-                onChange={(e) => handleAssignCategory(task.id, e.target.value ? Number(e.target.value) : null)}
-                className="w-fit rounded-md border bg-background px-2 py-1 outline-none"
-              >
-                <option value="">{t('noCategory')}</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            </>
-          )}
+          <span className="text-muted-foreground">{t('category')}</span>
+          <select
+            value={task.categoryId ?? ''}
+            onChange={(e) => handleAssignCategory(task.id, e.target.value ? Number(e.target.value) : null)}
+            className="w-fit rounded-md border bg-background px-2 py-1 outline-none"
+          >
+            <option value="">{t('noCategory')}</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
         </div>
         <Textarea
           value={form.notes}
