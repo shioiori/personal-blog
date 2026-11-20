@@ -178,6 +178,29 @@ export default function PlannerPage() {
     setTasks((prev) => prev.map((t) => (t.categoryId === categoryId ? { ...t, categoryId: null } : t)))
   }
 
+  function startCategoryDragScroll(startY: number) {
+    const edge = 80
+    let y = startY
+    let raf = 0
+    const tick = () => {
+      const h = window.innerHeight
+      const speed = y < edge ? -(edge - y) / 4 : y > h - edge ? (y - (h - edge)) / 4 : 0
+      if (speed) window.scrollBy(0, speed)
+      raf = requestAnimationFrame(tick)
+    }
+    const onOver = (e: DragEvent) => {
+      y = e.clientY
+    }
+    const stop = () => {
+      cancelAnimationFrame(raf)
+      document.removeEventListener('dragover', onOver)
+      document.removeEventListener('dragend', stop)
+    }
+    document.addEventListener('dragover', onOver)
+    document.addEventListener('dragend', stop)
+    raf = requestAnimationFrame(tick)
+  }
+
   function handleAssignCategory(taskId: number, categoryId: number | null) {
     const previous = taskById.get(taskId)?.categoryId ?? null
     mutateTasks(
@@ -1158,7 +1181,10 @@ export default function PlannerPage() {
               <span
                 key={cat.id}
                 draggable
-                onDragStart={(e) => e.dataTransfer.setData('text/planner-category-id', String(cat.id))}
+                onDragStart={(e) => {
+                  e.dataTransfer.setData('text/planner-category-id', String(cat.id))
+                  startCategoryDragScroll(e.clientY)
+                }}
                 title={cat.name}
                 className="group flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs cursor-grab active:cursor-grabbing"
               >
