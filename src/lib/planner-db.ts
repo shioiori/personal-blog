@@ -1,5 +1,6 @@
 import { sql, once } from "./db";
-import { deriveStatus, type ParsedTask } from "./planner-text";
+import type { ParsedTask } from "./planner-text";
+import { autoProgress, parentProgress, progressForStatus, statusFromProgress } from "./planner-progress";
 import { fitChildRange, isWithin, type DateRange } from "./planner-range";
 import { adjustBalance, ensureGardenTables } from "./garden-db";
 import { TASK_REWARD_PER_DAY } from "./garden-catalog";
@@ -12,6 +13,8 @@ export interface PlannerTask {
   endDate: string | null;
   text: string;
   status: PlannerStatus;
+  progress: number;
+  manualProgress: number | null;
   categoryId: number | null;
   parentId: number | null;
   position: number;
@@ -77,6 +80,27 @@ export const ensurePlannerTables = once(async function ensurePlannerTables() {
     FROM planner_tasks p, marker
     WHERE c.parent_id = p.id AND c.category_id IS NULL AND p.category_id IS NOT NULL
   `;
+  await sql`ALTER TABLE planner_tasks ADD COLUMN IF NOT EXISTS progress INT NOT NULL DEFAULT 0`;
+  await sql`ALTER TABLE planner_tasks ADD COLUMN IF NOT EXISTS manual_progress INT`;
+  await sql`
+    WITH marker AS (
+      INSERT INTO planner_migrations (name) VALUES ('task-progress') ON CONFLICT DO NOTHING RETURNING name
+    )
+    UPDATE planner_tasks t SET progress = CASE
+      WHEN EXISTS (SELECT 1 FROM planner_tasks c WHERE c.parent_id = t.id) THEN (
+        SELECT CASE
+          WHEN COUNT(*) FILTER (WHERE c.status = 'done') = COUNT(*) THEN 100
+          WHEN COUNT(*) FILTER (WHERE c.status = 'done') = 0 THEN 0
+          ELSE LEAST(99, GREATEST(1, ROUND(COUNT(*) FILTER (WHERE c.status = 'done') * 100.0 / COUNT(*))))
+        END
+        FROM planner_tasks c WHERE c.parent_id = t.id
+      )
+      WHEN t.status = 'done' THEN 100
+      WHEN t.status = 'partial' THEN 50
+      ELSE 0
+    END
+    FROM marker
+  `;
   // One-time migration off the old `checked` boolean, kept idempotent via IF EXISTS checks.
   await sql`
     DO $$
@@ -125,7 +149,7 @@ async function payReward(userId: number, delta: number): Promise<void> {
 
 async function getTask(userId: number, id: number): Promise<PlannerTask | null> {
   const rows = await sql`
-    SELECT id, date::text AS date, end_date::text AS end_date, text, status, category_id, parent_id, position, notes FROM planner_tasks
+    SELECT id, date::text AS date, end_date::text AS end_date, text, status, progress, manual_progress, category_id, parent_id, position, notes FROM planner_tasks
     WHERE id = ${id} AND user_id = ${userId}
   `;
   return rows[0] ? toTask(rows[0]) : null;
@@ -138,6 +162,8 @@ function toTask(row: Record<string, unknown>): PlannerTask {
     endDate: row.end_date as string | null,
     text: row.text as string,
     status: row.status as PlannerStatus,
+    progress: row.progress as number,
+    manualProgress: (row.manual_progress as number | null) ?? null,
     categoryId: (row.category_id as number | null) ?? null,
     parentId: (row.parent_id as number | null) ?? null,
     position: row.position as number,
@@ -150,15 +176,16 @@ async function syncParentStatus(userId: number, parentId: number): Promise<void>
   if (!before) return;
   const children = await sql`SELECT status FROM planner_tasks WHERE parent_id = ${parentId} AND user_id = ${userId}`;
   if (!children.length) return;
-  const status = deriveStatus(children as { status: PlannerStatus }[]);
-  if (status === before.status) return;
-  await sql`UPDATE planner_tasks SET status = ${status} WHERE id = ${parentId} AND user_id = ${userId}`;
+  const progress = parentProgress(before.manualProgress, children as { status: PlannerStatus }[]);
+  const status = statusFromProgress(progress);
+  if (status === before.status && progress === before.progress) return;
+  await sql`UPDATE planner_tasks SET status = ${status}, progress = ${progress} WHERE id = ${parentId} AND user_id = ${userId}`;
   await payReward(userId, taskReward({ ...before, status }) - taskReward(before));
 }
 
 export async function listTasks(userId: number, from: string, to: string): Promise<PlannerTask[]> {
   const rows = await sql`
-    SELECT id, date::text AS date, end_date::text AS end_date, text, status, category_id, parent_id, position, notes FROM planner_tasks
+    SELECT id, date::text AS date, end_date::text AS end_date, text, status, progress, manual_progress, category_id, parent_id, position, notes FROM planner_tasks
     WHERE user_id = ${userId} AND (
       (date <= ${to} AND COALESCE(end_date, date) >= ${from})
       OR parent_id IN (
@@ -172,7 +199,7 @@ export async function listTasks(userId: number, from: string, to: string): Promi
 
 export async function listLatestTasksBefore(userId: number, date: string): Promise<PlannerTask[]> {
   const rows = await sql`
-    SELECT id, date::text AS date, end_date::text AS end_date, text, status, category_id, parent_id, position, notes FROM planner_tasks
+    SELECT id, date::text AS date, end_date::text AS end_date, text, status, progress, manual_progress, category_id, parent_id, position, notes FROM planner_tasks
     WHERE user_id = ${userId} AND end_date IS NULL
       AND date = (SELECT MAX(date) FROM planner_tasks WHERE user_id = ${userId} AND end_date IS NULL AND date < ${date})
     ORDER BY position ASC, id ASC
@@ -198,12 +225,12 @@ export async function createTask(
   const taskDate = parent ? parent.date : date;
   const taskEndDate = parent ? parent.endDate : endDate;
   const rows = await sql`
-    INSERT INTO planner_tasks (user_id, date, end_date, text, status, parent_id, category_id, notes, position)
+    INSERT INTO planner_tasks (user_id, date, end_date, text, status, progress, parent_id, category_id, notes, position)
     VALUES (
-      ${userId}, ${taskDate}, ${taskEndDate}, ${text}, ${status}, ${parentId}, ${parent ? categoryId ?? parent.categoryId : categoryId}, ${notes},
+      ${userId}, ${taskDate}, ${taskEndDate}, ${text}, ${status}, ${progressForStatus(status)}, ${parentId}, ${parent ? categoryId ?? parent.categoryId : categoryId}, ${notes},
       COALESCE((SELECT MAX(position) + 1 FROM planner_tasks WHERE user_id = ${userId}), 0)
     )
-    RETURNING id, date::text AS date, end_date::text AS end_date, text, status, category_id, parent_id, position, notes
+    RETURNING id, date::text AS date, end_date::text AS end_date, text, status, progress, manual_progress, category_id, parent_id, position, notes
   `;
   const task = toTask(rows[0]);
   await payReward(userId, taskReward(task));
@@ -222,10 +249,16 @@ export async function updateTask(
     categoryId?: number | null;
     notes?: string;
     parentId?: number | null;
+    progress?: number;
   }
 ): Promise<PlannerTask | null> {
   const before = await getTask(userId, id);
   if (!before) return null;
+  if (fields.progress !== undefined) {
+    const { progress, ...rest } = fields;
+    await setProgress(userId, before, progress);
+    return Object.keys(rest).length ? updateTask(userId, id, rest) : getTask(userId, id);
+  }
   const parentId = fields.parentId !== undefined ? fields.parentId : before.parentId;
   const nesting = parentId !== null && parentId !== before.parentId;
   const parent = parentId !== null && (nesting || fields.date) ? await getTask(userId, parentId) : null;
@@ -242,13 +275,14 @@ export async function updateTask(
     UPDATE planner_tasks
     SET text = COALESCE(${fields.text ?? null}, text),
         status = COALESCE(${fields.status ?? null}, status),
+        progress = ${fields.status ? progressForStatus(fields.status, before.progress) : before.progress},
         date = COALESCE(${range?.date ?? null}::date, date),
         end_date = CASE WHEN ${range?.date ?? null}::date IS NULL THEN end_date ELSE ${range?.endDate ?? null}::date END,
         category_id = ${categoryId},
         parent_id = ${parentId},
         notes = COALESCE(${fields.notes ?? null}, notes)
     WHERE id = ${id} AND user_id = ${userId}
-    RETURNING id, date::text AS date, end_date::text AS end_date, text, status, category_id, parent_id, position, notes
+    RETURNING id, date::text AS date, end_date::text AS end_date, text, status, progress, manual_progress, category_id, parent_id, position, notes
   `;
   const task = rows[0] ? toTask(rows[0]) : null;
   if (task && task.parentId === null && (task.date !== before.date || task.endDate !== before.endDate)) {
@@ -269,9 +303,39 @@ export async function updateTask(
   return task;
 }
 
+/**
+ * Drag-to-set progress. On a task with subtasks, 100% marks every subtask done and 0% marks them
+ * all undone; anything in between is kept as the user's value without touching the subtasks.
+ */
+async function setProgress(userId: number, before: PlannerTask, progress: number): Promise<void> {
+  const children = await sql`
+    SELECT date::text AS date, end_date::text AS end_date, status FROM planner_tasks WHERE parent_id = ${before.id} AND user_id = ${userId}
+  `;
+  const status = statusFromProgress(progress);
+  if (children.length && status !== "partial") {
+    // Each flipped subtask pays out or claws back its own reward.
+    const delta = children.reduce((sum, c) => {
+      const child = { date: c.date as string, endDate: c.end_date as string | null };
+      return sum + taskReward({ ...child, status }) - taskReward({ ...child, status: c.status as PlannerStatus });
+    }, 0);
+    await sql`
+      UPDATE planner_tasks SET status = ${status}, progress = ${progress}, manual_progress = NULL
+      WHERE parent_id = ${before.id} AND user_id = ${userId}
+    `;
+    await payReward(userId, delta);
+  }
+  const manual = children.length && status === "partial" ? progress : null;
+  await sql`
+    UPDATE planner_tasks SET status = ${status}, progress = ${progress}, manual_progress = ${manual}
+    WHERE id = ${before.id} AND user_id = ${userId}
+  `;
+  await payReward(userId, taskReward({ ...before, status }) - taskReward(before));
+  if (before.parentId && status !== before.status) await syncParentStatus(userId, before.parentId);
+}
+
 async function fitChildren(userId: number, parentId: number, before: DateRange, after: DateRange): Promise<void> {
   const rows = await sql`
-    SELECT id, date::text AS date, end_date::text AS end_date, text, status, category_id, parent_id, position, notes FROM planner_tasks
+    SELECT id, date::text AS date, end_date::text AS end_date, text, status, progress, manual_progress, category_id, parent_id, position, notes FROM planner_tasks
     WHERE parent_id = ${parentId} AND user_id = ${userId}
   `;
   const changes = rows
@@ -359,11 +423,16 @@ export async function syncTasks(userId: number, from: string, to: string, parsed
   const queries = [
     ...pairs
       .filter(([e, p]) => e.text !== p.text || e.status !== p.status || !sameGroup(e, p) || e.position !== order.get(p))
-      .map(([e, p]) => sql`
-        UPDATE planner_tasks
-        SET text = ${p.text}, status = ${p.status}, date = ${p.date}, end_date = ${p.endDate}, position = ${order.get(p)}
-        WHERE id = ${e.id} AND user_id = ${userId}
-      `),
+      .map(([e, p]) => {
+        const keep = e.status === p.status;
+        const progress = keep ? e.progress : p.subtasks.length ? autoProgress(p.subtasks) : progressForStatus(p.status);
+        return sql`
+          UPDATE planner_tasks
+          SET text = ${p.text}, status = ${p.status}, progress = ${progress}, manual_progress = ${keep ? e.manualProgress : null},
+              date = ${p.date}, end_date = ${p.endDate}, position = ${order.get(p)}
+          WHERE id = ${e.id} AND user_id = ${userId}
+        `;
+      }),
     ...pairs
       .filter(([e, p]) => !sameSubtasks(e, p))
       .flatMap(([e, p]) => {
@@ -371,8 +440,8 @@ export async function syncTasks(userId: number, from: string, to: string, parsed
         return [
           sql`DELETE FROM planner_tasks WHERE parent_id = ${e.id} AND user_id = ${userId}`,
           sql`
-            INSERT INTO planner_tasks (user_id, date, end_date, text, status, parent_id, category_id, position)
-            SELECT ${userId}, c.date, c.end_date, c.text, c.status, ${e.id}, ${e.categoryId}::int, c.ord
+            INSERT INTO planner_tasks (user_id, date, end_date, text, status, progress, parent_id, category_id, position)
+            SELECT ${userId}, c.date, c.end_date, c.text, c.status, CASE c.status WHEN 'done' THEN 100 WHEN 'partial' THEN 50 ELSE 0 END, ${e.id}, ${e.categoryId}::int, c.ord
             FROM unnest(${texts}::text[], ${statuses}::text[], ${dates}::date[], ${ends}::date[])
               WITH ORDINALITY AS c(text, status, date, end_date, ord)
           `
@@ -382,12 +451,15 @@ export async function syncTasks(userId: number, from: string, to: string, parsed
       const [texts, statuses, dates, ends] = subtaskColumns(p);
       return sql`
         WITH parent AS (
-          INSERT INTO planner_tasks (user_id, date, end_date, text, status, position)
-          VALUES (${userId}, ${p.date}, ${p.endDate}, ${p.text}, ${p.status}, ${order.get(p)})
+          INSERT INTO planner_tasks (user_id, date, end_date, text, status, progress, position)
+          VALUES (
+            ${userId}, ${p.date}, ${p.endDate}, ${p.text}, ${p.status},
+            ${p.subtasks.length ? autoProgress(p.subtasks) : progressForStatus(p.status)}, ${order.get(p)}
+          )
           RETURNING id
         )
-        INSERT INTO planner_tasks (user_id, date, end_date, text, status, parent_id, position)
-        SELECT ${userId}, c.date, c.end_date, c.text, c.status, parent.id, c.ord
+        INSERT INTO planner_tasks (user_id, date, end_date, text, status, progress, parent_id, position)
+        SELECT ${userId}, c.date, c.end_date, c.text, c.status, CASE c.status WHEN 'done' THEN 100 WHEN 'partial' THEN 50 ELSE 0 END, parent.id, c.ord
         FROM parent, unnest(${texts}::text[], ${statuses}::text[], ${dates}::date[], ${ends}::date[])
           WITH ORDINALITY AS c(text, status, date, end_date, ord)
       `;

@@ -31,6 +31,7 @@
         "status_partial": "Partially done",
         "status_done": "Done",
         "statusFromSubtasks": "Status is derived from its subtasks",
+        "progress": "Progress",
         "subtasks": "Subtasks",
         "dates": "Dates",
         "category": "Category",

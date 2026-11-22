@@ -31,6 +31,7 @@
         "status_partial": "Xong 1 phần",
         "status_done": "Xong",
         "statusFromSubtasks": "Trạng thái được tính theo đầu việc con",
+        "progress": "Tiến độ",
         "subtasks": "Đầu việc con",
         "dates": "Ngày",
         "category": "Danh mục",

@@ -23,8 +23,35 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/src/components/ui/Ta
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/src/components/ui/Tooltip'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/src/components/ui/Dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/src/components/ui/DropdownMenu'
-import { deriveStatus, formatTasks } from '@/src/lib/planner-text'
+import { formatTasks } from '@/src/lib/planner-text'
+import { clampProgress, parentProgress, progressForStatus, statusFromProgress } from '@/src/lib/planner-progress'
+import { ProgressSlider } from '@/src/components/planner/ProgressSlider'
 import { addDays, dayDiff, fitChildRange, isWithin, rangeEnd, shiftRange, type DateRange } from '@/src/lib/planner-range'
+
+/**
+ * Mirrors the server: when a parent's subtasks change (status, added, removed, moved), its progress
+ * becomes max(the value the user dragged it to, 100 / n per done subtask).
+ */
+function syncChangedParents(before: PlannerTask[], after: PlannerTask[]): PlannerTask[] {
+  const prev = new Map(before.map((x) => [x.id, x]))
+  const afterIds = new Set(after.map((x) => x.id))
+  const changed = new Set<number>()
+  for (const x of after) {
+    const b = prev.get(x.id)
+    if (x.parentId !== null && (!b || b.status !== x.status || b.parentId !== x.parentId)) changed.add(x.parentId)
+    if (b && b.parentId !== null && b.parentId !== x.parentId) changed.add(b.parentId)
+  }
+  for (const b of before) if (b.parentId !== null && !afterIds.has(b.id)) changed.add(b.parentId)
+  if (!changed.size) return after
+  return after.map((x) => {
+    if (!changed.has(x.id)) return x
+    const children = after.filter((c) => c.parentId === x.id)
+    if (!children.length) return x
+    const progress = parentProgress(x.manualProgress, children)
+    const status = statusFromProgress(progress)
+    return progress === x.progress && status === x.status ? x : { ...x, progress, status }
+  })
+}
 
 const STATUSES: PlannerStatus[] = ['undone', 'partial', 'done']
 const PLUGINS = [dayGridPlugin, interactionPlugin]
@@ -142,9 +169,9 @@ export default function PlannerPage() {
     return map
   }, [tasks])
 
+  // A parent's status is stored on it (kept in step with its subtasks by syncChangedParents).
   function statusOf(task: PlannerTask) {
-    const children = childrenByParent.get(task.id)
-    return children?.length ? deriveStatus(children) : task.status
+    return task.status
   }
 
   useLayoutEffect(() => {
@@ -355,7 +382,8 @@ export default function PlannerPage() {
     return res.then((r) => r.ok)
   }
 
-  async function mutateTasks(update: (list: PlannerTask[]) => PlannerTask[], send: () => Promise<boolean>) {
+  async function mutateTasks(rawUpdate: (list: PlannerTask[]) => PlannerTask[], send: () => Promise<boolean>) {
+    const update = (list: PlannerTask[]) => syncChangedParents(list, rawUpdate(list))
     const current = tasksRef.current
     const before = new Map(current.map((x) => [x.id, x]))
     const next = update(current)
@@ -374,29 +402,34 @@ export default function PlannerPage() {
 
   function handleSetStatus(taskId: number, status: PlannerStatus) {
     mutateTasks(
-      (list) => list.map((x) => (x.id === taskId ? { ...x, status } : x)),
+      (list) => list.map((x) => (x.id === taskId ? { ...x, status, progress: progressForStatus(status, x.progress) } : x)),
       () => isOk(request(`/api/planner/tasks/${taskId}`, 'PUT', { status }))
     )
   }
 
-  // Plain click only ever flips between done/undone; "partial" is only reachable from the modal.
-  function handleToggle(task: PlannerTask) {
-    handleSetStatus(task.id, task.status === 'done' ? 'undone' : 'done')
+  // On a task with subtasks, 100% marks them all done and 0% marks them all undone; values in
+  // between are kept as the user set them and leave the subtasks alone.
+  function handleSetProgress(task: PlannerTask, value: number) {
+    const progress = clampProgress(value)
+    const status = statusFromProgress(progress)
+    const hasChildren = !!childrenByParent.get(task.id)?.length
+    const cascade = hasChildren && status !== 'partial'
+    mutateTasks(
+      (list) =>
+        list.map((x) =>
+          x.id === task.id
+            ? { ...x, progress, status, manualProgress: hasChildren && !cascade ? progress : null }
+            : cascade && x.parentId === task.id
+              ? { ...x, progress, status, manualProgress: null }
+              : x
+        ),
+      () => isOk(request(`/api/planner/tasks/${task.id}`, 'PUT', { progress }))
+    )
   }
 
-  // Clicking a task that has subtasks toggles all of them together instead of its own (derived) status.
-  function handleToggleGroup(children: PlannerTask[]) {
-    if (!children.length) return
-    const next: PlannerStatus = children.every((c) => c.status === 'done') ? 'undone' : 'done'
-    const ids = new Set(children.map((c) => c.id))
-    mutateTasks(
-      (list) => list.map((x) => (ids.has(x.id) ? { ...x, status: next } : x)),
-      async () => {
-        let ok = true
-        for (const c of children) ok = (await isOk(request(`/api/planner/tasks/${c.id}`, 'PUT', { status: next }))) && ok
-        return ok
-      }
-    )
+  // Plain click only flips between done/undone (cascading to subtasks); in-between values come from the modal.
+  function handleToggle(task: PlannerTask) {
+    handleSetProgress(task, task.status === 'done' ? 0 : 100)
   }
 
   function handleUpdateTask(taskId: number, fields: EditableFields) {
@@ -415,11 +448,15 @@ export default function PlannerPage() {
 
   async function createTaskOptimistic(fields: Pick<PlannerTask, 'date' | 'endDate' | 'text' | 'categoryId' | 'parentId' | 'notes'>) {
     const tempId = -Date.now()
-    setTasks((prev) => [...prev, { id: tempId, ...fields, status: 'undone', position: Number.MAX_SAFE_INTEGER }])
+    const syncedSet = (update: (list: PlannerTask[]) => PlannerTask[]) => setTasks((prev) => syncChangedParents(prev, update(prev)))
+    syncedSet((prev) => [
+      ...prev,
+      { id: tempId, ...fields, status: 'undone', progress: 0, manualProgress: null, position: Number.MAX_SAFE_INTEGER }
+    ])
     const res = await request('/api/planner/tasks', 'POST', fields)
-    if (!res.ok) return setTasks((prev) => prev.filter((x) => x.id !== tempId))
+    if (!res.ok) return syncedSet((prev) => prev.filter((x) => x.id !== tempId))
     const created = (await res.json()) as PlannerTask
-    setTasks((prev) => [...prev.filter((x) => x.id !== tempId && x.id !== created.id), created])
+    syncedSet((prev) => [...prev.filter((x) => x.id !== tempId && x.id !== created.id), created])
   }
 
   function handleCreateSubtask(parentId: number, rawText: string) {
@@ -667,8 +704,6 @@ export default function PlannerPage() {
   // Renders a task the same way the calendar does: colored pill, status checkbox, inline-editable text.
   function renderTaskRow(task: PlannerTask, indent: boolean, asLink = false) {
     const color = colorForTask(task.id)
-    const children = childrenByParent.get(task.id) ?? NO_CHILDREN
-    const hasChildren = children.length > 0
     const status = statusOf(task)
     const category = task.categoryId ? categories.find((c) => c.id === task.categoryId) : undefined
     return (
@@ -683,7 +718,7 @@ export default function PlannerPage() {
           ref={(el) => {
             if (el) el.indeterminate = status === 'partial'
           }}
-          onChange={() => (hasChildren ? handleToggleGroup(children) : handleToggle(task))}
+          onChange={() => handleToggle(task)}
           className="shrink-0 cursor-pointer"
           style={statusCheckboxStyle(color.bar, status)}
         />
@@ -823,23 +858,33 @@ export default function PlannerPage() {
             onChange={(start, end) => edit({ start, end })}
           />
           <span className="text-muted-foreground">{t('status')}</span>
-          {hasChildren ? (
-            <span title={t('statusFromSubtasks')} className="border border-transparent px-2 py-1">
-              {t(`status_${status}`)}
-            </span>
-          ) : (
-            <select
-              value={status}
-              onChange={(e) => handleSetStatus(task.id, e.target.value as PlannerStatus)}
-              className="w-fit rounded-md border bg-background px-2 py-1 outline-none"
-            >
-              {STATUSES.map((s) => (
-                <option key={s} value={s}>
-                  {t(`status_${s}`)}
-                </option>
-              ))}
-            </select>
-          )}
+          <div className="flex min-w-0 flex-wrap items-center gap-3">
+            {hasChildren ? (
+              <span title={t('statusFromSubtasks')} className="border border-transparent px-2 py-1">
+                {t(`status_${status}`)}
+              </span>
+            ) : (
+              <select
+                value={status}
+                onChange={(e) => handleSetStatus(task.id, e.target.value as PlannerStatus)}
+                className="w-fit rounded-md border bg-background px-2 py-1 outline-none"
+              >
+                {STATUSES.map((s) => (
+                  <option key={s} value={s}>
+                    {t(`status_${s}`)}
+                  </option>
+                ))}
+              </select>
+            )}
+            {isTopLevel && (
+              <ProgressSlider
+                value={task.progress}
+                color={colorForTask(task.id).bar}
+                label={t('progress')}
+                onCommit={(value) => handleSetProgress(task, value)}
+              />
+            )}
+          </div>
           <span className="text-muted-foreground">{t('category')}</span>
           <select
             value={task.categoryId ?? ''}
@@ -920,11 +965,7 @@ export default function PlannerPage() {
     addSubtask: setSubtaskDraftParentId,
     remove: handleDelete,
     open: setContextTaskId,
-    toggle: (task) => {
-      const children = childrenByParent.get(task.id)
-      if (children?.length) handleToggleGroup(children)
-      else handleToggle(task)
-    },
+    toggle: handleToggle,
     assignCategory: handleAssignCategory,
     setDragOver: setDragOverTaskId,
     startEdit: (taskId) => {
@@ -956,7 +997,6 @@ export default function PlannerPage() {
     (info: EventContentArg) => {
       const pill = (eventId: string, title: string, task: PlannerTask | undefined, slot?: SlotLayout) => {
         const segmentKey = `${eventId}|${info.event.startStr}|${info.event.endStr}|${title}`
-        const children = task && task.parentId === null ? childrenByParent.get(task.id) : undefined
         return (
           <TaskPill
             eventId={eventId}
@@ -965,7 +1005,7 @@ export default function PlannerPage() {
             isEnd={info.isEnd}
             segmentKey={segmentKey}
             task={task}
-            status={task ? (children?.length ? deriveStatus(children) : task.status) : 'undone'}
+            status={task ? task.status : 'undone'}
             category={task?.categoryId ? categories.find((c) => c.id === task.categoryId) : undefined}
             editing={(eventId === DRAFT_ID || (!!task && task.id === editingId)) && info.isStart}
             wrap={textMode === 'wrap'}
