@@ -136,6 +136,7 @@ export type EssayPartType =
   | "body_point"
   | "body_explain"
   | "body_example"
+  | "body_consequence"
   | "body_link"
   | "conclusion";
 

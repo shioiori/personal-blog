@@ -40,6 +40,7 @@ function PartBox({ part, onChange }: { part: EssayPart; onChange: (text: string)
 const OPTIONAL_BUTTONS: { type: EssayPartType; label: string }[] = [
   { type: "body_explain", label: "+ Giải thích" },
   { type: "body_example", label: "+ Ví dụ" },
+  { type: "body_consequence", label: "+ Hệ quả" },
   { type: "body_link", label: "+ Liên kết" },
 ];
 

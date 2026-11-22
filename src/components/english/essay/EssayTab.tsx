@@ -8,7 +8,7 @@ import { Textarea } from "@/src/components/ui/Textarea";
 import { OutlineStep } from "./OutlineStep";
 import { TranslateStep } from "./TranslateStep";
 import { EditStep } from "./EditStep";
-import { joinEssayText, validateEssayParts } from "@/src/lib/essay-format";
+import { applyTextToParts, joinEssayText, validateEssayParts } from "@/src/lib/essay-format";
 import { cn } from "@/src/utils/ui";
 
 const STEPS: { id: EssayStepType; label: string }[] = [
@@ -91,7 +91,8 @@ export function EssayTab() {
 
   function updateFinalText(finalText: string) {
     if (!essay) return;
-    scheduleSave({ ...essay, finalText });
+    // Step 3 is the source of truth once edited: write the change back into each step-2 translation.
+    scheduleSave({ ...essay, finalText, parts: applyTextToParts(essay.parts, finalText) });
   }
 
   function updateTitle(title: string) {
