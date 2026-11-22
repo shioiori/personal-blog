@@ -119,6 +119,7 @@ export function WritingTab() {
   async function submitSentence() {
     const card = current;
     if (!card || !sentence.trim()) return;
+    voice.stop();
     setPhase("checking");
     try {
       const res = await fetch("/api/english/writing/check", {
