@@ -20,6 +20,6 @@ export async function POST(req: NextRequest) {
     body = {};
   }
   const title = typeof body.title === "string" ? body.title.trim() : "";
-  const essay = await createEssay(userId, title || "Bài luận chưa đặt tên");
+  const essay = await createEssay(userId, title);
   return NextResponse.json(essay, { status: 201 });
 }

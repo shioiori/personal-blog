@@ -1,10 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Plus, FileText, Trash2 } from "lucide-react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Plus, FileText, Trash2, Pencil, Check } from "lucide-react";
 import type { Essay, EssaySummary, EssayStep as EssayStepType, EssayPart } from "@/src/declaration/english";
 import { Button } from "@/src/components/ui/Button";
-import { Input } from "@/src/components/ui/Input";
+import { Textarea } from "@/src/components/ui/Textarea";
 import { OutlineStep } from "./OutlineStep";
 import { TranslateStep } from "./TranslateStep";
 import { EditStep } from "./EditStep";
@@ -27,6 +27,15 @@ export function EssayTab() {
   const [essays, setEssays] = useState<EssaySummary[]>([]);
   const [essay, setEssay] = useState<Essay | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [editingTitle, setEditingTitle] = useState(false);
+  const titleRef = useRef<HTMLTextAreaElement | null>(null);
+
+  useLayoutEffect(() => {
+    const el = titleRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight + 2}px`;
+  }, [editingTitle, essay?.title]);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const refetchList = useCallback(async () => {
@@ -48,11 +57,13 @@ export function EssayTab() {
     const created = (await res.json()) as Essay;
     setEssays((prev) => [{ id: created.id, title: created.title, step: created.step, createdAt: created.createdAt, updatedAt: created.updatedAt }, ...prev]);
     setEssay(created);
+    setEditingTitle(!created.title.trim());
   }
 
   async function openEssay(id: number) {
     const data = await apiGet<Essay>(`/api/english/essay/${id}`);
     setEssay(data);
+    setEditingTitle(!data.title.trim());
   }
 
   async function deleteEssayById(id: number) {
@@ -86,6 +97,7 @@ export function EssayTab() {
   function updateTitle(title: string) {
     if (!essay) return;
     scheduleSave({ ...essay, title });
+    setEssays((prev) => prev.map((e) => (e.id === essay.id ? { ...e, title } : e)));
   }
 
   function goToStep(step: EssayStepType) {
@@ -119,7 +131,7 @@ export function EssayTab() {
               >
                 <div className="flex items-center gap-2 min-w-0">
                   <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
-                  <span className="truncate text-sm font-medium">{e.title || "Bài luận chưa đặt tên"}</span>
+                  <span className="line-clamp-2 text-sm font-medium" title={e.title}>{e.title || "Bài luận chưa đặt tên"}</span>
                 </div>
                 <button
                   onClick={(ev) => {
@@ -140,16 +152,65 @@ export function EssayTab() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-2">
-        <Input
-          value={essay.title}
-          onChange={(e) => updateTitle(e.target.value)}
-          placeholder="Tên bài luận..."
-          className="max-w-sm font-medium"
-        />
-        <Button variant="outline" size="sm" onClick={() => setEssay(null)}>
-          ← Danh sách
-        </Button>
+      <div className="space-y-2">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Đề bài</span>
+          <Button variant="outline" size="sm" onClick={() => setEssay(null)}>
+            ← Danh sách
+          </Button>
+        </div>
+        {editingTitle ? (
+          <div className="flex items-start gap-2">
+            <Textarea
+              ref={titleRef}
+              autoFocus
+              onFocus={(e) => {
+                const len = e.currentTarget.value.length;
+                e.currentTarget.setSelectionRange(len, len);
+              }}
+              value={essay.title}
+              onChange={(e) => updateTitle(e.target.value)}
+              onKeyDown={(e) => {
+                if ((e.key === "Enter" && !e.shiftKey) || e.key === "Escape") {
+                  e.preventDefault();
+                  setEditingTitle(false);
+                }
+              }}
+              onBlur={() => setEditingTitle(false)}
+              placeholder="Nhập đề bài / tên bài luận..."
+              rows={2}
+              className="min-h-0 resize-none whitespace-pre-wrap break-words text-base md:text-base font-medium leading-relaxed"
+            />
+            <button
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => setEditingTitle(false)}
+              title="Xong"
+              className="mt-2 shrink-0 rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+            >
+              <Check className="h-4 w-4" />
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-start gap-2">
+            <p
+              className={cn(
+                "whitespace-pre-wrap break-words text-base font-medium leading-relaxed",
+                !essay.title.trim() && "italic text-muted-foreground",
+              )}
+            >
+              {essay.title.trim() || "Chưa có đề bài"}
+            </p>
+            <button
+              type="button"
+              onClick={() => setEditingTitle(true)}
+              title="Sửa đề bài"
+              className="mt-0.5 shrink-0 rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+            >
+              <Pencil className="h-4 w-4" />
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="flex gap-2 border-b border-border">
