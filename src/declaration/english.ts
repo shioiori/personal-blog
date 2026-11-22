@@ -127,3 +127,56 @@ export interface GapFillExercise {
   answers: GapFillAnswer[] | null;
   attempts: GapFillAttempt[];
 }
+
+// ── Essay (IELTS Writing Task 2 style) ──────────────────────────────────────
+
+export type EssayPartType =
+  | "overall_paraphrase"
+  | "overall_mainidea"
+  | "body_point"
+  | "body_explain"
+  | "body_example"
+  | "body_link"
+  | "conclusion";
+
+export interface EssayPart {
+  id: string;
+  type: EssayPartType;
+  /** 0-based index of the body paragraph this part belongs to; unset for overall/conclusion. */
+  bodyIndex?: number;
+  outlineText: string;
+  translationText: string;
+}
+
+export type EssayStep = "outline" | "translate" | "edit";
+
+export interface Essay {
+  id: number;
+  title: string;
+  parts: EssayPart[];
+  step: EssayStep;
+  /** Final combined essay text, edited freely in the "edit" step. */
+  finalText: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface EssaySummary {
+  id: number;
+  title: string;
+  step: EssayStep;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface EssaySpellIssue {
+  original: string;
+  suggestion: string;
+  type: "spelling" | "grammar";
+  explanation: string;
+}
+
+export interface LookupResult {
+  result: string;
+  explanation?: string;
+}
