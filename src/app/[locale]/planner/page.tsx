@@ -448,9 +448,24 @@ export default function PlannerPage() {
       const pill = el.closest<HTMLElement>('[data-task-id]')
       if (!pill || pill.closest('.fc-event-mirror')) continue
       const target = tasks.find((t) => t.id === Number(pill.dataset.taskId))
-      const rect = pill.getBoundingClientRect()
+      if (!target) return null
+      // A subtask's event box spans its parent's whole day range (for the full-width bar visual), so
+      // restrict the hit-test to the target's own date range rather than the box's full width/height.
+      const pillRect = pill.getBoundingClientRect()
+      const cells = [...(pill.closest('tr')?.querySelectorAll<HTMLElement>('td.fc-daygrid-day[data-date]') ?? [])].filter(
+        (c) => c.dataset.date && c.dataset.date >= target.date && c.dataset.date <= rangeEnd(target)
+      )
+      const rect = cells.length
+        ? {
+            left: Math.min(...cells.map((c) => c.getBoundingClientRect().left)),
+            right: Math.max(...cells.map((c) => c.getBoundingClientRect().right)),
+            top: pillRect.top,
+            height: pillRect.height
+          }
+        : pillRect
       const inMiddle = Math.abs(y - (rect.top + rect.height / 2)) <= rect.height / 4
-      return target && inMiddle && target.id > 0 && target.parentId === null && target.id !== task.id && target.id !== task.parentId
+      const inRange = x >= rect.left && x <= rect.right
+      return inMiddle && inRange && target.id > 0 && target.parentId === null && target.id !== task.id && target.id !== task.parentId
         ? target
         : null
     }
@@ -811,7 +826,7 @@ export default function PlannerPage() {
         ...item,
         allDay: true,
         editable: !pending && !!task && item.id !== String(editingId),
-        durationEditable: !!task && task.parentId === null,
+        durationEditable: false,
         backgroundColor: 'transparent',
         borderColor: 'transparent',
         extendedProps: { order }
