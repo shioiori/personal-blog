@@ -448,7 +448,9 @@ export default function PlannerPage() {
       const pill = el.closest<HTMLElement>('[data-task-id]')
       if (!pill || pill.closest('.fc-event-mirror')) continue
       const target = tasks.find((t) => t.id === Number(pill.dataset.taskId))
-      if (!target) return null
+      // The dragged task's own (non-mirror) element stays in the DOM at its old spot during the drag,
+      // and a task that can't be nested here isn't a dead end — keep looking at what's underneath it.
+      if (!target || target.id <= 0 || target.parentId !== null || target.id === task.id || target.id === task.parentId) continue
       // A subtask's event box spans its parent's whole day range (for the full-width bar visual), so
       // restrict the hit-test to the target's own date range rather than the box's full width/height.
       const pillRect = pill.getBoundingClientRect()
@@ -465,9 +467,7 @@ export default function PlannerPage() {
         : pillRect
       const inMiddle = Math.abs(y - (rect.top + rect.height / 2)) <= rect.height / 4
       const inRange = x >= rect.left && x <= rect.right
-      return inMiddle && inRange && target.id > 0 && target.parentId === null && target.id !== task.id && target.id !== task.parentId
-        ? target
-        : null
+      return inMiddle && inRange ? target : null
     }
     return null
   }
