@@ -1,15 +1,23 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor, useEditorState, EditorContent, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
-import { Bold, Italic, Underline as UnderlineIcon, SpellCheck2, RefreshCw, Eye, EyeOff } from "lucide-react";
+import { Bold, Italic, Underline as UnderlineIcon, SpellCheck2, RefreshCw, Eye, EyeOff, Check, X } from "lucide-react";
 import { Button } from "@/src/components/ui/Button";
 import { cn } from "@/src/utils/ui";
 import { diffWords } from "@/src/lib/text-diff";
-import { textToHtml } from "@/src/lib/plain-text";
+import { blocksToText, textToHtml } from "@/src/lib/plain-text";
 import type { EssaySpellIssue } from "@/src/declaration/english";
+import {
+  SpellSuggestions,
+  acceptSuggestions,
+  getSuggestions,
+  locateIssues,
+  rejectSuggestions,
+  setSuggestions,
+} from "./spell-suggestions";
 
 function ToolbarBtn({ active, onClick, children, title }: { active?: boolean; onClick: () => void; children: React.ReactNode; title?: string }) {
   return (
@@ -30,6 +38,22 @@ function ToolbarBtn({ active, onClick, children, title }: { active?: boolean; on
   );
 }
 
+/** Plain text of the editor: top-level blocks joined by "\n\n", empty paragraphs kept as extra "\n" (blank lines). */
+function editorText(editor: Editor): string {
+  const blocks: string[] = [];
+  editor.state.doc.forEach((node) => blocks.push(node.textBetween(0, node.content.size, "\n", "\n")));
+  return blocksToText(blocks);
+}
+
+function countWords(text: string): number {
+  return text.split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w)).length;
+}
+
+/** Same text apart from whitespace (e.g. older essays saved before sections got a blank line between them). */
+function sameIgnoringWhitespace(a: string, b: string): boolean {
+  return a.replace(/\s+/g, " ").trim() === b.replace(/\s+/g, " ").trim();
+}
+
 interface EditStepProps {
   text: string;
   /** Latest combined translation text (from step 2) — may have diverged from `text` if the user edited step 2 after already editing here. */
@@ -38,7 +62,8 @@ interface EditStepProps {
 }
 
 export function EditStep({ text, joinedText, onChange }: EditStepProps) {
-  const [issues, setIssues] = useState<EssaySpellIssue[]>([]);
+  const [missingIssues, setMissingIssues] = useState<EssaySpellIssue[]>([]);
+  const [checkedNoIssues, setCheckedNoIssues] = useState(false);
   const [dismissedSync, setDismissedSync] = useState(false);
   const [checking, setChecking] = useState(false);
   const [checkError, setCheckError] = useState("");
@@ -47,20 +72,36 @@ export function EditStep({ text, joinedText, onChange }: EditStepProps) {
 
   const editor = useEditor({
     immediatelyRender: false,
-    extensions: [StarterKit, Underline],
+    extensions: [StarterKit, Underline, SpellSuggestions],
     content: textToHtml(text),
     onUpdate({ editor }) {
-      onChange(editor.getText({ blockSeparator: "\n\n" }));
+      onChange(editorText(editor));
     },
     editorProps: {
       attributes: {
-        class: "min-h-[400px] px-4 py-3 text-sm focus:outline-none prose prose-sm max-w-none dark:prose-invert",
+        class: "essay-editor min-h-[400px] px-4 pt-3 pb-8 text-sm focus:outline-none prose prose-sm max-w-none dark:prose-invert",
       },
     },
   });
 
+  const editorInfo = useEditorState({
+    editor,
+    selector: ({ editor }) =>
+      editor
+        ? {
+            words: countWords(editor.state.doc.textBetween(0, editor.state.doc.content.size, " ", " ")),
+            suggestionIds: getSuggestions(editor.state).map((s) => s.id),
+            fixableIds: getSuggestions(editor.state)
+              .filter((s) => s.suggestion)
+              .map((s) => s.id),
+          }
+        : { words: 0, suggestionIds: [] as string[], fixableIds: [] as string[] },
+    equalityFn: (a, b) =>
+      !!a && !!b && a.words === b.words && a.suggestionIds.join() === b.suggestionIds.join() && a.fixableIds.join() === b.fixableIds.join(),
+  });
+
   useEffect(() => {
-    if (editor && text !== editor.getText({ blockSeparator: "\n\n" })) {
+    if (editor && text !== editorText(editor)) {
       editor.commands.setContent(textToHtml(text), { emitUpdate: false });
     }
     // only sync when text changes externally (e.g. switching essay / step)
@@ -80,19 +121,23 @@ export function EditStep({ text, joinedText, onChange }: EditStepProps) {
     if (!editor) return;
     setChecking(true);
     setCheckError("");
+    setCheckedNoIssues(false);
     try {
-      const plainText = editor.getText({ blockSeparator: "\n\n" });
       const res = await fetch("/api/english/essay/spellcheck", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: plainText }),
+        body: JSON.stringify({ text: editorText(editor) }),
       });
       const data = (await res.json()) as { issues?: EssaySpellIssue[]; needsPremium?: boolean };
       if (!res.ok) {
         setCheckError(data.needsPremium ? "Check chính tả cần tài khoản Premium." : "Không check được, thử lại sau.");
         return;
       }
-      setIssues(data.issues ?? []);
+      const issues = data.issues ?? [];
+      const { found, missing } = locateIssues(editor.state.doc, issues);
+      setSuggestions(editor.view, found);
+      setMissingIssues(missing);
+      setCheckedNoIssues(issues.length === 0);
     } catch {
       setCheckError("Không check được, thử lại sau.");
     } finally {
@@ -100,26 +145,21 @@ export function EditStep({ text, joinedText, onChange }: EditStepProps) {
     }
   }
 
-  const hasPendingSync = joinedText.trim() !== text.trim() && !dismissedSync;
+  const hasPendingSync = !sameIgnoringWhitespace(joinedText, text) && !dismissedSync;
 
   function syncFromTranslation() {
     if (!editor) return;
     editor.commands.setContent(textToHtml(joinedText));
     onChange(joinedText);
+    setMissingIssues([]);
     setDismissedSync(false);
     setShowDiff(false);
   }
 
-  function applyIssue(issue: EssaySpellIssue) {
-    if (!editor || !issue.suggestion) return;
-    const plainText = editor.getText({ blockSeparator: "\n\n" });
-    const fixed = plainText.replace(issue.original, issue.suggestion);
-    editor.commands.setContent(textToHtml(fixed));
-    onChange(fixed);
-    setIssues((prev) => prev.filter((i) => i !== issue));
-  }
-
   if (!editor) return null;
+
+  const suggestionCount = editorInfo?.suggestionIds.length ?? 0;
+  const fixableIds = editorInfo?.fixableIds ?? [];
 
   return (
     <div className="space-y-4">
@@ -175,32 +215,57 @@ export function EditStep({ text, joinedText, onChange }: EditStepProps) {
 
           <span className="w-px bg-border mx-1" />
 
-          <Button type="button" variant="outline" size="sm" onClick={handleSpellcheck} disabled={checking} className="ml-auto gap-1.5">
-            <SpellCheck2 className="h-3.5 w-3.5" />
-            {checking ? "Đang check..." : "Check chính tả"}
-          </Button>
+          <div className="ml-auto flex flex-wrap items-center gap-1.5">
+            {suggestionCount > 0 && (
+              <>
+                <span className="text-xs text-muted-foreground mr-1">{suggestionCount} lỗi</span>
+                {fixableIds.length > 0 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="gap-1"
+                    onClick={() => acceptSuggestions(editor.view, fixableIds)}
+                  >
+                    <Check className="h-3.5 w-3.5" /> Sửa tất cả
+                  </Button>
+                )}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="gap-1"
+                  onClick={() => rejectSuggestions(editor.view, editorInfo?.suggestionIds ?? [])}
+                >
+                  <X className="h-3.5 w-3.5" /> Bỏ qua tất cả
+                </Button>
+              </>
+            )}
+            <Button type="button" variant="outline" size="sm" onClick={handleSpellcheck} disabled={checking} className="gap-1.5">
+              <SpellCheck2 className="h-3.5 w-3.5" />
+              {checking ? "Đang check..." : "Check chính tả"}
+            </Button>
+          </div>
         </div>
 
-        <EditorContent editor={editor} />
+        <div className="relative">
+          <EditorContent editor={editor} />
+          <span className="pointer-events-none absolute bottom-2 right-3 rounded bg-background/80 px-1.5 py-0.5 text-xs text-muted-foreground tabular-nums">
+            {editorInfo?.words ?? 0} words
+          </span>
+        </div>
       </div>
 
       {checkError && <p className="text-sm text-destructive">{checkError}</p>}
+      {checkedNoIssues && <p className="text-sm text-muted-foreground">Không tìm thấy lỗi nào.</p>}
 
-      {issues.length > 0 && (
+      {missingIssues.length > 0 && (
         <div className="space-y-2">
-          <h4 className="text-sm font-semibold">{issues.length} lỗi tìm thấy</h4>
-          {issues.map((issue, idx) => (
-            <div key={idx} className="rounded-lg border border-border p-3 space-y-1.5 text-sm">
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-xs uppercase tracking-wide text-muted-foreground">
-                  {issue.type === "spelling" ? "Chính tả" : "Ngữ pháp"}
-                </span>
-                {issue.suggestion && (
-                  <Button type="button" size="sm" variant="outline" onClick={() => applyIssue(issue)}>
-                    Sửa
-                  </Button>
-                )}
-              </div>
+          <h4 className="text-sm font-semibold text-muted-foreground">
+            {missingIssues.length} lỗi không định vị được trong bài (có thể đoạn văn đã thay đổi)
+          </h4>
+          {missingIssues.map((issue, idx) => (
+            <div key={idx} className="rounded-lg border border-border p-3 space-y-1 text-sm">
               <p>
                 <span className="line-through text-destructive">{issue.original}</span>
                 {issue.suggestion && <span className="text-primary"> → {issue.suggestion}</span>}

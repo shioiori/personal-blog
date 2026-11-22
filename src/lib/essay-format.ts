@@ -131,7 +131,8 @@ export function joinEssayText(parts: EssayPart[]): string {
   const conclusion = parts.find((p) => p.type === "conclusion")?.translationText.trim();
   if (conclusion) sections.push(conclusion);
 
-  return sections.join("\n\n");
+  // The extra "\n" becomes a visible blank line between sections in the editor (see textToHtml).
+  return sections.join("\n\n\n");
 }
 
 export const PART_LABEL_VI: Record<EssayPartType, string> = {

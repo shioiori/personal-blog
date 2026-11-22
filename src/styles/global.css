@@ -107,3 +107,63 @@
 * {
   transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
+
+/* Essay editor: inline spell/grammar suggestions (spell-suggestions.ts) */
+.spell-sugg-orig {
+  text-decoration: line-through;
+  text-decoration-color: rgb(239 68 68);
+  text-decoration-thickness: 2px;
+  background-color: rgb(239 68 68 / 0.12);
+  color: rgb(185 28 28);
+  border-radius: 2px;
+}
+.dark .spell-sugg-orig {
+  color: rgb(248 113 113);
+}
+.spell-sugg-orig.spell-sugg-grammar {
+  text-decoration-color: rgb(245 158 11);
+  background-color: rgb(245 158 11 / 0.14);
+  color: rgb(180 83 9);
+}
+.dark .spell-sugg-orig.spell-sugg-grammar {
+  color: rgb(251 191 36);
+}
+.spell-sugg-widget {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0 3px 0 2px;
+  padding: 0 2px 0 4px;
+  border-radius: 4px;
+  background-color: rgb(34 197 94 / 0.14);
+  vertical-align: baseline;
+  user-select: none;
+  white-space: nowrap;
+}
+.spell-sugg-text {
+  color: rgb(21 128 61);
+  font-weight: 500;
+}
+.dark .spell-sugg-text {
+  color: rgb(74 222 128);
+}
+.spell-sugg-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  color: hsl(var(--muted-foreground));
+}
+.spell-sugg-accept:hover {
+  background-color: rgb(34 197 94 / 0.3);
+  color: rgb(21 128 61);
+}
+.spell-sugg-reject:hover {
+  background-color: rgb(239 68 68 / 0.25);
+  color: rgb(185 28 28);
+}
