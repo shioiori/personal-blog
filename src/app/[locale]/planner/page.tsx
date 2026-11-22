@@ -14,6 +14,8 @@ import { CATEGORY_COLORS, colorForTask } from '@/src/components/planner/colors'
 import { DRAFT_ID, SUBTASK_DRAFT_PREFIX, TaskPill, statusCheckboxStyle, type PillActions } from '@/src/components/planner/TaskPill'
 import { ColumnResizeHandles, EQUAL_COLUMN_WIDTHS, columnWidthVars } from '@/src/components/planner/ColumnResizeHandles'
 import { SubtaskSlot, dayCellAt, type SlotLayout } from '@/src/components/planner/SubtaskSlot'
+import { SubtaskDragRow } from '@/src/components/planner/SubtaskDragRow'
+import { setOrderedPlacement } from '@/src/components/planner/orderedPlacement'
 import { useAuth } from '@/src/context/auth'
 import { Button } from '@/src/components/ui/Button'
 import { Textarea } from '@/src/components/ui/Textarea'
@@ -144,6 +146,11 @@ export default function PlannerPage() {
     const children = childrenByParent.get(task.id)
     return children?.length ? deriveStatus(children) : task.status
   }
+
+  useLayoutEffect(() => {
+    setOrderedPlacement(true)
+    return () => setOrderedPlacement(false)
+  }, [])
 
   useEffect(() => {
     const stored = localStorage.getItem('planner-text-mode')
@@ -472,16 +479,13 @@ export default function PlannerPage() {
     return null
   }
 
+  // Only top-level tasks are calendar events; subtasks are rows inside their parent's event.
   function handleEventChange(arg: EventChangeArg) {
     const id = Number(arg.event.id)
-    const task = taskById.get(id)
-    const parent = task?.parentId ? taskById.get(task.parentId) : undefined
     const date = arg.event.startStr
     const lastDay = arg.event.endStr ? addDays(arg.event.endStr, -1) : date
-    const range =
-      task && parent ? shiftRange(task, dayDiff(arg.oldEvent.startStr, date)) : { date, endDate: lastDay > date ? lastDay : null }
-    if (reparentedRef.current === id || (parent && !isWithin(range, parent))) return arg.revert()
-    handleUpdateTask(id, range)
+    if (reparentedRef.current === id) return arg.revert()
+    handleUpdateTask(id, { date, endDate: lastDay > date ? lastDay : null })
   }
 
   function handleReorder(ids: number[]) {
@@ -511,9 +515,85 @@ export default function PlannerPage() {
     setDragging(false)
     stopDragTrackingRef.current?.()
     setDragOverTaskId(null)
-    const { clientX: x, clientY: y } = arg.jsEvent
     const task = tasks.find((t) => t.id === Number(arg.event.id))
-    if (!task) return
+    if (task) applyDrop(task, arg.jsEvent.clientX, arg.jsEvent.clientY, grabDateRef.current)
+  }
+
+  function startSubtaskDrag(task: PlannerTask, down: PointerEvent, row: HTMLElement) {
+    if (down.button !== 0 || (down.target as HTMLElement).closest('input, textarea, button')) return
+    const startX = down.clientX
+    const startY = down.clientY
+    const isTouch = down.pointerType === 'touch'
+    const grabDate = dayCellAt(startX, startY)?.dataset.date ?? null
+    let mirror: HTMLElement | null = null
+    let lastX = startX
+    let lastY = startY
+    const pressTimer = isTouch ? window.setTimeout(() => begin(), 500) : 0
+    const preventScroll = (e: TouchEvent) => e.preventDefault()
+
+    function begin() {
+      const rect = row.getBoundingClientRect()
+      mirror = row.cloneNode(true) as HTMLElement
+      mirror.classList.add('fc-event-mirror')
+      Object.assign(mirror.style, {
+        position: 'fixed',
+        left: `${rect.left + lastX - startX}px`,
+        top: `${rect.top + lastY - startY}px`,
+        width: `${rect.width}px`,
+        pointerEvents: 'none',
+        opacity: '0.8',
+        zIndex: '50'
+      })
+      document.body.appendChild(mirror)
+      row.style.opacity = '0.4'
+      setDragging(true)
+      window.addEventListener('touchmove', preventScroll, { passive: false })
+    }
+    function move(e: PointerEvent) {
+      lastX = e.clientX
+      lastY = e.clientY
+      if (!mirror) {
+        const distance = Math.hypot(lastX - startX, lastY - startY)
+        // Touch needs a long press first (handled by pressTimer); moving before that is a scroll.
+        if (isTouch) return distance > 8 ? cleanup() : undefined
+        if (distance < 4) return
+        begin()
+      }
+      const rect = row.getBoundingClientRect()
+      ;(mirror as HTMLElement).style.left = `${rect.left + lastX - startX}px`
+      ;(mirror as HTMLElement).style.top = `${rect.top + lastY - startY}px`
+      setDragOverTaskId(nestTargetAt(lastX, lastY, task)?.id ?? null)
+    }
+    function up(e: PointerEvent) {
+      const dragged = !!mirror
+      cleanup()
+      if (!dragged) return
+      const swallow = (click: Event) => {
+        click.stopPropagation()
+        click.preventDefault()
+      }
+      window.addEventListener('click', swallow, { capture: true, once: true })
+      setTimeout(() => window.removeEventListener('click', swallow, { capture: true }), 0)
+      applyDrop(task, e.clientX, e.clientY, grabDate)
+    }
+    function cleanup() {
+      clearTimeout(pressTimer)
+      document.removeEventListener('pointermove', move)
+      document.removeEventListener('pointerup', up)
+      document.removeEventListener('pointercancel', cleanup)
+      window.removeEventListener('touchmove', preventScroll)
+      if (!mirror) return
+      mirror.remove()
+      row.style.opacity = ''
+      setDragging(false)
+      setDragOverTaskId(null)
+    }
+    document.addEventListener('pointermove', move)
+    document.addEventListener('pointerup', up)
+    document.addEventListener('pointercancel', cleanup)
+  }
+
+  function applyDrop(task: PlannerTask, x: number, y: number, grabDate: string | null) {
     const childrenOf = (parentId: number | null) => tasks.filter((t) => t.parentId === parentId && t.id > 0).sort(byOrder)
     const target = nestTargetAt(x, y, task)
     if (target) {
@@ -524,13 +604,13 @@ export default function PlannerPage() {
     const row = cell?.closest('tr')
     if (!cell?.dataset.date || !row) return
     const parent = tasks.find((t) => t.id === task.parentId)
-    const delta = grabDateRef.current ? dayDiff(grabDateRef.current, cell.dataset.date) : 0
+    const delta = grabDate ? dayDiff(grabDate, cell.dataset.date) : 0
     const moved = shiftRange(task, delta)
     const columnRows = rowsAtColumn(row, x)
     const group = columnRows.filter((r) => r.id === task.parentId || childrenOf(task.parentId).some((t) => t.id === r.id))
     const insideGroup = group.length > 0 && y >= group[0].top && y <= group[group.length - 1].bottom
     const leaving = !!parent && (delta ? !isWithin(moved, parent) : !insideGroup)
-    if (parent && delta && !leaving) return
+    if (parent && delta && !leaving) return handleUpdateTask(task.id, moved)
     const current = childrenOf(leaving ? null : task.parentId)
     const others = current.filter((t) => t.id !== task.id)
     const visible = columnRows.filter((r) => others.some((t) => t.id === r.id))
@@ -810,22 +890,23 @@ export default function PlannerPage() {
   const events = useMemo(() => {
     const items: { id: string; title: string; start: string; end?: string }[] = []
     const span = (x: DateRange) => ({ start: x.date, end: x.endDate ? addDays(x.endDate, 1) : undefined })
+    // One event per top-level task with its subtasks rendered inside it, so the calendar's gap-filling
+    // layout moves a group as a whole instead of pulling the parent away from its subtasks.
     for (const task of tasks.filter((t) => t.parentId === null).sort(byOrder)) {
-      const groupSpan = span(task)
-      items.push(
-        { id: String(task.id), title: task.text, ...groupSpan },
-        ...(childrenByParent.get(task.id) ?? NO_CHILDREN).map((c) => ({ id: String(c.id), title: c.text, ...groupSpan }))
-      )
-      if (subtaskDraftParentId === task.id) items.push({ id: `${SUBTASK_DRAFT_PREFIX}${task.id}`, title: '', ...groupSpan })
+      items.push({ id: String(task.id), title: task.text, ...span(task) })
     }
     if (draft) items.push({ id: DRAFT_ID, title: '', ...span(draft) })
+    const busy = (task: PlannerTask) =>
+      task.id === editingId ||
+      task.id === subtaskDraftParentId ||
+      (childrenByParent.get(task.id) ?? NO_CHILDREN).some((c) => c.id === editingId)
     return items.map((item, order) => {
       const task = taskById.get(Number(item.id))
       const pending = !!task && task.id < 0
       return {
         ...item,
         allDay: true,
-        editable: !pending && !!task && item.id !== String(editingId),
+        editable: !pending && !!task && !busy(task),
         durationEditable: false,
         backgroundColor: 'transparent',
         borderColor: 'transparent',
@@ -868,46 +949,63 @@ export default function PlannerPage() {
     []
   )
 
+  const subtaskDragRef = useRef(startSubtaskDrag)
+  subtaskDragRef.current = startSubtaskDrag
+
   const renderEvent = useCallback(
     (info: EventContentArg) => {
-      const id = info.event.id
-      const isDraft = id === DRAFT_ID
-      const task = taskById.get(Number(id))
-      const children = task && task.parentId === null ? childrenByParent.get(task.id) : undefined
-      const segmentKey = `${id}|${info.event.startStr}|${info.event.endStr}|${info.event.title}`
-      const parent = task?.parentId ? taskById.get(task.parentId) : undefined
-      const pill = (slot?: SlotLayout) => (
-        <TaskPill
-          eventId={id}
-          title={info.event.title}
-          isStart={info.isStart}
-          isEnd={info.isEnd}
-          segmentKey={segmentKey}
-          task={task}
-          status={task ? (children?.length ? deriveStatus(children) : task.status) : 'undone'}
-          category={task?.categoryId ? categories.find((c) => c.id === task.categoryId) : undefined}
-          editing={(isDraft || (!!task && task.id === editingId)) && info.isStart}
-          wrap={textMode === 'wrap'}
-          highlighted={!!task && task.id === dragOverTaskId}
-          segmentEnds={segmentEnds[segmentKey]}
-          onMeasure={handleSegmentMeasure}
-          actions={actionsRef}
-          slot={slot}
-        />
-      )
-      if (!task || !parent) return pill()
+      const pill = (eventId: string, title: string, task: PlannerTask | undefined, slot?: SlotLayout) => {
+        const segmentKey = `${eventId}|${info.event.startStr}|${info.event.endStr}|${title}`
+        const children = task && task.parentId === null ? childrenByParent.get(task.id) : undefined
+        return (
+          <TaskPill
+            eventId={eventId}
+            title={title}
+            isStart={info.isStart}
+            isEnd={info.isEnd}
+            segmentKey={segmentKey}
+            task={task}
+            status={task ? (children?.length ? deriveStatus(children) : task.status) : 'undone'}
+            category={task?.categoryId ? categories.find((c) => c.id === task.categoryId) : undefined}
+            editing={(eventId === DRAFT_ID || (!!task && task.id === editingId)) && info.isStart}
+            wrap={textMode === 'wrap'}
+            highlighted={!!task && task.id === dragOverTaskId}
+            segmentEnds={segmentEnds[segmentKey]}
+            onMeasure={handleSegmentMeasure}
+            actions={actionsRef}
+            slot={slot}
+          />
+        )
+      }
+      const task = taskById.get(Number(info.event.id))
+      if (!task) return pill(info.event.id, info.event.title, undefined)
+      const children = childrenByParent.get(task.id) ?? NO_CHILDREN
+      const showDraft = subtaskDraftParentId === task.id
+      if (!children.length && !showDraft) return pill(info.event.id, task.text, task)
       return (
-        <SubtaskSlot
-          spanStart={info.event.startStr}
-          offset={dayDiff(parent.date, task.date)}
-          length={dayDiff(task.date, rangeEnd(task))}
-          color={`${colorForTask(id).bar}4D`}
-        >
-          {pill}
-        </SubtaskSlot>
+        <div className="flex flex-col gap-0.5">
+          {pill(info.event.id, task.text, task)}
+          {children.map((child) => (
+            <SubtaskDragRow
+              key={child.id}
+              disabled={child.id < 0 || child.id === editingId}
+              onDragStart={(e, row) => subtaskDragRef.current(child, e, row)}
+            >
+              <SubtaskSlot
+                spanStart={info.event.startStr}
+                offset={dayDiff(task.date, child.date)}
+                length={dayDiff(child.date, rangeEnd(child))}
+                color={`${colorForTask(String(child.id)).bar}4D`}
+              >
+                {(slot) => pill(String(child.id), child.text, child, slot)}
+              </SubtaskSlot>
+            </SubtaskDragRow>
+          ))}
+          {showDraft && pill(`${SUBTASK_DRAFT_PREFIX}${task.id}`, '', undefined)}
+        </div>
       )
     },
-    [taskById, childrenByParent, categories, editingId, textMode, dragOverTaskId, segmentEnds, handleSegmentMeasure]
+    [taskById, childrenByParent, categories, editingId, textMode, dragOverTaskId, segmentEnds, handleSegmentMeasure, subtaskDraftParentId]
   )
 
   const calendar = useMemo(
