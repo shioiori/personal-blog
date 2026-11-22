@@ -1,11 +1,13 @@
 import { sql, once } from "./db";
-import { CROPS, FERTILIZERS, HARVEST_INTEREST, WITHER_AFTER_DAYS, effectiveGrowDays, getCrop } from "./garden-catalog";
+import { HARVEST_INTEREST, LEGACY_FERTILIZERS, WITHER_AFTER_DAYS, effectiveGrowDays, getCrop } from "./garden-catalog";
 
 export type PlotStatus = "empty" | "growing" | "ready" | "withered";
+export type PlotKind = "soil" | "pond";
 
 export interface GardenPlot {
   id: number;
   slotIndex: number;
+  kind: PlotKind;
   cropId: string | null;
   fertilizerId: string | null;
   plantedOn: string | null;
@@ -16,6 +18,16 @@ export interface GardenPlot {
 }
 
 const PLOT_SLOTS = 9;
+// Pond plots use their own slot range so they never collide with soil slots, nor with
+// rows left over from the earlier (removed) pond.
+const POND_SLOT_BASE = 100;
+const POND_SLOTS = 4;
+const ALL_SLOTS = [
+  ...Array.from({ length: PLOT_SLOTS }, (_, i) => i),
+  ...Array.from({ length: POND_SLOTS }, (_, i) => POND_SLOT_BASE + i)
+];
+
+const slotKind = (slot: number): PlotKind => (slot >= POND_SLOT_BASE ? "pond" : "soil");
 
 export const ensureGardenTables = once(async function ensureGardenTables() {
   await sql`
@@ -56,12 +68,27 @@ export const ensureGardenTables = once(async function ensureGardenTables() {
       END IF;
     END $$
   `;
+  // Fertilizer was removed: refund unused fertilizer at its old price. Deleting and
+  // crediting in one statement means a concurrent run can't refund the same rows twice.
+  const prices = JSON.stringify(Object.fromEntries(Object.entries(LEGACY_FERTILIZERS).map(([id, f]) => [id, f.price])));
+  await sql`
+    WITH removed AS (
+      DELETE FROM garden_inventory WHERE item_id LIKE 'fert:%'
+      RETURNING user_id, item_id, qty
+    ), refund AS (
+      SELECT user_id, SUM(qty * COALESCE((${prices}::jsonb ->> substring(item_id from 6))::int, 0))::int AS amount
+      FROM removed GROUP BY user_id
+    )
+    INSERT INTO garden_wallet (user_id, balance)
+    SELECT user_id, amount FROM refund WHERE amount > 0
+    ON CONFLICT (user_id) DO UPDATE SET balance = garden_wallet.balance + EXCLUDED.balance
+  `;
 });
 
 async function ensurePlots(userId: number): Promise<void> {
   const rows = await sql`SELECT slot_index FROM garden_plots WHERE user_id = ${userId}`;
   const existing = new Set(rows.map((r) => r.slot_index as number));
-  for (let slot = 0; slot < PLOT_SLOTS; slot++) {
+  for (const slot of ALL_SLOTS) {
     if (existing.has(slot)) continue;
     await sql`
       INSERT INTO garden_plots (user_id, slot_index)
@@ -110,6 +137,7 @@ function toPlot(row: Record<string, unknown>): GardenPlot {
   return {
     id: row.id as number,
     slotIndex: row.slot_index as number,
+    kind: slotKind(row.slot_index as number),
     cropId,
     fertilizerId,
     plantedOn,
@@ -124,7 +152,8 @@ export async function listPlots(userId: number): Promise<GardenPlot[]> {
   await ensurePlots(userId);
   const rows = await sql`
     SELECT * FROM garden_plots
-    WHERE user_id = ${userId} AND slot_index < ${PLOT_SLOTS}
+    WHERE user_id = ${userId}
+      AND (slot_index < ${PLOT_SLOTS} OR (slot_index >= ${POND_SLOT_BASE} AND slot_index < ${POND_SLOT_BASE + POND_SLOTS}))
     ORDER BY slot_index ASC
   `;
   return rows.map(toPlot);
@@ -148,14 +177,12 @@ export async function adjustBalance(userId: number, delta: number): Promise<numb
   return rows[0].balance as number;
 }
 
-/** Inventory keys: "seed:<cropId>" and "fert:<fertilizerId>". */
+/** Inventory keys: "seed:<cropId>". */
 export const seedKey = (cropId: string) => `seed:${cropId}`;
-export const fertKey = (fertilizerId: string) => `fert:${fertilizerId}`;
 
 function itemPrice(itemId: string): number | null {
   const [kind, id] = itemId.split(":");
   if (kind === "seed") return getCrop(id)?.seedPrice ?? null;
-  if (kind === "fert") return FERTILIZERS.find((f) => f.id === id)?.price ?? null;
   return null;
 }
 
@@ -204,30 +231,31 @@ export async function buyItem(
 export async function plantSeed(
   userId: number,
   plotId: number,
-  cropId: string,
-  fertilizerId: string | null
+  cropId: string
 ): Promise<{ ok: boolean; error?: string }> {
-  const crop = CROPS.find((c) => c.id === cropId);
+  const crop = getCrop(cropId);
   if (!crop) return { ok: false, error: "unknown crop" };
-  const fert = fertilizerId ? FERTILIZERS.find((f) => f.id === fertilizerId) : null;
-  if (fertilizerId && !fert) return { ok: false, error: "unknown fertilizer" };
 
   const plotRows = await sql`SELECT * FROM garden_plots WHERE id = ${plotId} AND user_id = ${userId}`;
   const plot = plotRows[0];
   if (!plot) return { ok: false, error: "plot not found" };
   if (plot.crop_id) return { ok: false, error: "plot occupied" };
+  const isPond = slotKind(plot.slot_index as number) === "pond";
+  if (isPond !== !!crop.water) return { ok: false, error: "wrong plot kind" };
 
   if (!(await takeItem(userId, seedKey(cropId)))) return { ok: false, error: "no seed" };
-  if (fertilizerId && !(await takeItem(userId, fertKey(fertilizerId)))) {
-    await giveItem(userId, seedKey(cropId), 1);
-    return { ok: false, error: "no fertilizer" };
-  }
 
-  await sql`
+  // The crop_id IS NULL guard stops two concurrent plants from both landing.
+  const updated = await sql`
     UPDATE garden_plots
-    SET crop_id = ${cropId}, fertilizer_id = ${fertilizerId}, planted_on = ${todayStr()}
-    WHERE id = ${plotId} AND user_id = ${userId}
+    SET crop_id = ${cropId}, fertilizer_id = NULL, planted_on = ${todayStr()}
+    WHERE id = ${plotId} AND user_id = ${userId} AND crop_id IS NULL
+    RETURNING id
   `;
+  if (updated.length === 0) {
+    await giveItem(userId, seedKey(cropId), 1);
+    return { ok: false, error: "plot occupied" };
+  }
   return { ok: true };
 }
 

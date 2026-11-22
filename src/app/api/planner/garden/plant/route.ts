@@ -10,12 +10,11 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const plotId = Number(body?.plotId);
   const cropId = body?.cropId as string | undefined;
-  const fertilizerId = (body?.fertilizerId as string | undefined) ?? null;
   if (!plotId || !cropId) {
     return NextResponse.json({ error: "plotId and cropId are required" }, { status: 400 });
   }
 
-  const result = await plantSeed(userId, plotId, cropId, fertilizerId);
+  const result = await plantSeed(userId, plotId, cropId);
   if (!result.ok) return NextResponse.json({ error: result.error }, { status: 400 });
   return NextResponse.json(result);
 }

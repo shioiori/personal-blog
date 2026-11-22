@@ -1,11 +1,12 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { CROPS } from '@/src/lib/garden-catalog'
+import { CROPS, getCrop, growthFrame } from '@/src/lib/garden-catalog'
 
 export interface GardenPlot {
   id: number
   slotIndex: number
+  kind: 'soil' | 'pond'
   cropId: string | null
   fertilizerId: string | null
   plantedOn: string | null
@@ -51,6 +52,15 @@ for (let gy = 0; gy < 3; gy++) {
   for (let gx = 0; gx < 3; gx++) PLOT_TILES.push([BED.col + 2 + gx * 2, BED.row + 2 + gy * 2])
 }
 
+// Rectangular 5x5 pond below the shop; its 2x2 lily plots sit one tile in from the
+// shore with a one-tile gap, matching the soil bed's spacing.
+const POND = { col: 15, row: 7, size: 5 }
+const POND_SLOT_BASE = 100
+const POND_TILES: [number, number][] = []
+for (let gy = 0; gy < 2; gy++) {
+  for (let gx = 0; gx < 2; gx++) POND_TILES.push([POND.col + 1 + gx * 2, POND.row + 1 + gy * 2])
+}
+
 const NOTCHES: [number, number][] = [
   [1, 1], [2, 1], [3, 1], [1, 2], [1, 3],
   [21, 1], [22, 1], [23, 1], [23, 2], [23, 3],
@@ -67,8 +77,8 @@ const SHOP_RECT = { x: 17 * TILE, y: 3 * TILE, w: 96, h: 96 }
 // Decorations from sl-biome.png: source rect + top-left tile to draw at.
 const DECOR: { sx: number; sy: number; sw: number; sh: number; col: number; row: number }[] = [
   { sx: 48, sy: 0, sw: 32, sh: 32, col: 21, row: 4 },   // apple tree
-  { sx: 0, sy: 48, sw: 16, sh: 16, col: 15, row: 12 },  // berry bush
-  { sx: 128, sy: 16, sw: 16, sh: 16, col: 19, row: 11 },// rock
+  { sx: 0, sy: 48, sw: 16, sh: 16, col: 16, row: 13 },  // berry bush
+  { sx: 128, sy: 16, sw: 16, sh: 16, col: 21, row: 11 },// rock
   { sx: 112, sy: 64, sw: 16, sh: 16, col: 12, row: 1 }, // lily pad
   { sx: 128, sy: 64, sw: 16, sh: 16, col: 0, row: 6 },  // lily pads
   { sx: 112, sy: 64, sw: 16, sh: 16, col: 24, row: 9 }  // lily pad
@@ -86,6 +96,7 @@ function buildMap(): Cell[][] {
   }
   for (const [c, r] of NOTCHES) map[r][c] = 'water'
   for (let dy = 0; dy < BED.size; dy++) for (let dx = 0; dx < BED.size; dx++) map[BED.row + dy][BED.col + dx] = 'dirt'
+  for (let dy = 0; dy < POND.size; dy++) for (let dx = 0; dx < POND.size; dx++) map[POND.row + dy][POND.col + dx] = 'water'
   return map
 }
 
@@ -191,8 +202,11 @@ function whenLoaded(img: HTMLImageElement): Promise<void> {
 
 interface Rect { x: number; y: number; w: number; h: number }
 
-function plotRect(index: number): Rect {
-  const [c, r] = PLOT_TILES[index]
+/** Where a plot sits on the map, or null for a slot this map has no tile for. */
+function plotRect(plot: GardenPlot): Rect | null {
+  const tile = plot.kind === 'pond' ? POND_TILES[plot.slotIndex - POND_SLOT_BASE] : PLOT_TILES[plot.slotIndex]
+  if (!tile) return null
+  const [c, r] = tile
   return { x: c * TILE, y: r * TILE, w: TILE, h: TILE }
 }
 
@@ -221,30 +235,33 @@ function drawPlot(ctx: CanvasRenderingContext2D, plot: GardenPlot, rect: Rect, t
     return
   }
 
-  const stages = CROPS.find((c) => c.id === plot.cropId)?.stages
-  if (!stages) return
+  const crop = getCrop(plot.cropId)
+  if (!crop) return
+  const stages = crop.stages
   const img = loadImage(stages.sheet)
   if (!img.complete || img.naturalWidth === 0) return
 
   const ready = plot.status === 'ready'
-  let frame = stages.ripe
-  if (plot.status === 'growing') {
-    const progress = plot.growDays > 0 ? plot.daysElapsed / plot.growDays : 0
-    frame = stages.growing[Math.min(stages.growing.length - 1, Math.floor(progress * stages.growing.length))]
-  }
+  const frame = growthFrame(stages, plot.status, plot.daysElapsed, plot.growDays)
 
-  // 3x the 16px art so the plant fills its plot; tall frames grow upward from the
-  // bottom of the plot tile, like crops in the source games
-  const dw = stages.w * 3
-  const dh = stages.h * 3
+  // Land crops: 3x the 16px art so the plant fills its plot; tall frames grow upward
+  // from the bottom of the plot tile, like crops in the source games. Water plants:
+  // 2x, floating centred on their tile with a gentle drift.
+  const scale = crop.water ? 2 : 3
+  const dw = stages.w * scale
+  const dh = stages.h * scale
   const left = x + (w - dw) / 2
-  const top = y + h + 8 - dh
-  const bob = ready ? Math.round(Math.sin(t / 220) * 2) : 0
+  const top = crop.water ? y + (h - dh) / 2 : y + h + 8 - dh
+  const bob = ready ? Math.round(Math.sin(t / 220) * 2) : crop.water ? Math.round(Math.sin(t / 600 + plot.slotIndex)) : 0
 
   ctx.save()
   ctx.imageSmoothingEnabled = false
   if (plot.status === 'withered') ctx.filter = 'grayscale(0.9) brightness(0.8)'
   ctx.drawImage(img, frame[0], frame[1], stages.w, stages.h, left, top + bob, dw, dh)
+  if (plot.status !== 'growing' && stages.ripeOverlay) {
+    const [ox, oy] = stages.ripeOverlay
+    ctx.drawImage(img, ox, oy, stages.w, stages.h, left - 2, top + bob - 6, dw, dh)
+  }
   ctx.restore()
 
   if (ready && Math.sin(t / 180) > 0) drawPixelSparkle(ctx, left + dw - 4, y - 4)
@@ -326,7 +343,10 @@ export function GardenCanvas({
         ctx!.fillRect(0, 0, W, H)
       }
 
-      plotsRef.current.slice(0, PLOT_TILES.length).forEach((plot, i) => drawPlot(ctx!, plot, plotRect(i), t))
+      for (const plot of plotsRef.current) {
+        const rect = plotRect(plot)
+        if (rect) drawPlot(ctx!, plot, rect, t)
+      }
 
       drawCoinHud(ctx!, balanceRef.current)
       raf = requestAnimationFrame(frame)
@@ -352,9 +372,9 @@ export function GardenCanvas({
 
     // each plot's hit area reaches half-way into the gap around it
     const pad = TILE / 2
-    const plot = plotsRef.current.slice(0, PLOT_TILES.length).find((_, i) => {
-      const r = plotRect(i)
-      return x >= r.x - pad && x <= r.x + r.w + pad && y >= r.y - pad && y <= r.y + r.h + pad
+    const plot = plotsRef.current.find((p) => {
+      const r = plotRect(p)
+      return r && x >= r.x - pad && x <= r.x + r.w + pad && y >= r.y - pad && y <= r.y + r.h + pad
     })
     if (plot) onPlotClick(plot)
   }
