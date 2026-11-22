@@ -5,6 +5,7 @@
             "groups": "Nhóm từ",
             "review": "Ôn tập",
             "writing": "Writing learning",
+            "essay": "Luyện viết",
             "import": "Import",
             "refresh": "Làm mới dữ liệu",
             "gapfill": "Điền từ"
@@ -35,7 +36,13 @@
             "moreSenses": "+{count} nghĩa khác",
             "noSenses": "Chưa có nghĩa nào.",
             "pronounce": "Phát âm",
-            "autoPronounceOnFlip": "Tự động phát âm khi lật thẻ / chuyển từ"
+            "autoPronounceOnFlip": "Tự động phát âm khi lật thẻ / chuyển từ",
+            "sortBy": "Sắp xếp theo",
+            "sortAlphabet": "Chữ cái",
+            "sortWordType": "Loại từ",
+            "sortFrequency": "Tần suất",
+            "sortAsc": "Tăng dần",
+            "sortDesc": "Giảm dần"
         },
         "EditWord": {
             "editTitle": "Sửa từ",

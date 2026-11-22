@@ -5,6 +5,7 @@
             "groups": "Groups",
             "review": "Review",
             "writing": "Writing learning",
+            "essay": "Essay",
             "import": "Import",
             "refresh": "Refresh data",
             "gapfill": "Gap-fill"
@@ -35,7 +36,13 @@
             "moreSenses": "+{count} more senses",
             "noSenses": "No senses yet.",
             "pronounce": "Pronounce",
-            "autoPronounceOnFlip": "Auto-pronounce on flip / word change"
+            "autoPronounceOnFlip": "Auto-pronounce on flip / word change",
+            "sortBy": "Sort by",
+            "sortAlphabet": "Alphabet",
+            "sortWordType": "Word type",
+            "sortFrequency": "Frequency",
+            "sortAsc": "Ascending",
+            "sortDesc": "Descending"
         },
         "EditWord": {
             "editTitle": "Edit word",

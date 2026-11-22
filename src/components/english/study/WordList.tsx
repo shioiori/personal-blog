@@ -21,6 +21,12 @@ import { useEnglishStudy } from "@/src/context/english";
 import type { EnglishWord } from "@/src/declaration/english";
 
 type ViewMode = "list" | "flashcard";
+type SortField = "alphabet" | "wordType" | "frequency";
+type SortDir = "asc" | "desc";
+
+function wordTypeKey(w: EnglishWord): string {
+  return (w.senses[0]?.partOfSpeech ?? "").toLowerCase();
+}
 
 export function WordList() {
   const t = useTranslations("English");
@@ -28,13 +34,15 @@ export function WordList() {
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [search, setSearch] = useState("");
   const [groupFilter, setGroupFilter] = useState<string>("all");
+  const [sortField, setSortField] = useState<SortField>("alphabet");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [modalOpen, setModalOpen] = useState(false);
   const [editingWord, setEditingWord] = useState<EnglishWord | null>(null);
   const [startInEditMode, setStartInEditMode] = useState(false);
   const [groupManagerOpen, setGroupManagerOpen] = useState(false);
 
   const filtered = useMemo(() => {
-    return words.filter((w) => {
+    const result = words.filter((w) => {
       if (groupFilter === "none") {
         if (w.groupIds.length > 0) return false;
       } else if (groupFilter !== "all" && !w.groupIds.includes(parseInt(groupFilter, 10))) {
@@ -44,7 +52,20 @@ export function WordList() {
       if (q && ![w.word, w.altSpelling ?? ""].some((v) => v.toLowerCase().includes(q))) return false;
       return true;
     });
-  }, [words, search, groupFilter]);
+    const dir = sortDir === "asc" ? 1 : -1;
+    result.sort((a, b) => {
+      let cmp = 0;
+      if (sortField === "alphabet") {
+        cmp = a.word.localeCompare(b.word);
+      } else if (sortField === "wordType") {
+        cmp = wordTypeKey(a).localeCompare(wordTypeKey(b));
+      } else {
+        cmp = a.groupIds.length - b.groupIds.length;
+      }
+      return cmp * dir;
+    });
+    return result;
+  }, [words, search, groupFilter, sortField, sortDir]);
 
   async function handleDelete(id: number) {
     await fetch(`/api/english/words/${id}`, { method: "DELETE" });
@@ -91,6 +112,25 @@ export function WordList() {
             {groups.map((g) => (
               <SelectItem key={g.id} value={String(g.id)}>{g.name}</SelectItem>
             ))}
+          </SelectContent>
+        </Select>
+        <Select value={sortField} onValueChange={(v) => setSortField(v as SortField)}>
+          <SelectTrigger className="w-[140px]">
+            <SelectValue placeholder={t("Words.sortBy")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="alphabet">{t("Words.sortAlphabet")}</SelectItem>
+            <SelectItem value="wordType">{t("Words.sortWordType")}</SelectItem>
+            <SelectItem value="frequency">{t("Words.sortFrequency")}</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={sortDir} onValueChange={(v) => setSortDir(v as SortDir)}>
+          <SelectTrigger className="w-[130px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="asc">{t("Words.sortAsc")}</SelectItem>
+            <SelectItem value="desc">{t("Words.sortDesc")}</SelectItem>
           </SelectContent>
         </Select>
         <Button size="sm" variant="outline" onClick={() => setGroupManagerOpen(true)}>
