@@ -1,6 +1,7 @@
 import { sql, once } from "./db";
 import type { Essay, EssayPart, EssaySummary, EssayStep } from "@/src/declaration/english";
 import { defaultEssayParts } from "./essay-format";
+import { normalizeEssayCategories, type EssayCategory } from "./essay-categories";
 
 export const ensureEssayTables = once(async function ensureEssayTables() {
   await sql`
@@ -16,12 +17,25 @@ export const ensureEssayTables = once(async function ensureEssayTables() {
     )
   `;
   await sql`ALTER TABLE english_essay ADD COLUMN IF NOT EXISTS final_text TEXT NOT NULL DEFAULT ''`;
+  await sql`ALTER TABLE english_essay ADD COLUMN IF NOT EXISTS categories TEXT[] NOT NULL DEFAULT '{}'`;
+  // One-time move from the earlier single-value "category" column, then drop it so
+  // it can't resurface after a user clears an essay's categories.
+  await sql`
+    DO $$
+    BEGIN
+      IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'english_essay' AND column_name = 'category') THEN
+        UPDATE english_essay SET categories = ARRAY[category] WHERE category IS NOT NULL AND cardinality(categories) = 0;
+        ALTER TABLE english_essay DROP COLUMN category;
+      END IF;
+    END $$
+  `;
 });
 
 function toSummary(r: Record<string, unknown>): EssaySummary {
   return {
     id: r.id as number,
     title: r.title as string,
+    categories: normalizeEssayCategories(r.categories),
     step: r.step as EssayStep,
     createdAt: (r.created_at as Date).toISOString(),
     updatedAt: (r.updated_at as Date).toISOString(),
@@ -32,6 +46,7 @@ function toEssay(r: Record<string, unknown>): Essay {
   return {
     id: r.id as number,
     title: r.title as string,
+    categories: normalizeEssayCategories(r.categories),
     parts: r.parts as EssayPart[],
     step: r.step as EssayStep,
     finalText: (r.final_text as string | null) ?? "",
@@ -42,7 +57,7 @@ function toEssay(r: Record<string, unknown>): Essay {
 
 export async function listEssays(userId: number): Promise<EssaySummary[]> {
   const rows = await sql`
-    SELECT id, title, step, created_at, updated_at FROM english_essay
+    SELECT id, title, categories, step, created_at, updated_at FROM english_essay
     WHERE user_id = ${userId} ORDER BY updated_at DESC
   `;
   return rows.map(toSummary);
@@ -66,16 +81,17 @@ export async function createEssay(userId: number, title: string): Promise<Essay>
 export async function updateEssay(
   userId: number,
   id: number,
-  patch: { title?: string; parts?: EssayPart[]; step?: EssayStep; finalText?: string },
+  patch: { title?: string; categories?: EssayCategory[]; parts?: EssayPart[]; step?: EssayStep; finalText?: string },
 ): Promise<Essay | null> {
   const existing = await getEssay(userId, id);
   if (!existing) return null;
   const title = patch.title ?? existing.title;
+  const categories = patch.categories ?? existing.categories;
   const parts = patch.parts ?? existing.parts;
   const step = patch.step ?? existing.step;
   const finalText = patch.finalText ?? existing.finalText;
   const rows = await sql`
-    UPDATE english_essay SET title = ${title}, parts = ${JSON.stringify(parts)}::jsonb, step = ${step}, final_text = ${finalText}, updated_at = NOW()
+    UPDATE english_essay SET title = ${title}, categories = ${categories}, parts = ${JSON.stringify(parts)}::jsonb, step = ${step}, final_text = ${finalText}, updated_at = NOW()
     WHERE id = ${id} AND user_id = ${userId}
     RETURNING *
   `;

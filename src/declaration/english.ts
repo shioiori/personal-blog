@@ -128,6 +128,8 @@ export interface GapFillExercise {
   attempts: GapFillAttempt[];
 }
 
+import type { EssayCategory } from "@/src/lib/essay-categories";
+
 // ── Essay (IELTS Writing Task 2 style) ──────────────────────────────────────
 
 export type EssayPartType =
@@ -154,6 +156,8 @@ export type EssayStep = "outline" | "translate" | "edit";
 export interface Essay {
   id: number;
   title: string;
+  /** IELTS Task 2 topic ids from ESSAY_CATEGORIES; empty = not categorized. */
+  categories: EssayCategory[];
   parts: EssayPart[];
   step: EssayStep;
   /** Final combined essay text, edited freely in the "edit" step. */
@@ -165,6 +169,7 @@ export interface Essay {
 export interface EssaySummary {
   id: number;
   title: string;
+  categories: EssayCategory[];
   step: EssayStep;
   createdAt: string;
   updatedAt: string;
