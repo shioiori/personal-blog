@@ -41,15 +41,73 @@ type Stage = "idle" | "parsing" | "preview" | "done";
 
 const HEADER_WORDS = ["từ", "word"];
 
+function isHeaderRow(rows: unknown[][]): boolean {
+  const a1 = String(rows[0]?.[0] ?? "").trim().normalize("NFC").toLowerCase();
+  return HEADER_WORDS.includes(a1);
+}
+
 function parseWorkbook(buf: ArrayBuffer): PreviewEntry[] {
   const wb = XLSX.read(buf, { type: "array" });
   const sheet = wb.Sheets[wb.SheetNames[0]];
   const rows = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1, raw: false });
+  // Files: header row "Word"/"Từ" in A1, otherwise a Cambridge export with a
+  // title row + header row.
+  return rowsToEntries(rows.slice(isHeaderRow(rows) ? 1 : 2));
+}
 
-  const a1 = String(rows[0]?.[0] ?? "").trim().normalize("NFC").toLowerCase();
+// Parses tab-separated text as copied from Excel / Google Sheets. Cells that
+// contain newlines or tabs come wrapped in double quotes (with "" as an escaped
+// quote), so handle that instead of a naive split.
+function parseTsv(text: string): string[][] {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let cell = "";
+  let inQuotes = false;
+  const src = text.replace(/\r\n?/g, "\n");
+  for (let i = 0; i < src.length; i++) {
+    const ch = src[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (src[i + 1] === '"') {
+          cell += '"';
+          i++;
+        } else {
+          inQuotes = false;
+        }
+      } else {
+        cell += ch;
+      }
+    } else if (ch === '"' && cell === "") {
+      inQuotes = true;
+    } else if (ch === "\t") {
+      row.push(cell);
+      cell = "";
+    } else if (ch === "\n") {
+      row.push(cell);
+      rows.push(row);
+      row = [];
+      cell = "";
+    } else {
+      cell += ch;
+    }
+  }
+  if (cell !== "" || row.length > 0) {
+    row.push(cell);
+    rows.push(row);
+  }
+  return rows;
+}
+
+function parsePasted(text: string): PreviewEntry[] {
+  const rows = parseTsv(text);
+  // Pasted data: header row is optional.
+  return rowsToEntries(rows.slice(isHeaderRow(rows) ? 1 : 0));
+}
+
+function rowsToEntries(rows: unknown[][]): PreviewEntry[] {
   const byWord = new Map<string, PreviewEntry>();
 
-  for (const row of rows.slice(HEADER_WORDS.includes(a1) ? 1 : 2)) {
+  for (const row of rows) {
     const [word, pos, cambridgeMeaning, meaningVi, example, synonyms, antonyms, note] = Array.from({ length: 8 }, (_, i) =>
       String(row?.[i] ?? "").trim()
     );
@@ -79,56 +137,71 @@ export function ImportTab() {
   const [saving, setSaving] = useState(false);
   const [doneStats, setDoneStats] = useState<{ created: number; overwritten: number; skipped: string[] }>({ created: 0, overwritten: 0, skipped: [] });
   const inputRef = useRef<HTMLInputElement>(null);
+  const [pasteText, setPasteText] = useState("");
+  const [pasteError, setPasteError] = useState(false);
 
   async function handleFile(file: File) {
     setStage("parsing");
     try {
       const buf = await file.arrayBuffer();
-      const parsed = parseWorkbook(buf);
-      setEntries(parsed);
-      setStage("preview");
-
-      // Best-effort auto-translate the Vietnamese meaning of the WORD itself
-      // (not the long English Cambridge definition sentence — translating a
-      // whole definition tends to produce an awkward paraphrase rather than
-      // the actual Vietnamese word/phrase a dictionary would give). One
-      // translation per distinct word is applied to every sense still
-      // missing a meaning. Never blocks the flow.
-      setTranslating(true);
-      const jobs = parsed.filter((e) => e.senses.some((s) => !s.meaningVi)).map((e) => ({ word: e.word }));
-
-      const BATCH = 6;
-      for (let i = 0; i < jobs.length; i += BATCH) {
-        const batch = jobs.slice(i, i + BATCH);
-        await Promise.all(
-          batch.map(async (job) => {
-            try {
-              const res = await fetch("/api/english/translate", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ text: job.word }),
-              });
-              const data = (await res.json()) as { translation: string | null };
-              if (data.translation) {
-                setEntries((prev) =>
-                  prev.map((e) =>
-                    e.word === job.word
-                      ? { ...e, senses: e.senses.map((s) => (s.meaningVi ? s : { ...s, meaningVi: data.translation! })) }
-                      : e
-                  )
-                );
-              }
-            } catch {
-              // best-effort, ignore
-            }
-          })
-        );
-      }
-      setTranslating(false);
+      await loadEntries(parseWorkbook(buf));
     } catch (e) {
       console.error(e);
       setStage("idle");
     }
+  }
+
+  async function handlePaste() {
+    const parsed = parsePasted(pasteText);
+    if (parsed.length === 0) {
+      setPasteError(true);
+      return;
+    }
+    setPasteError(false);
+    await loadEntries(parsed);
+  }
+
+  async function loadEntries(parsed: PreviewEntry[]) {
+    setEntries(parsed);
+    setStage("preview");
+
+    // Best-effort auto-translate the Vietnamese meaning of the WORD itself
+    // (not the long English Cambridge definition sentence — translating a
+    // whole definition tends to produce an awkward paraphrase rather than
+    // the actual Vietnamese word/phrase a dictionary would give). One
+    // translation per distinct word is applied to every sense still
+    // missing a meaning. Never blocks the flow.
+    setTranslating(true);
+    const jobs = parsed.filter((e) => e.senses.some((s) => !s.meaningVi)).map((e) => ({ word: e.word }));
+
+    const BATCH = 6;
+    for (let i = 0; i < jobs.length; i += BATCH) {
+      const batch = jobs.slice(i, i + BATCH);
+      await Promise.all(
+        batch.map(async (job) => {
+          try {
+            const res = await fetch("/api/english/translate", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ text: job.word }),
+            });
+            const data = (await res.json()) as { translation: string | null };
+            if (data.translation) {
+              setEntries((prev) =>
+                prev.map((e) =>
+                  e.word === job.word
+                    ? { ...e, senses: e.senses.map((s) => (s.meaningVi ? s : { ...s, meaningVi: data.translation! })) }
+                    : e
+                )
+              );
+            }
+          } catch {
+            // best-effort, ignore
+          }
+        })
+      );
+    }
+    setTranslating(false);
   }
 
   function handleDrop(e: React.DragEvent) {
@@ -253,6 +326,8 @@ export function ImportTab() {
     setGroupChoice("");
     setNewGroupName("");
     setOnDuplicate("skip");
+    setPasteText("");
+    setPasteError(false);
     setStage("idle");
   }
 
@@ -418,6 +493,31 @@ export function ImportTab() {
         className="hidden"
         onChange={handleInputChange}
       />
+
+      <div className="flex items-center gap-3 text-xs text-muted-foreground/70">
+        <div className="h-px flex-1 bg-border" />
+        {t("Import.or")}
+        <div className="h-px flex-1 bg-border" />
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-sm text-muted-foreground">{t("Import.pasteHint")}</p>
+        <textarea
+          value={pasteText}
+          onChange={(e) => {
+            setPasteText(e.target.value);
+            if (pasteError) setPasteError(false);
+          }}
+          placeholder={t("Import.pastePlaceholder")}
+          rows={6}
+          spellCheck={false}
+          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono outline-none focus:ring-2 focus:ring-ring"
+        />
+        {pasteError && <p className="text-xs text-destructive">{t("Import.pasteEmpty")}</p>}
+        <Button size="sm" onClick={handlePaste} disabled={!pasteText.trim()}>
+          {t("Import.pastePreview")}
+        </Button>
+      </div>
     </div>
   );
 }

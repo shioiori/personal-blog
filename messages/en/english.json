@@ -174,7 +174,12 @@
             "confirm": "OK – Confirm import",
             "uploadHint": "Upload an <code>.xlsx</code> file with columns in this order: <code>Word | Part of speech | Cambridge meaning | Vietnamese meaning | Example | Synonyms | Antonyms | Note</code> (only Word is required). Row 1 is the header and cell A1 must be \"Word\" or \"Từ\"; files exported from Cambridge Dictionary are still supported. Comma-separated parts of speech become separate senses; rows with the same word are merged.",
             "parsing": "Reading file...",
-            "dropzone": "Drag and drop a file here or <link>choose a file</link>"
+            "dropzone": "Drag and drop a file here or <link>choose a file</link>",
+            "or": "or",
+            "pasteHint": "Paste rows copied from Excel / Google Sheets (same column order as above, tab-separated). The header row is optional.",
+            "pastePlaceholder": "apple\tnoun\ta round fruit…\tquả táo",
+            "pastePreview": "Preview",
+            "pasteEmpty": "No words found in the pasted text."
         },
         "GapFill": {
             "editName": "Edit name",
