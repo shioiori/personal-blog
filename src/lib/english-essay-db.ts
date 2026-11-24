@@ -1,7 +1,7 @@
 import { sql, once } from "./db";
 import type { Essay, EssayPart, EssaySummary, EssayStep } from "@/src/declaration/english";
 import { defaultEssayParts } from "./essay-format";
-import { normalizeEssayCategories, type EssayCategory } from "./essay-categories";
+import { LEGACY_CATEGORY_REMAP, normalizeEssayCategories, type EssayCategory } from "./essay-categories";
 
 export const ensureEssayTables = once(async function ensureEssayTables() {
   await sql`
@@ -29,6 +29,10 @@ export const ensureEssayTables = once(async function ensureEssayTables() {
       END IF;
     END $$
   `;
+  // Ids from the earlier topic list → their replacement in the current one.
+  for (const [from, to] of Object.entries(LEGACY_CATEGORY_REMAP)) {
+    await sql`UPDATE english_essay SET categories = array_replace(categories, ${from}, ${to}) WHERE ${from} = ANY(categories)`;
+  }
 });
 
 function toSummary(r: Record<string, unknown>): EssaySummary {

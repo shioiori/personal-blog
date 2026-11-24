@@ -10,7 +10,7 @@ import { TranslateStep } from "./TranslateStep";
 import { EditStep } from "./EditStep";
 import { applyTextToParts, joinEssayText, validateEssayParts } from "@/src/lib/essay-format";
 import { cn } from "@/src/utils/ui";
-import { ESSAY_CATEGORIES, normalizeEssayCategories, type EssayCategory } from "@/src/lib/essay-categories";
+import { ESSAY_CATEGORIES, essayCategoryLabel, normalizeEssayCategories, type EssayCategory } from "@/src/lib/essay-categories";
 
 const STEPS: { id: EssayStepType; label: string }[] = [
   { id: "outline", label: "1. Dàn ý" },
@@ -182,7 +182,7 @@ export function EssayTab() {
                   <div className="ml-auto flex max-w-[50%] shrink-0 flex-wrap justify-end gap-1">
                     {e.categories.map((id) => (
                       <span key={id} className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                        {ESSAY_CATEGORIES.find((c) => c.id === id)?.label}
+                        {essayCategoryLabel(id)}
                       </span>
                     ))}
                   </div>
@@ -277,7 +277,6 @@ export function EssayTab() {
                 key={c.id}
                 type="button"
                 aria-pressed={on}
-                title={c.en}
                 onClick={() => toggleCategory(c.id)}
                 className={cn(
                   "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition-colors",

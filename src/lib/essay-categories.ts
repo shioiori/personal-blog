@@ -1,21 +1,42 @@
-// The topics that come up most often in IELTS Writing Task 2. The list is fixed
-// in code; an essay stores one of these ids (or null when not categorized yet).
+// Common IELTS Writing Task 2 topics. The list is fixed in code; an essay stores
+// any number of these ids. Ids are persisted in the DB, so rename a label freely
+// but keep its id (or add a remap in ensureEssayTables).
 export const ESSAY_CATEGORIES = [
-  { id: "education", label: "Giáo dục", en: "Education" },
-  { id: "technology", label: "Công nghệ", en: "Technology" },
-  { id: "environment", label: "Môi trường", en: "Environment" },
-  { id: "health", label: "Sức khỏe", en: "Health" },
-  { id: "work", label: "Công việc", en: "Work & Employment" },
-  { id: "crime", label: "Tội phạm & Pháp luật", en: "Crime & Law" },
-  { id: "government", label: "Chính phủ & Chi tiêu công", en: "Government" },
-  { id: "family", label: "Gia đình & Xã hội", en: "Family & Society" },
-  { id: "globalisation", label: "Toàn cầu hóa", en: "Globalisation" },
-  { id: "media", label: "Truyền thông & Quảng cáo", en: "Media & Advertising" },
-  { id: "cities", label: "Đô thị & Giao thông", en: "Cities & Transport" },
-  { id: "culture", label: "Văn hóa & Du lịch", en: "Culture & Tourism" },
+  { id: "advertising", label: "Advertising" },
+  { id: "animal_rights", label: "Animal rights" },
+  { id: "art", label: "Art" },
+  { id: "cities", label: "Cities" },
+  { id: "crime", label: "Crime" },
+  { id: "education", label: "Education" },
+  { id: "environment", label: "Environment" },
+  { id: "family", label: "Family" },
+  { id: "gender", label: "Gender" },
+  { id: "genetic_engineering", label: "Genetic Engineering" },
+  { id: "global_issues", label: "Global issues" },
+  { id: "government", label: "Government and Society" },
+  { id: "guns", label: "Gun and Weapons" },
+  { id: "health", label: "Health" },
+  { id: "housing", label: "Housing and Architecture" },
+  { id: "language", label: "Language" },
+  { id: "money", label: "Money" },
+  { id: "personality", label: "Personality" },
+  { id: "sport", label: "Sport and leisure" },
+  { id: "tv_internet", label: "Television, Internet, Phones" },
+  { id: "technology", label: "Technology" },
+  { id: "tourism", label: "Tourism" },
+  { id: "traditional_modern", label: "Traditional vs Modern" },
+  { id: "transport", label: "Transport" },
+  { id: "work", label: "Work" },
 ] as const;
 
 export type EssayCategory = (typeof ESSAY_CATEGORIES)[number]["id"];
+
+/** Ids from the earlier 12-topic list that no longer exist, and what they become. */
+export const LEGACY_CATEGORY_REMAP: Record<string, EssayCategory> = {
+  globalisation: "global_issues",
+  media: "advertising",
+  culture: "tourism",
+};
 
 const IDS = new Set<string>(ESSAY_CATEGORIES.map((c) => c.id));
 
@@ -30,7 +51,6 @@ export function normalizeEssayCategories(v: unknown): EssayCategory[] {
   return ESSAY_CATEGORIES.map((c) => c.id).filter((id) => set.has(id));
 }
 
-export function essayCategoryLabel(id: EssayCategory | null | undefined): string | null {
-  const c = ESSAY_CATEGORIES.find((x) => x.id === id);
-  return c ? `${c.label} (${c.en})` : null;
+export function essayCategoryLabel(id: string): string {
+  return ESSAY_CATEGORIES.find((c) => c.id === id)?.label ?? id;
 }
