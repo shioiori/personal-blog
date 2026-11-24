@@ -178,7 +178,7 @@ export async function POST(req: NextRequest) {
     existingSenses?: ExistingSenseInput[];
     backfillItems?: BackfillRequestItem[];
     expandRelated?: RelatedExpandRequest;
-    fullyAiAdd?: boolean;
+    aiLemmatize?: boolean;
   };
   try {
     body = await req.json();
@@ -193,7 +193,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ senses: [], error: "GROQ_API_KEY not configured" });
   }
 
-  if (body.fullyAiAdd) return handleFullyAiAdd(word, premium);
+  if (body.aiLemmatize) return handleAiLemmatize(word, premium);
   if (body.expandRelated) return handleExpandRelated(word, body.expandRelated.partOfSpeech ?? "", premium);
 
   const backfillItems = (body.backfillItems ?? []).filter(
@@ -269,10 +269,8 @@ function normalizeWordKey(w: string): string {
   return w.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
-// Shared by handleExpandRelated and handleFullyAiAdd — both ask the model
-// for the same {word, pos, phonetic, senses, synonyms, antonyms}[] shape,
-// just via different prompts (one takes a word already known to be valid,
-// the other validates+lemmatizes first).
+// Parses handleExpandRelated's {word, pos, phonetic, senses, synonyms,
+// antonyms}[] entries.
 //
 // `mainWord` (the word/lemma the whole request is about) drives two
 // defensive, code-level cleanups on top of the prompt's own instructions —
@@ -366,62 +364,53 @@ async function handleExpandRelated(word: string, partOfSpeech: string, premium: 
   }
 }
 
-// Fully AI-driven add: no dictionaryapi.dev crawl, no local lemmatizer —
-// asks the model to validate the raw selected text is a real English
-// word/phrase, normalize it to its dictionary base form (lemma), then write
-// full entries for the lemma and its word family, all in one call. Per
-// explicit instruction: any failure of the validation step must make the
-// model bail out (`valid: false`) rather than press on and invent content
-// for something that isn't a real word.
-function buildFullyAiAddPrompt(rawWord: string): string {
+// AI lemmatize step for the extension's quick-add "+" button — split out
+// of the old single "fullyAiAdd" call so the caller can check the DB for
+// the lemma BEFORE spending a (much bigger) lookup call on it. Validates the
+// raw selected text is a real English word/phrase and normalizes it to its
+// dictionary base form; the lookup itself is a separate expandRelated call.
+// Per explicit instruction: an invalid input must make the model bail out
+// (`valid: false`) rather than invent a lemma for something that isn't a
+// real word.
+const LEMMATIZE_MAX_TOKENS = 2048;
+
+const LEMMATIZE_SYSTEM_PROMPT =
+  "Bạn là biên tập viên từ điển tiếng Anh, giỏi nhận diện từ/cụm từ có thật và dạng gốc (lemma) của chúng. Luôn trả lời bằng JSON hợp lệ.";
+
+function buildAiLemmatizePrompt(rawWord: string): string {
   return `Văn bản người dùng chọn để thêm vào từ điển cá nhân: "${rawWord}"
 
-Nhiệm vụ — làm TOÀN BỘ các bước sau trong MỘT lần trả lời:
+1. KIỂM TRA: đây có phải một từ/cụm từ tiếng Anh CÓ THẬT và có nghĩa rõ ràng không? Từ chối nếu đây là: một câu hoàn chỉnh (có chủ ngữ+động từ diễn đạt một ý trọn vẹn), văn bản vô nghĩa/gõ nhầm, ngôn ngữ khác không phải tiếng Anh, hoặc không phải từ/cụm từ thực sự tồn tại trong tiếng Anh. Nếu bị từ chối, trả về {"valid": false, "reason": "<lý do ngắn gọn bằng tiếng Việt>"} và DỪNG.
 
-1. KIỂM TRA: đây có phải một từ/cụm từ tiếng Anh CÓ THẬT và có nghĩa rõ ràng không? Từ chối (dừng ngay, không làm bước nào sau) nếu đây là: một câu hoàn chỉnh (có chủ ngữ+động từ diễn đạt một ý trọn vẹn), văn bản vô nghĩa/gõ nhầm, ngôn ngữ khác không phải tiếng Anh, hoặc không phải từ/cụm từ thực sự tồn tại trong tiếng Anh. Nếu bị từ chối, trả về NGAY {"valid": false, "reason": "<lý do ngắn gọn bằng tiếng Việt>"} và DỪNG — không thực hiện các bước 2-4.
-
-2. Nếu hợp lệ: chuẩn hoá về DẠNG GỐC trong từ điển (lemma) — ví dụ số nhiều -> số ít, động từ chia thì -> nguyên mẫu, so sánh hơn/nhất -> dạng gốc, cụm động từ chia thì -> dạng nguyên mẫu của cụm. Giữ nguyên nếu đã là dạng gốc.
-
-3. ${rawWord.trim().includes(" ")
-    ? `KHÔNG đề xuất bất kỳ từ liên đới nào — "${rawWord}" là một cụm từ/phrasal verb/idiom nhiều từ, nên bỏ qua hẳn bước này dù lemma có thể viết hơi khác. Mục "entries" chỉ gồm 1 phần tử là chính lemma.`
-    : `Đề xuất các từ CÙNG GỐC (word family) liên quan trực tiếp đến lemma, mỗi loại tối đa 1 từ: "v" (động từ), "n" (danh từ), "adj" (tính từ), "phrase" (cụm động từ/cụm cố định thông dụng chứa lemma, dạng nguyên mẫu). Bỏ qua loại nào không có hoặc không đủ thông dụng. KHÔNG đề xuất lại chính lemma. Các từ liên đới đề xuất PHẢI KHÁC NHAU — không được đề xuất cùng một từ cho hai loại từ khác nhau.`}
-
-4. Với lemma VÀ mỗi từ liên đới vừa đề xuất, tự viết đầy đủ thông tin từ điển:
-   - "phonetic": phiên âm IPA kiểu Anh-Anh chuẩn, KHÔNG kèm dấu gạch chéo "/" ở đầu/cuối (bỏ trống nếu là cụm từ không có phiên âm riêng).
-   - "senses": danh sách các "ý cảnh" (nghĩa gốc) của từ đó. LƯU Ý: một từ có thể có NHIỀU loại từ khác nhau (vd "concrete" vừa là danh từ, vừa là động từ, vừa là tính từ) — mỗi loại từ khác nhau PHẢI là (các) sense riêng, KHÔNG được gộp hai loại từ khác nhau vào cùng một sense. Trong CÙNG một loại từ, hai định nghĩa thuộc CÙNG một ý cảnh khi một là ứng dụng trực tiếp của ý cảnh kia vào ngữ cảnh khác (vd thân cây/thân người/phần chính của vật đều là ứng dụng của ý cảnh "phần thân") — GỘP chúng vào MỘT sense. Chỉ tách sense mới khi nét nghĩa đã dịch chuyển sang phạm trù khái niệm khác hẳn (vd "phần thân" -> "vật chứa đồ"). Mỗi sense gồm "pos" (loại từ CỦA RIÊNG sense này, MỘT từ tiếng Anh ĐẦY ĐỦ, chữ thường, KHÔNG viết tắt và KHÔNG liệt kê nhiều loại — vd "noun", "verb", "adjective", "adverb", "phrasal verb", "idiom" — không phải "n", không phải "n, adj, v"), "meaningVi" (ngắn gọn kiểu từ điển Anh-Việt, tối đa ~6 từ, liệt kê gọn trong ngoặc nếu gộp nhiều cách dùng), "definitionEn" (1 câu tiếng Anh ngắn gọn), "example" (1 câu ví dụ tiếng Anh tự nhiên).
-   - "synonyms": 2-4 từ đồng nghĩa tiếng Anh phổ biến (chuỗi, phân tách bởi dấu phẩy), để trống nếu không có từ nào thực sự phù hợp.
-   - "antonyms": tương tự, trái nghĩa.
-
-Chỉ đề xuất và viết nghĩa cho từ THỰC SỰ tồn tại và thông dụng — không bịa từ không có thật.
+2. Nếu hợp lệ: chuẩn hoá về DẠNG GỐC trong từ điển (lemma) — ví dụ số nhiều -> số ít, động từ chia thì -> nguyên mẫu, so sánh hơn/nhất -> dạng gốc, cụm động từ chia thì -> dạng nguyên mẫu của cụm. Giữ nguyên nếu đã là dạng gốc. Viết chữ thường, trừ khi là danh từ riêng/từ luôn viết hoa.
 
 Trả về CHỈ JSON theo một trong hai dạng:
 - Không hợp lệ: {"valid": false, "reason": "..."}
-- Hợp lệ: {"valid": true, "lemma": "...", "entries": [{"word":"...","phonetic":"...","senses":[{"pos":"noun|verb|adjective|...","meaningVi":"...","definitionEn":"...","example":"..."}],"synonyms":"...","antonyms":"..."}]}
-
-"entries" phải bao gồm CẢ lemma và mọi từ liên đới. Không giải thích gì thêm ngoài JSON.`;
+- Hợp lệ: {"valid": true, "lemma": "..."}
+Không giải thích gì thêm ngoài JSON.`;
 }
 
-async function handleFullyAiAdd(rawWord: string, premium: boolean) {
+async function handleAiLemmatize(rawWord: string, premium: boolean) {
   try {
     const { raw } = await aiComplete({
       groqModel: MODEL,
-      maxTokens: EXPAND_MAX_TOKENS,
-      temperature: 0.3,
-      reasoningEffort: "high",
-      systemPrompt: EXPAND_SYSTEM_PROMPT,
-      userPrompt: buildFullyAiAddPrompt(rawWord),
+      maxTokens: LEMMATIZE_MAX_TOKENS,
+      temperature: 0.1,
+      reasoningEffort: "medium",
+      systemPrompt: LEMMATIZE_SYSTEM_PROMPT,
+      userPrompt: buildAiLemmatizePrompt(rawWord),
       isPremium: premium,
     });
-    const parsed = JSON.parse(raw) as { valid?: unknown; reason?: unknown; lemma?: unknown; entries?: unknown };
+    const parsed = JSON.parse(raw) as { valid?: unknown; reason?: unknown; lemma?: unknown };
     if (parsed.valid !== true) {
       return NextResponse.json({ valid: false, reason: String(parsed.reason ?? "Không nhận diện được đây là từ tiếng Anh hợp lệ.") });
     }
     const lemma = String(parsed.lemma ?? "").trim();
     if (!lemma) return NextResponse.json({ valid: false, reason: "AI không xác định được dạng gốc của từ." });
-    return NextResponse.json({ valid: true, lemma, entries: parseExpandEntries(parsed, lemma) });
+    return NextResponse.json({ valid: true, lemma });
   } catch (e) {
     if (e instanceof PremiumRequiredError) return premiumRequiredResponse();
-    console.error("[POST english/gloss fullyAiAdd error]", e);
+    console.error("[POST english/gloss aiLemmatize error]", e);
     return NextResponse.json({ valid: false, reason: "AI gặp lỗi, thử lại sau hoặc thêm thủ công." });
   }
 }
