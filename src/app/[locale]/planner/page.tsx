@@ -146,6 +146,7 @@ export default function PlannerPage() {
   const [pageEdits, setPageEdits] = useState<{ taskId: number; text?: string; start?: string; end?: string; notes?: string } | null>(null)
   const [contextDate, setContextDate] = useState<string | null>(null)
   const [subtaskDraftParentId, setSubtaskDraftParentId] = useState<number | null>(null)
+  const [hiddenIds, setHiddenIds] = useState<Set<number>>(new Set())
   const [copied, setCopied] = useState<(Pick<PlannerTask, 'text' | 'categoryId' | 'notes'> & { days: number }) | null>(null)
   const [dayMenu, setDayMenu] = useState<{ date: string; x: number; y: number } | null>(null)
   const reparentedRef = useRef<number | null>(null)
@@ -937,7 +938,7 @@ export default function PlannerPage() {
     const span = (x: DateRange) => ({ start: x.date, end: x.endDate ? addDays(x.endDate, 1) : undefined })
     // One event per top-level task with its subtasks rendered inside it, so the calendar's gap-filling
     // layout moves a group as a whole instead of pulling the parent away from its subtasks.
-    for (const task of tasks.filter((t) => t.parentId === null).sort(byOrder)) {
+    for (const task of tasks.filter((t) => t.parentId === null && !hiddenIds.has(t.id)).sort(byOrder)) {
       items.push({ id: String(task.id), title: task.text, ...span(task) })
     }
     if (draft) items.push({ id: DRAFT_ID, title: '', ...span(draft) })
@@ -958,12 +959,13 @@ export default function PlannerPage() {
         extendedProps: { order }
       }
     })
-  }, [tasks, taskById, childrenByParent, draft, editingId, subtaskDraftParentId])
+  }, [tasks, taskById, childrenByParent, draft, editingId, subtaskDraftParentId, hiddenIds])
 
   actionsRef.current = {
     copy: handleCopy,
     addSubtask: setSubtaskDraftParentId,
     remove: handleDelete,
+    hide: (taskId) => setHiddenIds((prev) => new Set(prev).add(taskId)),
     open: setContextTaskId,
     toggle: handleToggle,
     assignCategory: handleAssignCategory,
@@ -1019,7 +1021,7 @@ export default function PlannerPage() {
       }
       const task = taskById.get(Number(info.event.id))
       if (!task) return pill(info.event.id, info.event.title, undefined)
-      const children = childrenByParent.get(task.id) ?? NO_CHILDREN
+      const children = (childrenByParent.get(task.id) ?? NO_CHILDREN).filter((c) => !hiddenIds.has(c.id))
       const showDraft = subtaskDraftParentId === task.id
       if (!children.length && !showDraft) return pill(info.event.id, task.text, task)
       return (
@@ -1045,7 +1047,7 @@ export default function PlannerPage() {
         </div>
       )
     },
-    [taskById, childrenByParent, categories, editingId, textMode, dragOverTaskId, segmentEnds, handleSegmentMeasure, subtaskDraftParentId]
+    [taskById, childrenByParent, categories, editingId, textMode, dragOverTaskId, segmentEnds, handleSegmentMeasure, subtaskDraftParentId, hiddenIds]
   )
 
   const calendar = useMemo(

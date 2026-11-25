@@ -42,6 +42,7 @@
         "addSubtask": "Thêm đầu việc con",
         "deleteTask": "Xóa đầu việc",
         "copyTask": "Copy đầu việc",
+        "hideTask": "Ẩn đầu việc",
         "copied": "Đã copy",
         "openDay": "Mở chi tiết ngày",
         "paste": "Dán",

@@ -42,6 +42,7 @@
         "addSubtask": "Add subtask",
         "deleteTask": "Delete task",
         "copyTask": "Copy task",
+        "hideTask": "Hide task",
         "copied": "Copied",
         "openDay": "Open day",
         "paste": "Paste",
