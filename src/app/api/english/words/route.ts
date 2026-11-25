@@ -10,7 +10,8 @@ export async function GET(req: NextRequest) {
     const groupIdParam = req.nextUrl.searchParams.get("groupId");
     const search = req.nextUrl.searchParams.get("search") ?? undefined;
     const groupId = groupIdParam ? parseInt(groupIdParam, 10) : undefined;
-    const words = await listWords(userId, { groupId, search });
+    const summary = req.nextUrl.searchParams.get("summary") === "1";
+    const words = await listWords(userId, { groupId, search, summary });
     return NextResponse.json(words);
   } catch (e) {
     console.error(e);

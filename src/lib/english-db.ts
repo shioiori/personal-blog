@@ -5,113 +5,115 @@ import type { EnglishWord, EnglishSense, EnglishGroup, FlashcardCard, ImportWord
 // ── Schema ────────────────────────────────────────────────────────────────────
 
 export const ensureEnglishTables = once(async function ensureEnglishTables() {
-  await sql`
-    CREATE TABLE IF NOT EXISTS english_words (
-      id         SERIAL PRIMARY KEY,
-      user_id    INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      word       TEXT NOT NULL,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    )
-  `;
-  await sql`
-    ALTER TABLE english_words ADD COLUMN IF NOT EXISTS crawl_data JSONB
-  `;
-  await sql`
-    ALTER TABLE english_words ADD COLUMN IF NOT EXISTS related_words TEXT
-  `;
-  await sql`
-    ALTER TABLE english_words ADD COLUMN IF NOT EXISTS alt_spelling TEXT
-  `;
-  await sql`
-    ALTER TABLE english_words ADD COLUMN IF NOT EXISTS source_url TEXT
-  `;
-  // Set when this row was added as a duplicate of another user's word. While
-  // this row has no senses of its own, it's a pure reference — display data
-  // is resolved live from the origin row (see resolveOrigin) so the original
-  // owner's later edits stay visible. The first edit this user makes inserts
-  // real sense rows here (see updateWord), forking it into an independent
-  // copy without ever touching the origin row.
-  await sql`
-    ALTER TABLE english_words ADD COLUMN IF NOT EXISTS origin_word_id INT REFERENCES english_words(id) ON DELETE SET NULL
-  `;
-  await sql`
-    CREATE TABLE IF NOT EXISTS english_senses (
-      id                SERIAL PRIMARY KEY,
-      word_id           INT NOT NULL REFERENCES english_words(id) ON DELETE CASCADE,
-      phonetic          TEXT,
-      part_of_speech    TEXT,
-      cambridge_meaning TEXT,
-      meaning_vi        TEXT,
-      example           TEXT,
-      synonyms          TEXT,
-      antonyms          TEXT,
-      sort_order        INT NOT NULL DEFAULT 0
-    )
-  `;
-  await sql`
-    ALTER TABLE english_senses ADD COLUMN IF NOT EXISTS note TEXT
-  `;
-  await sql`
-    ALTER TABLE english_senses ADD COLUMN IF NOT EXISTS images TEXT[] NOT NULL DEFAULT '{}'
-  `;
-  await sql`
-    CREATE TABLE IF NOT EXISTS english_word_groups (
-      id         SERIAL PRIMARY KEY,
-      user_id    INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      name       TEXT NOT NULL,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      CONSTRAINT english_word_groups_user_name_key UNIQUE (user_id, name)
-    )
-  `;
-  // Tracks the hostname a group was auto-created for, independent of its
-  // (user-editable) display name, so renaming an auto-created group doesn't
-  // make the next source_url sync recreate a duplicate under the old name.
-  // Superseded by source_url below (groups are now per-page, not per-domain)
-  // but kept so pre-existing hostname-based groups aren't orphaned.
-  await sql`
-    ALTER TABLE english_word_groups ADD COLUMN IF NOT EXISTS source_hostname TEXT
-  `;
-  await sql`
-    CREATE UNIQUE INDEX IF NOT EXISTS english_word_groups_user_hostname_key
-      ON english_word_groups (user_id, source_hostname) WHERE source_hostname IS NOT NULL
-  `;
-  // The exact page a group was auto-created for (hash fragment stripped).
-  // Matched instead of source_hostname so words from different pages on the
-  // same site land in separate groups.
-  await sql`
-    ALTER TABLE english_word_groups ADD COLUMN IF NOT EXISTS source_url TEXT
-  `;
-  await sql`
-    CREATE UNIQUE INDEX IF NOT EXISTS english_word_groups_user_source_url_key
-      ON english_word_groups (user_id, source_url) WHERE source_url IS NOT NULL
-  `;
-  await sql`
-    CREATE TABLE IF NOT EXISTS english_word_group_members (
-      group_id INT NOT NULL REFERENCES english_word_groups(id) ON DELETE CASCADE,
-      word_id  INT NOT NULL REFERENCES english_words(id) ON DELETE CASCADE,
-      PRIMARY KEY (group_id, word_id)
-    )
-  `;
-  await sql`
-    CREATE TABLE IF NOT EXISTS english_flashcard (
-      word_id     INT PRIMARY KEY REFERENCES english_words(id) ON DELETE CASCADE,
-      active      BOOLEAN NOT NULL DEFAULT TRUE,
-      due_date    DATE NOT NULL DEFAULT CURRENT_DATE,
-      interval    INT NOT NULL DEFAULT 1,
-      ease_factor REAL NOT NULL DEFAULT 2.5,
-      repetitions INT NOT NULL DEFAULT 0,
-      updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    )
-  `;
-  await sql`
-    CREATE TABLE IF NOT EXISTS english_settings (
-      user_id    INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      key        TEXT NOT NULL,
-      value      JSONB NOT NULL,
-      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      PRIMARY KEY (user_id, key)
-    )
-  `;
+  await sql.transaction([
+    sql`
+      CREATE TABLE IF NOT EXISTS english_words (
+        id         SERIAL PRIMARY KEY,
+        user_id    INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        word       TEXT NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `,
+    sql`
+      ALTER TABLE english_words ADD COLUMN IF NOT EXISTS crawl_data JSONB
+    `,
+    sql`
+      ALTER TABLE english_words ADD COLUMN IF NOT EXISTS related_words TEXT
+    `,
+    sql`
+      ALTER TABLE english_words ADD COLUMN IF NOT EXISTS alt_spelling TEXT
+    `,
+    sql`
+      ALTER TABLE english_words ADD COLUMN IF NOT EXISTS source_url TEXT
+    `,
+    // Set when this row was added as a duplicate of another user's word. While
+    // this row has no senses of its own, it's a pure reference — display data
+    // is resolved live from the origin row (see resolveOrigins) so the original
+    // owner's later edits stay visible. The first edit this user makes inserts
+    // real sense rows here (see updateWord), forking it into an independent
+    // copy without ever touching the origin row.
+    sql`
+      ALTER TABLE english_words ADD COLUMN IF NOT EXISTS origin_word_id INT REFERENCES english_words(id) ON DELETE SET NULL
+    `,
+    sql`
+      CREATE TABLE IF NOT EXISTS english_senses (
+        id                SERIAL PRIMARY KEY,
+        word_id           INT NOT NULL REFERENCES english_words(id) ON DELETE CASCADE,
+        phonetic          TEXT,
+        part_of_speech    TEXT,
+        cambridge_meaning TEXT,
+        meaning_vi        TEXT,
+        example           TEXT,
+        synonyms          TEXT,
+        antonyms          TEXT,
+        sort_order        INT NOT NULL DEFAULT 0
+      )
+    `,
+    sql`
+      ALTER TABLE english_senses ADD COLUMN IF NOT EXISTS note TEXT
+    `,
+    sql`
+      ALTER TABLE english_senses ADD COLUMN IF NOT EXISTS images TEXT[] NOT NULL DEFAULT '{}'
+    `,
+    sql`
+      CREATE TABLE IF NOT EXISTS english_word_groups (
+        id         SERIAL PRIMARY KEY,
+        user_id    INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        name       TEXT NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        CONSTRAINT english_word_groups_user_name_key UNIQUE (user_id, name)
+      )
+    `,
+    // Tracks the hostname a group was auto-created for, independent of its
+    // (user-editable) display name, so renaming an auto-created group doesn't
+    // make the next source_url sync recreate a duplicate under the old name.
+    // Superseded by source_url below (groups are now per-page, not per-domain)
+    // but kept so pre-existing hostname-based groups aren't orphaned.
+    sql`
+      ALTER TABLE english_word_groups ADD COLUMN IF NOT EXISTS source_hostname TEXT
+    `,
+    sql`
+      CREATE UNIQUE INDEX IF NOT EXISTS english_word_groups_user_hostname_key
+        ON english_word_groups (user_id, source_hostname) WHERE source_hostname IS NOT NULL
+    `,
+    // The exact page a group was auto-created for (hash fragment stripped).
+    // Matched instead of source_hostname so words from different pages on the
+    // same site land in separate groups.
+    sql`
+      ALTER TABLE english_word_groups ADD COLUMN IF NOT EXISTS source_url TEXT
+    `,
+    sql`
+      CREATE UNIQUE INDEX IF NOT EXISTS english_word_groups_user_source_url_key
+        ON english_word_groups (user_id, source_url) WHERE source_url IS NOT NULL
+    `,
+    sql`
+      CREATE TABLE IF NOT EXISTS english_word_group_members (
+        group_id INT NOT NULL REFERENCES english_word_groups(id) ON DELETE CASCADE,
+        word_id  INT NOT NULL REFERENCES english_words(id) ON DELETE CASCADE,
+        PRIMARY KEY (group_id, word_id)
+      )
+    `,
+    sql`
+      CREATE TABLE IF NOT EXISTS english_flashcard (
+        word_id     INT PRIMARY KEY REFERENCES english_words(id) ON DELETE CASCADE,
+        active      BOOLEAN NOT NULL DEFAULT TRUE,
+        due_date    DATE NOT NULL DEFAULT CURRENT_DATE,
+        interval    INT NOT NULL DEFAULT 1,
+        ease_factor REAL NOT NULL DEFAULT 2.5,
+        repetitions INT NOT NULL DEFAULT 0,
+        updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `,
+    sql`
+      CREATE TABLE IF NOT EXISTS english_settings (
+        user_id    INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        key        TEXT NOT NULL,
+        value      JSONB NOT NULL,
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        PRIMARY KEY (user_id, key)
+      )
+    `,
+  ]);
 });
 
 // ── Settings ─────────────────────────────────────────────────────────────────
@@ -309,31 +311,53 @@ export async function findWordByText(userId: number, text: string, candidates?: 
 // altSpelling live from that origin row, so the original owner's later edits
 // stay visible until this user makes their own edit (which forks it via
 // insertSenses in updateWord).
-async function resolveOrigin(originWordId: number): Promise<{
+interface ResolvedOrigin {
   word: string;
   senses: EnglishSense[];
   crawlData: unknown | null;
   relatedWords: string | null;
   altSpelling: string | null;
-} | null> {
-  const originRows = await sql`SELECT word, crawl_data, related_words, alt_spelling FROM english_words WHERE id = ${originWordId}`;
-  if (!originRows[0]) return null;
-  const originSenseRows = await sql`SELECT * FROM english_senses WHERE word_id = ${originWordId} ORDER BY sort_order ASC, id ASC`;
-  return {
-    word: originRows[0].word as string,
-    senses: originSenseRows.map(mapSenseRow),
-    crawlData: (originRows[0].crawl_data as unknown | null) ?? null,
-    relatedWords: (originRows[0].related_words as string | null) ?? null,
-    altSpelling: (originRows[0].alt_spelling as string | null) ?? null,
-  };
+}
+
+function groupSensesByWord(rows: Record<string, unknown>[]): Map<number, EnglishSense[]> {
+  const byWord = new Map<number, EnglishSense[]>();
+  for (const r of rows) {
+    const wid = r.word_id as number;
+    if (!byWord.has(wid)) byWord.set(wid, []);
+    byWord.get(wid)!.push(mapSenseRow(r));
+  }
+  return byWord;
+}
+
+async function resolveOrigins(originWordIds: number[]): Promise<Map<number, ResolvedOrigin>> {
+  const result = new Map<number, ResolvedOrigin>();
+  if (originWordIds.length === 0) return result;
+  const [originRows, originSenseRows] = await Promise.all([
+    sql`SELECT id, word, crawl_data, related_words, alt_spelling FROM english_words WHERE id = ANY(${originWordIds})`,
+    sql`SELECT * FROM english_senses WHERE word_id = ANY(${originWordIds}) ORDER BY sort_order ASC, id ASC`,
+  ]);
+  const sensesByWord = groupSensesByWord(originSenseRows);
+  for (const r of originRows) {
+    const id = r.id as number;
+    result.set(id, {
+      word: r.word as string,
+      senses: sensesByWord.get(id) ?? [],
+      crawlData: (r.crawl_data as unknown | null) ?? null,
+      relatedWords: (r.related_words as string | null) ?? null,
+      altSpelling: (r.alt_spelling as string | null) ?? null,
+    });
+  }
+  return result;
 }
 
 export async function getWord(userId: number, id: number): Promise<EnglishWord | null> {
-  const wordRows = await sql`SELECT id, word, created_at, crawl_data, related_words, alt_spelling, source_url, origin_word_id FROM english_words WHERE id = ${id} AND user_id = ${userId}`;
+  const [wordRows, senseRows, groupRows, fcRows] = await Promise.all([
+    sql`SELECT id, word, created_at, crawl_data, related_words, alt_spelling, source_url, origin_word_id FROM english_words WHERE id = ${id} AND user_id = ${userId}`,
+    sql`SELECT * FROM english_senses WHERE word_id = ${id} ORDER BY sort_order ASC, id ASC`,
+    sql`SELECT group_id FROM english_word_group_members WHERE word_id = ${id}`,
+    sql`SELECT active FROM english_flashcard WHERE word_id = ${id}`,
+  ]);
   if (!wordRows[0]) return null;
-  let senseRows = await sql`SELECT * FROM english_senses WHERE word_id = ${id} ORDER BY sort_order ASC, id ASC`;
-  const groupRows = await sql`SELECT group_id FROM english_word_group_members WHERE word_id = ${id}`;
-  const fcRows = await sql`SELECT active FROM english_flashcard WHERE word_id = ${id}`;
 
   let displayWord = wordRows[0].word as string;
   let crawlData: unknown | null = (wordRows[0].crawl_data as unknown | null) ?? null;
@@ -342,7 +366,7 @@ export async function getWord(userId: number, id: number): Promise<EnglishWord |
   let senses: EnglishSense[] = senseRows.map(mapSenseRow);
   const originWordId = wordRows[0].origin_word_id as number | null;
   if (senses.length === 0 && originWordId) {
-    const origin = await resolveOrigin(originWordId);
+    const origin = (await resolveOrigins([originWordId])).get(originWordId);
     if (origin) {
       displayWord = origin.word;
       crawlData = origin.crawlData;
@@ -366,7 +390,15 @@ export async function getWord(userId: number, id: number): Promise<EnglishWord |
   };
 }
 
-export async function listWords(userId: number, opts: { groupId?: number; search?: string } = {}): Promise<EnglishWord[]> {
+function toSummarySenses(senses: EnglishSense[]): EnglishSense[] {
+  return senses.map((s, i) =>
+    i === 0
+      ? { partOfSpeech: s.partOfSpeech, phonetic: s.phonetic, meaningVi: s.meaningVi, cambridgeMeaning: s.meaningVi ? undefined : s.cambridgeMeaning }
+      : { partOfSpeech: s.partOfSpeech }
+  );
+}
+
+export async function listWords(userId: number, opts: { groupId?: number; search?: string; summary?: boolean } = {}): Promise<EnglishWord[]> {
   let wordRows;
   if (opts.groupId) {
     wordRows = await sql`
@@ -389,16 +421,22 @@ export async function listWords(userId: number, opts: { groupId?: number; search
   if (wordRows.length === 0) return [];
   const ids = wordRows.map((r) => r.id as number);
 
-  const senseRows = await sql`SELECT * FROM english_senses WHERE word_id = ANY(${ids}) ORDER BY sort_order ASC, id ASC`;
-  const groupRows = await sql`SELECT word_id, group_id FROM english_word_group_members WHERE word_id = ANY(${ids})`;
-  const fcRows = await sql`SELECT word_id, active FROM english_flashcard WHERE word_id = ANY(${ids})`;
+  const originIds = [...new Set(wordRows.filter((r) => r.origin_word_id).map((r) => r.origin_word_id as number))];
 
-  const sensesByWord = new Map<number, EnglishSense[]>();
-  for (const r of senseRows) {
-    const wid = r.word_id as number;
-    if (!sensesByWord.has(wid)) sensesByWord.set(wid, []);
-    sensesByWord.get(wid)!.push(mapSenseRow(r));
-  }
+  const [senseRows, groupRows, fcRows, origins] = await Promise.all([
+    opts.summary
+      ? sql`
+          SELECT id, word_id, sort_order, part_of_speech, phonetic, meaning_vi,
+            CASE WHEN COALESCE(meaning_vi, '') = '' THEN cambridge_meaning END AS cambridge_meaning
+          FROM english_senses WHERE word_id = ANY(${ids}) ORDER BY sort_order ASC, id ASC
+        `
+      : sql`SELECT * FROM english_senses WHERE word_id = ANY(${ids}) ORDER BY sort_order ASC, id ASC`,
+    sql`SELECT word_id, group_id FROM english_word_group_members WHERE word_id = ANY(${ids})`,
+    sql`SELECT word_id, active FROM english_flashcard WHERE word_id = ANY(${ids})`,
+    resolveOrigins(originIds),
+  ]);
+
+  const sensesByWord = groupSensesByWord(senseRows);
   const groupsByWord = new Map<number, number[]>();
   for (const r of groupRows) {
     const wid = r.word_id as number;
@@ -409,22 +447,17 @@ export async function listWords(userId: number, opts: { groupId?: number; search
   for (const r of fcRows) activeByWord.set(r.word_id as number, r.active as boolean);
 
   // Reference rows (no own senses, origin_word_id set) resolve their display
-  // data live from the origin row — see resolveOrigin.
-  const originByWord = new Map<number, Awaited<ReturnType<typeof resolveOrigin>>>();
-  const refRows = wordRows.filter((r) => !sensesByWord.has(r.id as number) && r.origin_word_id);
-  for (const r of refRows) {
-    const originWordId = r.origin_word_id as number;
-    originByWord.set(r.id as number, await resolveOrigin(originWordId));
-  }
-
+  // data live from the origin row — see resolveOrigins.
   return wordRows.map((r) => {
     const id = r.id as number;
-    const origin = originByWord.get(id);
+    const origin = sensesByWord.has(id) ? undefined : origins.get(r.origin_word_id as number);
+    const senses = sensesByWord.get(id) ?? origin?.senses ?? [];
     return {
       id,
       word: origin?.word ?? (r.word as string),
       createdAt: (r.created_at as Date).toISOString(),
-      senses: sensesByWord.get(id) ?? origin?.senses ?? [],
+      senses: opts.summary ? toSummarySenses(senses) : senses,
+      ...(opts.summary ? { summary: true } : {}),
       groupIds: groupsByWord.get(id) ?? [],
       flashcardActive: activeByWord.get(id) ?? true,
       crawlData: (origin ? origin.crawlData : (r.crawl_data as unknown | null)) ?? undefined,
@@ -437,28 +470,7 @@ export async function listWords(userId: number, opts: { groupId?: number; search
 
 // ── Groups ───────────────────────────────────────────────────────────────────
 
-// Ensures every word with a source_url belongs to a group for that exact
-// page — even when source_url was set outside createWord (e.g. a direct DB
-// edit), so group membership never drifts out of sync with it.
-async function syncGroupsFromSourceUrls(userId: number): Promise<void> {
-  const rows = await sql`SELECT id, source_url FROM english_words WHERE user_id = ${userId} AND source_url IS NOT NULL`;
-  if (rows.length === 0) return;
-
-  const wordIdsByUrl = new Map<string, number[]>();
-  for (const r of rows) {
-    const url = normalizeSourceUrl(r.source_url as string);
-    if (!wordIdsByUrl.has(url)) wordIdsByUrl.set(url, []);
-    wordIdsByUrl.get(url)!.push(r.id as number);
-  }
-
-  for (const [url, wordIds] of wordIdsByUrl) {
-    const groupId = await getOrCreateGroupByUrl(userId, url);
-    await addWordsToGroup(userId, groupId, wordIds);
-  }
-}
-
 export async function listGroups(userId: number): Promise<EnglishGroup[]> {
-  await syncGroupsFromSourceUrls(userId);
   const rows = await sql`
     SELECT g.id, g.name, g.source_url,
            COALESCE(array_agg(m.word_id) FILTER (WHERE m.word_id IS NOT NULL), '{}') AS word_ids
@@ -523,28 +535,25 @@ export async function getFlashcardsDueToday(userId: number, opts: { limit?: numb
     FROM english_flashcard f
     JOIN english_words w ON w.id = f.word_id
     WHERE w.user_id = ${userId} AND f.active = TRUE AND f.due_date <= CURRENT_DATE
-    ORDER BY f.due_date ASC
+    ORDER BY CASE WHEN ${opts.order === "random"}::boolean THEN random() END, f.due_date ASC
+    LIMIT ${opts.limit && opts.limit > 0 ? opts.limit : null}::int
   `;
-  let cards = rows.map((r) => ({ wordId: r.id as number, word: r.word as string, originWordId: r.origin_word_id as number | null }));
-  if (opts.order === "random") cards = cards.sort(() => Math.random() - 0.5);
-  if (opts.limit && opts.limit > 0) cards = cards.slice(0, opts.limit);
-  if (cards.length === 0) return [];
+  if (rows.length === 0) return [];
 
-  const ids = cards.map((c) => c.wordId);
-  const senseRows = await sql`SELECT * FROM english_senses WHERE word_id = ANY(${ids}) ORDER BY sort_order ASC, id ASC`;
-  const sensesByWord = new Map<number, EnglishSense[]>();
-  for (const r of senseRows) {
-    const wid = r.word_id as number;
-    if (!sensesByWord.has(wid)) sensesByWord.set(wid, []);
-    sensesByWord.get(wid)!.push(mapSenseRow(r));
-  }
-  return Promise.all(
-    cards.map(async (c) => {
-      if (sensesByWord.has(c.wordId) || !c.originWordId) return { wordId: c.wordId, word: c.word, senses: sensesByWord.get(c.wordId) ?? [] };
-      const origin = await resolveOrigin(c.originWordId);
-      return { wordId: c.wordId, word: origin?.word ?? c.word, senses: origin?.senses ?? [] };
-    })
-  );
+  const ids = rows.map((r) => r.id as number);
+  const originIds = [...new Set(rows.filter((r) => r.origin_word_id).map((r) => r.origin_word_id as number))];
+  const [senseRows, origins] = await Promise.all([
+    sql`SELECT * FROM english_senses WHERE word_id = ANY(${ids}) ORDER BY sort_order ASC, id ASC`,
+    resolveOrigins(originIds),
+  ]);
+  const sensesByWord = groupSensesByWord(senseRows);
+  return rows.map((r) => {
+    const wordId = r.id as number;
+    const word = r.word as string;
+    const own = sensesByWord.get(wordId);
+    const origin = own ? undefined : origins.get(r.origin_word_id as number);
+    return { wordId, word: origin?.word ?? word, senses: own ?? origin?.senses ?? [] };
+  });
 }
 
 export interface DueForecastDay {

@@ -17,6 +17,7 @@ import { WordCard } from "./WordCard";
 import { EditWordModal } from "./EditWordModal";
 import { WordFlashcardView } from "./WordFlashcardView";
 import { GroupTab } from "@/src/components/english/groups/GroupTab";
+import { useIncrementalList } from "@/src/components/english/shared/useIncrementalList";
 import { useEnglishStudy } from "@/src/context/english";
 import type { EnglishWord } from "@/src/declaration/english";
 
@@ -66,6 +67,7 @@ export function WordList() {
     });
     return result;
   }, [words, search, groupFilter, sortField, sortDir]);
+  const { visible, sentinelRef, hasMore } = useIncrementalList(filtered, `${search}|${groupFilter}|${sortField}|${sortDir}|${viewMode}`);
 
   async function handleDelete(id: number) {
     await fetch(`/api/english/words/${id}`, { method: "DELETE" });
@@ -165,7 +167,7 @@ export function WordList() {
         <WordFlashcardView words={filtered} />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {filtered.map((w) => (
+          {visible.map((w) => (
             <div
               key={w.id}
               onClick={() => { setEditingWord(w); setStartInEditMode(false); setModalOpen(true); }}
@@ -178,6 +180,7 @@ export function WordList() {
               />
             </div>
           ))}
+          {hasMore && <div ref={sentinelRef} className="col-span-full h-px" />}
         </div>
       )}
 

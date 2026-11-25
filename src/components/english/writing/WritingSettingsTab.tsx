@@ -8,6 +8,7 @@ import { useEnglishStudy } from "@/src/context/english";
 import { Button } from "@/src/components/ui/Button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/Select";
 import { DueForecastChart } from "../review/DueForecastChart";
+import { useIncrementalList } from "../shared/useIncrementalList";
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -74,7 +75,7 @@ export function WritingSettingsTab({
   onSave: (next: WritingSettings) => void;
 }) {
   const t = useTranslations("English");
-  const { words, groups, refetchWords } = useEnglishStudy();
+  const { words, groups } = useEnglishStudy();
   const [draft, setDraft] = useState(settings);
   const [activeByWord, setActiveByWord] = useState<Record<number, boolean>>({});
   const [overrides, setOverrides] = useState<Record<number, boolean>>({});
@@ -82,7 +83,6 @@ export function WritingSettingsTab({
   const [groupFilter, setGroupFilter] = useState("all");
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => { void refetchWords(); }, [refetchWords]);
   useEffect(() => {
     fetch("/api/english/writing/toggle")
       .then((res) => (res.ok ? (res.json() as Promise<{ overrides: Record<number, boolean> }>) : null))
@@ -99,6 +99,7 @@ export function WritingSettingsTab({
   const filteredWords = words.filter((w) =>
     (groupFilter === "all" || (groupFilter === "none" ? w.groupIds.length === 0 : w.groupIds.includes(Number(groupFilter)))) &&
     (!q || w.word.toLowerCase().includes(q)));
+  const { visible, sentinelRef, hasMore } = useIncrementalList(filteredWords, `${q}|${groupFilter}`);
   const allActive = filteredWords.length > 0 && filteredWords.every(isActive);
   const changed = words.filter((w) => overrides[w.id] !== undefined && overrides[w.id] !== (activeByWord[w.id] ?? true));
   const dirty = changed.length > 0 || (Object.keys(draft) as (keyof WritingSettings)[]).some((k) => draft[k] !== settings[k]);
@@ -196,12 +197,13 @@ export function WritingSettingsTab({
                 <span className="text-sm font-medium">{t("Settings.toggleAll", { count: filteredWords.length })}</span>
                 <Switch checked={allActive} onChange={(v) => setActive(filteredWords.map((w) => w.id), v)} />
               </div>
-              {filteredWords.map((w) => (
+              {visible.map((w) => (
                 <div key={w.id} className="flex items-center justify-between gap-2 px-3 py-2">
                   <span className="text-sm truncate min-w-0">{w.word}</span>
                   <Switch checked={isActive(w)} onChange={(v) => setActive([w.id], v)} />
                 </div>
               ))}
+              {hasMore && <div ref={sentinelRef} className="h-px" />}
             </>
           )}
         </div>

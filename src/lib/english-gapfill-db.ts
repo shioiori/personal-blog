@@ -9,8 +9,8 @@ import type {
 } from "@/src/declaration/english";
 import type { WordLimit } from "./gapfill-word-limit";
 
-async function attachOrphanExercises() {
-  await sql`
+function attachOrphanExercises() {
+  return sql`
     UPDATE english_gapfill_exercises e SET script_id = s.id
     FROM english_gapfill_scripts s
     WHERE e.script_id IS NULL AND e.transcript IS NOT NULL AND s.user_id = e.user_id
@@ -19,72 +19,74 @@ async function attachOrphanExercises() {
 }
 
 export const ensureGapFillTables = once(async function ensureGapFillTables() {
-  await sql`
-    CREATE TABLE IF NOT EXISTS english_gapfill_exercises (
-      id         SERIAL PRIMARY KEY,
-      user_id    INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      title      TEXT NOT NULL,
-      transcript TEXT NOT NULL,
-      content    TEXT NOT NULL,
-      answers    JSONB NOT NULL,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    )
-  `;
-  await sql`
-    ALTER TABLE english_gapfill_exercises ADD COLUMN IF NOT EXISTS word_limit TEXT NOT NULL DEFAULT 'two_number'
-  `;
-  await sql`
-    ALTER TABLE english_gapfill_exercises ADD COLUMN IF NOT EXISTS source TEXT
-  `;
-  await sql`
-    CREATE TABLE IF NOT EXISTS english_gapfill_attempts (
-      id          SERIAL PRIMARY KEY,
-      exercise_id INT NOT NULL REFERENCES english_gapfill_exercises(id) ON DELETE CASCADE,
-      responses   JSONB NOT NULL,
-      results     JSONB NOT NULL,
-      score       INT NOT NULL,
-      total       INT NOT NULL
-    )
-  `;
-  await sql`
-    CREATE INDEX IF NOT EXISTS english_gapfill_attempts_exercise_idx ON english_gapfill_attempts (exercise_id)
-  `;
-  await sql`
-    CREATE TABLE IF NOT EXISTS english_gapfill_scripts (
-      id         SERIAL PRIMARY KEY,
-      user_id    INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      source     TEXT,
-      transcript TEXT NOT NULL,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    )
-  `;
-  await sql`
-    ALTER TABLE english_gapfill_exercises ADD COLUMN IF NOT EXISTS script_id INT REFERENCES english_gapfill_scripts(id) ON DELETE CASCADE
-  `;
-  await sql`
-    ALTER TABLE english_gapfill_exercises ALTER COLUMN transcript DROP NOT NULL
-  `;
-  await sql`
-    CREATE INDEX IF NOT EXISTS english_gapfill_exercises_script_idx ON english_gapfill_exercises (script_id)
-  `;
-  await attachOrphanExercises();
-  await sql`
-    INSERT INTO english_gapfill_scripts (user_id, source, transcript, created_at)
-    SELECT DISTINCT ON (user_id, btrim(regexp_replace(transcript, '[[:space:]]+', ' ', 'g')))
-           user_id, source, transcript, created_at
-    FROM english_gapfill_exercises
-    WHERE script_id IS NULL AND transcript IS NOT NULL
-    ORDER BY user_id, btrim(regexp_replace(transcript, '[[:space:]]+', ' ', 'g')), (source IS NULL), created_at
-  `;
-  await attachOrphanExercises();
-  await sql`
-    ALTER TABLE english_gapfill_scripts ADD COLUMN IF NOT EXISTS name TEXT
-  `;
-  await sql`
-    UPDATE english_gapfill_scripts s
-    SET name = (SELECT e.title FROM english_gapfill_exercises e WHERE e.script_id = s.id ORDER BY e.id LIMIT 1)
-    WHERE s.name IS NULL
-  `;
+  await sql.transaction([
+    sql`
+      CREATE TABLE IF NOT EXISTS english_gapfill_exercises (
+        id         SERIAL PRIMARY KEY,
+        user_id    INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        title      TEXT NOT NULL,
+        transcript TEXT NOT NULL,
+        content    TEXT NOT NULL,
+        answers    JSONB NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `,
+    sql`
+      ALTER TABLE english_gapfill_exercises ADD COLUMN IF NOT EXISTS word_limit TEXT NOT NULL DEFAULT 'two_number'
+    `,
+    sql`
+      ALTER TABLE english_gapfill_exercises ADD COLUMN IF NOT EXISTS source TEXT
+    `,
+    sql`
+      CREATE TABLE IF NOT EXISTS english_gapfill_attempts (
+        id          SERIAL PRIMARY KEY,
+        exercise_id INT NOT NULL REFERENCES english_gapfill_exercises(id) ON DELETE CASCADE,
+        responses   JSONB NOT NULL,
+        results     JSONB NOT NULL,
+        score       INT NOT NULL,
+        total       INT NOT NULL
+      )
+    `,
+    sql`
+      CREATE INDEX IF NOT EXISTS english_gapfill_attempts_exercise_idx ON english_gapfill_attempts (exercise_id)
+    `,
+    sql`
+      CREATE TABLE IF NOT EXISTS english_gapfill_scripts (
+        id         SERIAL PRIMARY KEY,
+        user_id    INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        source     TEXT,
+        transcript TEXT NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `,
+    sql`
+      ALTER TABLE english_gapfill_exercises ADD COLUMN IF NOT EXISTS script_id INT REFERENCES english_gapfill_scripts(id) ON DELETE CASCADE
+    `,
+    sql`
+      ALTER TABLE english_gapfill_exercises ALTER COLUMN transcript DROP NOT NULL
+    `,
+    sql`
+      CREATE INDEX IF NOT EXISTS english_gapfill_exercises_script_idx ON english_gapfill_exercises (script_id)
+    `,
+    attachOrphanExercises(),
+    sql`
+      INSERT INTO english_gapfill_scripts (user_id, source, transcript, created_at)
+      SELECT DISTINCT ON (user_id, btrim(regexp_replace(transcript, '[[:space:]]+', ' ', 'g')))
+             user_id, source, transcript, created_at
+      FROM english_gapfill_exercises
+      WHERE script_id IS NULL AND transcript IS NOT NULL
+      ORDER BY user_id, btrim(regexp_replace(transcript, '[[:space:]]+', ' ', 'g')), (source IS NULL), created_at
+    `,
+    attachOrphanExercises(),
+    sql`
+      ALTER TABLE english_gapfill_scripts ADD COLUMN IF NOT EXISTS name TEXT
+    `,
+    sql`
+      UPDATE english_gapfill_scripts s
+      SET name = (SELECT e.title FROM english_gapfill_exercises e WHERE e.script_id = s.id ORDER BY e.id LIMIT 1)
+      WHERE s.name IS NULL
+    `,
+  ]);
 });
 
 function normalizeAnswer(s: string): string {

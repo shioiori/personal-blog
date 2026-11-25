@@ -20,7 +20,10 @@ export function useFlashcardSettings() {
     let cancelled = false;
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setSettings({ ...DEFAULT_SETTINGS, ...(JSON.parse(raw) as Partial<FlashcardSettings>) });
+      if (raw) {
+        setSettings({ ...DEFAULT_SETTINGS, ...(JSON.parse(raw) as Partial<FlashcardSettings>) });
+        setLoaded(true);
+      }
     } catch {
       // ignore
     }

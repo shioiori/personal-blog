@@ -20,7 +20,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   await ensureEssayTables();
   const { id } = await params;
 
-  let body: { title?: unknown; categories?: unknown; parts?: unknown; step?: unknown; finalText?: unknown };
+  let body: { title?: unknown; categories?: unknown; parts?: unknown; step?: unknown; finalText?: unknown; done?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -32,8 +32,9 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   const parts = Array.isArray(body.parts) ? (body.parts as EssayPart[]) : undefined;
   const step = typeof body.step === "string" ? (body.step as EssayStep) : undefined;
   const finalText = typeof body.finalText === "string" ? body.finalText : undefined;
+  const done = typeof body.done === "boolean" ? body.done : undefined;
 
-  const essay = await updateEssay(userId, parseInt(id, 10), { title, categories, parts, step, finalText });
+  const essay = await updateEssay(userId, parseInt(id, 10), { title, categories, parts, step, finalText, done });
   if (!essay) return NextResponse.json({ error: "not found" }, { status: 404 });
   return NextResponse.json(essay);
 }

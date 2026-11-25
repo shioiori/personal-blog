@@ -6,6 +6,8 @@ import {
   useEffect,
   useState,
   useCallback,
+  useMemo,
+  useRef,
 } from 'react'
 import type { EnglishWord, EnglishGroup } from '@/src/declaration/english'
 
@@ -25,9 +27,14 @@ export function EnglishProvider({ children }: { children: React.ReactNode }) {
   const [groups, setGroups] = useState<EnglishGroup[]>([])
   const [loaded, setLoaded] = useState(false)
 
+  const fullWordsLoaded = useRef(false)
+
   const refetchWords = useCallback(async () => {
     const res = await fetch('/api/english/words')
-    if (res.ok) setWords((await res.json()) as EnglishWord[])
+    if (!res.ok) return
+    const data = (await res.json()) as EnglishWord[]
+    fullWordsLoaded.current = true
+    setWords(data)
   }, [])
 
   const refetchGroups = useCallback(async () => {
@@ -40,15 +47,26 @@ export function EnglishProvider({ children }: { children: React.ReactNode }) {
   }, [refetchWords, refetchGroups])
 
   useEffect(() => {
+    fetch('/api/english/words?summary=1')
+      .then((res) => (res.ok ? (res.json() as Promise<EnglishWord[]>) : null))
+      .then((data) => {
+        if (!data || fullWordsLoaded.current) return
+        setWords(data)
+        setLoaded(true)
+      })
+      .catch(() => {})
     refetchAll()
       .catch(() => {})
       .finally(() => setLoaded(true))
   }, [refetchAll])
 
+  const value = useMemo(
+    () => ({ words, groups, loaded, refetchWords, refetchGroups, refetchAll }),
+    [words, groups, loaded, refetchWords, refetchGroups, refetchAll]
+  )
+
   return (
-    <EnglishContext.Provider
-      value={{ words, groups, loaded, refetchWords, refetchGroups, refetchAll }}
-    >
+    <EnglishContext.Provider value={value}>
       {children}
     </EnglishContext.Provider>
   )

@@ -18,6 +18,7 @@ export const ensureEssayTables = once(async function ensureEssayTables() {
   `;
   await sql`ALTER TABLE english_essay ADD COLUMN IF NOT EXISTS final_text TEXT NOT NULL DEFAULT ''`;
   await sql`ALTER TABLE english_essay ADD COLUMN IF NOT EXISTS categories TEXT[] NOT NULL DEFAULT '{}'`;
+  await sql`ALTER TABLE english_essay ADD COLUMN IF NOT EXISTS done BOOLEAN NOT NULL DEFAULT FALSE`;
   // One-time move from the earlier single-value "category" column, then drop it so
   // it can't resurface after a user clears an essay's categories.
   await sql`
@@ -41,6 +42,7 @@ function toSummary(r: Record<string, unknown>): EssaySummary {
     title: r.title as string,
     categories: normalizeEssayCategories(r.categories),
     step: r.step as EssayStep,
+    done: r.done as boolean,
     createdAt: (r.created_at as Date).toISOString(),
     updatedAt: (r.updated_at as Date).toISOString(),
   };
@@ -54,6 +56,7 @@ function toEssay(r: Record<string, unknown>): Essay {
     parts: r.parts as EssayPart[],
     step: r.step as EssayStep,
     finalText: (r.final_text as string | null) ?? "",
+    done: r.done as boolean,
     createdAt: (r.created_at as Date).toISOString(),
     updatedAt: (r.updated_at as Date).toISOString(),
   };
@@ -61,7 +64,7 @@ function toEssay(r: Record<string, unknown>): Essay {
 
 export async function listEssays(userId: number): Promise<EssaySummary[]> {
   const rows = await sql`
-    SELECT id, title, categories, step, created_at, updated_at FROM english_essay
+    SELECT id, title, categories, step, done, created_at, updated_at FROM english_essay
     WHERE user_id = ${userId} ORDER BY updated_at DESC
   `;
   return rows.map(toSummary);
@@ -85,7 +88,7 @@ export async function createEssay(userId: number, title: string): Promise<Essay>
 export async function updateEssay(
   userId: number,
   id: number,
-  patch: { title?: string; categories?: EssayCategory[]; parts?: EssayPart[]; step?: EssayStep; finalText?: string },
+  patch: { title?: string; categories?: EssayCategory[]; parts?: EssayPart[]; step?: EssayStep; finalText?: string; done?: boolean },
 ): Promise<Essay | null> {
   const existing = await getEssay(userId, id);
   if (!existing) return null;
@@ -94,8 +97,14 @@ export async function updateEssay(
   const parts = patch.parts ?? existing.parts;
   const step = patch.step ?? existing.step;
   const finalText = patch.finalText ?? existing.finalText;
+  const done = patch.done ?? existing.done;
+  const partsJson = JSON.stringify(parts);
   const rows = await sql`
-    UPDATE english_essay SET title = ${title}, categories = ${categories}, parts = ${JSON.stringify(parts)}::jsonb, step = ${step}, final_text = ${finalText}, updated_at = NOW()
+    UPDATE english_essay SET title = ${title}, categories = ${categories}, parts = ${partsJson}::jsonb, step = ${step}, final_text = ${finalText}, done = ${done},
+      updated_at = CASE
+        WHEN (title, categories, parts, step, final_text) IS DISTINCT FROM (${title}::text, ${categories}::text[], ${partsJson}::jsonb, ${step}::text, ${finalText}::text) THEN NOW()
+        ELSE updated_at
+      END
     WHERE id = ${id} AND user_id = ${userId}
     RETURNING *
   `;

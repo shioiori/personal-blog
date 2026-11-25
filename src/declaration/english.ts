@@ -27,6 +27,7 @@ export interface EnglishWord {
   altSpelling?: string;
   /** URL of the page the word was captured from (e.g. via the browser extension). */
   sourceUrl?: string;
+  summary?: boolean;
 }
 
 export interface EnglishGroup {
@@ -162,6 +163,7 @@ export interface Essay {
   step: EssayStep;
   /** Final combined essay text, edited freely in the "edit" step. */
   finalText: string;
+  done: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -171,6 +173,7 @@ export interface EssaySummary {
   title: string;
   categories: EssayCategory[];
   step: EssayStep;
+  done: boolean;
   createdAt: string;
   updatedAt: string;
 }

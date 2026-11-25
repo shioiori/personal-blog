@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Plus, FileText, Trash2, Pencil, Check } from "lucide-react";
+import { Plus, FileText, Trash2, Pencil, Check, CheckCircle2, Shuffle } from "lucide-react";
 import type { Essay, EssaySummary, EssayStep as EssayStepType, EssayPart } from "@/src/declaration/english";
 import { Button } from "@/src/components/ui/Button";
 import { Textarea } from "@/src/components/ui/Textarea";
@@ -29,8 +29,8 @@ export function EssayTab() {
   const [essay, setEssay] = useState<Essay | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [editingTitle, setEditingTitle] = useState(false);
-  // "all" = no filter, "none" = essays without a category.
-  const [filter, setFilter] = useState<EssayCategory | "all" | "none">("all");
+  // "all" = no filter, "none" = essays without a category, "done" = essays marked as done.
+  const [filter, setFilter] = useState<EssayCategory | "all" | "none" | "done">("all");
   const titleRef = useRef<HTMLTextAreaElement | null>(null);
 
   useLayoutEffect(() => {
@@ -58,7 +58,7 @@ export function EssayTab() {
       body: JSON.stringify({ title: "" }),
     });
     const created = (await res.json()) as Essay;
-    setEssays((prev) => [{ id: created.id, title: created.title, categories: created.categories, step: created.step, createdAt: created.createdAt, updatedAt: created.updatedAt }, ...prev]);
+    setEssays((prev) => [{ id: created.id, title: created.title, categories: created.categories, step: created.step, done: created.done, createdAt: created.createdAt, updatedAt: created.updatedAt }, ...prev]);
     setEssay(created);
     setEditingTitle(!created.title.trim());
   }
@@ -82,7 +82,7 @@ export function EssayTab() {
       fetch(`/api/english/essay/${next.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: next.title, categories: next.categories, parts: next.parts, step: next.step, finalText: next.finalText }),
+        body: JSON.stringify({ title: next.title, categories: next.categories, parts: next.parts, step: next.step, finalText: next.finalText, done: next.done }),
       }).catch(() => {});
     }, 800);
   }
@@ -112,6 +112,13 @@ export function EssayTab() {
     setEssays((prev) => prev.map((e) => (e.id === essay.id ? { ...e, categories } : e)));
   }
 
+  function toggleDone() {
+    if (!essay) return;
+    const done = !essay.done;
+    scheduleSave({ ...essay, done });
+    setEssays((prev) => prev.map((e) => (e.id === essay.id ? { ...e, done } : e)));
+  }
+
   function goToStep(step: EssayStepType) {
     if (!essay) return;
     let next = essay;
@@ -133,20 +140,35 @@ export function EssayTab() {
     const visible =
       filter === "all"
         ? essays
-        : filter === "none"
-          ? essays.filter((e) => e.categories.length === 0)
-          : essays.filter((e) => e.categories.includes(filter));
+        : filter === "done"
+          ? essays.filter((e) => e.done)
+          : filter === "none"
+            ? essays.filter((e) => e.categories.length === 0)
+            : essays.filter((e) => e.categories.includes(filter));
     const uncategorized = counts.get("none") ?? 0;
-    const chips: { id: EssayCategory | "all" | "none"; label: string; count: number }[] = [
+    const doneCount = essays.filter((e) => e.done).length;
+    const randomPool = visible.filter((e) => !e.done && e.title.trim());
+    const chips: { id: EssayCategory | "all" | "none" | "done"; label: string; count: number }[] = [
       { id: "all", label: "Tất cả", count: essays.length },
+      ...(doneCount > 0 ? [{ id: "done" as const, label: "Hoàn thành", count: doneCount }] : []),
       ...ESSAY_CATEGORIES.filter((c) => counts.has(c.id)).map((c) => ({ id: c.id, label: c.label, count: counts.get(c.id)! })),
       ...(uncategorized > 0 && uncategorized < essays.length ? [{ id: "none" as const, label: "Chưa phân loại", count: uncategorized }] : []),
     ];
     return (
       <div className="space-y-4">
-        <Button onClick={createNewEssay} className="gap-1.5">
-          <Plus className="h-4 w-4" /> Bài luận mới
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={createNewEssay} className="gap-1.5">
+            <Plus className="h-4 w-4" /> Bài luận mới
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => openEssay(randomPool[Math.floor(Math.random() * randomPool.length)].id)}
+            disabled={randomPool.length === 0}
+            className="gap-1.5"
+          >
+            <Shuffle className="h-4 w-4" /> Đề ngẫu nhiên
+          </Button>
+        </div>
         {essays.length === 0 ? (
           <p className="text-sm text-muted-foreground">Chưa có bài luận nào.</p>
         ) : (
@@ -175,7 +197,11 @@ export function EssayTab() {
                 onClick={() => openEssay(e.id)}
               >
                 <div className="flex items-center gap-2 min-w-0">
-                  <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  {e.done ? (
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
+                  ) : (
+                    <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  )}
                   <span className="line-clamp-2 text-sm font-medium" title={e.title}>{e.title || "Bài luận chưa đặt tên"}</span>
                 </div>
                 {e.categories.length > 0 && (
@@ -209,9 +235,20 @@ export function EssayTab() {
       <div className="space-y-2">
         <div className="flex items-center justify-between gap-2">
           <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Đề bài</span>
-          <Button variant="outline" size="sm" onClick={() => setEssay(null)}>
-            ← Danh sách
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant={essay.done ? "default" : "outline"}
+              onClick={toggleDone}
+              className={cn("gap-1.5", essay.done && "bg-green-600 hover:bg-green-700 text-white")}
+            >
+              {essay.done ? <CheckCircle2 className="h-4 w-4" /> : <Check className="h-4 w-4" />}
+              {essay.done ? "Đã hoàn thành" : "Đánh dấu hoàn thành"}
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setEssay(null)}>
+              ← Danh sách
+            </Button>
+          </div>
         </div>
         {editingTitle ? (
           <div className="flex items-start gap-2">
