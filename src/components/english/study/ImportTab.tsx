@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import * as XLSX from "xlsx";
-import { Upload, X, Check, Sparkles } from "lucide-react";
+import { Upload, X, Check } from "lucide-react";
 import { Button } from "@/src/components/ui/Button";
 import { Input } from "@/src/components/ui/Input";
 import { cn } from "@/src/utils/ui";
@@ -14,7 +14,6 @@ interface PreviewSense {
   partOfSpeech: string;
   cambridgeMeaning: string;
   meaningVi: string;
-  phonetic: string;
   example: string;
   synonyms: string;
   antonyms: string;
@@ -24,17 +23,6 @@ interface PreviewSense {
 interface PreviewEntry {
   word: string;
   senses: PreviewSense[];
-}
-
-interface DictionarySense {
-  partOfSpeech?: string;
-  definitions: { text: string; examples: string[] }[];
-}
-interface DictionaryCrawlData {
-  pronunciations?: { ipa?: string }[];
-  senses?: DictionarySense[];
-  synonyms?: string[];
-  antonyms?: string[];
 }
 
 type Stage = "idle" | "parsing" | "preview" | "done";
@@ -117,7 +105,7 @@ function rowsToEntries(rows: unknown[][]): PreviewEntry[] {
 
     const poses = pos.split(",").map((p) => p.trim()).filter(Boolean);
     for (const partOfSpeech of poses.length ? poses : [""]) {
-      byWord.get(key)!.senses.push({ partOfSpeech, cambridgeMeaning, meaningVi, phonetic: "", example, synonyms, antonyms, note });
+      byWord.get(key)!.senses.push({ partOfSpeech, cambridgeMeaning, meaningVi, example, synonyms, antonyms, note });
     }
   }
 
@@ -133,7 +121,6 @@ export function ImportTab() {
   const [groupChoice, setGroupChoice] = useState<string>("");
   const [newGroupName, setNewGroupName] = useState("");
   const [onDuplicate, setOnDuplicate] = useState<"skip" | "overwrite">("skip");
-  const [autoFilling, setAutoFilling] = useState(false);
   const [saving, setSaving] = useState(false);
   const [doneStats, setDoneStats] = useState<{ created: number; overwritten: number; skipped: string[] }>({ created: 0, overwritten: 0, skipped: [] });
   const inputRef = useRef<HTMLInputElement>(null);
@@ -222,61 +209,8 @@ export function ImportTab() {
     );
   }
 
-  // Fills whatever is still blank (part of speech, phonetic, example,
-  // synonyms, antonyms) per sense using the free dictionary lookup, matching
-  // by part of speech when the entry has more than one. Never overwrites a
-  // field the user already has.
-  async function handleAutoFillAll() {
-    setAutoFilling(true);
-    try {
-      const BATCH = 4;
-      for (let i = 0; i < entries.length; i += BATCH) {
-        const batch = entries.slice(i, i + BATCH);
-        await Promise.all(
-          batch.map(async (entry) => {
-            try {
-              const res = await fetch(`/api/english/crawl?word=${encodeURIComponent(entry.word)}`);
-              const data = (await res.json()) as { crawlData?: DictionaryCrawlData };
-              const dict = data.crawlData;
-              const ipa = dict?.pronunciations?.find((p) => p.ipa)?.ipa;
-              if (!dict || (!ipa && (!dict.senses || dict.senses.length === 0))) return;
-
-              const synonymsText = (dict.synonyms ?? []).slice(0, 6).join(", ");
-              const antonymsText = (dict.antonyms ?? []).slice(0, 6).join(", ");
-              const senses = dict.senses ?? [];
-
-              setEntries((prev) =>
-                prev.map((e) => {
-                  if (e.word !== entry.word) return e;
-                  return {
-                    ...e,
-                    senses: e.senses.map((s) => {
-                      const match =
-                        senses.find((ds) => ds.partOfSpeech?.toLowerCase() === s.partOfSpeech.toLowerCase()) ??
-                        senses[0];
-                      const def = match?.definitions[0];
-                      return {
-                        ...s,
-                        partOfSpeech: s.partOfSpeech || match?.partOfSpeech || "",
-                        phonetic: s.phonetic || ipa || "",
-                        example: s.example || def?.examples[0] || "",
-                        synonyms: s.synonyms || synonymsText,
-                        antonyms: s.antonyms || antonymsText,
-                        meaningVi: s.meaningVi,
-                      };
-                    }),
-                  };
-                })
-              );
-            } catch {
-              // best-effort, ignore
-            }
-          })
-        );
-      }
-    } finally {
-      setAutoFilling(false);
-    }
+  function removeEntry(wi: number) {
+    setEntries((prev) => prev.filter((_, i) => i !== wi));
   }
 
   async function handleConfirm() {
@@ -289,7 +223,6 @@ export function ImportTab() {
           partOfSpeech: s.partOfSpeech || undefined,
           cambridgeMeaning: s.cambridgeMeaning || undefined,
           meaningVi: s.meaningVi || undefined,
-          phonetic: s.phonetic || undefined,
           example: s.example || undefined,
           synonyms: s.synonyms || undefined,
           antonyms: s.antonyms || undefined,
@@ -387,11 +320,6 @@ export function ImportTab() {
             />
           )}
 
-          <Button size="sm" variant="outline" onClick={handleAutoFillAll} disabled={autoFilling}>
-            <Sparkles className={`w-3.5 h-3.5 mr-1 ${autoFilling ? "animate-pulse" : ""}`} />
-            {autoFilling ? t("Import.autoFilling") : t("Common.autoFill")}
-          </Button>
-
           <div className="flex items-center gap-1 text-sm">
             <span className="text-muted-foreground">{t("Import.ifExists")}</span>
             <select
@@ -404,9 +332,6 @@ export function ImportTab() {
             </select>
           </div>
         </div>
-        <p className="text-xs text-muted-foreground/70">
-          {t("Import.autoFillHint")}
-        </p>
 
         <div className="max-h-96 overflow-y-auto rounded-lg border border-border">
           <table className="w-full text-sm">
@@ -416,39 +341,45 @@ export function ImportTab() {
                 <th className="text-left px-3 py-2 font-medium">{t("Import.colPartOfSpeech")}</th>
                 <th className="text-left px-3 py-2 font-medium">{t("Import.colCambridge")}</th>
                 <th className="text-left px-3 py-2 font-medium">{t("Import.colMeaningVi")}</th>
-                <th className="text-left px-3 py-2 font-medium">{t("Import.colAutoFill")}</th>
+                <th className="text-left px-3 py-2 font-medium">{t("Import.colExample")}</th>
+                <th className="text-left px-3 py-2 font-medium">{t("Import.colSynonyms")}</th>
+                <th className="text-left px-3 py-2 font-medium">{t("Import.colAntonyms")}</th>
+                <th className="text-left px-3 py-2 font-medium">{t("Import.colNote")}</th>
               </tr>
             </thead>
             <tbody>
               {entries.map((e, wi) =>
-                e.senses.map((s, si) => {
-                  const extra = [
-                    s.phonetic && `/${s.phonetic}/`,
-                    s.example && `"${s.example}"`,
-                    s.synonyms && `${t("Common.synonyms")} ${s.synonyms}`,
-                    s.antonyms && `${t("Common.antonyms")} ${s.antonyms}`,
-                    s.note && `${t("EditWord.note")}: ${s.note}`,
-                  ].filter(Boolean);
-                  return (
-                    <tr key={`${wi}-${si}`} className="border-t border-border">
-                      {si === 0 && (
-                        <td className="px-3 py-2 font-medium align-top" rowSpan={e.senses.length}>{e.word}</td>
-                      )}
-                      <td className="px-3 py-2 text-muted-foreground align-top">{s.partOfSpeech || "—"}</td>
-                      <td className="px-3 py-2 text-muted-foreground align-top max-w-xs truncate">{s.cambridgeMeaning || "—"}</td>
-                      <td className="px-3 py-2 align-top">
-                        <input
-                          value={s.meaningVi}
-                          onChange={(ev) => updateEntrySenseVi(wi, si, ev.target.value)}
-                          className="w-full rounded border border-input bg-background px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-ring"
-                        />
+                e.senses.map((s, si) => (
+                  <tr key={`${e.word}-${si}`} className="border-t border-border">
+                    {si === 0 && (
+                      <td className="px-3 py-2 font-medium align-top" rowSpan={e.senses.length}>
+                        <div className="flex items-start gap-1.5">
+                          <button
+                            onClick={() => removeEntry(wi)}
+                            className="mt-0.5 text-muted-foreground hover:text-destructive transition-colors"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                          {e.word}
+                        </div>
                       </td>
-                      <td className="px-3 py-2 text-muted-foreground align-top max-w-xs text-xs">
-                        {extra.length > 0 ? extra.join(" · ") : "—"}
+                    )}
+                    <td className="px-3 py-2 text-muted-foreground align-top">{s.partOfSpeech || "—"}</td>
+                    <td className="px-3 py-2 text-muted-foreground align-top max-w-xs truncate">{s.cambridgeMeaning || "—"}</td>
+                    <td className="px-3 py-2 align-top">
+                      <input
+                        value={s.meaningVi}
+                        onChange={(ev) => updateEntrySenseVi(wi, si, ev.target.value)}
+                        className="w-full rounded border border-input bg-background px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-ring"
+                      />
+                    </td>
+                    {[s.example, s.synonyms, s.antonyms, s.note].map((value, ci) => (
+                      <td key={ci} className="px-3 py-2 text-muted-foreground align-top max-w-xs text-xs">
+                        {value || "—"}
                       </td>
-                    </tr>
-                  );
-                })
+                    ))}
+                  </tr>
+                ))
               )}
             </tbody>
           </table>
