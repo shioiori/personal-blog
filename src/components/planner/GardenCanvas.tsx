@@ -251,17 +251,13 @@ function drawPlot(ctx: CanvasRenderingContext2D, plot: GardenPlot, rect: Rect, t
   const dw = stages.w * scale
   const dh = stages.h * scale
   const left = x + (w - dw) / 2
-  const top = crop.water ? y + (h - dh) / 2 : y + h + 8 - dh
+  const top = crop.water && stages.h <= stages.w ? y + (h - dh) / 2 : y + h + 8 - dh
   const bob = ready ? Math.round(Math.sin(t / 220) * 2) : crop.water ? Math.round(Math.sin(t / 600 + plot.slotIndex)) : 0
 
   ctx.save()
   ctx.imageSmoothingEnabled = false
-  if (plot.status === 'withered') ctx.filter = 'grayscale(0.9) brightness(0.8)'
+  if (plot.status === 'withered' && !stages.withered) ctx.filter = 'grayscale(0.9) brightness(0.8)'
   ctx.drawImage(img, frame[0], frame[1], stages.w, stages.h, left, top + bob, dw, dh)
-  if (plot.status !== 'growing' && stages.ripeOverlay) {
-    const [ox, oy] = stages.ripeOverlay
-    ctx.drawImage(img, ox, oy, stages.w, stages.h, left - 2, top + bob - 6, dw, dh)
-  }
   ctx.restore()
 
   if (ready && Math.sin(t / 180) > 0) drawPixelSparkle(ctx, left + dw - 4, y - 4)

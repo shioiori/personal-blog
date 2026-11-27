@@ -62,7 +62,7 @@
         "harvestedToast": "Thu hoạch thành công: +{amount} xu",
         "witheredToast": "Cây đã héo, không thu được gì",
         "cost": "Giá: {price} xu",
-        "assetCredit": "Assets - From: Sprout Lands - By: Cup Nooble · Cây trồng: Cornucopia (Nexus Mods)",
+        "assetCredit": "Assets - From: Sprout Lands - By: Cup Nooble · Cây trồng: Cornucopia (Nexus Mods) · Cây thủy sinh: AquaticPlants (Nexus Mods)",
         "witherHint": "Cây chín quá {days} ngày mà không thu hoạch sẽ bị héo và mất trắng.",
         "crop": {
             "onion": "Hành tây",
@@ -92,7 +92,9 @@
             "cactus": "Quả xương rồng",
             "tulip": "Tulip",
             "lavender": "Oải hương",
-            "waterlily": "Hoa súng"
+            "lotus": "Sen",
+            "caltrop": "Củ ấu",
+            "cattail": "Cỏ nến"
         },
         "owned": "Đang có: {count}",
         "boughtToast": "Đã mua {name}",

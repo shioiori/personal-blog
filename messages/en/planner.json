@@ -62,7 +62,7 @@
         "harvestedToast": "Harvested: +{amount} coins",
         "witheredToast": "The plant withered, nothing to harvest",
         "cost": "Price: {price} coins",
-        "assetCredit": "Assets - From: Sprout Lands - By: Cup Nooble · Crops: Cornucopia (Nexus Mods)",
+        "assetCredit": "Assets - From: Sprout Lands - By: Cup Nooble · Crops: Cornucopia (Nexus Mods) · Aquatic plants: AquaticPlants (Nexus Mods)",
         "witherHint": "A ripe crop left unharvested for more than {days} days will wither and give nothing.",
         "crop": {
             "onion": "Onion",
@@ -92,7 +92,9 @@
             "cactus": "Cactus fruit",
             "tulip": "Tulip",
             "lavender": "Lavender",
-            "waterlily": "Water lily"
+            "lotus": "Lotus",
+            "caltrop": "Water caltrop",
+            "cattail": "Cattail"
         },
         "owned": "Owned: {count}",
         "boughtToast": "Bought {name}",

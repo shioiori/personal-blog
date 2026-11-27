@@ -244,7 +244,7 @@ export function GardenTab() {
                 <CropSprite
                   crop={infoCrop}
                   frame={growthFrame(infoCrop.stages, infoPlot.status, infoPlot.daysElapsed, infoPlot.growDays)}
-                  height={infoCrop.stages.h >= 32 ? 96 : 64}
+                  height={infoCrop.stages.h > infoCrop.stages.w ? 96 : 64}
                 />
               </div>
               <div className="min-w-0 flex-1 space-y-1">
