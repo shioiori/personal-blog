@@ -12,6 +12,8 @@
         },
         "Common": {
             "cancel": "Huỷ",
+            "prevPage": "Trang trước",
+            "nextPage": "Trang sau",
             "save": "Lưu",
             "saving": "Đang lưu...",
             "close": "Đóng",

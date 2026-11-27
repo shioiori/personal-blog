@@ -8,7 +8,8 @@ import { useEnglishStudy } from "@/src/context/english";
 import { Button } from "@/src/components/ui/Button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/Select";
 import { DueForecastChart } from "../review/DueForecastChart";
-import { useIncrementalList } from "../shared/useIncrementalList";
+import { usePagedList } from "../shared/usePagedList";
+import { Pagination } from "../shared/Pagination";
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -99,7 +100,7 @@ export function WritingSettingsTab({
   const filteredWords = words.filter((w) =>
     (groupFilter === "all" || (groupFilter === "none" ? w.groupIds.length === 0 : w.groupIds.includes(Number(groupFilter)))) &&
     (!q || w.word.toLowerCase().includes(q)));
-  const { visible, sentinelRef, hasMore } = useIncrementalList(filteredWords, `${q}|${groupFilter}`);
+  const { visible, page, pageCount, goTo, listRef } = usePagedList(filteredWords, `${q}|${groupFilter}`, 50);
   const allActive = filteredWords.length > 0 && filteredWords.every(isActive);
   const changed = words.filter((w) => overrides[w.id] !== undefined && overrides[w.id] !== (activeByWord[w.id] ?? true));
   const dirty = changed.length > 0 || (Object.keys(draft) as (keyof WritingSettings)[]).some((k) => draft[k] !== settings[k]);
@@ -188,7 +189,7 @@ export function WritingSettingsTab({
             </SelectContent>
           </Select>
         </div>
-        <div className="max-h-96 overflow-y-auto rounded-lg border border-border divide-y divide-border">
+        <div ref={listRef} className="max-h-96 overflow-y-auto rounded-lg border border-border divide-y divide-border">
           {filteredWords.length === 0 ? (
             <p className="text-sm text-muted-foreground py-6 text-center">{t("Common.noWordsYet")}</p>
           ) : (
@@ -203,10 +204,10 @@ export function WritingSettingsTab({
                   <Switch checked={isActive(w)} onChange={(v) => setActive([w.id], v)} />
                 </div>
               ))}
-              {hasMore && <div ref={sentinelRef} className="h-px" />}
             </>
           )}
         </div>
+        <Pagination page={page} pageCount={pageCount} onChange={goTo} />
       </div>
 
       <div className="sticky -bottom-6 -mb-6 pt-3 pb-6 bg-background border-t flex justify-end">

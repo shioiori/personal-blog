@@ -12,6 +12,8 @@
         },
         "Common": {
             "cancel": "Cancel",
+            "prevPage": "Previous page",
+            "nextPage": "Next page",
             "save": "Save",
             "saving": "Saving...",
             "close": "Close",

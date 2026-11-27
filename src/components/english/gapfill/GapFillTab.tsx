@@ -11,6 +11,8 @@ import { GapFillExerciseView } from "@/src/components/english/gapfill/GapFillExe
 import { GapFillScriptView } from "@/src/components/english/gapfill/GapFillScript";
 import { WordLimitSelect, generateExercise } from "@/src/components/english/gapfill/shared";
 import type { GapFillScriptSummary } from "@/src/declaration/english";
+import { usePagedList } from "@/src/components/english/shared/usePagedList";
+import { Pagination } from "@/src/components/english/shared/Pagination";
 
 type View =
   | { kind: "list" }
@@ -26,6 +28,7 @@ export function GapFillTab() {
   const [input, setInput] = useState("");
   const [wordLimit, setWordLimit] = useState<WordLimit>(DEFAULT_WORD_LIMIT);
   const [generating, setGenerating] = useState(false);
+  const { visible, page, pageCount, goTo, listRef } = usePagedList(scripts, null, 15);
 
   const load = useCallback(async () => {
     try {
@@ -99,7 +102,7 @@ export function GapFillTab() {
         </div>
       </div>
 
-      <div className="space-y-2">
+      <div ref={listRef} className="scroll-mt-24 space-y-2">
         <h3 className="font-semibold">{t("myScripts")}</h3>
         {loading ? (
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
@@ -107,7 +110,7 @@ export function GapFillTab() {
           <p className="text-sm text-muted-foreground">{t("noScripts")}</p>
         ) : (
           <ul className="divide-y rounded-lg border">
-            {scripts.map((s) => (
+            {visible.map((s) => (
               <li key={s.id} className="flex items-center gap-2 px-4 py-3">
                 <button type="button" className="min-w-0 flex-1 text-left" onClick={() => setView({ kind: "script", scriptId: s.id })}>
                   <div className="truncate font-medium hover:underline">{s.name ?? s.preview}</div>
@@ -123,6 +126,7 @@ export function GapFillTab() {
             ))}
           </ul>
         )}
+        <Pagination page={page} pageCount={pageCount} onChange={goTo} />
       </div>
     </div>
   );

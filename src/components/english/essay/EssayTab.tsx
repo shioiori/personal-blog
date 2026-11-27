@@ -8,6 +8,8 @@ import { Textarea } from "@/src/components/ui/Textarea";
 import { OutlineStep } from "./OutlineStep";
 import { TranslateStep } from "./TranslateStep";
 import { EditStep } from "./EditStep";
+import { usePagedList } from "../shared/usePagedList";
+import { Pagination } from "../shared/Pagination";
 import { applyTextToParts, joinEssayText, validateEssayParts } from "@/src/lib/essay-format";
 import { cn } from "@/src/utils/ui";
 import { ESSAY_CATEGORIES, essayCategoryLabel, normalizeEssayCategories, type EssayCategory } from "@/src/lib/essay-categories";
@@ -130,6 +132,16 @@ export function EssayTab() {
 
   const validationError = essay ? validateEssayParts(essay.parts) : null;
 
+  const filtered =
+    filter === "all"
+      ? essays
+      : filter === "done"
+        ? essays.filter((e) => e.done)
+        : filter === "none"
+          ? essays.filter((e) => e.categories.length === 0)
+          : essays.filter((e) => e.categories.includes(filter));
+  const { visible, page, pageCount, goTo, listRef } = usePagedList(filtered, filter, 15);
+
   if (!loaded) return <p className="text-sm text-muted-foreground">Đang tải...</p>;
 
   if (!essay) {
@@ -137,17 +149,9 @@ export function EssayTab() {
     for (const e of essays) {
       for (const k of e.categories.length ? e.categories : ["none"]) counts.set(k, (counts.get(k) ?? 0) + 1);
     }
-    const visible =
-      filter === "all"
-        ? essays
-        : filter === "done"
-          ? essays.filter((e) => e.done)
-          : filter === "none"
-            ? essays.filter((e) => e.categories.length === 0)
-            : essays.filter((e) => e.categories.includes(filter));
     const uncategorized = counts.get("none") ?? 0;
     const doneCount = essays.filter((e) => e.done).length;
-    const randomPool = visible.filter((e) => !e.done && e.title.trim());
+    const randomPool = filtered.filter((e) => !e.done && e.title.trim());
     const chips: { id: EssayCategory | "all" | "none" | "done"; label: string; count: number }[] = [
       { id: "all", label: "Tất cả", count: essays.length },
       ...(doneCount > 0 ? [{ id: "done" as const, label: "Hoàn thành", count: doneCount }] : []),
@@ -172,7 +176,7 @@ export function EssayTab() {
         {essays.length === 0 ? (
           <p className="text-sm text-muted-foreground">Chưa có bài luận nào.</p>
         ) : (
-          <div className="space-y-2">
+          <div ref={listRef} className="scroll-mt-24 space-y-2">
             {chips.length > 1 && (
               <div className="flex flex-wrap gap-1.5 pb-1">
                 {chips.map((c) => (
@@ -189,7 +193,7 @@ export function EssayTab() {
                 ))}
               </div>
             )}
-            {visible.length === 0 && <p className="text-sm text-muted-foreground">Không có bài luận nào trong mục này.</p>}
+            {filtered.length === 0 && <p className="text-sm text-muted-foreground">Không có bài luận nào trong mục này.</p>}
             {visible.map((e) => (
               <div
                 key={e.id}
@@ -224,6 +228,7 @@ export function EssayTab() {
                 </button>
               </div>
             ))}
+            <Pagination page={page} pageCount={pageCount} onChange={goTo} />
           </div>
         )}
       </div>

@@ -17,7 +17,8 @@ import { WordCard } from "./WordCard";
 import { EditWordModal } from "./EditWordModal";
 import { WordFlashcardView } from "./WordFlashcardView";
 import { GroupTab } from "@/src/components/english/groups/GroupTab";
-import { useIncrementalList } from "@/src/components/english/shared/useIncrementalList";
+import { usePagedList } from "@/src/components/english/shared/usePagedList";
+import { Pagination } from "@/src/components/english/shared/Pagination";
 import { useEnglishStudy } from "@/src/context/english";
 import type { EnglishWord } from "@/src/declaration/english";
 
@@ -67,7 +68,7 @@ export function WordList() {
     });
     return result;
   }, [words, search, groupFilter, sortField, sortDir]);
-  const { visible, sentinelRef, hasMore } = useIncrementalList(filtered, `${search}|${groupFilter}|${sortField}|${sortDir}|${viewMode}`);
+  const { visible, page, pageCount, goTo, listRef } = usePagedList(filtered, `${search}|${groupFilter}|${sortField}|${sortDir}|${viewMode}`, 24);
 
   async function handleDelete(id: number) {
     await fetch(`/api/english/words/${id}`, { method: "DELETE" });
@@ -166,6 +167,7 @@ export function WordList() {
       ) : viewMode === "flashcard" ? (
         <WordFlashcardView words={filtered} />
       ) : (
+        <div ref={listRef} className="scroll-mt-24 space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {visible.map((w) => (
             <div
@@ -180,7 +182,8 @@ export function WordList() {
               />
             </div>
           ))}
-          {hasMore && <div ref={sentinelRef} className="col-span-full h-px" />}
+        </div>
+        <Pagination page={page} pageCount={pageCount} onChange={goTo} />
         </div>
       )}
 
