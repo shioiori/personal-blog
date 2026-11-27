@@ -1,24 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Plus, FileText, Trash2, Pencil, Check, CheckCircle2, Shuffle } from "lucide-react";
-import type { Essay, EssaySummary, EssayStep as EssayStepType, EssayPart } from "@/src/declaration/english";
+import { Plus, FileText, Trash2, Pencil, Check, CheckCircle2, Shuffle, X } from "lucide-react";
+import type { Essay, EssayDraft, EssaySummary } from "@/src/declaration/english";
 import { Button } from "@/src/components/ui/Button";
 import { Textarea } from "@/src/components/ui/Textarea";
-import { OutlineStep } from "./OutlineStep";
-import { TranslateStep } from "./TranslateStep";
-import { EditStep } from "./EditStep";
+import { EssayEditor } from "./EssayEditor";
 import { usePagedList } from "../shared/usePagedList";
 import { Pagination } from "../shared/Pagination";
-import { applyTextToParts, joinEssayText, validateEssayParts } from "@/src/lib/essay-format";
 import { cn } from "@/src/utils/ui";
 import { ESSAY_CATEGORIES, essayCategoryLabel, normalizeEssayCategories, type EssayCategory } from "@/src/lib/essay-categories";
-
-const STEPS: { id: EssayStepType; label: string }[] = [
-  { id: "outline", label: "1. Dàn ý" },
-  { id: "translate", label: "2. Dịch" },
-  { id: "edit", label: "3. Chỉnh sửa" },
-];
 
 async function apiGet<T>(path: string): Promise<T> {
   const res = await fetch(path);
@@ -26,11 +17,17 @@ async function apiGet<T>(path: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" });
+}
+
 export function EssayTab() {
   const [essays, setEssays] = useState<EssaySummary[]>([]);
   const [essay, setEssay] = useState<Essay | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [editingTitle, setEditingTitle] = useState(false);
+  const [activeDraftId, setActiveDraftId] = useState<number | null>(null);
+  const [creatingDraft, setCreatingDraft] = useState(false);
   // "all" = no filter, "none" = essays without a category, "done" = essays marked as done.
   const [filter, setFilter] = useState<EssayCategory | "all" | "none" | "done">("all");
   const titleRef = useRef<HTMLTextAreaElement | null>(null);
@@ -42,6 +39,7 @@ export function EssayTab() {
     el.style.height = `${el.scrollHeight + 2}px`;
   }, [editingTitle, essay?.title]);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const draftSave = useRef<{ timer: ReturnType<typeof setTimeout>; send: () => void; draftId: number } | null>(null);
 
   const refetchList = useCallback(async () => {
     setEssays(await apiGet<EssaySummary[]>("/api/english/essay"));
@@ -53,6 +51,12 @@ export function EssayTab() {
       .finally(() => setLoaded(true));
   }, [refetchList]);
 
+  function showEssay(data: Essay) {
+    setEssay(data);
+    setActiveDraftId(data.drafts.at(-1)?.id ?? null);
+    setEditingTitle(!data.title.trim());
+  }
+
   async function createNewEssay() {
     const res = await fetch("/api/english/essay", {
       method: "POST",
@@ -60,15 +64,12 @@ export function EssayTab() {
       body: JSON.stringify({ title: "" }),
     });
     const created = (await res.json()) as Essay;
-    setEssays((prev) => [{ id: created.id, title: created.title, categories: created.categories, step: created.step, done: created.done, createdAt: created.createdAt, updatedAt: created.updatedAt }, ...prev]);
-    setEssay(created);
-    setEditingTitle(!created.title.trim());
+    setEssays((prev) => [{ id: created.id, title: created.title, categories: created.categories, done: created.done, createdAt: created.createdAt, updatedAt: created.updatedAt }, ...prev]);
+    showEssay(created);
   }
 
   async function openEssay(id: number) {
-    const data = await apiGet<Essay>(`/api/english/essay/${id}`);
-    setEssay(data);
-    setEditingTitle(!data.title.trim());
+    showEssay(await apiGet<Essay>(`/api/english/essay/${id}`));
   }
 
   async function deleteEssayById(id: number) {
@@ -84,20 +85,61 @@ export function EssayTab() {
       fetch(`/api/english/essay/${next.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: next.title, categories: next.categories, parts: next.parts, step: next.step, finalText: next.finalText, done: next.done }),
+        body: JSON.stringify({ title: next.title, categories: next.categories, done: next.done }),
       }).catch(() => {});
     }, 800);
   }
 
-  function updateParts(parts: EssayPart[]) {
-    if (!essay) return;
-    scheduleSave({ ...essay, parts });
+  function flushDraftSave() {
+    const pending = draftSave.current;
+    if (!pending) return;
+    clearTimeout(pending.timer);
+    pending.send();
   }
 
-  function updateFinalText(finalText: string) {
+  function updateDraftText(draftId: number, text: string) {
     if (!essay) return;
-    // Step 3 is the source of truth once edited: write the change back into each step-2 translation.
-    scheduleSave({ ...essay, finalText, parts: applyTextToParts(essay.parts, finalText) });
+    if (draftSave.current?.draftId !== draftId) flushDraftSave();
+    else clearTimeout(draftSave.current.timer);
+    const essayId = essay.id;
+    const send = () => {
+      draftSave.current = null;
+      fetch(`/api/english/essay/${essayId}/drafts/${draftId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      }).catch(() => {});
+    };
+    draftSave.current = { timer: setTimeout(send, 800), send, draftId };
+    setEssay((prev) => prev && { ...prev, drafts: prev.drafts.map((d) => (d.id === draftId ? { ...d, text } : d)) });
+  }
+
+  async function createDraft() {
+    if (!essay || creatingDraft) return;
+    flushDraftSave();
+    setCreatingDraft(true);
+    try {
+      const res = await fetch(`/api/english/essay/${essay.id}/drafts`, { method: "POST" });
+      if (!res.ok) return;
+      const draft = (await res.json()) as EssayDraft;
+      setEssay((prev) => prev && { ...prev, drafts: [...prev.drafts, draft] });
+      setActiveDraftId(draft.id);
+    } finally {
+      setCreatingDraft(false);
+    }
+  }
+
+  async function deleteDraft(draftId: number) {
+    if (!essay || essay.drafts.length <= 1) return;
+    if (draftSave.current?.draftId === draftId) {
+      clearTimeout(draftSave.current.timer);
+      draftSave.current = null;
+    }
+    const res = await fetch(`/api/english/essay/${essay.id}/drafts/${draftId}`, { method: "DELETE" });
+    if (!res.ok) return;
+    const drafts = essay.drafts.filter((d) => d.id !== draftId);
+    setEssay({ ...essay, drafts });
+    if (activeDraftId === draftId) setActiveDraftId(drafts.at(-1)?.id ?? null);
   }
 
   function updateTitle(title: string) {
@@ -121,17 +163,7 @@ export function EssayTab() {
     setEssays((prev) => prev.map((e) => (e.id === essay.id ? { ...e, done } : e)));
   }
 
-  function goToStep(step: EssayStepType) {
-    if (!essay) return;
-    let next = essay;
-    if (step === "edit" && !essay.finalText.trim()) {
-      next = { ...essay, finalText: joinEssayText(essay.parts) };
-    }
-    scheduleSave({ ...next, step });
-  }
-
-  const validationError = essay ? validateEssayParts(essay.parts) : null;
-
+  const activeDraft = essay?.drafts.find((d) => d.id === activeDraftId) ?? essay?.drafts.at(-1);
   const filtered =
     filter === "all"
       ? essays
@@ -250,7 +282,7 @@ export function EssayTab() {
               {essay.done ? <CheckCircle2 className="h-4 w-4" /> : <Check className="h-4 w-4" />}
               {essay.done ? "Đã hoàn thành" : "Đánh dấu hoàn thành"}
             </Button>
-            <Button variant="outline" size="sm" onClick={() => setEssay(null)}>
+            <Button variant="outline" size="sm" onClick={() => { flushDraftSave(); setEssay(null); }}>
               ← Danh sách
             </Button>
           </div>
@@ -333,30 +365,51 @@ export function EssayTab() {
         </div>
       </div>
 
-      <div className="flex gap-2 border-b border-border">
-        {STEPS.map((s) => (
-          <button
-            key={s.id}
-            onClick={() => goToStep(s.id)}
-            className={cn(
-              "px-3 py-2 text-sm font-medium border-b-2 transition-colors -mb-px",
-              essay.step === s.id ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {s.label}
-          </button>
-        ))}
+      <div className="flex flex-wrap items-end gap-1 border-b border-border">
+        {essay.drafts.map((d, i) => {
+          const active = d.id === activeDraft?.id;
+          return (
+            <div
+              key={d.id}
+              className={cn(
+                "group flex items-center gap-1 border-b-2 -mb-px transition-colors",
+                active ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground",
+              )}
+            >
+              <button onClick={() => setActiveDraftId(d.id)} className="pl-3 py-2 text-sm font-medium">
+                Bài {i + 1} <span className="font-normal opacity-70">· {formatDate(d.createdAt)}</span>
+              </button>
+              {essay.drafts.length > 1 ? (
+                <button
+                  onClick={() => deleteDraft(d.id)}
+                  title="Xoá bài này"
+                  className="mr-1 rounded p-1 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive transition"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              ) : (
+                <span className="w-2" />
+              )}
+            </div>
+          );
+        })}
+        <button
+          onClick={createDraft}
+          disabled={creatingDraft}
+          className="flex items-center gap-1 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none"
+        >
+          <Plus className="h-4 w-4" /> {creatingDraft ? "Đang tạo..." : "Bài mới"}
+        </button>
       </div>
 
-      {essay.step === "outline" && <OutlineStep parts={essay.parts} onChange={updateParts} />}
-      {essay.step === "translate" && (
-        <>
-          {validationError && <p className="text-sm text-destructive">{validationError}</p>}
-          <TranslateStep parts={essay.parts} onChange={updateParts} />
-        </>
-      )}
-      {essay.step === "edit" && (
-        <EditStep text={essay.finalText} joinedText={joinEssayText(essay.parts)} onChange={updateFinalText} />
+      {creatingDraft ? (
+        <p className="py-16 text-center text-sm text-muted-foreground">Đang tạo bài mới...</p>
+      ) : activeDraft && (
+        <EssayEditor
+          key={activeDraft.id}
+          text={activeDraft.text}
+          onChange={(text) => updateDraftText(activeDraft.id, text)}
+        />
       )}
     </div>
   );

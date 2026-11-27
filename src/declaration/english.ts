@@ -133,36 +133,19 @@ import type { EssayCategory } from "@/src/lib/essay-categories";
 
 // ── Essay (IELTS Writing Task 2 style) ──────────────────────────────────────
 
-export type EssayPartType =
-  | "overall_paraphrase"
-  | "overall_mainidea"
-  | "body_point"
-  | "body_explain"
-  | "body_example"
-  | "body_consequence"
-  | "body_link"
-  | "conclusion";
-
-export interface EssayPart {
-  id: string;
-  type: EssayPartType;
-  /** 0-based index of the body paragraph this part belongs to; unset for overall/conclusion. */
-  bodyIndex?: number;
-  outlineText: string;
-  translationText: string;
+export interface EssayDraft {
+  id: number;
+  text: string;
+  createdAt: string;
+  updatedAt: string;
 }
-
-export type EssayStep = "outline" | "translate" | "edit";
 
 export interface Essay {
   id: number;
   title: string;
   /** IELTS Task 2 topic ids from ESSAY_CATEGORIES; empty = not categorized. */
   categories: EssayCategory[];
-  parts: EssayPart[];
-  step: EssayStep;
-  /** Final combined essay text, edited freely in the "edit" step. */
-  finalText: string;
+  drafts: EssayDraft[];
   done: boolean;
   createdAt: string;
   updatedAt: string;
@@ -172,7 +155,6 @@ export interface EssaySummary {
   id: number;
   title: string;
   categories: EssayCategory[];
-  step: EssayStep;
   done: boolean;
   createdAt: string;
   updatedAt: string;
