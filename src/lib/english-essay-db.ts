@@ -1,9 +1,11 @@
 import { sql, once } from "./db";
-import type { Essay, EssayDraft, EssaySummary } from "@/src/declaration/english";
+import { ensureEnglishTables } from "./english-db";
+import type { Essay, EssayCategoryGroups, EssayDraft, EssaySummary } from "@/src/declaration/english";
 import { joinLegacyEssayText, type LegacyEssayPart } from "./essay-format";
 import { LEGACY_CATEGORY_REMAP, normalizeEssayCategories, type EssayCategory } from "./essay-categories";
 
 export const ensureEssayTables = once(async function ensureEssayTables() {
+  await ensureEnglishTables();
   await sql`
     CREATE TABLE IF NOT EXISTS english_essay (
       id         SERIAL PRIMARY KEY,
@@ -40,6 +42,14 @@ export const ensureEssayTables = once(async function ensureEssayTables() {
     )
   `;
   await sql`CREATE INDEX IF NOT EXISTS english_essay_draft_essay_id_idx ON english_essay_draft (essay_id)`;
+  await sql`
+    CREATE TABLE IF NOT EXISTS english_essay_category_group (
+      user_id  INT  NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      category TEXT NOT NULL,
+      group_id INT  NOT NULL REFERENCES english_word_groups(id) ON DELETE CASCADE,
+      PRIMARY KEY (user_id, category, group_id)
+    )
+  `;
   const legacy = await sql`SELECT 1 FROM information_schema.columns WHERE table_name = 'english_essay' AND column_name = 'parts'`;
   if (legacy[0]) {
     const rows = await sql`
@@ -157,4 +167,42 @@ export async function deleteDraft(userId: number, essayId: number, draftId: numb
     RETURNING id
   `;
   return !!rows[0];
+}
+
+export async function listCategoryGroups(userId: number): Promise<EssayCategoryGroups> {
+  const rows = await sql`
+    SELECT category, array_agg(group_id ORDER BY group_id) AS group_ids FROM english_essay_category_group
+    WHERE user_id = ${userId} GROUP BY category
+  `;
+  return Object.fromEntries(rows.map((r) => [r.category as string, r.group_ids as number[]]));
+}
+
+export async function setCategoryGroups(userId: number, category: EssayCategory, groupIds: number[]): Promise<number[]> {
+  await sql`DELETE FROM english_essay_category_group WHERE user_id = ${userId} AND category = ${category}`;
+  if (groupIds.length === 0) return [];
+  const rows = await sql`
+    INSERT INTO english_essay_category_group (user_id, category, group_id)
+    SELECT ${userId}, ${category}, id FROM english_word_groups WHERE user_id = ${userId} AND id = ANY(${groupIds}::int[])
+    RETURNING group_id
+  `;
+  return rows.map((r) => r.group_id as number).sort((a, b) => a - b);
+}
+
+export async function listCategoryTerms(userId: number, categories: EssayCategory[]): Promise<string[]> {
+  if (categories.length === 0) return [];
+  const rows = await sql`
+    SELECT DISTINCT w.word, w.alt_spelling, o.word AS origin_word, o.alt_spelling AS origin_alt
+    FROM english_essay_category_group cg
+    JOIN english_word_group_members m ON m.group_id = cg.group_id
+    JOIN english_words w ON w.id = m.word_id
+    LEFT JOIN english_words o ON o.id = w.origin_word_id
+    WHERE cg.user_id = ${userId} AND cg.category = ANY(${categories}::text[])
+  `;
+  const terms = new Set<string>();
+  for (const r of rows) {
+    for (const v of [r.word, r.alt_spelling, r.origin_word, r.origin_alt] as (string | null)[]) {
+      for (const t of v?.split(/[,;/]/) ?? []) if (t.trim()) terms.add(t.trim());
+    }
+  }
+  return [...terms];
 }

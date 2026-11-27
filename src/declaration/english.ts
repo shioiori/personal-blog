@@ -160,6 +160,8 @@ export interface EssaySummary {
   updatedAt: string;
 }
 
+export type EssayCategoryGroups = Partial<Record<EssayCategory, number[]>>;
+
 export interface EssaySpellIssue {
   original: string;
   suggestion: string;

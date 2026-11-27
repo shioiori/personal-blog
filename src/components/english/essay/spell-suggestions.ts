@@ -21,9 +21,8 @@ export const spellSuggestionsKey = new PluginKey<PluginStateShape>("spellSuggest
 
 let idCounter = 0;
 
-/** Locates each issue's `original` text inside the doc (within a single textblock), left to right, never reusing a range twice. */
-export function locateIssues(doc: PMNode, issues: EssaySpellIssue[]): { found: InlineSuggestion[]; missing: EssaySpellIssue[] } {
-  // Collect each textblock's text plus a per-char map back to doc positions.
+/** Each textblock's text plus a per-char map back to doc positions. */
+export function collectTextblocks(doc: PMNode): { text: string; pos: number[] }[] {
   const blocks: { text: string; pos: number[] }[] = [];
   doc.descendants((node, nodePos) => {
     if (!node.isTextblock) return true;
@@ -44,7 +43,12 @@ export function locateIssues(doc: PMNode, issues: EssaySpellIssue[]): { found: I
     blocks.push({ text, pos });
     return false;
   });
+  return blocks;
+}
 
+/** Locates each issue's `original` text inside the doc (within a single textblock), left to right, never reusing a range twice. */
+export function locateIssues(doc: PMNode, issues: EssaySpellIssue[]): { found: InlineSuggestion[]; missing: EssaySpellIssue[] } {
+  const blocks = collectTextblocks(doc);
   const used: { from: number; to: number }[] = [];
   const overlaps = (from: number, to: number) => used.some((u) => from < u.to && to > u.from);
   const found: InlineSuggestion[] = [];

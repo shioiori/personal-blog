@@ -4,11 +4,13 @@ import { useEffect, useState } from "react";
 import { useEditor, useEditorState, EditorContent, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
-import { Bold, Italic, Underline as UnderlineIcon, SpellCheck2, Check, X } from "lucide-react";
+import { Bold, Italic, Underline as UnderlineIcon, SpellCheck2, Check, X, Highlighter } from "lucide-react";
 import { Button } from "@/src/components/ui/Button";
 import { cn } from "@/src/utils/ui";
 import { blocksToText, textToHtml } from "@/src/lib/plain-text";
 import type { EssaySpellIssue } from "@/src/declaration/english";
+import type { EssayCategory } from "@/src/lib/essay-categories";
+import { GroupHighlight, setHighlightTerms } from "./group-highlight";
 import {
   SpellSuggestions,
   acceptSuggestions,
@@ -51,9 +53,11 @@ function countWords(text: string): number {
 interface EssayEditorProps {
   text: string;
   onChange: (text: string) => void;
+  highlightCategories: EssayCategory[];
 }
 
-export function EssayEditor({ text, onChange }: EssayEditorProps) {
+export function EssayEditor({ text, onChange, highlightCategories }: EssayEditorProps) {
+  const [highlightOn, setHighlightOn] = useState(false);
   const [missingIssues, setMissingIssues] = useState<EssaySpellIssue[]>([]);
   const [checkedNoIssues, setCheckedNoIssues] = useState(false);
   const [checking, setChecking] = useState(false);
@@ -61,7 +65,7 @@ export function EssayEditor({ text, onChange }: EssayEditorProps) {
 
   const editor = useEditor({
     immediatelyRender: false,
-    extensions: [StarterKit, Underline, SpellSuggestions],
+    extensions: [StarterKit, Underline, SpellSuggestions, GroupHighlight],
     content: textToHtml(text),
     onUpdate({ editor }) {
       onChange(editorText(editor));
@@ -96,6 +100,37 @@ export function EssayEditor({ text, onChange }: EssayEditorProps) {
     // only sync when text changes externally (e.g. switching essay / draft)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor]);
+
+  const highlightKey = highlightCategories.join();
+  const canHighlight = highlightCategories.length > 0;
+  const highlightActive = highlightOn && canHighlight;
+
+  useEffect(() => {
+    if (!editor) return;
+    if (!highlightActive) {
+      setHighlightTerms(editor.view, []);
+      return;
+    }
+    const ctrl = new AbortController();
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch("/api/english/essay/highlight", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ categories: highlightCategories, text }),
+          signal: ctrl.signal,
+        });
+        if (!res.ok) return;
+        const { matches } = (await res.json()) as { matches: string[] };
+        setHighlightTerms(editor.view, matches);
+      } catch {}
+    }, 600);
+    return () => {
+      clearTimeout(timer);
+      ctrl.abort();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor, highlightActive, highlightKey, text]);
 
   async function handleSpellcheck() {
     if (!editor) return;
@@ -172,6 +207,19 @@ export function EssayEditor({ text, onChange }: EssayEditorProps) {
                 </Button>
               </>
             )}
+            <span title={canHighlight ? undefined : "Chủ đề của bài chưa gắn word group nào"}>
+              <Button
+                type="button"
+                variant={highlightActive ? "default" : "outline"}
+                size="sm"
+                onClick={() => setHighlightOn((v) => !v)}
+                disabled={!canHighlight}
+                aria-pressed={highlightActive}
+                className="gap-1.5"
+              >
+                <Highlighter className="h-3.5 w-3.5" /> Highlight
+              </Button>
+            </span>
             <Button type="button" variant="outline" size="sm" onClick={handleSpellcheck} disabled={checking} className="gap-1.5">
               <SpellCheck2 className="h-3.5 w-3.5" />
               {checking ? "Đang check..." : "Check chính tả"}

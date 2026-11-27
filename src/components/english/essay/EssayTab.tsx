@@ -1,14 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Plus, FileText, Trash2, Pencil, Check, CheckCircle2, Shuffle, X } from "lucide-react";
-import type { Essay, EssayDraft, EssaySummary } from "@/src/declaration/english";
+import { Plus, FileText, Trash2, Pencil, Check, CheckCircle2, Shuffle, X, Link2 } from "lucide-react";
+import type { Essay, EssayCategoryGroups, EssayDraft, EssaySummary } from "@/src/declaration/english";
 import { Button } from "@/src/components/ui/Button";
 import { Textarea } from "@/src/components/ui/Textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/src/components/ui/Dialog";
 import { EssayEditor } from "./EssayEditor";
 import { usePagedList } from "../shared/usePagedList";
 import { Pagination } from "../shared/Pagination";
 import { cn } from "@/src/utils/ui";
+import { useEnglishStudy } from "@/src/context/english";
 import { ESSAY_CATEGORIES, essayCategoryLabel, normalizeEssayCategories, type EssayCategory } from "@/src/lib/essay-categories";
 
 async function apiGet<T>(path: string): Promise<T> {
@@ -21,6 +23,87 @@ function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" });
 }
 
+function chipClass(on: boolean) {
+  return cn(
+    "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition-colors",
+    on ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:bg-accent",
+  );
+}
+
+function CategoryGroupsDialog({
+  open,
+  onOpenChange,
+  initialCategory,
+  value,
+  onChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  initialCategory: EssayCategory;
+  value: EssayCategoryGroups;
+  onChange: (category: EssayCategory, groupIds: number[]) => void;
+}) {
+  const { groups } = useEnglishStudy();
+  const [category, setCategory] = useState(initialCategory);
+
+  useEffect(() => {
+    if (open) setCategory(initialCategory);
+  }, [open, initialCategory]);
+
+  const attached = value[category] ?? [];
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Gắn word group vào chủ đề</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="flex max-h-48 flex-wrap gap-1.5 overflow-y-auto">
+            {ESSAY_CATEGORIES.map((c) => {
+              const count = value[c.id]?.length ?? 0;
+              return (
+                <button key={c.id} type="button" onClick={() => setCategory(c.id)} className={chipClass(c.id === category)}>
+                  {c.label}
+                  {count > 0 && <span className="opacity-70">{count}</span>}
+                </button>
+              );
+            })}
+          </div>
+          <div className="space-y-2 border-t border-border pt-3">
+            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Word group của {essayCategoryLabel(category)}
+            </span>
+            {groups.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Chưa có word group nào.</p>
+            ) : (
+              <div className="flex max-h-64 flex-wrap gap-1.5 overflow-y-auto">
+                {groups.map((g) => {
+                  const on = attached.includes(g.id);
+                  return (
+                    <button
+                      key={g.id}
+                      type="button"
+                      aria-pressed={on}
+                      title={g.name}
+                      onClick={() => onChange(category, on ? attached.filter((id) => id !== g.id) : [...attached, g.id])}
+                      className={cn(chipClass(on), "max-w-full")}
+                    >
+                      {on && <Check className="h-3 w-3 shrink-0" />}
+                      <span className="truncate">{g.name}</span>
+                      <span className="shrink-0 opacity-70">{g.wordIds.length}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export function EssayTab() {
   const [essays, setEssays] = useState<EssaySummary[]>([]);
   const [essay, setEssay] = useState<Essay | null>(null);
@@ -30,6 +113,8 @@ export function EssayTab() {
   const [creatingDraft, setCreatingDraft] = useState(false);
   // "all" = no filter, "none" = essays without a category, "done" = essays marked as done.
   const [filter, setFilter] = useState<EssayCategory | "all" | "none" | "done">("all");
+  const [categoryGroups, setCategoryGroups] = useState<EssayCategoryGroups>({});
+  const [groupsDialogOpen, setGroupsDialogOpen] = useState(false);
   const titleRef = useRef<HTMLTextAreaElement | null>(null);
 
   useLayoutEffect(() => {
@@ -49,7 +134,23 @@ export function EssayTab() {
     refetchList()
       .catch(() => {})
       .finally(() => setLoaded(true));
+    apiGet<EssayCategoryGroups>("/api/english/essay/category-groups")
+      .then(setCategoryGroups)
+      .catch(() => {});
   }, [refetchList]);
+
+  async function updateCategoryGroups(category: EssayCategory, groupIds: number[]) {
+    setCategoryGroups((prev) => ({ ...prev, [category]: groupIds }));
+    const res = await fetch("/api/english/essay/category-groups", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ category, groupIds }),
+    }).catch(() => null);
+    if (res?.ok) {
+      const saved = (await res.json()) as { groupIds: number[] };
+      setCategoryGroups((prev) => ({ ...prev, [category]: saved.groupIds }));
+    }
+  }
 
   function showEssay(data: Essay) {
     setEssay(data);
@@ -215,10 +316,7 @@ export function EssayTab() {
                   <button
                     key={c.id}
                     onClick={() => setFilter(c.id)}
-                    className={cn(
-                      "rounded-full border px-2.5 py-1 text-xs transition-colors",
-                      filter === c.id ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:bg-accent",
-                    )}
+                    className={chipClass(filter === c.id)}
                   >
                     {c.label} <span className="opacity-70">{c.count}</span>
                   </button>
@@ -342,7 +440,12 @@ export function EssayTab() {
       </div>
 
       <div className="space-y-2">
-        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Chủ đề (chọn nhiều)</span>
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Chủ đề (chọn nhiều)</span>
+          <Button variant="outline" size="sm" onClick={() => setGroupsDialogOpen(true)} className="gap-1.5">
+            <Link2 className="h-3.5 w-3.5" /> Gắn word group
+          </Button>
+        </div>
         <div className="flex flex-wrap gap-1.5">
           {ESSAY_CATEGORIES.map((c) => {
             const on = essay.categories.includes(c.id);
@@ -352,10 +455,7 @@ export function EssayTab() {
                 type="button"
                 aria-pressed={on}
                 onClick={() => toggleCategory(c.id)}
-                className={cn(
-                  "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition-colors",
-                  on ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:bg-accent",
-                )}
+                className={chipClass(on)}
               >
                 {on && <Check className="h-3 w-3" />}
                 {c.label}
@@ -409,8 +509,17 @@ export function EssayTab() {
           key={activeDraft.id}
           text={activeDraft.text}
           onChange={(text) => updateDraftText(activeDraft.id, text)}
+          highlightCategories={essay.categories.filter((c) => categoryGroups[c]?.length)}
         />
       )}
+
+      <CategoryGroupsDialog
+        open={groupsDialogOpen}
+        onOpenChange={setGroupsDialogOpen}
+        initialCategory={essay.categories[0] ?? ESSAY_CATEGORIES[0].id}
+        value={categoryGroups}
+        onChange={updateCategoryGroups}
+      />
     </div>
   );
 }
