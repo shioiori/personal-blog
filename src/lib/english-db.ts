@@ -187,6 +187,71 @@ async function insertSenses(wordId: number, senses: SenseInput[]): Promise<void>
   }
 }
 
+const splitLinks = (text?: string | null) => (text ?? "").split(",").map((w) => w.trim()).filter(Boolean);
+const hasLink = (text: string | null | undefined, word: string) => splitLinks(text).some((w) => w.toLowerCase() === word.toLowerCase());
+const addLink = (text: string | null | undefined, word: string) => [...splitLinks(text), word].join(", ");
+const removeLink = (text: string | null | undefined, word: string) => splitLinks(text).filter((w) => w.toLowerCase() !== word.toLowerCase()).join(", ") || null;
+
+const LINK_FIELDS = ["related_words", "synonyms", "antonyms"] as const;
+type LinkField = (typeof LINK_FIELDS)[number];
+type LinkSets = Record<LinkField, Set<string>>;
+
+function collectLinks(related: string | null, senses: Record<string, any>[]): LinkSets {
+  const lower = (texts: (string | null)[]) => new Set(texts.flatMap((t) => splitLinks(t).map((x) => x.toLowerCase())));
+  return { related_words: lower([related]), synonyms: lower(senses.map((s) => s.synonyms)), antonyms: lower(senses.map((s) => s.antonyms)) };
+}
+
+async function readLinks(wordId: number): Promise<LinkSets> {
+  const [w] = await sql`SELECT related_words FROM english_words WHERE id = ${wordId}`;
+  const senses = await sql`SELECT synonyms, antonyms FROM english_senses WHERE word_id = ${wordId}`;
+  return collectLinks(w?.related_words ?? null, senses);
+}
+
+export async function syncReverseLinks(userId: number, sourceIds?: number[], previous?: Map<number, LinkSets>): Promise<number> {
+  const words = await sql`SELECT id, word, related_words FROM english_words WHERE user_id = ${userId}`;
+  const senses = await sql`SELECT s.id, s.word_id, s.part_of_speech, s.synonyms, s.antonyms FROM english_senses s JOIN english_words w ON w.id = s.word_id WHERE w.user_id = ${userId} ORDER BY s.sort_order`;
+  const byName = new Map(words.map((w) => [String(w.word).trim().toLowerCase(), w]));
+  const sensesOf = new Map<number, Record<string, any>[]>();
+  for (const s of senses) sensesOf.set(s.word_id, [...(sensesOf.get(s.word_id) ?? []), s]);
+  const rowsOf = (b: Record<string, any>, f: LinkField) => (f === "related_words" ? [b] : sensesOf.get(b.id) ?? []);
+  const dirty = new Set<Record<string, any>>();
+
+  for (const a of sourceIds ? words.filter((w) => sourceIds.includes(w.id)) : words) {
+    const self = String(a.word).trim();
+    const aSenses = sensesOf.get(a.id) ?? [];
+    const now = collectLinks(a.related_words, aSenses);
+    const target = (name: string) => {
+      const b = byName.get(name);
+      return b && b.id !== a.id ? b : undefined;
+    };
+    for (const f of LINK_FIELDS) {
+      for (const name of now[f]) {
+        const b = target(name);
+        const rows = b ? rowsOf(b, f) : [];
+        if (!rows.length || rows.some((x) => hasLink(x[f], self))) continue;
+        const pos = aSenses.find((s) => hasLink(s[f], name))?.part_of_speech?.toLowerCase();
+        const t = rows.find((x) => x.part_of_speech?.toLowerCase() === pos) ?? rows[0];
+        t[f] = addLink(t[f], self);
+        dirty.add(t);
+      }
+      for (const name of previous?.get(a.id)?.[f] ?? []) {
+        const b = !now[f].has(name) && target(name);
+        for (const row of b ? rowsOf(b, f) : []) {
+          if (!hasLink(row[f], self)) continue;
+          row[f] = removeLink(row[f], self);
+          dirty.add(row);
+        }
+      }
+    }
+  }
+
+  for (const row of dirty) {
+    if ("word_id" in row) await sql`UPDATE english_senses SET synonyms = ${row.synonyms}, antonyms = ${row.antonyms} WHERE id = ${row.id}`;
+    else await sql`UPDATE english_words SET related_words = ${row.related_words} WHERE id = ${row.id}`;
+  }
+  return dirty.size;
+}
+
 export async function createWord(userId: number, word: string, senses: SenseInput[], crawlData?: unknown, relatedWords?: string | null, altSpelling?: string | null, sourceUrl?: string | null, originWordId?: number | null): Promise<EnglishWord> {
   const rows = await sql`INSERT INTO english_words (user_id, word, related_words, alt_spelling, source_url, origin_word_id) VALUES (${userId}, ${word}, ${relatedWords ?? null}, ${altSpelling ?? null}, ${sourceUrl ?? null}, ${originWordId ?? null}) RETURNING id, word, created_at`;
   const id = rows[0].id as number;
@@ -195,6 +260,7 @@ export async function createWord(userId: number, word: string, senses: SenseInpu
   // placeholder — getWord/listWords resolve its display data from the origin.
   if (senses.length > 0) await insertSenses(id, senses);
   else if (!originWordId) await insertSenses(id, [{}]);
+  await syncReverseLinks(userId, [id]);
   await sql`
     INSERT INTO english_flashcard (word_id, active) VALUES (${id}, TRUE)
     ON CONFLICT (word_id) DO NOTHING
@@ -246,6 +312,7 @@ export async function linkWordToSourceGroup(userId: number, wordId: number, sour
 }
 
 export async function updateWord(userId: number, id: number, word: string, senses: SenseInput[], relatedWords?: string | null, altSpelling?: string | null, sourceUrl?: string | null): Promise<boolean> {
+  const previous = await readLinks(id);
   const rows = await sql`UPDATE english_words SET word = ${word}, related_words = ${relatedWords ?? null}, alt_spelling = ${altSpelling ?? null}, source_url = ${sourceUrl ?? null} WHERE id = ${id} AND user_id = ${userId} RETURNING id`;
   if (!rows[0]) return false;
   const oldImages = await getSenseImages(id);
@@ -254,6 +321,7 @@ export async function updateWord(userId: number, id: number, word: string, sense
   else await insertSenses(id, [{}]);
   const kept = new Set(senses.flatMap((s) => s.images ?? []));
   await deleteImages(userId, oldImages.filter((k) => !kept.has(k)));
+  await syncReverseLinks(userId, [id], new Map([[id, previous]]));
   // Invariant: a word can never have a sourceUrl without being a member of
   // that source's group — enforced here so it holds regardless of which
   // group chips the caller did or didn't toggle.
@@ -638,6 +706,7 @@ export async function bulkImportWords(
   let created = 0;
   let overwritten = 0;
   const skipped: string[] = [];
+  const createdIds: number[] = [];
 
   for (const item of items) {
     const key = item.word.trim().toLowerCase();
@@ -667,8 +736,10 @@ export async function bulkImportWords(
     if (groupId) {
       await sql`INSERT INTO english_word_group_members (group_id, word_id) VALUES (${groupId}, ${wordId}) ON CONFLICT DO NOTHING`;
     }
+    createdIds.push(wordId);
     created++;
   }
 
+  if (createdIds.length) await syncReverseLinks(userId, createdIds);
   return { created, overwritten, skipped };
 }

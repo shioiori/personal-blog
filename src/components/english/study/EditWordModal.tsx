@@ -72,68 +72,6 @@ function toSenseInput(s: EnglishSense) {
   };
 }
 
-type LinkField = "synonyms" | "antonyms";
-interface LinkSnapshot {
-  related: string[];
-  senses: EnglishSense[];
-}
-
-const lowerSet = (xs: string[]) => new Set(xs.map((x) => x.toLowerCase()));
-const senseLinks = (senses: EnglishSense[], f: LinkField) => lowerSet(senses.flatMap((s) => parseRelatedWords(s[f] ?? "")));
-
-async function syncWordLinks(
-  currentWordId: number | undefined,
-  currentWordText: string,
-  before: LinkSnapshot,
-  after: LinkSnapshot,
-  allWords: EnglishWord[]
-) {
-  const self = currentWordText.toLowerCase();
-  const toggle = (text: string, on: boolean) => {
-    const list = parseRelatedWords(text);
-    const has = list.some((x) => x.toLowerCase() === self);
-    if (on === has) return text;
-    return (on ? [...list, currentWordText] : list.filter((x) => x.toLowerCase() !== self)).join(", ");
-  };
-  const sets = {
-    related: [lowerSet(before.related), lowerSet(after.related)],
-    synonyms: [senseLinks(before.senses, "synonyms"), senseLinks(after.senses, "synonyms")],
-    antonyms: [senseLinks(before.senses, "antonyms"), senseLinks(after.senses, "antonyms")],
-  };
-  const fields = ["related", "synonyms", "antonyms"] as const;
-
-  for (const w of allWords) {
-    if (w.id === currentWordId) continue;
-    const key = w.word.trim().toLowerCase();
-    const changed = (f: (typeof fields)[number]) => sets[f][0].has(key) !== sets[f][1].has(key);
-    if (!fields.some(changed)) continue;
-
-    const full = w.summary ? ((await (await fetch(`/api/english/words/${w.id}`)).json()) as EnglishWord) : w;
-    const relatedWords = changed("related") ? toggle(full.relatedWords ?? "", sets.related[1].has(key)) : full.relatedWords ?? "";
-    const senses = full.senses.length ? full.senses.map((s) => ({ ...s })) : [{} as EnglishSense];
-    for (const f of ["synonyms", "antonyms"] as const) {
-      if (!changed(f)) continue;
-      if (sets[f][1].has(key)) {
-        const pos = after.senses.find((s) => lowerSet(parseRelatedWords(s[f] ?? "")).has(key))?.partOfSpeech?.toLowerCase();
-        const target = senses.find((s) => s.partOfSpeech?.toLowerCase() === pos) ?? senses[0];
-        target[f] = toggle(target[f] ?? "", true);
-      } else senses.forEach((s) => (s[f] = toggle(s[f] ?? "", false)));
-    }
-
-    await fetch(`/api/english/words/${w.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        word: full.word,
-        senses: senses.map(toSenseInput),
-        relatedWords: relatedWords || null,
-        altSpelling: full.altSpelling ?? null,
-        sourceUrl: full.sourceUrl ?? null,
-      }),
-    });
-  }
-}
-
 type SenseDraft = Omit<EnglishSense, "id" | "sortOrder"> & { pendingImages?: PendingImage[]; imageLinkDraft?: string };
 
 const emptySense: SenseDraft = {
@@ -614,7 +552,6 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
       };
 
       let savedId: number;
-      const oldRelatedTexts = word ? parseRelatedWords(word.relatedWords ?? "") : [];
 
       if (word) {
         await fetch(`/api/english/words/${word.id}`, {
@@ -637,13 +574,6 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
       setSenses(uploadedSenses.length > 0 ? uploadedSenses.map(({ pendingImages: _, imageLinkDraft: __, ...s }) => s) : [{ ...emptySense }]);
       setOriginWordId(null);
       setOriginBaseline(null);
-      await syncWordLinks(
-        savedId,
-        wordText.trim(),
-        { related: oldRelatedTexts, senses: base?.senses ?? [] },
-        { related: newRelatedTexts, senses: uploadedSenses },
-        allWords
-      );
 
       const oldGroupIds = new Set(word?.groupIds ?? []);
       const effectiveSelected = new Set(selectedGroupIds);
