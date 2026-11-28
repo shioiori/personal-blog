@@ -11,9 +11,11 @@ interface WordCardProps {
   word: EnglishWord;
   onEdit: () => void;
   onDelete: () => void;
+  /** When set, shows how many times the word was met (shown while sorting by frequency). */
+  seenCount?: number;
 }
 
-export function WordCard({ word, onEdit, onDelete }: WordCardProps) {
+export function WordCard({ word, onEdit, onDelete, seenCount }: WordCardProps) {
   const t = useTranslations("English");
   const first = word.senses[0];
   return (
@@ -25,6 +27,11 @@ export function WordCard({ word, onEdit, onDelete }: WordCardProps) {
           {first?.phonetic && <span className="text-xs text-muted-foreground shrink-0">/{first.phonetic}/</span>}
           <PronounceButton word={word.word} audioUrl={getCrawlAudioUrl(word)} />
         </div>
+        {!!seenCount && (
+          <span className="shrink-0 px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-semibold tabular-nums group-hover:hidden">
+            {t("Words.seenCount", { count: seenCount })}
+          </span>
+        )}
         <div className="hidden group-hover:flex items-center gap-1 shrink-0">
           <button onClick={onEdit} className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground">
             <Pencil className="w-3.5 h-3.5" />

@@ -179,6 +179,7 @@ export function WordList() {
                 word={w}
                 onEdit={() => { setEditingWord(w); setStartInEditMode(true); setModalOpen(true); }}
                 onDelete={() => handleDelete(w.id)}
+                seenCount={sortField === "frequency" ? w.groupIds.length : undefined}
               />
             </div>
           ))}

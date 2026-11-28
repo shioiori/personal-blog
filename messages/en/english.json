@@ -43,6 +43,7 @@
             "sortAlphabet": "Alphabet",
             "sortWordType": "Word type",
             "sortFrequency": "Frequency",
+            "seenCount": "{count}×",
             "sortAsc": "Ascending",
             "sortDesc": "Descending"
         },
