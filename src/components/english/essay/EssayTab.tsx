@@ -305,6 +305,9 @@ export function EssayTab() {
           >
             <Shuffle className="h-4 w-4" /> Đề ngẫu nhiên
           </Button>
+          <Button variant="outline" onClick={() => setGroupsDialogOpen(true)} className="gap-1.5">
+            <Link2 className="h-4 w-4" /> Gắn word group
+          </Button>
         </div>
         {essays.length === 0 ? (
           <p className="text-sm text-muted-foreground">Chưa có bài luận nào.</p>
@@ -361,6 +364,13 @@ export function EssayTab() {
             <Pagination page={page} pageCount={pageCount} onChange={goTo} />
           </div>
         )}
+        <CategoryGroupsDialog
+          open={groupsDialogOpen}
+          onOpenChange={setGroupsDialogOpen}
+          initialCategory={ESSAY_CATEGORIES.find((c) => c.id === filter)?.id ?? ESSAY_CATEGORIES[0].id}
+          value={categoryGroups}
+          onChange={updateCategoryGroups}
+        />
       </div>
     );
   }
@@ -440,12 +450,7 @@ export function EssayTab() {
       </div>
 
       <div className="space-y-2">
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Chủ đề (chọn nhiều)</span>
-          <Button variant="outline" size="sm" onClick={() => setGroupsDialogOpen(true)} className="gap-1.5">
-            <Link2 className="h-3.5 w-3.5" /> Gắn word group
-          </Button>
-        </div>
+        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Chủ đề (chọn nhiều)</span>
         <div className="flex flex-wrap gap-1.5">
           {ESSAY_CATEGORIES.map((c) => {
             const on = essay.categories.includes(c.id);
@@ -512,14 +517,6 @@ export function EssayTab() {
           highlightCategories={essay.categories.filter((c) => categoryGroups[c]?.length)}
         />
       )}
-
-      <CategoryGroupsDialog
-        open={groupsDialogOpen}
-        onOpenChange={setGroupsDialogOpen}
-        initialCategory={essay.categories[0] ?? ESSAY_CATEGORIES[0].id}
-        value={categoryGroups}
-        onChange={updateCategoryGroups}
-      />
     </div>
   );
 }
