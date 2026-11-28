@@ -8,7 +8,8 @@
             "essay": "Luyện viết",
             "import": "Import",
             "refresh": "Làm mới dữ liệu",
-            "gapfill": "Điền từ"
+            "gapfill": "Điền từ",
+            "listen": "Nghe"
         },
         "Common": {
             "cancel": "Huỷ",
@@ -152,7 +153,15 @@
             "dueCount": "Số từ cần ôn",
             "loading": "Đang tải biểu đồ...",
             "empty": "Không có từ nào cần ôn tập trong 7 ngày tới.",
-            "weekdays": ["CN", "T2", "T3", "T4", "T5", "T6", "T7"]
+            "weekdays": [
+                "CN",
+                "T2",
+                "T3",
+                "T4",
+                "T5",
+                "T6",
+                "T7"
+            ]
         },
         "Import": {
             "added": "Đã thêm <b>{count}</b> từ mới.",
@@ -229,6 +238,45 @@
             "history": "Lịch sử làm bài",
             "attemptLabel": "Lần {n} – {score}/{total}",
             "noAttempts": "Chưa có lần làm nào."
+        },
+        "Listen": {
+            "scope": "Phạm vi đọc",
+            "mode_filter": "Theo bộ lọc",
+            "mode_groups": "Theo nhóm",
+            "mode_groupWords": "Nhóm + từ",
+            "mode_words": "Chọn từ",
+            "noGroups": "Chưa có nhóm nào",
+            "pickGroupFirst": "Chọn ít nhất một nhóm để chọn từ trong nhóm.",
+            "selectAll": "Chọn tất cả",
+            "clearAll": "Bỏ chọn",
+            "selectedCount": "Đã chọn {count}/{total}",
+            "wordCount": "{count} từ sẽ được đọc",
+            "readInfo": "Thông tin đọc",
+            "partWord": "Từ tiếng Anh",
+            "partPartOfSpeech": "Loại từ",
+            "partMeaningEn": "Nghĩa tiếng Anh",
+            "partMeaningVi": "Nghĩa tiếng Việt",
+            "partExample": "Ví dụ",
+            "partSynonyms": "Từ đồng nghĩa",
+            "partAntonyms": "Từ trái nghĩa",
+            "partNote": "Ghi chú",
+            "settings": "Cài đặt đọc",
+            "wordRepeat": "Số lần đọc từ",
+            "rate": "Tốc độ đọc",
+            "partGap": "Nghỉ giữa các phần",
+            "wordGap": "Nghỉ giữa các từ",
+            "seconds": "{value} giây",
+            "loop": "Lặp lại",
+            "shuffle": "Ngẫu nhiên",
+            "play": "Phát (Space)",
+            "pause": "Tạm dừng (Space)",
+            "prevWord": "Từ trước (←)",
+            "nextWord": "Từ sau (→)",
+            "emptyQueue": "Không có từ nào trong phạm vi đã chọn.",
+            "noPartSelected": "Chọn ít nhất một thông tin để đọc.",
+            "noViVoice": "Trình duyệt chưa có giọng đọc tiếng Việt nên nghĩa tiếng Việt có thể bị đọc sai. Hãy thử Microsoft Edge hoặc cài giọng tiếng Việt cho hệ điều hành.",
+            "noSpeech": "Trình duyệt không hỗ trợ đọc văn bản.",
+            "queue": "Danh sách đọc"
         }
     }
 }

@@ -8,7 +8,8 @@
             "essay": "Essay",
             "import": "Import",
             "refresh": "Refresh data",
-            "gapfill": "Gap-fill"
+            "gapfill": "Gap-fill",
+            "listen": "Listen"
         },
         "Common": {
             "cancel": "Cancel",
@@ -152,7 +153,15 @@
             "dueCount": "Words to review",
             "loading": "Loading chart...",
             "empty": "No words due for review in the next 7 days.",
-            "weekdays": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+            "weekdays": [
+                "Sun",
+                "Mon",
+                "Tue",
+                "Wed",
+                "Thu",
+                "Fri",
+                "Sat"
+            ]
         },
         "Import": {
             "added": "Added <b>{count}</b> new words.",
@@ -229,6 +238,45 @@
             "history": "Attempt history",
             "attemptLabel": "Attempt {n} – {score}/{total}",
             "noAttempts": "No attempts yet."
+        },
+        "Listen": {
+            "scope": "Reading scope",
+            "mode_filter": "By filter",
+            "mode_groups": "By group",
+            "mode_groupWords": "Group + words",
+            "mode_words": "Pick words",
+            "noGroups": "No groups yet",
+            "pickGroupFirst": "Pick at least one group to choose words from it.",
+            "selectAll": "Select all",
+            "clearAll": "Clear",
+            "selectedCount": "{count}/{total} selected",
+            "wordCount": "{count} words will be read",
+            "readInfo": "What to read",
+            "partWord": "English word",
+            "partPartOfSpeech": "Part of speech",
+            "partMeaningEn": "English meaning",
+            "partMeaningVi": "Vietnamese meaning",
+            "partExample": "Example",
+            "partSynonyms": "Synonyms",
+            "partAntonyms": "Antonyms",
+            "partNote": "Note",
+            "settings": "Reading settings",
+            "wordRepeat": "Times to read the word",
+            "rate": "Speed",
+            "partGap": "Pause between parts",
+            "wordGap": "Pause between words",
+            "seconds": "{value}s",
+            "loop": "Loop",
+            "shuffle": "Shuffle",
+            "play": "Play (Space)",
+            "pause": "Pause (Space)",
+            "prevWord": "Previous word (←)",
+            "nextWord": "Next word (→)",
+            "emptyQueue": "No words in the selected scope.",
+            "noPartSelected": "Pick at least one thing to read.",
+            "noViVoice": "This browser has no Vietnamese voice, so Vietnamese meanings may be read incorrectly. Try Microsoft Edge or install a Vietnamese voice for your OS.",
+            "noSpeech": "This browser does not support text-to-speech.",
+            "queue": "Reading queue"
         }
     }
 }

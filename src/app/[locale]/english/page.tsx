@@ -13,14 +13,15 @@ import {
 import { GapFillTab } from '@/src/components/english/gapfill/GapFillTab'
 import { WritingTab } from '@/src/components/english/writing/WritingTab'
 import { EssayTab } from '@/src/components/english/essay/EssayTab'
+import { ListenTab } from '@/src/components/english/listen/ListenTab'
 import { FloatingLookupBox } from '@/src/components/english/lookup/FloatingLookupBox'
-import { BookOpen, RotateCcw, Upload, PenLine, NotebookPen, GraduationCap } from 'lucide-react'
+import { BookOpen, RotateCcw, Upload, PenLine, NotebookPen, GraduationCap, Headphones } from 'lucide-react'
 import { EnglishProvider } from '@/src/context/english'
 import { EnglishLookupProvider } from '@/src/context/englishLookup'
 import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
 
-const TABS = ['study', 'review', 'writing', 'essay', 'import', 'gacha', 'gapfill']
+const TABS = ['study', 'listen', 'review', 'writing', 'essay', 'import', 'gacha', 'gapfill']
 
 export default function Page() {
   const t = useTranslations('English.Tabs')
@@ -46,6 +47,10 @@ export default function Page() {
               <TabsTrigger value="study" className="flex items-center gap-2 whitespace-nowrap">
                 <BookOpen className="h-4 w-4" />
                 {t('study')}
+              </TabsTrigger>
+              <TabsTrigger value="listen" className="flex items-center gap-2 whitespace-nowrap">
+                <Headphones className="h-4 w-4" />
+                {t('listen')}
               </TabsTrigger>
               <TabsTrigger value="review" className="flex items-center gap-2 whitespace-nowrap">
                 <RotateCcw className="h-4 w-4" />
@@ -74,6 +79,10 @@ export default function Page() {
 
           <TabsContent value="study">
             <WordList />
+          </TabsContent>
+
+          <TabsContent value="listen">
+            <ListenTab />
           </TabsContent>
 
           <TabsContent value="review">

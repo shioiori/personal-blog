@@ -19,16 +19,11 @@ import { WordFlashcardView } from "./WordFlashcardView";
 import { GroupTab } from "@/src/components/english/groups/GroupTab";
 import { usePagedList } from "@/src/components/english/shared/usePagedList";
 import { Pagination } from "@/src/components/english/shared/Pagination";
+import { filterAndSortWords, type SortField, type SortDir } from "@/src/components/english/shared/wordFilter";
 import { useEnglishStudy } from "@/src/context/english";
 import type { EnglishWord } from "@/src/declaration/english";
 
 type ViewMode = "list" | "flashcard";
-type SortField = "alphabet" | "wordType" | "frequency";
-type SortDir = "asc" | "desc";
-
-function wordTypeKey(w: EnglishWord): string {
-  return (w.senses[0]?.partOfSpeech ?? "").toLowerCase();
-}
 
 export function WordList() {
   const t = useTranslations("English");
@@ -43,31 +38,10 @@ export function WordList() {
   const [startInEditMode, setStartInEditMode] = useState(false);
   const [groupManagerOpen, setGroupManagerOpen] = useState(false);
 
-  const filtered = useMemo(() => {
-    const result = words.filter((w) => {
-      if (groupFilter === "none") {
-        if (w.groupIds.length > 0) return false;
-      } else if (groupFilter !== "all" && !w.groupIds.includes(parseInt(groupFilter, 10))) {
-        return false;
-      }
-      const q = search.trim().toLowerCase();
-      if (q && ![w.word, w.altSpelling ?? ""].some((v) => v.toLowerCase().includes(q))) return false;
-      return true;
-    });
-    const dir = sortDir === "asc" ? 1 : -1;
-    result.sort((a, b) => {
-      let cmp = 0;
-      if (sortField === "alphabet") {
-        cmp = a.word.localeCompare(b.word);
-      } else if (sortField === "wordType") {
-        cmp = wordTypeKey(a).localeCompare(wordTypeKey(b));
-      } else {
-        cmp = a.groupIds.length - b.groupIds.length;
-      }
-      return cmp * dir;
-    });
-    return result;
-  }, [words, search, groupFilter, sortField, sortDir]);
+  const filtered = useMemo(
+    () => filterAndSortWords(words, { search, group: groupFilter, sortField, sortDir }),
+    [words, search, groupFilter, sortField, sortDir]
+  );
   const { visible, page, pageCount, goTo, listRef } = usePagedList(filtered, `${search}|${groupFilter}|${sortField}|${sortDir}|${viewMode}`, 24);
 
   async function handleDelete(id: number) {
