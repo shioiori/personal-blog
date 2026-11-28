@@ -108,6 +108,14 @@
   transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
+.group-hl {
+  background-color: rgb(250 204 21 / 0.4);
+  border-radius: 2px;
+}
+.dark .group-hl {
+  background-color: rgb(250 204 21 / 0.3);
+}
+
 /* Essay editor: inline spell/grammar suggestions (spell-suggestions.ts) */
 .spell-sugg-orig {
   text-decoration: line-through;

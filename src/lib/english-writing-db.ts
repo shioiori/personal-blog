@@ -43,19 +43,17 @@ export async function setWritingActive(userId: number, wordIds: number[], active
 
 export async function getWritingDueToday(userId: number, opts: { limit?: number; order?: "due" | "random" } = {}): Promise<WritingCard[]> {
   const rows = await sql`
-    SELECT w.id, w.word,
-      COALESCE(f.due_date, CURRENT_DATE) AS due_date
+    SELECT w.id, w.word
     FROM english_words w
     LEFT JOIN english_writing_flashcard f ON f.word_id = w.id
     WHERE w.user_id = ${userId}
       AND COALESCE(f.active, TRUE) = TRUE
       AND COALESCE(f.due_date, CURRENT_DATE) <= CURRENT_DATE
       AND w.origin_word_id IS NULL
-    ORDER BY due_date ASC
+    ORDER BY CASE WHEN ${opts.order === "random"}::boolean THEN random() END, COALESCE(f.due_date, CURRENT_DATE) ASC
+    LIMIT ${opts.limit && opts.limit > 0 ? opts.limit : null}::int
   `;
-  let cards = rows.map((r) => ({ wordId: r.id as number, word: r.word as string }));
-  if (opts.order === "random") cards = cards.sort(() => Math.random() - 0.5);
-  if (opts.limit && opts.limit > 0) cards = cards.slice(0, opts.limit);
+  const cards = rows.map((r) => ({ wordId: r.id as number, word: r.word as string }));
   if (cards.length === 0) return [];
 
   const ids = cards.map((c) => c.wordId);

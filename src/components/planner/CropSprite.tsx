@@ -8,8 +8,11 @@ const SHEET_SIZE: Record<string, [number, number]> = {
   '/garden/crops-cornucopia.png': [256, 1472],
   '/garden/crops-more.png': [256, 1792],
   '/garden/trees.png': [288, 2960],
-  '/garden/waterlily.png': [128, 32],
-  '/garden/sl-plants.png': [96, 32]
+  '/garden/sl-biome.png': [144, 80],
+  '/garden/sl-plants.png': [96, 32],
+  '/garden/aq-lotus.png': [160, 32],
+  '/garden/aq-caltrop.png': [160, 32],
+  '/garden/aq-cattail.png': [160, 48]
 }
 
 /** One frame of a crop's sprite sheet, scaled to `height` px with crisp pixels. */

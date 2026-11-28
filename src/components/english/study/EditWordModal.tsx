@@ -72,50 +72,6 @@ function toSenseInput(s: EnglishSense) {
   };
 }
 
-// Keeps related-word links symmetric: when word A gains/loses B as a related
-// word, B's own relatedWords list is updated to match. Only touches the other
-// word's relatedWords field — its senses are sent back unchanged so this never
-// wipes out its own data.
-async function syncRelatedWords(
-  currentWordId: number | undefined,
-  currentWordText: string,
-  oldRelatedTexts: string[],
-  newRelatedTexts: string[],
-  allWords: EnglishWord[]
-) {
-  const was = new Set(oldRelatedTexts.map((t) => t.toLowerCase()));
-  const now = new Set(newRelatedTexts.map((t) => t.toLowerCase()));
-
-  for (const w of allWords) {
-    if (w.id === currentWordId) continue;
-    const key = w.word.trim().toLowerCase();
-    const wasLinked = was.has(key);
-    const isLinked = now.has(key);
-    if (wasLinked === isLinked) continue;
-
-    const currentList = parseRelatedWords(w.relatedWords ?? "");
-    const hasCurrent = currentList.some((x) => x.toLowerCase() === currentWordText.toLowerCase());
-    let updatedList = currentList;
-    if (isLinked && !hasCurrent) {
-      updatedList = [...currentList, currentWordText];
-    } else if (!isLinked && hasCurrent) {
-      updatedList = currentList.filter((x) => x.toLowerCase() !== currentWordText.toLowerCase());
-    } else {
-      continue;
-    }
-
-    await fetch(`/api/english/words/${w.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        word: w.word,
-        senses: w.senses.map(toSenseInput),
-        relatedWords: updatedList.join(", ") || null,
-      }),
-    });
-  }
-}
-
 type SenseDraft = Omit<EnglishSense, "id" | "sortOrder"> & { pendingImages?: PendingImage[]; imageLinkDraft?: string };
 
 const emptySense: SenseDraft = {
@@ -192,6 +148,24 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
   // save as an independent copy with the edits (see handleSave).
   const [originWordId, setOriginWordId] = useState<number | null>(null);
   const [originBaseline, setOriginBaseline] = useState<{ word: string; senses: string; relatedWords: string; altSpelling: string } | null>(null);
+  const [detail, setDetail] = useState<EnglishWord | null>(null);
+  const base = detail ?? word;
+  const detailPending = !!word?.summary && !detail;
+
+  useEffect(() => {
+    setDetail(null);
+    if (!open || !word?.summary) return;
+    let cancelled = false;
+    fetch(`/api/english/words/${word.id}`)
+      .then((res) => (res.ok ? (res.json() as Promise<EnglishWord>) : null))
+      .then((data) => {
+        if (!cancelled && data) setDetail(data);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [open, word]);
 
   useEffect(() => {
     if (!open) return;
@@ -199,15 +173,15 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
     setAutoFillError(null);
     setRelatedSuggestions(null);
     setRelatedSelected(new Set());
-    setMode(word ? (startInEditMode ? "edit" : "view") : "edit");
-    if (word) {
-      setWordText(word.word);
-      setSenses(toSenseDrafts(word.senses));
-      setCrawlData((word.crawlData as CambridgeCrawlData | undefined) ?? null);
-      setRelatedWordsText(word.relatedWords ?? "");
-      setAltSpelling(word.altSpelling ?? "");
-      setSourceUrl(word.sourceUrl ?? "");
-      setSelectedGroupIds(new Set(word.groupIds ?? []));
+    setMode(base ? (startInEditMode ? "edit" : "view") : "edit");
+    if (base) {
+      setWordText(base.word);
+      setSenses(toSenseDrafts(base.senses));
+      setCrawlData((base.crawlData as CambridgeCrawlData | undefined) ?? null);
+      setRelatedWordsText(base.relatedWords ?? "");
+      setAltSpelling(base.altSpelling ?? "");
+      setSourceUrl(base.sourceUrl ?? "");
+      setSelectedGroupIds(new Set(base.groupIds ?? []));
     } else {
       setWordText("");
       setSenses([{ ...emptySense }]);
@@ -220,7 +194,7 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
     setNewCategoryDraft("");
     setOriginWordId(null);
     setOriginBaseline(null);
-  }, [open, word, startInEditMode]);
+  }, [open, base, startInEditMode]);
 
   // The group auto-created for the word's current sourceUrl, if any — a word
   // can never have a sourceUrl without belonging to that group (also
@@ -537,7 +511,7 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
   }
 
   async function handleSave() {
-    if (!wordText.trim()) return;
+    if (!wordText.trim() || detailPending) return;
     setSaving(true);
     setSaveError(null);
     try {
@@ -578,7 +552,6 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
       };
 
       let savedId: number;
-      const oldRelatedTexts = word ? parseRelatedWords(word.relatedWords ?? "") : [];
 
       if (word) {
         await fetch(`/api/english/words/${word.id}`, {
@@ -601,7 +574,6 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
       setSenses(uploadedSenses.length > 0 ? uploadedSenses.map(({ pendingImages: _, imageLinkDraft: __, ...s }) => s) : [{ ...emptySense }]);
       setOriginWordId(null);
       setOriginBaseline(null);
-      await syncRelatedWords(savedId, wordText.trim(), oldRelatedTexts, newRelatedTexts, allWords);
 
       const oldGroupIds = new Set(word?.groupIds ?? []);
       const effectiveSelected = new Set(selectedGroupIds);
@@ -636,15 +608,15 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
 
   function handleCancelEdit() {
     senses.forEach((s) => s.pendingImages?.forEach((p) => URL.revokeObjectURL(p.previewUrl)));
-    if (word) {
+    if (base) {
       // Revert any unsaved edits and go back to the read-only view rather
       // than closing the whole dialog.
-      setWordText(word.word);
-      setSenses(toSenseDrafts(word.senses));
-      setRelatedWordsText(word.relatedWords ?? "");
-      setAltSpelling(word.altSpelling ?? "");
-      setSourceUrl(word.sourceUrl ?? "");
-      setSelectedGroupIds(new Set(word.groupIds ?? []));
+      setWordText(base.word);
+      setSenses(toSenseDrafts(base.senses));
+      setRelatedWordsText(base.relatedWords ?? "");
+      setAltSpelling(base.altSpelling ?? "");
+      setSourceUrl(base.sourceUrl ?? "");
+      setSelectedGroupIds(new Set(base.groupIds ?? []));
       setNewCategoryDraft("");
       setSaveError(null);
       setMode("view");
@@ -932,7 +904,7 @@ export function EditWordModal({ open, word, onClose, onDelete, startInEditMode, 
           <DialogFooter>
             {saveError && <p className="text-xs text-destructive self-center mr-auto">{saveError}</p>}
             <Button variant="ghost" onClick={handleCancelEdit}>{t("Common.cancel")}</Button>
-            <Button onClick={handleSave} disabled={saving || !wordText.trim()}>
+            <Button onClick={handleSave} disabled={saving || !wordText.trim() || detailPending}>
               {saving ? t("Common.saving") : t("Common.save")}
             </Button>
           </DialogFooter>

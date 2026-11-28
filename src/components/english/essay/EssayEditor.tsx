@@ -1,15 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useEditor, useEditorState, EditorContent, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
-import { Bold, Italic, Underline as UnderlineIcon, SpellCheck2, RefreshCw, Eye, EyeOff, Check, X } from "lucide-react";
+import { Bold, Italic, Underline as UnderlineIcon, SpellCheck2, Check, X, Highlighter } from "lucide-react";
 import { Button } from "@/src/components/ui/Button";
 import { cn } from "@/src/utils/ui";
-import { diffWords } from "@/src/lib/text-diff";
 import { blocksToText, textToHtml } from "@/src/lib/plain-text";
 import type { EssaySpellIssue } from "@/src/declaration/english";
+import type { EssayCategory } from "@/src/lib/essay-categories";
+import { GroupHighlight, setHighlightTerms } from "./group-highlight";
 import {
   SpellSuggestions,
   acceptSuggestions,
@@ -49,30 +50,22 @@ function countWords(text: string): number {
   return text.split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w)).length;
 }
 
-/** Same text apart from whitespace (e.g. older essays saved before sections got a blank line between them). */
-function sameIgnoringWhitespace(a: string, b: string): boolean {
-  return a.replace(/\s+/g, " ").trim() === b.replace(/\s+/g, " ").trim();
-}
-
-interface EditStepProps {
+interface EssayEditorProps {
   text: string;
-  /** Latest combined translation text (from step 2) — may have diverged from `text` if the user edited step 2 after already editing here. */
-  joinedText: string;
   onChange: (text: string) => void;
+  highlightCategories: EssayCategory[];
 }
 
-export function EditStep({ text, joinedText, onChange }: EditStepProps) {
+export function EssayEditor({ text, onChange, highlightCategories }: EssayEditorProps) {
+  const [highlightOn, setHighlightOn] = useState(false);
   const [missingIssues, setMissingIssues] = useState<EssaySpellIssue[]>([]);
   const [checkedNoIssues, setCheckedNoIssues] = useState(false);
-  const [dismissedSync, setDismissedSync] = useState(false);
   const [checking, setChecking] = useState(false);
   const [checkError, setCheckError] = useState("");
 
-  const [showDiff, setShowDiff] = useState(false);
-
   const editor = useEditor({
     immediatelyRender: false,
-    extensions: [StarterKit, Underline, SpellSuggestions],
+    extensions: [StarterKit, Underline, SpellSuggestions, GroupHighlight],
     content: textToHtml(text),
     onUpdate({ editor }) {
       onChange(editorText(editor));
@@ -104,18 +97,40 @@ export function EditStep({ text, joinedText, onChange }: EditStepProps) {
     if (editor && text !== editorText(editor)) {
       editor.commands.setContent(textToHtml(text), { emitUpdate: false });
     }
-    // only sync when text changes externally (e.g. switching essay / step)
+    // only sync when text changes externally (e.g. switching essay / draft)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor]);
 
-  // Re-surface the sync banner whenever the translation changes again, even if
-  // the user dismissed it for a previous version.
-  useEffect(() => {
-    setDismissedSync(false);
-    setShowDiff(false);
-  }, [joinedText]);
+  const highlightKey = highlightCategories.join();
+  const canHighlight = highlightCategories.length > 0;
+  const highlightActive = highlightOn && canHighlight;
 
-  const diff = useMemo(() => diffWords(text, joinedText), [text, joinedText]);
+  useEffect(() => {
+    if (!editor) return;
+    if (!highlightActive) {
+      setHighlightTerms(editor.view, []);
+      return;
+    }
+    const ctrl = new AbortController();
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch("/api/english/essay/highlight", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ categories: highlightCategories, text }),
+          signal: ctrl.signal,
+        });
+        if (!res.ok) return;
+        const { matches } = (await res.json()) as { matches: string[] };
+        setHighlightTerms(editor.view, matches);
+      } catch {}
+    }, 600);
+    return () => {
+      clearTimeout(timer);
+      ctrl.abort();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor, highlightActive, highlightKey, text]);
 
   async function handleSpellcheck() {
     if (!editor) return;
@@ -145,17 +160,6 @@ export function EditStep({ text, joinedText, onChange }: EditStepProps) {
     }
   }
 
-  const hasPendingSync = !sameIgnoringWhitespace(joinedText, text) && !dismissedSync;
-
-  function syncFromTranslation() {
-    if (!editor) return;
-    editor.commands.setContent(textToHtml(joinedText));
-    onChange(joinedText);
-    setMissingIssues([]);
-    setDismissedSync(false);
-    setShowDiff(false);
-  }
-
   if (!editor) return null;
 
   const suggestionCount = editorInfo?.suggestionIds.length ?? 0;
@@ -163,44 +167,6 @@ export function EditStep({ text, joinedText, onChange }: EditStepProps) {
 
   return (
     <div className="space-y-4">
-      {hasPendingSync && (
-        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 text-sm overflow-hidden">
-          <div className="flex items-center justify-between gap-3 px-3 py-2">
-            <span>Bản dịch ở bước 2 đã thay đổi so với bản đang chỉnh sửa ở đây.</span>
-            <div className="flex items-center gap-2 shrink-0">
-              <Button type="button" size="sm" variant="outline" onClick={() => setShowDiff((v) => !v)} className="gap-1.5">
-                {showDiff ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                {showDiff ? "Ẩn thay đổi" : "Xem thay đổi"}
-              </Button>
-              <Button type="button" size="sm" variant="outline" onClick={() => setDismissedSync(true)}>
-                Bỏ qua
-              </Button>
-              <Button type="button" size="sm" onClick={syncFromTranslation} className="gap-1.5">
-                <RefreshCw className="h-3.5 w-3.5" /> Đồng bộ lại
-              </Button>
-            </div>
-          </div>
-          {showDiff && (
-            <div className="border-t border-amber-500/40 bg-background/60 px-3 py-2 font-mono text-xs leading-relaxed whitespace-pre-wrap">
-              {diff.map((token, idx) => {
-                if (token.type === "equal") return <span key={idx}>{token.value}</span>;
-                if (token.type === "remove")
-                  return (
-                    <span key={idx} className="bg-red-500/20 text-red-700 dark:text-red-400 line-through">
-                      {token.value}
-                    </span>
-                  );
-                return (
-                  <span key={idx} className="bg-green-500/20 text-green-700 dark:text-green-400">
-                    {token.value}
-                  </span>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
-
       <div className="rounded-md border border-input overflow-hidden">
         <div className="flex flex-wrap items-center gap-0.5 p-1.5 border-b border-border bg-muted/40">
           <ToolbarBtn title="Đậm" active={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()}>
@@ -241,6 +207,19 @@ export function EditStep({ text, joinedText, onChange }: EditStepProps) {
                 </Button>
               </>
             )}
+            <span title={canHighlight ? undefined : "Chủ đề của bài chưa gắn word group nào"}>
+              <Button
+                type="button"
+                variant={highlightActive ? "default" : "outline"}
+                size="sm"
+                onClick={() => setHighlightOn((v) => !v)}
+                disabled={!canHighlight}
+                aria-pressed={highlightActive}
+                className="gap-1.5"
+              >
+                <Highlighter className="h-3.5 w-3.5" /> Highlight
+              </Button>
+            </span>
             <Button type="button" variant="outline" size="sm" onClick={handleSpellcheck} disabled={checking} className="gap-1.5">
               <SpellCheck2 className="h-3.5 w-3.5" />
               {checking ? "Đang check..." : "Check chính tả"}

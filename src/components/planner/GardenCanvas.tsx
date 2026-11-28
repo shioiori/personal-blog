@@ -411,12 +411,12 @@ function drawPlot(ctx: CanvasRenderingContext2D, plot: GardenPlot, rect: Rect, t
   const dw = stages.w * scale
   const dh = stages.h * scale
   const left = x + (w - dw) / 2
-  const top = crop.tree ? y + h + 4 - dh : y + h + 8 - dh
+  const top = crop.tree ? y + h + 4 - dh : crop.water && stages.h <= stages.w ? y + (h - dh) / 2 : y + h + 8 - dh
   const bob = crop.tree ? 0 : ready ? Math.round(Math.sin(t / 220) * 2) : crop.water ? Math.round(Math.sin(t / 600 + plot.slotIndex)) : 0
 
   ctx.save()
   ctx.imageSmoothingEnabled = false
-  if (plot.status === 'withered') ctx.filter = 'grayscale(0.9) brightness(0.8)'
+  if (plot.status === 'withered' && !stages.withered) ctx.filter = 'grayscale(0.9) brightness(0.8)'
   ctx.drawImage(img, frame[0], frame[1], stages.w, stages.h, left, top + bob, dw, dh)
   ctx.restore()
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import type { FlashcardSettings } from "./useFlashcardSettings";
 import type { EnglishWord } from "@/src/declaration/english";
@@ -8,6 +8,8 @@ import { useEnglishStudy } from "@/src/context/english";
 import { Button } from "@/src/components/ui/Button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/Select";
 import { DueForecastChart } from "./DueForecastChart";
+import { usePagedList } from "../shared/usePagedList";
+import { Pagination } from "../shared/Pagination";
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -81,7 +83,6 @@ export function FlashcardSettingsTab({
   const [groupFilter, setGroupFilter] = useState("all");
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => { void refetchWords(); }, [refetchWords]);
 
   const updateSettings = (patch: Partial<FlashcardSettings>) => setDraft((d) => ({ ...d, ...patch }));
   const isActive = (w: EnglishWord) => overrides[w.id] ?? w.flashcardActive;
@@ -92,6 +93,7 @@ export function FlashcardSettingsTab({
   const filteredWords = words.filter((w) =>
     (groupFilter === "all" || (groupFilter === "none" ? w.groupIds.length === 0 : w.groupIds.includes(Number(groupFilter)))) &&
     (!q || w.word.toLowerCase().includes(q)));
+  const { visible, page, pageCount, goTo, listRef } = usePagedList(filteredWords, `${q}|${groupFilter}`, 50);
   const allActive = filteredWords.length > 0 && filteredWords.every(isActive);
   const changed = words.filter((w) => overrides[w.id] !== undefined && overrides[w.id] !== w.flashcardActive);
   const dirty = changed.length > 0 || (Object.keys(draft) as (keyof FlashcardSettings)[]).some((k) => draft[k] !== settings[k]);
@@ -182,7 +184,7 @@ export function FlashcardSettingsTab({
             </SelectContent>
           </Select>
         </div>
-        <div className="max-h-96 overflow-y-auto rounded-lg border border-border divide-y divide-border">
+        <div ref={listRef} className="max-h-96 overflow-y-auto rounded-lg border border-border divide-y divide-border">
           {filteredWords.length === 0 ? (
             <p className="text-sm text-muted-foreground py-6 text-center">{t("Common.noWordsYet")}</p>
           ) : (
@@ -191,7 +193,7 @@ export function FlashcardSettingsTab({
                 <span className="text-sm font-medium">{t("Settings.toggleAll", { count: filteredWords.length })}</span>
                 <Switch checked={allActive} onChange={(v) => setActive(filteredWords.map((w) => w.id), v)} />
               </div>
-              {filteredWords.map((w) => (
+              {visible.map((w) => (
                 <div key={w.id} className="flex items-center justify-between gap-2 px-3 py-2">
                   <span className="text-sm truncate min-w-0">{w.word}</span>
                   <Switch checked={isActive(w)} onChange={(v) => setActive([w.id], v)} />
@@ -200,6 +202,7 @@ export function FlashcardSettingsTab({
             </>
           )}
         </div>
+        <Pagination page={page} pageCount={pageCount} onChange={goTo} />
       </div>
 
       <div className="sticky -bottom-6 -mb-6 pt-3 pb-6 bg-background border-t flex justify-end">

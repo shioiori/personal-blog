@@ -7,6 +7,7 @@ export interface CropStages {
   ripe: [number, number];
   /** Fruit trees: the grown tree without fruit, shown while it fruits again. */
   mature?: [number, number];
+  withered?: [number, number];
 }
 
 export interface CropDef {
@@ -50,9 +51,12 @@ function fruitTree(row: number): CropStages {
   };
 }
 
-// waterlily.png: one crop in the Stardew layout, drawn in the lotus palette so both pond
-// plants match the pack crops: pads, a bud, then a white flower resting on the pads.
-const WATER_LILY = stardewCrop("/garden/waterlily.png", 0, 4);
+// Pond plants from the AquaticPlants pack: one 32px-wide frame per stage in a row.
+function aquatic(name: string, h: number, ripeIdx: number, witheredIdx = 4): CropStages {
+  const growing: [number, number][] = [];
+  for (let k = 0; k < ripeIdx; k++) growing.push([k * 32, 0]);
+  return { sheet: `/garden/aq-${name}.png`, w: 32, h, growing, ripe: [ripeIdx * 32, 0], withered: [witheredIdx * 32, 0] };
+}
 
 // Sprout Lands plant sheet: one crop per row; seed bag, three growing frames, ripe, produce.
 function sproutLands(row: number): CropStages {
@@ -106,7 +110,9 @@ export const CROPS: CropDef[] = [
   { id: "cactus", nameKey: "cactus", seedPrice: 16, sellPrice: 40, growDays: 16, seedIcon: "/garden/cactus-seeds.png", stages: cornucopia(59, 5) },
   { id: "tulip", nameKey: "tulip", seedPrice: 13, sellPrice: 31, growDays: 12, seedIcon: "/garden/tulip-seeds.png", stages: cornucopia(72, 5) },
   { id: "lavender", nameKey: "lavender", seedPrice: 13, sellPrice: 31, growDays: 12, seedIcon: "/garden/lavender-seeds.png", stages: cornucopia(74, 5) },
-  { id: "waterlily", nameKey: "waterlily", seedPrice: 12, sellPrice: 30, growDays: 9, seedIcon: "/garden/waterlily-seeds.png", water: true, stages: WATER_LILY },
+  { id: "waterlily", nameKey: "lotus", seedPrice: 12, sellPrice: 30, growDays: 9, seedIcon: "/garden/lotus-seeds.png", water: true, stages: aquatic("lotus", 32, 2, 3) },
+  { id: "caltrop", nameKey: "caltrop", seedPrice: 10, sellPrice: 24, growDays: 8, seedIcon: "/garden/caltrop-seeds.png", water: true, stages: aquatic("caltrop", 32, 3) },
+  { id: "cattail", nameKey: "cattail", seedPrice: 8, sellPrice: 20, growDays: 6, seedIcon: "/garden/cattail-seeds.png", water: true, stages: aquatic("cattail", 48, 3) },
   // From the pack data: growDays is the sum of the crop's phases (capped at 24), prices
   // scale with growDays and the crop's value in its pack.
   { id: "soybean", nameKey: "soybean", seedPrice: 11, sellPrice: 26, growDays: 10, seedIcon: "/garden/soybean-seeds.png", stages: more(0, 5) },
@@ -168,7 +174,6 @@ export const CROPS: CropDef[] = [
   { id: "chrysanthemum", nameKey: "chrysanthemum", seedPrice: 11, sellPrice: 26, growDays: 9, seedIcon: "/garden/chrysanthemum-seeds.png", stages: more(56, 4) },
   { id: "iris", nameKey: "iris", seedPrice: 12, sellPrice: 29, growDays: 10, seedIcon: "/garden/iris-seeds.png", stages: more(57, 4) },
   { id: "lily", nameKey: "lily", seedPrice: 12, sellPrice: 29, growDays: 9, seedIcon: "/garden/lily-seeds.png", stages: more(58, 4) },
-  { id: "lotus", nameKey: "lotus", seedPrice: 15, sellPrice: 36, growDays: 11, seedIcon: "/garden/lotus-seeds.png", water: true, stages: more(59, 5) },
   { id: "morningglory", nameKey: "morningglory", seedPrice: 13, sellPrice: 31, growDays: 10, seedIcon: "/garden/morningglory-seeds.png", stages: more(60, 5) },
   { id: "orchid", nameKey: "orchid", seedPrice: 16, sellPrice: 38, growDays: 10, seedIcon: "/garden/orchid-seeds.png", stages: more(61, 4) },
   { id: "pansy", nameKey: "pansy", seedPrice: 9, sellPrice: 22, growDays: 6, seedIcon: "/garden/pansy-seeds.png", stages: more(62, 4) },
@@ -288,6 +293,7 @@ export function growthFrame(
   growDays: number,
   mature = false
 ): [number, number] {
+  if (status === "withered" && stages.withered) return stages.withered;
   if (status !== "growing") return stages.ripe;
   if (mature && stages.mature) return stages.mature;
   const progress = growDays > 0 ? daysElapsed / growDays : 0;

@@ -2,7 +2,7 @@
 
 import { memo, type CSSProperties, type FocusEvent, type KeyboardEvent, type RefObject, type SetStateAction } from 'react'
 import { useTranslations } from 'next-intl'
-import { Copy, Plus, X } from 'lucide-react'
+import { Copy, EyeOff, Plus, X } from 'lucide-react'
 import { PlannerCategory, PlannerStatus, PlannerTask } from '@/src/declaration/planner'
 import { colorForTask } from '@/src/components/planner/colors'
 import { SegmentText } from '@/src/components/planner/SegmentText'
@@ -58,6 +58,7 @@ export interface PillActions {
   copy: (task: PlannerTask) => void
   addSubtask: (taskId: number) => void
   remove: (taskId: number) => void
+  hide: (taskId: number) => void
   open: (taskId: number) => void
   toggle: (task: PlannerTask) => void
   assignCategory: (taskId: number, categoryId: number | null) => void
@@ -126,7 +127,7 @@ export const TaskPill = memo(function TaskPill({
           act().copy(task)
         }}
         title={t('copyTask')}
-        className="shrink-0 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground"
+        className="shrink-0 hidden group-hover:block text-muted-foreground hover:text-foreground"
       >
         <Copy className="h-3 w-3" />
       </button>
@@ -138,7 +139,7 @@ export const TaskPill = memo(function TaskPill({
             act().addSubtask(task.id)
           }}
           title={t('addSubtask')}
-          className="shrink-0 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground"
+          className="shrink-0 hidden group-hover:block text-muted-foreground hover:text-foreground"
         >
           <Plus className="h-3 w-3" />
         </button>
@@ -147,9 +148,20 @@ export const TaskPill = memo(function TaskPill({
         type="button"
         onClick={(e) => {
           e.stopPropagation()
+          act().hide(task.id)
+        }}
+        title={t('hideTask')}
+        className="shrink-0 hidden group-hover:block text-muted-foreground hover:text-foreground"
+      >
+        <EyeOff className="h-3 w-3" />
+      </button>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation()
           act().remove(task.id)
         }}
-        className="shrink-0 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive"
+        className="shrink-0 hidden group-hover:block text-muted-foreground hover:text-destructive"
       >
         <X className="h-3 w-3" />
       </button>

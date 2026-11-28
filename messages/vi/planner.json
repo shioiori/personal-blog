@@ -42,6 +42,7 @@
         "addSubtask": "Thêm đầu việc con",
         "deleteTask": "Xóa đầu việc",
         "copyTask": "Copy đầu việc",
+        "hideTask": "Ẩn đầu việc",
         "copied": "Đã copy",
         "openDay": "Mở chi tiết ngày",
         "paste": "Dán",
@@ -61,7 +62,7 @@
         "harvestedToast": "Thu hoạch thành công: +{amount} xu",
         "witheredToast": "Cây đã héo, không thu được gì",
         "cost": "Giá: {price} xu",
-        "assetCredit": "Bản đồ: Tiny Garden (kathychow) · Sprout Lands (Cup Nooble) · Cây trồng: Cornucopia, PPJA Fruits and Veggies, More Trees, Mizu's Flowers, Farmer to Florist (Nexus Mods)",
+        "assetCredit": "Bản đồ: Tiny Garden (kathychow) · Sprout Lands (Cup Nooble) · Cây trồng: Cornucopia, PPJA Fruits and Veggies, More Trees, Mizu's Flowers, Farmer to Florist (Nexus Mods) · Cây thủy sinh: AquaticPlants (Nexus Mods)",
         "witherHint": "Cây chín quá {days} ngày mà không thu hoạch sẽ bị héo và mất trắng.",
         "crop": {
             "onion": "Hành tây",
@@ -91,7 +92,6 @@
             "cactus": "Quả xương rồng",
             "tulip": "Nghệ",
             "lavender": "Cam thảo",
-            "waterlily": "Hoa súng",
             "soybean": "Đậu nành",
             "sugarcane": "Mía",
             "sesame": "Mè",
@@ -240,7 +240,9 @@
             "cinnamonstickstree": "Cây quế",
             "eucalyptusleavestree": "Cây bạch đàn",
             "grannysmithappletree": "Cây táo xanh",
-            "vanillatree": "Cây vani"
+            "vanillatree": "Cây vani",
+            "caltrop": "Củ ấu",
+            "cattail": "Cỏ nến"
         },
         "owned": "Đang có: {count}",
         "boughtToast": "Đã mua {name}",

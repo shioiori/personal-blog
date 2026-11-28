@@ -42,6 +42,7 @@
         "addSubtask": "Add subtask",
         "deleteTask": "Delete task",
         "copyTask": "Copy task",
+        "hideTask": "Hide task",
         "copied": "Copied",
         "openDay": "Open day",
         "paste": "Paste",
@@ -61,7 +62,7 @@
         "harvestedToast": "Harvested: +{amount} coins",
         "witheredToast": "The plant withered, nothing to harvest",
         "cost": "Price: {price} coins",
-        "assetCredit": "Map: Tiny Garden (kathychow) · Sprout Lands (Cup Nooble) · Crops: Cornucopia, PPJA Fruits and Veggies, More Trees, Mizu's Flowers, Farmer to Florist (Nexus Mods)",
+        "assetCredit": "Map: Tiny Garden (kathychow) · Sprout Lands (Cup Nooble) · Crops: Cornucopia, PPJA Fruits and Veggies, More Trees, Mizu's Flowers, Farmer to Florist (Nexus Mods) · Aquatic plants: AquaticPlants (Nexus Mods)",
         "witherHint": "A ripe crop left unharvested for more than {days} days will wither and give nothing.",
         "crop": {
             "onion": "Onion",
@@ -91,7 +92,6 @@
             "cactus": "Cactus fruit",
             "tulip": "Turmeric",
             "lavender": "Licorice root",
-            "waterlily": "Water lily",
             "soybean": "Soybean",
             "sugarcane": "Sugarcane",
             "sesame": "Sesame",
@@ -240,7 +240,9 @@
             "cinnamonstickstree": "Cinnamon tree",
             "eucalyptusleavestree": "Eucalyptus",
             "grannysmithappletree": "Green apple tree",
-            "vanillatree": "Vanilla"
+            "vanillatree": "Vanilla",
+            "caltrop": "Water caltrop",
+            "cattail": "Cattail"
         },
         "owned": "Owned: {count}",
         "boughtToast": "Bought {name}",
