@@ -2,7 +2,7 @@ import { sql, once } from "./db";
 import { HARVEST_INTEREST, LEGACY_FERTILIZERS, WITHER_AFTER_DAYS, effectiveGrowDays, getCrop } from "./garden-catalog";
 
 export type PlotStatus = "empty" | "growing" | "ready" | "withered";
-export type PlotKind = "soil" | "pond";
+export type PlotKind = "soil" | "pond" | "orchard";
 
 export interface GardenPlot {
   id: number;
@@ -15,19 +15,31 @@ export interface GardenPlot {
   daysElapsed: number;
   growDays: number;
   sellPrice: number;
+  /** Fruit trees: grown up (fruiting, or fruiting again after a harvest). */
+  mature: boolean;
+  /** Fruit trees: days until the next fruit; 0 when ripe or not yet grown. */
+  fruitDaysLeft: number;
 }
 
 const PLOT_SLOTS = 9;
 // Pond plots use their own slot range so they never collide with soil slots, nor with
 // rows left over from the earlier (removed) pond.
 const POND_SLOT_BASE = 100;
-const POND_SLOTS = 4;
+const POND_SLOTS = 6;
+const ORCHARD_SLOT_BASE = 200;
+const ORCHARD_SLOTS = 12;
 const ALL_SLOTS = [
   ...Array.from({ length: PLOT_SLOTS }, (_, i) => i),
-  ...Array.from({ length: POND_SLOTS }, (_, i) => POND_SLOT_BASE + i)
+  ...Array.from({ length: POND_SLOTS }, (_, i) => POND_SLOT_BASE + i),
+  ...Array.from({ length: ORCHARD_SLOTS }, (_, i) => ORCHARD_SLOT_BASE + i)
 ];
 
-const slotKind = (slot: number): PlotKind => (slot >= POND_SLOT_BASE ? "pond" : "soil");
+const slotKind = (slot: number): PlotKind =>
+  slot >= ORCHARD_SLOT_BASE ? "orchard" : slot >= POND_SLOT_BASE ? "pond" : "soil";
+
+/** The kind of plot a crop must be planted in. */
+const cropKind = (crop: { water?: boolean; tree?: unknown }): PlotKind =>
+  crop.tree ? "orchard" : crop.water ? "pond" : "soil";
 
 export const ensureGardenTables = once(async function ensureGardenTables() {
   await sql`
@@ -47,6 +59,8 @@ export const ensureGardenTables = once(async function ensureGardenTables() {
       UNIQUE (user_id, slot_index)
     )
   `;
+  // Fruit trees stay after a harvest; this is the day they were last picked.
+  await sql`ALTER TABLE garden_plots ADD COLUMN IF NOT EXISTS harvested_on DATE`;
   await sql`
     CREATE TABLE IF NOT EXISTS garden_inventory (
       user_id  INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -108,15 +122,27 @@ function todayStr(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+// The driver parses a DATE column as local midnight, so read it back with local getters;
+// toISOString() would shift it to the previous day on a server east of UTC.
+function toDateStr(value: unknown): string | null {
+  if (!value) return null;
+  if (typeof value === "string") return value.slice(0, 10);
+  const d = value as Date;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 function toPlot(row: Record<string, unknown>): GardenPlot {
   const cropId = row.crop_id as string | null;
   const fertilizerId = row.fertilizer_id as string | null;
-  const plantedOn = row.planted_on ? (row.planted_on as Date).toISOString().slice(0, 10) : null;
+  const plantedOn = toDateStr(row.planted_on);
 
   let status: PlotStatus = "empty";
   let daysElapsed = 0;
   let growDays = 0;
   let sellPrice = 0;
+  let mature = false;
+  let fruitDaysLeft = 0;
+  const harvestedOn = toDateStr(row.harvested_on);
 
   if (cropId && plantedOn) {
     const crop = getCrop(cropId);
@@ -124,7 +150,19 @@ function toPlot(row: Record<string, unknown>): GardenPlot {
       growDays = effectiveGrowDays(crop, fertilizerId);
       sellPrice = crop.sellPrice;
       daysElapsed = daysBetween(plantedOn, todayStr());
-      if (daysElapsed >= growDays + WITHER_AFTER_DAYS) {
+      if (crop.tree) {
+        // A tree fruits when it grows up, then regrowDays after each harvest. Its fruit
+        // never withers.
+        mature = daysElapsed >= growDays;
+        if (!mature) {
+          status = "growing";
+        } else if (harvestedOn) {
+          fruitDaysLeft = Math.max(0, crop.tree.regrowDays - daysBetween(harvestedOn, todayStr()));
+          status = fruitDaysLeft > 0 ? "growing" : "ready";
+        } else {
+          status = "ready";
+        }
+      } else if (daysElapsed >= growDays + WITHER_AFTER_DAYS) {
         status = "withered";
       } else if (daysElapsed >= growDays) {
         status = "ready";
@@ -144,7 +182,9 @@ function toPlot(row: Record<string, unknown>): GardenPlot {
     status,
     daysElapsed,
     growDays,
-    sellPrice
+    sellPrice,
+    mature,
+    fruitDaysLeft
   };
 }
 
@@ -153,7 +193,11 @@ export async function listPlots(userId: number): Promise<GardenPlot[]> {
   const rows = await sql`
     SELECT * FROM garden_plots
     WHERE user_id = ${userId}
-      AND (slot_index < ${PLOT_SLOTS} OR (slot_index >= ${POND_SLOT_BASE} AND slot_index < ${POND_SLOT_BASE + POND_SLOTS}))
+      AND (
+        slot_index < ${PLOT_SLOTS}
+        OR (slot_index >= ${POND_SLOT_BASE} AND slot_index < ${POND_SLOT_BASE + POND_SLOTS})
+        OR (slot_index >= ${ORCHARD_SLOT_BASE} AND slot_index < ${ORCHARD_SLOT_BASE + ORCHARD_SLOTS})
+      )
     ORDER BY slot_index ASC
   `;
   return rows.map(toPlot);
@@ -240,15 +284,14 @@ export async function plantSeed(
   const plot = plotRows[0];
   if (!plot) return { ok: false, error: "plot not found" };
   if (plot.crop_id) return { ok: false, error: "plot occupied" };
-  const isPond = slotKind(plot.slot_index as number) === "pond";
-  if (isPond !== !!crop.water) return { ok: false, error: "wrong plot kind" };
+  if (slotKind(plot.slot_index as number) !== cropKind(crop)) return { ok: false, error: "wrong plot kind" };
 
   if (!(await takeItem(userId, seedKey(cropId)))) return { ok: false, error: "no seed" };
 
   // The crop_id IS NULL guard stops two concurrent plants from both landing.
   const updated = await sql`
     UPDATE garden_plots
-    SET crop_id = ${cropId}, fertilizer_id = NULL, planted_on = ${todayStr()}
+    SET crop_id = ${cropId}, fertilizer_id = NULL, planted_on = ${todayStr()}, harvested_on = NULL
     WHERE id = ${plotId} AND user_id = ${userId} AND crop_id IS NULL
     RETURNING id
   `;
@@ -275,7 +318,31 @@ export async function harvestPlot(
   if (plot.status !== "ready") return { ok: false, error: "not ready" };
 
   const earned = Math.round(plot.sellPrice * (1 + HARVEST_INTEREST));
-  await sql`UPDATE garden_plots SET crop_id = NULL, fertilizer_id = NULL, planted_on = NULL WHERE id = ${plotId}`;
+  // Each update only lands if the plot is still as read, so a double click can't pay twice.
+  const isTree = !!getCrop(plot.cropId ?? "")?.tree;
+  const updated = isTree
+    ? await sql`
+        UPDATE garden_plots SET harvested_on = ${todayStr()}
+        WHERE id = ${plotId} AND crop_id = ${plot.cropId} AND (harvested_on IS NULL OR harvested_on < ${todayStr()}::date)
+        RETURNING id
+      `
+    : await sql`
+        UPDATE garden_plots SET crop_id = NULL, fertilizer_id = NULL, planted_on = NULL, harvested_on = NULL
+        WHERE id = ${plotId} AND crop_id = ${plot.cropId} AND planted_on IS NOT NULL
+        RETURNING id
+      `;
+  if (updated.length === 0) return { ok: false, error: "not ready" };
   const balance = await adjustBalance(userId, earned);
   return { ok: true, earned, balance };
+}
+
+/** Dig up whatever grows in a plot (the shovel): a crop, water plant or fruit tree. */
+export async function removePlant(userId: number, plotId: number): Promise<{ ok: boolean; error?: string }> {
+  const updated = await sql`
+    UPDATE garden_plots SET crop_id = NULL, fertilizer_id = NULL, planted_on = NULL, harvested_on = NULL
+    WHERE id = ${plotId} AND user_id = ${userId} AND crop_id IS NOT NULL
+    RETURNING id
+  `;
+  if (updated.length === 0) return { ok: false, error: "nothing planted" };
+  return { ok: true };
 }
