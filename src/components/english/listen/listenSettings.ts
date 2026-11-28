@@ -1,13 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type { WordFilter } from "../shared/wordFilter";
+import type { SortDir, SortField } from "../shared/wordFilter";
+import { isPiperVoice } from "./piperVoice";
 
-export type ScopeMode = "filter" | "groups" | "groupWords" | "words";
+export type ScopeMode = "groups" | "groupWords" | "words";
+const SCOPE_MODES: ScopeMode[] = ["groups", "groupWords", "words"];
 
 /** Pieces of a word that can be read, in reading order. */
 export const READ_PARTS = [
   "word",
+  "spelling",
   "partOfSpeech",
   "meaningEn",
   "meaningVi",
@@ -20,15 +23,25 @@ export type ReadPart = (typeof READ_PARTS)[number];
 
 export interface ListenSettings {
   scopeMode: ScopeMode;
-  filter: WordFilter;
+  /** Reading order (same options as the Study tab sort); ignored while shuffle is on. */
+  order: { sortField: SortField; sortDir: SortDir };
   /** Groups picked in "groups" mode. */
   groupIds: number[];
-  /** Groups picked in "groupWords" mode, and the words ticked inside them. */
+  /** "groupWords" mode: every word of these groups, plus extra words picked from anywhere. */
   gwGroupIds: number[];
-  gwWordIds: number[];
+  gwExtraWordIds: number[];
   /** Words picked in "words" mode. */
   wordIds: number[];
   parts: Record<ReadPart, boolean>;
+  /** Speak a short lead-in ("English meaning:", "Example:"…) in the site language before each part. */
+  leadIns: boolean;
+  /** Language of the lead-ins: follow the site, or always Vietnamese / English. */
+  leadLang: "site" | "vi" | "en";
+  /**
+   * Voice for Vietnamese text: "browser" (automatic pick), "browser:<voice name>"
+   * (a specific installed voice), or a Piper voice id (used once downloaded).
+   */
+  viVoice: string;
   wordRepeat: number;
   rate: number;
   partGapMs: number;
@@ -38,14 +51,15 @@ export interface ListenSettings {
 }
 
 export const DEFAULT_LISTEN_SETTINGS: ListenSettings = {
-  scopeMode: "filter",
-  filter: { search: "", group: "all", sortField: "alphabet", sortDir: "asc" },
+  scopeMode: "groups",
+  order: { sortField: "alphabet", sortDir: "asc" },
   groupIds: [],
   gwGroupIds: [],
-  gwWordIds: [],
+  gwExtraWordIds: [],
   wordIds: [],
   parts: {
     word: true,
+    spelling: false,
     partOfSpeech: false,
     meaningEn: true,
     meaningVi: true,
@@ -54,6 +68,9 @@ export const DEFAULT_LISTEN_SETTINGS: ListenSettings = {
     antonyms: false,
     note: false,
   },
+  leadIns: true,
+  leadLang: "site",
+  viVoice: "vi_VN-vais1000-medium",
   wordRepeat: 1,
   rate: 0.9,
   partGapMs: 500,
@@ -68,12 +85,28 @@ function load(): ListenSettings {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return DEFAULT_LISTEN_SETTINGS;
-    const stored = JSON.parse(raw) as Partial<ListenSettings>;
+    const stored = JSON.parse(raw) as Partial<ListenSettings> & {
+      filter?: Partial<ListenSettings["order"]>; // older versions kept the order inside a "filter" scope
+      gwWordIds?: number[]; // older "group + words" kept only words inside the groups; dropped
+    };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { filter: legacyFilter, gwWordIds: _legacyGwWords, ...rest } = stored;
     return {
       ...DEFAULT_LISTEN_SETTINGS,
-      ...stored,
-      filter: { ...DEFAULT_LISTEN_SETTINGS.filter, ...stored.filter },
+      ...rest,
+      scopeMode: SCOPE_MODES.includes(rest.scopeMode as ScopeMode) ? (rest.scopeMode as ScopeMode) : DEFAULT_LISTEN_SETTINGS.scopeMode,
+      order: {
+        ...DEFAULT_LISTEN_SETTINGS.order,
+        ...(legacyFilter?.sortField ? { sortField: legacyFilter.sortField } : {}),
+        ...(legacyFilter?.sortDir ? { sortDir: legacyFilter.sortDir } : {}),
+        ...rest.order,
+      },
       parts: { ...DEFAULT_LISTEN_SETTINGS.parts, ...stored.parts },
+      // A Piper voice that's no longer offered (dropped as incompatible) falls back to the default.
+      viVoice:
+        typeof rest.viVoice === "string" && (rest.viVoice === "browser" || rest.viVoice.startsWith("browser:") || isPiperVoice(rest.viVoice))
+          ? rest.viVoice
+          : DEFAULT_LISTEN_SETTINGS.viVoice,
     };
   } catch {
     return DEFAULT_LISTEN_SETTINGS;

@@ -49,7 +49,15 @@ export function isAbortError(e: unknown): boolean {
 // one mid-speech and then never fire its end event.
 const liveUtterances = new Set<SpeechSynthesisUtterance>();
 
-export function speak(text: string, lang: string, rate: number, signal: AbortSignal): Promise<void> {
+/** Installed voices for a language (e.g. "vi" → HoaiMy, NamMinh on Edge). */
+export function voicesFor(lang: string): SpeechSynthesisVoice[] {
+  if (!speechSupported()) return [];
+  const prefix = lang.slice(0, 2).toLowerCase();
+  return window.speechSynthesis.getVoices().filter((v) => v.lang.toLowerCase().startsWith(prefix));
+}
+
+/** @param voiceName a specific installed voice to use; falls back to the automatic pick when missing. */
+export function speak(text: string, lang: string, rate: number, signal: AbortSignal, voiceName?: string | null): Promise<void> {
   return new Promise((resolve, reject) => {
     if (signal.aborted) return reject(abortError());
     if (!speechSupported() || !text.trim()) return resolve();
@@ -58,7 +66,7 @@ export function speak(text: string, lang: string, rate: number, signal: AbortSig
     const u = new SpeechSynthesisUtterance(text);
     u.lang = lang;
     u.rate = rate;
-    const voice = pickVoice(lang);
+    const voice = (voiceName && synth.getVoices().find((v) => v.name === voiceName)) || pickVoice(lang);
     if (voice) u.voice = voice;
     liveUtterances.add(u);
 
@@ -91,10 +99,11 @@ export function speak(text: string, lang: string, rate: number, signal: AbortSig
 }
 
 /** Resolves true when the clip played to the end, false when it couldn't be played. */
-export function playAudio(url: string, signal: AbortSignal): Promise<boolean> {
+export function playAudio(url: string, signal: AbortSignal, rate = 1): Promise<boolean> {
   return new Promise((resolve, reject) => {
     if (signal.aborted) return reject(abortError());
     const audio = new Audio(url);
+    audio.playbackRate = rate;
     let settled = false;
     function settle(fn: () => void) {
       if (settled) return;
@@ -110,6 +119,25 @@ export function playAudio(url: string, signal: AbortSignal): Promise<boolean> {
     audio.onerror = () => settle(() => resolve(false));
     signal.addEventListener("abort", onAbort, { once: true });
     audio.play().catch(() => settle(() => resolve(false)));
+  });
+}
+
+/** Waits for a promise, but rejects with an AbortError as soon as the signal fires. */
+export function abortable<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
+  if (signal.aborted) return Promise.reject(abortError());
+  return new Promise<T>((resolve, reject) => {
+    const onAbort = () => reject(abortError());
+    signal.addEventListener("abort", onAbort, { once: true });
+    promise.then(
+      (v) => {
+        signal.removeEventListener("abort", onAbort);
+        resolve(v);
+      },
+      (e) => {
+        signal.removeEventListener("abort", onAbort);
+        reject(e);
+      }
+    );
   });
 }
 

@@ -27,13 +27,17 @@ export function filterAndSortWords(words: EnglishWord[], f: WordFilter): English
     if (q && ![w.word, w.altSpelling ?? ""].some((v) => v.toLowerCase().includes(q))) return false;
     return true;
   });
-  const dir = f.sortDir === "asc" ? 1 : -1;
-  result.sort((a, b) => {
+  return sortWords(result, f.sortField, f.sortDir);
+}
+
+/** Sorts in place (and returns) the list by the Study tab's sort options. */
+export function sortWords(words: EnglishWord[], field: SortField, dir: SortDir): EnglishWord[] {
+  const sign = dir === "asc" ? 1 : -1;
+  return words.sort((a, b) => {
     let cmp = 0;
-    if (f.sortField === "alphabet") cmp = a.word.localeCompare(b.word);
-    else if (f.sortField === "wordType") cmp = wordTypeKey(a).localeCompare(wordTypeKey(b));
+    if (field === "alphabet") cmp = a.word.localeCompare(b.word);
+    else if (field === "wordType") cmp = wordTypeKey(a).localeCompare(wordTypeKey(b));
     else cmp = a.groupIds.length - b.groupIds.length;
-    return cmp * dir;
+    return cmp * sign;
   });
-  return result;
 }
