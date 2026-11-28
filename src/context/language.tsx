@@ -53,7 +53,7 @@ export function LanguageProvider({
         setLocale
       }}
     >
-      <NextIntlClientProvider locale={locale} messages={messages}>
+      <NextIntlClientProvider locale={currentLocale ?? locale} messages={messages}>
         {children}
       </NextIntlClientProvider>
     </LanguageContext.Provider>
