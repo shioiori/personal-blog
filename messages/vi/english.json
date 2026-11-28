@@ -43,7 +43,7 @@
             "sortAlphabet": "Chữ cái",
             "sortWordType": "Loại từ",
             "sortFrequency": "Tần suất",
-            "seenCount": "{count} lần",
+            "seenCount": "x{count}",
             "sortAsc": "Tăng dần",
             "sortDesc": "Giảm dần"
         },
