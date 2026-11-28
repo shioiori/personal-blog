@@ -10,7 +10,7 @@ const SHEET_SIZE: Record<string, [number, number]> = {
   '/garden/trees.png': [288, 2960],
   '/garden/sl-biome.png': [144, 80],
   '/garden/sl-plants.png': [96, 32],
-  '/garden/aq-lotus.png': [160, 32],
+  '/garden/waterlily.png': [128, 32],
   '/garden/aq-caltrop.png': [80, 16],
   '/garden/aq-cattail.png': [80, 24]
 }
