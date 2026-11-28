@@ -51,11 +51,13 @@ function fruitTree(row: number): CropStages {
   };
 }
 
-// Pond plants from the AquaticPlants pack: one 32px-wide frame per stage in a row.
-function aquatic(name: string, h: number, ripeIdx: number, witheredIdx = 4): CropStages {
+// Pond plants from the AquaticPlants pack: one frame per stage in a row. The lotus keeps
+// the pack's 32px frames; caltrop and cattail are redrawn at 16px with a dark outline and
+// stronger greens, so they match the other crops at the same 3x scale.
+function aquatic(name: string, w: number, h: number, ripeIdx: number, witheredIdx = 4): CropStages {
   const growing: [number, number][] = [];
-  for (let k = 0; k < ripeIdx; k++) growing.push([k * 32, 0]);
-  return { sheet: `/garden/aq-${name}.png`, w: 32, h, growing, ripe: [ripeIdx * 32, 0], withered: [witheredIdx * 32, 0] };
+  for (let k = 0; k < ripeIdx; k++) growing.push([k * w, 0]);
+  return { sheet: `/garden/aq-${name}.png`, w, h, growing, ripe: [ripeIdx * w, 0], withered: [witheredIdx * w, 0] };
 }
 
 // Sprout Lands plant sheet: one crop per row; seed bag, three growing frames, ripe, produce.
@@ -110,9 +112,9 @@ export const CROPS: CropDef[] = [
   { id: "cactus", nameKey: "cactus", seedPrice: 16, sellPrice: 40, growDays: 16, seedIcon: "/garden/cactus-seeds.png", stages: cornucopia(59, 5) },
   { id: "tulip", nameKey: "tulip", seedPrice: 13, sellPrice: 31, growDays: 12, seedIcon: "/garden/tulip-seeds.png", stages: cornucopia(72, 5) },
   { id: "lavender", nameKey: "lavender", seedPrice: 13, sellPrice: 31, growDays: 12, seedIcon: "/garden/lavender-seeds.png", stages: cornucopia(74, 5) },
-  { id: "waterlily", nameKey: "lotus", seedPrice: 12, sellPrice: 30, growDays: 9, seedIcon: "/garden/lotus-seeds.png", water: true, stages: aquatic("lotus", 32, 2, 3) },
-  { id: "caltrop", nameKey: "caltrop", seedPrice: 10, sellPrice: 24, growDays: 8, seedIcon: "/garden/caltrop-seeds.png", water: true, stages: aquatic("caltrop", 32, 3) },
-  { id: "cattail", nameKey: "cattail", seedPrice: 8, sellPrice: 20, growDays: 6, seedIcon: "/garden/cattail-seeds.png", water: true, stages: aquatic("cattail", 48, 3) },
+  { id: "waterlily", nameKey: "lotus", seedPrice: 12, sellPrice: 30, growDays: 9, seedIcon: "/garden/lotus-seeds.png", water: true, stages: aquatic("lotus", 32, 32, 2, 3) },
+  { id: "caltrop", nameKey: "caltrop", seedPrice: 10, sellPrice: 24, growDays: 8, seedIcon: "/garden/caltrop-seeds.png", water: true, stages: aquatic("caltrop", 16, 16, 3) },
+  { id: "cattail", nameKey: "cattail", seedPrice: 8, sellPrice: 20, growDays: 6, seedIcon: "/garden/cattail-seeds.png", water: true, stages: aquatic("cattail", 16, 24, 3) },
   // From the pack data: growDays is the sum of the crop's phases (capped at 24), prices
   // scale with growDays and the crop's value in its pack.
   { id: "soybean", nameKey: "soybean", seedPrice: 11, sellPrice: 26, growDays: 10, seedIcon: "/garden/soybean-seeds.png", stages: more(0, 5) },
