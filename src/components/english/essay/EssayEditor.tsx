@@ -4,13 +4,14 @@ import { useEffect, useState } from "react";
 import { useEditor, useEditorState, EditorContent, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
-import { Bold, Italic, Underline as UnderlineIcon, SpellCheck2, Check, X, Highlighter } from "lucide-react";
+import { Bold, Italic, Underline as UnderlineIcon, SpellCheck2, Check, X, Highlighter, Mic, Square } from "lucide-react";
 import { Button } from "@/src/components/ui/Button";
 import { cn } from "@/src/utils/ui";
 import { blocksToText, textToHtml } from "@/src/lib/plain-text";
 import type { EssaySpellIssue } from "@/src/declaration/english";
 import type { EssayCategory } from "@/src/lib/essay-categories";
 import { GroupHighlight, setHighlightTerms } from "./group-highlight";
+import { useVoiceInput } from "../writing/useVoiceInput";
 import {
   SpellSuggestions,
   acceptSuggestions,
@@ -62,6 +63,7 @@ export function EssayEditor({ text, onChange, highlightCategories }: EssayEditor
   const [checkedNoIssues, setCheckedNoIssues] = useState(false);
   const [checking, setChecking] = useState(false);
   const [checkError, setCheckError] = useState("");
+  const voice = useVoiceInput();
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -160,6 +162,18 @@ export function EssayEditor({ text, onChange, highlightCategories }: EssayEditor
     }
   }
 
+  /** Insert each recognized phrase at the cursor, adding a space when it would glue onto the previous word. */
+  function startVoice() {
+    if (!editor) return;
+    voice.start((spoken) => {
+      if (editor.isDestroyed) return;
+      const { from } = editor.state.selection;
+      const before = from > 1 ? editor.state.doc.textBetween(from - 1, from, "\n", "\n") : "";
+      const needsSpace = before !== "" && !/\s/.test(before);
+      editor.chain().insertContent(`${needsSpace ? " " : ""}${spoken}`).run();
+    });
+  }
+
   if (!editor) return null;
 
   const suggestionCount = editorInfo?.suggestionIds.length ?? 0;
@@ -180,6 +194,22 @@ export function EssayEditor({ text, onChange, highlightCategories }: EssayEditor
           </ToolbarBtn>
 
           <span className="w-px bg-border mx-1" />
+
+          {voice.supported && (
+            <Button
+              type="button"
+              variant={voice.listening ? "destructive" : "outline"}
+              size="sm"
+              className="gap-1.5"
+              title="Nói tiếng Anh, chữ sẽ được chèn tại vị trí con trỏ"
+              aria-pressed={voice.listening}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={voice.listening ? voice.stop : startVoice}
+            >
+              {voice.listening ? <Square className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
+              {voice.listening ? "Dừng" : "Nói"}
+            </Button>
+          )}
 
           <div className="ml-auto flex flex-wrap items-center gap-1.5">
             {suggestionCount > 0 && (
